@@ -1,0 +1,11 @@
+{
+  "name": "project-management",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://Mihir-Fluxbyte@github.com/Mihir-Fluxbyte/project-management.git",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
+}
