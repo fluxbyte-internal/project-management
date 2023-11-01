@@ -2,17 +2,24 @@ import { useNavigate } from "react-router-dom";
 
 function Test() {
   const navigate = useNavigate();
-  const handleLogout = () =>{
+  const handleLogout = () => {
     localStorage.clear();
-    navigate('/login');
-  }
+    navigate("/login");
+  };
 
   return (
-    <div>
+    <div
+      style={{
+        display: "grid",
+        placeContent: "center",
+      }}
+    >
       <h1>Test</h1>
-      <button className="button" onClick={handleLogout} >Log out</button>
+      <button className="button" onClick={handleLogout}>
+        Log out
+      </button>
     </div>
-  )
+  );
 }
 
-export default Test
+export default Test;
