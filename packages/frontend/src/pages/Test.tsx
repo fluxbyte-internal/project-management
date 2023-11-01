@@ -8,13 +8,8 @@ function Test() {
   };
 
   return (
-    <div
-      style={{
-        display: "grid",
-        placeContent: "center",
-      }}
-    >
-      <h1>Test</h1>
+    <div className="grid place-content-center">
+      <span className="text-3xl">Test</span>
       <button className="button" onClick={handleLogout}>
         Log out
       </button>
