@@ -4,6 +4,11 @@ import "express-async-errors";
 import cors from "cors";
 import helmet from "helmet";
 import { settings } from "./config/settings.js";
+import UserRoutes from "./routers/user.routes.js";
+import AuthRoutes from "./routers/auth.routes.js";
+import OrganisationRoutes from "./routers/organisation.routes.js";
+import { authMiddleware } from "./middleware/auth.middleware.js";
+import { defualtHeaderMiddleware } from "./middleware/header.middleware.js";
 
 const app: Application = express();
 
@@ -18,7 +23,11 @@ app.use(express.json());
 
 app.set("json spaces", 2);
 
-// Add middlewares here
+app.use(defualtHeaderMiddleware);
+
+app.use("/api/auth", AuthRoutes);
+app.use("/api/user", authMiddleware, UserRoutes);
+app.use("/api/organisation", authMiddleware, OrganisationRoutes);
 
 app.get("/", async (req: Request, res: Response) => {
   return res.status(200).send({ ok: true });
