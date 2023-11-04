@@ -32,7 +32,12 @@ export const signUp = async (req: express.Request, res: express.Response) => {
         privateKey,
         { expiresIn: '2 days', algorithm: 'HS256' }
       );
-      return sendResponse(res, STATUS_CODES.CREATED, 'Sign up successfully', { user, token });
+      const refreshToken = jwt.sign(
+        { userId: user.userId, email: email, tenantId: req.tenantId ?? "root" },
+        privateKey,
+        { expiresIn: '7 days', algorithm: 'HS256' }
+      );
+      return sendResponse(res, STATUS_CODES.CREATED, 'Sign up successfully', { user, token, refreshToken });
     }
   } catch (error) {
     console.error(error);
@@ -59,7 +64,12 @@ export const login = async (req: express.Request, res: express.Response) => {
         privateKey,
         { expiresIn: '2 days', algorithm: 'HS256' }
       );
-      return sendResponse(res, STATUS_CODES.OK, 'Login successfully', { user, token });
+      const refreshToken = jwt.sign(
+        { userId: user.userId, email: email, tenantId: req.tenantId ?? "root" },
+        privateKey,
+        { expiresIn: '7 days', algorithm: 'HS256' }
+      );
+      return sendResponse(res, STATUS_CODES.OK, 'Login successfully', { user, token, refreshToken });
     }
     return sendResponse(res, STATUS_CODES.BAD_REQUEST, 'Invalid credentials');
   } catch (error) {
