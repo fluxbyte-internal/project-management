@@ -5,7 +5,7 @@ import { STATUS_CODES } from '../constants/constants.js';
 
 const privateKey = process.env.PRIVATE_KEY_FOR_JWT ?? 'Fluxbyte@7';
 
-interface MyJwtPayload extends JwtPayload {
+export interface MyJwtPayload extends JwtPayload {
   userId: string;
   tenantId: string
 };

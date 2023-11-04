@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 import { getClientByTenantId } from '../config/db.js';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js';
 import { PRISMA_ERROR_CODE } from '../constants/prismaErrorCodes.js';
+import { MyJwtPayload } from '../middleware/auth.middleware.js';
 
 
 const privateKey = process.env.PRIVATE_KEY_FOR_JWT ?? 'Fluxbyte@7';
@@ -37,7 +38,8 @@ export const signUp = async (req: express.Request, res: express.Response) => {
         privateKey,
         { expiresIn: '7 days', algorithm: 'HS256' }
       );
-      return sendResponse(res, STATUS_CODES.CREATED, 'Sign up successfully', { user, token, refreshToken });
+      res.cookie('refreshToken', refreshToken);
+      return sendResponse(res, STATUS_CODES.CREATED, 'Sign up successfully', { user, token });
     }
   } catch (error) {
     console.error(error);
@@ -69,10 +71,29 @@ export const login = async (req: express.Request, res: express.Response) => {
         privateKey,
         { expiresIn: '7 days', algorithm: 'HS256' }
       );
-      return sendResponse(res, STATUS_CODES.OK, 'Login successfully', { user, token, refreshToken });
+      res.cookie('refreshToken', refreshToken);
+      return sendResponse(res, STATUS_CODES.OK, 'Login successfully', { user, token });
     }
     return sendResponse(res, STATUS_CODES.BAD_REQUEST, 'Invalid credentials');
   } catch (error) {
     return sendResponse(res, STATUS_CODES.INTERNAL_SERVER_ERROR, 'Something went wrong')
   }
 };
+
+export const generateTokenFromRefreshToken = (req: express.Request, res: express.Response) => {
+  const refereshTokenBody = req.body.refreshToken;
+  if (!refereshTokenBody) { return sendResponse(res, STATUS_CODES.BAD_REQUEST, 'Please provide refreshToken!') }
+  const decoded = jwt.verify(refereshTokenBody, privateKey) as MyJwtPayload;
+  const newToken = jwt.sign(
+    { userId: decoded.userId, email: decoded.email, tenantId: req.tenantId ?? "root" },
+    privateKey,
+    { expiresIn: '2 days', algorithm: 'HS256' }
+  );
+  const refreshToken = jwt.sign(
+    { userId: decoded.userId, email: decoded.email, tenantId: req.tenantId ?? "root" },
+    privateKey,
+    { expiresIn: '7 days', algorithm: 'HS256' }
+  );
+  res.cookie('refreshToken', refreshToken);
+  return sendResponse(res, STATUS_CODES.CREATED, 'Sign up successfully', { newToken, refreshToken });
+}; 
