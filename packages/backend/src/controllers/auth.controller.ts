@@ -38,7 +38,7 @@ export const signUp = async (req: express.Request, res: express.Response) => {
         privateKey,
         { expiresIn: '7 days', algorithm: 'HS256' }
       );
-      res.cookie('refreshToken', refreshToken);
+      res.cookie('refreshToken', refreshToken, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
       return sendResponse(res, STATUS_CODES.CREATED, 'Sign up successfully', { user, token });
     }
   } catch (error) {
@@ -71,7 +71,7 @@ export const login = async (req: express.Request, res: express.Response) => {
         privateKey,
         { expiresIn: '7 days', algorithm: 'HS256' }
       );
-      res.cookie('refreshToken', refreshToken);
+      res.cookie('refreshToken', refreshToken, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
       return sendResponse(res, STATUS_CODES.OK, 'Login successfully', { user, token });
     }
     return sendResponse(res, STATUS_CODES.BAD_REQUEST, 'Invalid credentials');
@@ -94,6 +94,6 @@ export const getAccessToken = (req: express.Request, res: express.Response) => {
     privateKey,
     { expiresIn: '7 days', algorithm: 'HS256' }
   );
-  res.cookie('refreshToken', refreshToken);
+  res.cookie('refreshToken', refreshToken, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
   return sendResponse(res, STATUS_CODES.CREATED, 'get access token successfully', { newToken, refreshToken });
 };

@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express, { Application, Request, Response, NextFunction } from "express";
 import "express-async-errors";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
 import { settings } from "./config/settings.js";
@@ -13,7 +14,13 @@ import { defualtHeaderMiddleware } from "./middleware/header.middleware.js";
 const app: Application = express();
 
 // CORS configuration
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true,
+}));
+
+//Cookie
+app.use(cookieParser());
 
 // Helmet configuration
 app.use(helmet());
