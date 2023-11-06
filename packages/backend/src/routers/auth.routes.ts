@@ -5,6 +5,6 @@ let router = express.Router();
 
 router.post('/sign-up', AuthController.signUp);
 router.post('/login', AuthController.login);
-router.put('/generate-token', AuthController.generateTokenFromRefreshToken);
+router.get('/access-token', AuthController.getAccessToken);
 
 export default router;

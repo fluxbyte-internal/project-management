@@ -31,7 +31,7 @@ export const signUp = async (req: express.Request, res: express.Response) => {
       const token = jwt.sign(
         { userId: user.userId, email: email, tenantId: req.tenantId ?? "root" },
         privateKey,
-        { expiresIn: '2 days', algorithm: 'HS256' }
+        { expiresIn: '1 days', algorithm: 'HS256' }
       );
       const refreshToken = jwt.sign(
         { userId: user.userId, email: email, tenantId: req.tenantId ?? "root" },
@@ -64,7 +64,7 @@ export const login = async (req: express.Request, res: express.Response) => {
       const token = jwt.sign(
         { userId: user.userId, email: email, tenantId: req.tenantId ?? 'root' },
         privateKey,
-        { expiresIn: '2 days', algorithm: 'HS256' }
+        { expiresIn: '1 days', algorithm: 'HS256' }
       );
       const refreshToken = jwt.sign(
         { userId: user.userId, email: email, tenantId: req.tenantId ?? "root" },
@@ -80,14 +80,14 @@ export const login = async (req: express.Request, res: express.Response) => {
   }
 };
 
-export const generateTokenFromRefreshToken = (req: express.Request, res: express.Response) => {
-  const refereshTokenBody = req.body.refreshToken;
+export const getAccessToken = (req: express.Request, res: express.Response) => {
+  const refereshTokenBody = req.cookies?.refreshToken;
   if (!refereshTokenBody) { return sendResponse(res, STATUS_CODES.BAD_REQUEST, 'Please provide refreshToken!') }
   const decoded = jwt.verify(refereshTokenBody, privateKey) as MyJwtPayload;
   const newToken = jwt.sign(
     { userId: decoded.userId, email: decoded.email, tenantId: req.tenantId ?? "root" },
     privateKey,
-    { expiresIn: '2 days', algorithm: 'HS256' }
+    { expiresIn: '1 days', algorithm: 'HS256' }
   );
   const refreshToken = jwt.sign(
     { userId: decoded.userId, email: decoded.email, tenantId: req.tenantId ?? "root" },
@@ -95,5 +95,5 @@ export const generateTokenFromRefreshToken = (req: express.Request, res: express
     { expiresIn: '7 days', algorithm: 'HS256' }
   );
   res.cookie('refreshToken', refreshToken);
-  return sendResponse(res, STATUS_CODES.CREATED, 'Sign up successfully', { newToken, refreshToken });
-}; 
+  return sendResponse(res, STATUS_CODES.CREATED, 'get access token successfully', { newToken, refreshToken });
+};
