@@ -1,4 +1,3 @@
-import React from "react";
 import GanttChart ,{GanttChartProps} from "smart-webcomponents-react/ganttchart";
 
 function GanttView(props:GanttChartProps) {

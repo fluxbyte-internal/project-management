@@ -1,17 +1,20 @@
+import { KanbanDataSource } from "smart-webcomponents-react";
+
 export interface CustomEvent {
   detail: Detail;
 }
 
-interface Detail {
+export interface Detail {
   label?: string | undefined;
-  value?: string | undefined;
-  newColumn?:NewColumn
-  column?:NewColumn
-
+  value?: string | KanbanDataSource | undefined;
+  newColumn?: Column;
+  column?: Column;
+  task?: { 
+  data: KanbanDataSource };
+  purpose?: string;
 }
-interface NewColumn{
+export interface Column {
   label?: string | undefined;
   value?: string | undefined;
   dataField: string;
 }
-

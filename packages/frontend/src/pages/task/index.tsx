@@ -17,6 +17,11 @@ import { KanbanDataSource, KanbanUser } from "smart-webcomponents-react";
 
 function TasksView() {
   const [users, setusers,] = useState<KanbanUser[]>();
+  const dropDownOption: string[] = ["Gantt", "Kanban", "Calender", "List",];
+
+  const [viewChange, setViewChange,] = useState<string | undefined>(
+    dropDownOption[1]
+  );
   useEffect(() => {
     setusers([
       {
@@ -35,24 +40,13 @@ function TasksView() {
   const ondrag = (event: Event | undefined) => {
     event;
   };
-  const onTaskAdd = (event: Event | undefined) => {
-    const id = window.crypto.randomUUID();
-    const value = event?.target;
-    dataSource.push({ id, ...value, });
-  };
-
-  const dropDownOption: string[] = ["Kanban", "Gantt", "Calender", "List",];
-
-  const [viewChange, setViewChange,] = useState<string | undefined>(
-    dropDownOption[0]
-  );
 
   const onViewChange = (
     event: (Event | FormEvent<Element> | undefined) & CustomEvent
   ) => {
     setViewChange(event.detail.label);
   };
-
+  
   const onTaskRender = (task: HTMLElement, data: KanbanDataSource) => {
     let color = "";
     switch (data.status) {
@@ -104,25 +98,19 @@ function TasksView() {
       <div className="h-full w-full">
         {viewChange === "Kanban" && (
           <KanbanView
-            className="h-full w-full scroll"
+            className="h-full w-full "
             allowColumnEdit={true}
-            allowColumnReorder={true}
             autoColumnHeight={true}
+            // columnActions
             columns={kanbanColumn}
             dataSource={dataSource}
-            addNewButton={true}
             addNewColumn={true}
-            editable={true}
+            addNewButton={true}
             taskCustomFields={taskCustomFields}
             onDragging={(e) => ondrag(e)}
-            onTaskAdd={(e) => onTaskAdd(e)}
             columnFooter={true}
-            columnActions={true}
             columnWidth={300}
-            allowColumnRemove={true}
-            columnColors={true}
             columnColorEntireSurface={true}
-            editMode="singleClick"
             users={users}
             taskActions={true}
             taskProgress={true}
@@ -131,11 +119,16 @@ function TasksView() {
             onTaskRender={onTaskRender}
           />
         )}
-        {viewChange === "Gantt" && <GanttView dataSource={ganntDataSource} />}
-        {viewChange === "Calender" && (
-          <CalenderView
-            dataSource={calendarDatasource}
+        {viewChange === "Gantt" && (
+          <GanttView
+            dataSource={ganntDataSource}
+            columnMenu
+            shadeUntilCurrentTime={true}
+            currentTimeIndicator={true}
           />
+        )}
+        {viewChange === "Calender" && (
+          <CalenderView dataSource={calendarDatasource}  />
         )}
         {viewChange === "List" && (
           <ListView columns={TableColumnData} dataSource={dataSource} />
