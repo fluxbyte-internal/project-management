@@ -1,24 +1,22 @@
 import express from 'express';
 import { Prisma, UserStatusEnum } from "@prisma/client";
-import bcrypt from 'bcrypt';
 import { STATUS_CODES } from '../constants/constants.js';
 import { sendResponse } from '../config/helper.js';
-import jwt from 'jsonwebtoken';
 import { getClientByTenantId } from '../config/db.js';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js';
 import { PRISMA_ERROR_CODE } from '../constants/prismaErrorCodes.js';
-import { MyJwtPayload } from '../middleware/auth.middleware.js';
+import { settings } from '../config/settings.js';
+import { createJwtToken, verifyJwtToken } from '../utils/jwtHelper.js';
+import { compareEncryption, encrypt } from '../utils/encryption.js';
 
 
-const privateKey = process.env.PRIVATE_KEY_FOR_JWT ?? 'Fluxbyte@7';
-const saltRounds = 10;
 
 export const signUp = async (req: express.Request, res: express.Response) => {
   const { email, password }: Prisma.UserCreateInput = req.body;
   if (!email) return sendResponse(res, STATUS_CODES.BAD_REQUEST, 'Please provide Email!');
   if (!password) return sendResponse(res, STATUS_CODES.BAD_REQUEST, 'Please provide Password!');
   try {
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const hashedPassword = await encrypt(password);
     const prisma = await getClientByTenantId(req.tenantId);
     const user = await prisma?.user.create({
       data: {
@@ -28,17 +26,10 @@ export const signUp = async (req: express.Request, res: express.Response) => {
       }
     });
     if (user) {
-      const token = jwt.sign(
-        { userId: user.userId, email: email, tenantId: req.tenantId ?? "root" },
-        privateKey,
-        { expiresIn: '1 days', algorithm: 'HS256' }
-      );
-      const refreshToken = jwt.sign(
-        { userId: user.userId, email: email, tenantId: req.tenantId ?? "root" },
-        privateKey,
-        { expiresIn: '7 days', algorithm: 'HS256' }
-      );
-      res.cookie('refreshToken', refreshToken, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
+      const tokenPayload = { userId: user.userId, email: email, tenantId: req.tenantId ?? "root" };
+      const token = createJwtToken(tokenPayload)
+      const refreshToken = createJwtToken(tokenPayload, true)
+      res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
       return sendResponse(res, STATUS_CODES.CREATED, 'Sign up successfully', { user, token });
     }
   } catch (error) {
@@ -60,18 +51,11 @@ export const login = async (req: express.Request, res: express.Response) => {
     const user = await prisma?.user.findUnique({
       where: { email },
     });
-    if (user && await bcrypt.compare(password, user.password)) {
-      const token = jwt.sign(
-        { userId: user.userId, email: email, tenantId: req.tenantId ?? 'root' },
-        privateKey,
-        { expiresIn: '1 days', algorithm: 'HS256' }
-      );
-      const refreshToken = jwt.sign(
-        { userId: user.userId, email: email, tenantId: req.tenantId ?? "root" },
-        privateKey,
-        { expiresIn: '7 days', algorithm: 'HS256' }
-      );
-      res.cookie('refreshToken', refreshToken, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
+    if (user && await compareEncryption(password, user.password)) {
+      const tokenPayload = { userId: user.userId, email: email, tenantId: req.tenantId ?? 'root' };
+      const token = createJwtToken(tokenPayload)
+      const refreshToken = createJwtToken(tokenPayload, true)
+      res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
       return sendResponse(res, STATUS_CODES.OK, 'Login successfully', { user, token });
     }
     return sendResponse(res, STATUS_CODES.BAD_REQUEST, 'Invalid credentials');
@@ -81,19 +65,14 @@ export const login = async (req: express.Request, res: express.Response) => {
 };
 
 export const getAccessToken = (req: express.Request, res: express.Response) => {
-  const refereshTokenBody = req.cookies?.refreshToken;
-  if (!refereshTokenBody) { return sendResponse(res, STATUS_CODES.BAD_REQUEST, 'Please provide refreshToken!') }
-  const decoded = jwt.verify(refereshTokenBody, privateKey) as MyJwtPayload;
-  const newToken = jwt.sign(
-    { userId: decoded.userId, email: decoded.email, tenantId: req.tenantId ?? "root" },
-    privateKey,
-    { expiresIn: '1 days', algorithm: 'HS256' }
-  );
-  const refreshToken = jwt.sign(
-    { userId: decoded.userId, email: decoded.email, tenantId: req.tenantId ?? "root" },
-    privateKey,
-    { expiresIn: '7 days', algorithm: 'HS256' }
-  );
-  res.cookie('refreshToken', refreshToken, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
-  return sendResponse(res, STATUS_CODES.CREATED, 'get access token successfully', { newToken, refreshToken });
+  const refreshTokenCookie = req.cookies?.refreshToken;
+  if (!refreshTokenCookie) { return sendResponse(res, STATUS_CODES.UNAUTHORISED, 'Failed to authenticate') }
+
+  const decoded = verifyJwtToken(refreshTokenCookie);
+  const tokenPayload = { userId: decoded.userId, email: decoded.email, tenantId: decoded.tenantId };
+  const token = createJwtToken(tokenPayload)
+  const refreshToken = createJwtToken(tokenPayload, true)
+
+  res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
+  return sendResponse(res, STATUS_CODES.OK, 'Access token retrived successfully', { token });
 };
