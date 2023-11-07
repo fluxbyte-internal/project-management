@@ -1,9 +1,11 @@
 import express from 'express';
 import { getClientByTenantId } from '../config/db.js';
-import { BadRequestError, SuccessResponse } from '../config/apiError.js';
+import { BadRequestError, ErrorResponse, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
 import { createOrganisationSchema, organisationIdSchema } from '../schemas/organisationSchema.js';
 import { UserRoleEnum } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js';
+import { PRISMA_ERROR_CODE } from '../constants/prismaErrorCodes.js';
 
 export const getOrganisationById = async (req: express.Request, res: express.Response) => {
   const organisationId = organisationIdSchema.parse(req.params.organisationId);
@@ -29,22 +31,31 @@ export const createOrganisation = async (req: express.Request, res: express.Resp
   const { organisationName, industry, status, country, listOfNonWorkingDays } = createOrganisationSchema.parse(req.body);
   if (!req.userId) { throw new BadRequestError('userId not found!!') };
   const prisma = await getClientByTenantId(req.tenantId);
-  const organisation = await prisma.organisation.create({
-    data: {
-      organisationName: organisationName,
-      industry: industry,
-      status: status,
-      listOfNonWorkingDays: listOfNonWorkingDays,
-      country: country,
-      tenantId: req.tenantId,
-      createdBy: req.userId,
-      userOrganisation: {
-        create: {
-          userId: req.userId,
-          role: UserRoleEnum.ADMINISTRATOR
+  try {
+    const organisation = await prisma.organisation.create({
+      data: {
+        organisationName: organisationName,
+        industry: industry,
+        status: status,
+        listOfNonWorkingDays: listOfNonWorkingDays,
+        country: country,
+        tenantId: req.tenantId,
+        createdBy: req.userId,
+        userOrganisation: {
+          create: {
+            userId: req.userId,
+            role: UserRoleEnum.ADMINISTRATOR
+          }
         }
       }
+    })
+    return new SuccessResponse(StatusCodes.CREATED, organisation, 'Organisation created successfully').send(res);
+  } catch (error) {
+    console.log(error);
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === PRISMA_ERROR_CODE.CANNOT_CREATE) {
+        return new ErrorResponse(StatusCodes.BAD_REQUEST, `A new Organisation cannot be created`).send(res);
+      }
     }
-  })
-  return new SuccessResponse(StatusCodes.CREATED, organisation, 'Organisation created successfully').send(res);
+  }
 };
