@@ -30,7 +30,7 @@ export const signUp = async (req: express.Request, res: express.Response) => {
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
     return new SuccessResponse(StatusCodes.CREATED, { user, token }, 'Sign up successfully').send(res);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === PRISMA_ERROR_CODE.UNIQUE_CONSTRAINT) {
         return new ErrorResponse(StatusCodes.BAD_REQUEST, 'User with given email exists').send(res);

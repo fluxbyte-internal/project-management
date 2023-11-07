@@ -51,7 +51,7 @@ export const createOrganisation = async (req: express.Request, res: express.Resp
     })
     return new SuccessResponse(StatusCodes.CREATED, organisation, 'Organisation created successfully').send(res);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === PRISMA_ERROR_CODE.CANNOT_CREATE) {
         return new ErrorResponse(StatusCodes.BAD_REQUEST, `A new Organisation cannot be created`).send(res);
