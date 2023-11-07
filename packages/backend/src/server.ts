@@ -1,5 +1,5 @@
 import "dotenv/config";
-import express, { Application, Request, Response, NextFunction } from "express";
+import express, { Application, Request, Response } from "express";
 import "express-async-errors";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -10,6 +10,7 @@ import AuthRoutes from "./routers/auth.routes.js";
 import OrganisationRoutes from "./routers/organisation.routes.js";
 import { authMiddleware } from "./middleware/auth.middleware.js";
 import { defualtHeaderMiddleware } from "./middleware/header.middleware.js";
+import { ErrorHandlerMiddleware } from "./middleware/error.middleware.js";
 
 const app: Application = express();
 
@@ -46,15 +47,7 @@ app.use("*", (req: Request, res: Response) => {
 });
 
 // Error handling middleware
-app.use(function (
-  error: any,
-  request: Request,
-  response: Response,
-  next: NextFunction
-) {
-  console.error(error);
-  return response.status(500).send(error?.message ?? "Something went wrong");
-});
+app.use(ErrorHandlerMiddleware.handler);
 
 app.listen(settings.port, () =>
   console.log(`Server is listening on port ${settings.port}!`)
