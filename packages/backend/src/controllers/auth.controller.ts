@@ -14,9 +14,9 @@ import { PRISMA_ERROR_CODE } from '../constants/prismaErrorCodes.js';
 
 export const signUp = async (req: express.Request, res: express.Response) => {
   const { email, password } = authSignUpSchema.parse(req.body);
-  const hashedPassword = await encrypt(password);
-  const prisma = await getClientByTenantId(req.tenantId);
   try {
+    const hashedPassword = await encrypt(password);
+    const prisma = await getClientByTenantId(req.tenantId);
     const user = await prisma.user.create({
       data: {
         email: email,
