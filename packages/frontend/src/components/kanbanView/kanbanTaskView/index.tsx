@@ -1,10 +1,10 @@
 import { KanbanDataSource } from "smart-webcomponents-react";
 import profile from "../../../assets/profile.svg";
 //
-interface props {
+interface Props {
   taskData: KanbanDataSource & { picture: string | undefined };
 }
-function TaskView(props: props) {
+function TaskView(props: Props) {
   return (
     <div>
       <div className="flex justify-between">
@@ -16,7 +16,7 @@ function TaskView(props: props) {
           className="rounded-full"
         />
       </div>
-      <div>
+      <div >
         <button
           type="button"
           onClick={() => console.log(props.taskData.status, "from component")}
@@ -26,6 +26,7 @@ function TaskView(props: props) {
           New
         </button>
       </div>
+      
     </div>
   );
 }

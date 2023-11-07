@@ -1,39 +1,27 @@
 import Kanban, {
   KanbanDataSource,
-  KanbanProps
+  KanbanProps,
 } from "smart-webcomponents-react/kanban";
 import "./index.css";
-import { HTMLAttributes, useEffect, useRef, useState } from "react";
+import { HTMLAttributes, useRef, useState } from "react";
 import { CustomEvent } from "interface/customeEvent";
 import KanbanFormView from "../kanbanTaskForm";
 import TaskView from "./kanbanTaskView";
 import { createRoot } from "react-dom/client";
+import { KanbanForm } from "interface/kanbanForm";
 function KanbanView(
   props: (HTMLAttributes<Element> & KanbanProps) | undefined
 ) {
-  const [dialogRendered, setDialogRendered,] = useState<boolean>(false);
-  const [kanbanFormData, setkanbanFormData,] = useState<
-    (Event & CustomEvent) | undefined
-  >();
-  const [kanbanProps, setkanbanProps,] = useState<
-    (HTMLAttributes<Element> & KanbanProps) | undefined
-  >();
+  const [dialogRendered, setDialogRendered] = useState<boolean>(false);
+  const [kanbanFormData, setkanbanFormData] = useState<KanbanForm>();
+
   const childRef = useRef<Kanban>(null);
-
-  useEffect(() => {
-    setkanbanProps(props);
-  }, [props,]);
-
-  const open = (data: (Event & CustomEvent) | undefined) => {
-    setkanbanFormData(data);
-    setDialogRendered(true);
-  };
 
   const close = () => {
     setDialogRendered(false);
   };
 
-  const chackColumeValue = (event: (Event & CustomEvent) | undefined) => {
+  const checkColumeValue = (event: (Event & CustomEvent) | undefined) => {
     const details = event?.detail;
     if (details?.newColumn && !details.newColumn.label) {
       childRef?.current?.removeColumn(details.newColumn.dataField);
@@ -43,44 +31,50 @@ function KanbanView(
     }
   };
 
-
-  const onTaskRender = (taskElement: HTMLElement, data: KanbanDataSource) => {
+  const onTaskRender = (
+    taskElement: HTMLElement,
+    data: KanbanDataSource & { picture: string | undefined }
+  ) => {
     const root = createRoot(taskElement);
-    root.render(<TaskView taskData={data as KanbanDataSource&{picture :string|undefined}} />);
-  };
-
-  const onTaskAdd = (e: (Event & CustomEvent) | undefined) => {
-    e?.preventDefault();
+    root.render(<TaskView taskData={data} />);
   };
 
   const onOpening = (e: (Event & CustomEvent) | undefined) => {
     e?.preventDefault();
-    open(e as (Event & CustomEvent) | undefined);
+    const data: KanbanForm = {
+      purpose: e?.detail.purpose,
+      FormData: e?.detail.task?.data,
+      column: e?.detail.column,
+    };
+    setkanbanFormData(data);
+    setDialogRendered(true);
   };
 
-  const heandleTask = (data:KanbanDataSource|undefined) =>{
+  const heandleTask = (data: KanbanDataSource | undefined) => {
     childRef.current?.addTask(data);
   };
   return (
     <div className="h-full scroll">
       <Kanban
         ref={childRef}
-        {...kanbanProps}
+        {...props}
         editable
+        onColumnFooterRender={onTaskRender}
         onTaskRender={onTaskRender}
         onColumnUpdate={(e) =>
-          chackColumeValue(e as (Event & CustomEvent) | undefined)
+          checkColumeValue(e as (Event & CustomEvent) | undefined)
         }
         onColumnAdd={(e) =>
-          chackColumeValue(e as (Event & CustomEvent) | undefined)
+          checkColumeValue(e as (Event & CustomEvent) | undefined)
         }
-        onTaskAdd={(e) => {
-          onTaskAdd(e as (Event & CustomEvent) | undefined);
-        }}
         onOpening={(e) => onOpening(e as (Event & CustomEvent) | undefined)}
       />
       {dialogRendered && (
-        <KanbanFormView close={close} formData={kanbanFormData} task={(data)=>heandleTask(data)} />
+        <KanbanFormView
+          close={close}
+          formData={kanbanFormData}
+          task={(data) => heandleTask(data)}
+        />
       )}
     </div>
   );

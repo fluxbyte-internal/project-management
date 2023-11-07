@@ -1,40 +1,48 @@
-import { CustomEvent } from "interface/customeEvent";
+import { KanbanForm } from "interface/kanbanForm";
 import { LegacyRef, useEffect, useRef, useState } from "react";
 import { KanbanDataSource } from "smart-webcomponents-react";
-interface props {
-  formData: (Event & CustomEvent) | undefined;
+interface Props {
+  formData: KanbanForm | undefined;
   close: () => void;
   task: (formData: KanbanDataSource | undefined) => void;
 }
-function KanbanFormView(props: props) {
+function KanbanFormView(props: Props) {
   const modelRef: LegacyRef<HTMLDivElement> | undefined = useRef(null);
-  const [formData, setformData,] = useState<KanbanDataSource>();
+  const [formData, setformData] = useState<KanbanDataSource>();
   useEffect(() => {
     modelRef?.current?.focus();
-    
-    if (props.formData?.detail.purpose === "add") {
-      setformData({status:props?.formData?.detail.column?.dataField,});
-    } else if (props.formData?.detail.purpose === "edit")
-      setformData(props.formData?.detail.task?.data);
-  }, [props.formData?.detail.column?.dataField, props.formData?.detail.purpose, props.formData?.detail.task?.data,]);
+
+    if (props.formData?.purpose === "add") {
+      setformData({ status: props?.formData?.column?.dataField });
+    } else if (props.formData?.purpose === "edit")
+      setformData(props.formData.FormData);
+  }, [
+    props.formData?.column?.dataField,
+    props.formData?.purpose,
+    props.formData?.FormData,
+  ]);
 
   const close = () => {
     props.close();
-  };
-  const heandleTask = (event: React.FormEvent<HTMLInputElement>) => {
-
-    setformData({ ...formData,[ (event?.target as HTMLInputElement).name]: (event?.target as HTMLInputElement).value, });
   };
   const submit = () => {
     props.task(formData);
     close();
   };
+  const heandleTask = (event: React.FormEvent<HTMLInputElement>) => {
+    setformData({
+      ...formData,
+      [(event?.target as HTMLInputElement).name]: (
+        event?.target as HTMLInputElement
+      ).value,
+    });
+  };
+
   return (
     <div className="overflow-y-auto sm:p-0 pt-4 pr-4 pb-20 pl-4 bg-gray-800 bg-opacity-50 absolute top-0 w-full ">
       <div className="flex justify-center items-end text-center min-h-screen sm:block">
         <div className="bg-gray-500 transition-opacity bg-opacity-75"></div>
         <div
-         
           className="inline-block text-left bg-white rounded-lg overflow-hidden align-bottom transition-all transform
             shadow-2xl sm:my-8 sm:align-middle sm:max-w-xl sm:w-full"
         >

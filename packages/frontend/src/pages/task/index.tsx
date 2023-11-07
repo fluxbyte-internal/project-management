@@ -5,15 +5,14 @@ import {
   kanbanColumn,
   ganntDataSource,
   calendarDatasource,
-  TableColumnData,
-  taskCustomFields
+  TableColumnData
 } from "./dataSource";
 import GanttView from "../../components/ganttView";
 import Dropdown from "../../components/dropdown";
 import CalenderView from "../../components/calenderView";
 import ListView from "../../components/listView";
 import { CustomEvent } from "interface/customeEvent";
-import { KanbanDataSource, KanbanUser } from "smart-webcomponents-react";
+import { KanbanUser } from "smart-webcomponents-react";
 
 function TasksView() {
   const [users, setusers,] = useState<KanbanUser[]>();
@@ -37,42 +36,10 @@ function TasksView() {
     ]);
   }, []);
 
-  const ondrag = (event: Event | undefined) => {
-    event;
-  };
-
   const onViewChange = (
     event: (Event | FormEvent<Element> | undefined) & CustomEvent
   ) => {
     setViewChange(event.detail.label);
-  };
-  
-  const onTaskRender = (task: HTMLElement, data: KanbanDataSource) => {
-    let color = "";
-    switch (data.status) {
-    case "toDo": {
-      color = "#0B88DA";
-      break;
-    }
-    case "Vincent van Gogh": {
-      color = "#30C1E3";
-      break;
-    }
-    case "Edgar Degas": {
-      color = "#34C8BA";
-      break;
-    }
-    case "Shen Zhou": {
-      color = "#0D559D";
-      break;
-    }
-    case "Ivan Milev": {
-      color = "#39AD69";
-      break;
-    }
-    }
-    task.style.background = color;
-    task.style.color = "#000";
   };
 
   return (
@@ -106,8 +73,6 @@ function TasksView() {
             dataSource={dataSource}
             addNewColumn={true}
             addNewButton={true}
-            taskCustomFields={taskCustomFields}
-            onDragging={(e) => ondrag(e)}
             columnFooter={true}
             columnWidth={300}
             columnColorEntireSurface={true}
@@ -116,7 +81,6 @@ function TasksView() {
             taskProgress={true}
             taskComments={true}
             collapsible={true}
-            onTaskRender={onTaskRender}
           />
         )}
         {viewChange === "Gantt" && (
@@ -128,7 +92,7 @@ function TasksView() {
           />
         )}
         {viewChange === "Calender" && (
-          <CalenderView dataSource={calendarDatasource}  />
+          <CalenderView dataSource={calendarDatasource} />
         )}
         {viewChange === "List" && (
           <ListView columns={TableColumnData} dataSource={dataSource} />

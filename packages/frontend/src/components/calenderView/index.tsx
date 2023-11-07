@@ -1,25 +1,29 @@
+import { KanbanForm } from "interface/kanbanForm";
 import KanbanFormView from "../kanbanTaskForm";
 import { useState } from "react";
 import { Scheduler, SchedulerProps } from "smart-webcomponents-react/scheduler";
 function CalenderView(props: SchedulerProps) {
-  const [dialogRendered, setDialogRendered,] = useState<boolean>(false);
-  const [kanbanFormData, setkanbanFormData,] = useState<
-    (Event & CustomEvent) | undefined
-  >();
-  const open = (e: (Event & CustomEvent) | undefined) => {
-    setkanbanFormData(e);
-    setDialogRendered(true);
-  };
+  const [dialogRendered, setDialogRendered] = useState<boolean>(false);
+  const [kanbanFormData, setkanbanFormData] = useState<KanbanForm>();
+
   const onOpening = (e: (Event & CustomEvent) | undefined) => {
     e?.preventDefault();
-    open(e as (Event & CustomEvent) | undefined);
+    const data: KanbanForm = {
+      purpose: e?.detail.purpose,
+      FormData: e?.detail.task?.data,
+      column: e?.detail.column,
+    };
+    setkanbanFormData(data);
+    setDialogRendered(true);
   };
 
   const close = () => {
     setDialogRendered(false);
     setkanbanFormData(undefined);
   };
-  const task = () => {};
+  const task = () => {
+    console.log("task create");
+  };
   return (
     <div className="h-full w-full">
       <Scheduler

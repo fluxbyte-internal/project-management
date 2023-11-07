@@ -15,3 +15,8 @@
     background-repeat: no-repeat !important ; */
     /* --smart-scroll-button-size: 10px; */
 }
+.smart-kanban .smart-kanban-scroll-viewer, smart-kanban {
+  background: url("../../assets/png/background.png");
+  background-repeat: no-repeat;
+  background-size: cover;
+}
