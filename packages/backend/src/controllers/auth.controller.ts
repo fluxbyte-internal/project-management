@@ -47,7 +47,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 };
 
 export const getAccessToken = (req: express.Request, res: express.Response) => {
-  const refreshTokenCookie = authRefreshTokenSchema.parse(req.cookies?.refreshToken);
+  const refreshTokenCookie = authRefreshTokenSchema.parse(req.cookies['refresh-token']);
 
   const decoded = verifyJwtToken(refreshTokenCookie);
   const tokenPayload = { userId: decoded.userId, email: decoded.email, tenantId: decoded.tenantId };
