@@ -14,6 +14,7 @@ CREATE TABLE `User` (
 
     UNIQUE INDEX `User_email_key`(`email`),
     INDEX `User_user_id_email_idx`(`user_id`, `email`),
+    UNIQUE INDEX `User_email_password_key`(`email`, `password`),
     PRIMARY KEY (`user_id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -28,8 +29,10 @@ CREATE TABLE `Organisation` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
     `tenant_id` VARCHAR(191) NULL,
+    `created_by` VARCHAR(191) NOT NULL,
 
     INDEX `Organisation_organisation_id_tenant_id_idx`(`organisation_id`, `tenant_id`),
+    UNIQUE INDEX `Organisation_organisation_name_industry_created_by_key`(`organisation_name`, `industry`, `created_by`),
     PRIMARY KEY (`organisation_id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

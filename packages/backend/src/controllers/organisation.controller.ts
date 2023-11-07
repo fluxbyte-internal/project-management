@@ -1,53 +1,50 @@
 import express from 'express';
-import { Prisma } from "@prisma/client";
-import { sendResponse } from '../config/helper.js';
 import { getClientByTenantId } from '../config/db.js';
-import { STATUS_CODES } from '../constants/constants.js';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js';
-import { PRISMA_ERROR_CODE } from '../constants/prismaErrorCodes.js';
+import { BadRequestError, SuccessResponse } from '../config/apiError.js';
+import { StatusCodes } from 'http-status-codes';
+import { createOrganisationSchema, organisationIdSchema } from '../schemas/organisationSchema.js';
+import { UserRoleEnum } from '@prisma/client';
 
 export const getOrganisationById = async (req: express.Request, res: express.Response) => {
-  const organisationId = req.params.organisationId;
-  if (!organisationId) return sendResponse(res, STATUS_CODES.BAD_REQUEST, 'Please provide organisationId!');
-  try {
-    const prisma = await getClientByTenantId(req.tenantId);
-    const organisations = await prisma?.organisation.findUniqueOrThrow({
-      where: {
-        organisationId: organisationId
-      }
-    })
-    return sendResponse(res, STATUS_CODES.OK, 'Organisation selected', organisations);
-  } catch (error) {
-    console.log(error);
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === PRISMA_ERROR_CODE.NOT_FOUND) {
-        return sendResponse(res, STATUS_CODES.NOT_FOUND, `Organisation with id ${organisationId} not found`);
+  const organisationId = organisationIdSchema.parse(req.params.organisationId);
+  const prisma = await getClientByTenantId(req.tenantId);
+  const organisations = await prisma.organisation.findUniqueOrThrow({
+    where: {
+      organisationId: organisationId
+    },
+    include: {
+      userOrganisation: {
+        select: {
+          userOrganisationId: true, jobTitle: true, role: true, taskColour: true, user: {
+            select: { userId: true, email: true, firstName: true, lastName: true }
+          }
+        },
       }
     }
-  }
+  });
+  return new SuccessResponse(StatusCodes.OK, organisations, 'Organisation selected').send(res);
 };
 
 export const createOrganisation = async (req: express.Request, res: express.Response) => {
-  const { organisationName, industry, status, country, listOfNonWorkingDays }: Prisma.OrganisationCreateInput = req.body;
-  try {
-    const prisma = await getClientByTenantId(req.tenantId);
-    const organisations = await prisma?.organisation.create({
-      data: {
-        organisationName: organisationName,
-        industry: industry,
-        status: status,
-        listOfNonWorkingDays: listOfNonWorkingDays,
-        country: country,
-        tenantId: req.tenantId
-      }
-    });
-    return sendResponse(res, STATUS_CODES.CREATED, 'Organisation created successfully', organisations);
-  } catch (error) {
-    console.log(error);
-    if (error instanceof PrismaClientKnownRequestError) {
-      if (error.code === PRISMA_ERROR_CODE.CANNOT_CREATE) {
-        return sendResponse(res, STATUS_CODES.BAD_REQUEST, `A new Organisation cannot be created`);
+  const { organisationName, industry, status, country, listOfNonWorkingDays } = createOrganisationSchema.parse(req.body);
+  if (!req.userId) { throw new BadRequestError('userId not found!!') };
+  const prisma = await getClientByTenantId(req.tenantId);
+  const organisation = await prisma.organisation.create({
+    data: {
+      organisationName: organisationName,
+      industry: industry,
+      status: status,
+      listOfNonWorkingDays: listOfNonWorkingDays,
+      country: country,
+      tenantId: req.tenantId,
+      createdBy: req.userId,
+      userOrganisation: {
+        create: {
+          userId: req.userId,
+          role: UserRoleEnum.ADMINISTRATOR
+        }
       }
     }
-  }
+  })
+  return new SuccessResponse(StatusCodes.CREATED, organisation, 'Organisation created successfully').send(res);
 };

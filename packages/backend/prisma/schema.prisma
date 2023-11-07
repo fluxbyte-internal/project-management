@@ -34,6 +34,7 @@ model User {
   updatedAt        DateTime           @updatedAt @map("updated_at")
   userOrganisation UserOrganisation[]
 
+  @@unique([email, password])
   @@index([userId, email])
 }
 
@@ -48,8 +49,10 @@ model Organisation {
   updatedAt            DateTime           @updatedAt @map("updated_at")
   userOrganisation     UserOrganisation[]
   tenantId             String?            @map("tenant_id")
+  createdBy            String             @map("created_by")
   // tenant               Tenant             @relation(fields: [TenantId], references: [TenantId])
 
+  @@unique([organisationName, industry, createdBy])
   @@index([organisationId, tenantId])
 }
 
