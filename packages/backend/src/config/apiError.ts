@@ -111,3 +111,21 @@ export class BadRequestError extends ApiError {
     super(ReasonPhrases.BAD_REQUEST, message);
   }
 };
+
+export class InternalServerError extends ApiError {
+  constructor(message: string = ReasonPhrases.INTERNAL_SERVER_ERROR){
+    super(ReasonPhrases.INTERNAL_SERVER_ERROR, message);
+  }
+};
+
+export class UnAuthorizedError extends ApiError {
+  constructor(message: string = "You are unauthorized") {
+    super(ReasonPhrases.UNAUTHORIZED, message);
+  }
+};
+
+export class NotFoundError extends ApiError {
+  constructor(message: string = ReasonPhrases.NOT_FOUND) {
+    super(ReasonPhrases.NOT_FOUND, message);
+  }
+};
