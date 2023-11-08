@@ -1,6 +1,6 @@
 import express from 'express';
 import { getClientByTenantId } from '../config/db.js';
-import { BadRequestError, ErrorResponse, SuccessResponse } from '../config/apiError.js';
+import { BadRequestError, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
 import { createOrganisationSchema, organisationIdSchema } from '../schemas/organisationSchema.js';
 import { UserRoleEnum } from '@prisma/client';
@@ -54,7 +54,7 @@ export const createOrganisation = async (req: express.Request, res: express.Resp
     console.error(error);
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === PRISMA_ERROR_CODE.CANNOT_CREATE) {
-        return new ErrorResponse(StatusCodes.BAD_REQUEST, `A new Organisation cannot be created`).send(res);
+        throw new BadRequestError(`A new Organisation cannot be created`);
       }
     }
   }
