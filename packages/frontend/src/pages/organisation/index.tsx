@@ -13,7 +13,7 @@ function Organisation() {
         <div className="flex flex-col justify-center items-center gap-24">
           <img
             src={organisationImage}
-            alt={organisationImage}
+            alt="Organisation Image"
             className="w-96"
           />
           <div className="lg:flex justify-between gap-x-5">
@@ -25,7 +25,6 @@ function Organisation() {
               <span className="text-neutral-600 text-5xl font-bold">
                 Create One!
               </span>
-              <span className="text-neutral-500 text-6xl font-semibold"> </span>
             </div>
             <div className="flex items-center ">
               <button

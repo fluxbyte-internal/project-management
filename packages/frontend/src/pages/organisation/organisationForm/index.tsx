@@ -8,6 +8,7 @@ interface Props {
 }
 
 function OrganisationForm(props: Props) {
+  const { close } = props;
   const errorStyle = "text-red-400 mt text-sm mb-3 ml-2.5";
   const labelStyle = "block text-gray-500 text-sm font-bold mb-1";
   const inputStyle =
@@ -34,7 +35,7 @@ function OrganisationForm(props: Props) {
           <h1 className="text-2xl lg:text-3xl font-bold text-gray-500">
             Create new organisation
           </h1>
-          <button onClick={props.close}>
+          <button onClick={close}>
             <img src={closeImage} alt="close" className="w-5" />
           </button>
         </div>
