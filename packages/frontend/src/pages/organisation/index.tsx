@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import organisationImage from "../../assets/png/organisation.png";
 import backGroundImage from "../../assets/png/background2.png";
 import OrganisationForm from "./organisationForm";
@@ -13,7 +13,6 @@ function Organisation() {
         <div className="flex flex-col justify-center items-center gap-24">
           <img
             src={organisationImage}
-            alt="Organisation Image"
             className="w-96"
           />
           <div className="lg:flex justify-between gap-x-5">
