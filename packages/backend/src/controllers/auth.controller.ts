@@ -28,6 +28,8 @@ export const signUp = async (req: express.Request, res: express.Response) => {
     const token = createJwtToken(tokenPayload)
     const refreshToken = createJwtToken(tokenPayload, true)
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
+    // @ts-ignore
+    if (user.password) { delete user.password };
     return new SuccessResponse(StatusCodes.CREATED, { user, token }, 'Sign up successfully').send(res);
   } catch (error) {
     console.error(error);
@@ -50,6 +52,8 @@ export const login = async (req: express.Request, res: express.Response) => {
     const token = createJwtToken(tokenPayload)
     const refreshToken = createJwtToken(tokenPayload, true)
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
+    // @ts-ignore
+    if (user.password) { delete user.password };
     return new SuccessResponse(StatusCodes.OK, { user, token }, 'Login successfully').send(res);
   }
   throw new BadRequestError('Invalid credentials');

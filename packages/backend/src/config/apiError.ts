@@ -1,5 +1,6 @@
 import { ReasonPhrases, StatusCodes, getStatusCode } from "http-status-codes";
 import express, { Request, Response } from "express";
+import { ZodError } from "zod";
 
 type ReturnStatus = number | StatusCodes;
 
@@ -63,6 +64,20 @@ export class ErrorResponse<T> extends ApiResponse {
   }
 };
 
+export class ZodResponse<T> extends ApiResponse {
+  constructor(
+    code: StatusCodes,
+    private errors?: T,
+    errorMsg: string = "Error",
+    returnCode: ReturnStatus = code
+  ) {
+    super(code, errorMsg, returnCode);
+  }
+  send(res: Response): Response {
+    return super.prepare<ZodResponse<T>>(res, this);
+  }
+};
+
 export abstract class ApiError extends Error {
   constructor(
     public type: ReasonPhrases,
@@ -86,7 +101,13 @@ export abstract class ApiError extends Error {
           err.data
         );
       }
-    } else {
+    } else if (err instanceof ZodError) {
+      return new ZodResponse<any>(
+        StatusCodes.BAD_REQUEST,
+        err.issues,
+      ).send(res);
+    }
+    else {
       return new ErrorResponse<any>(
         StatusCodes.INTERNAL_SERVER_ERROR,
         err.data,
@@ -113,7 +134,7 @@ export class BadRequestError extends ApiError {
 };
 
 export class InternalServerError extends ApiError {
-  constructor(message: string = ReasonPhrases.INTERNAL_SERVER_ERROR){
+  constructor(message: string = ReasonPhrases.INTERNAL_SERVER_ERROR) {
     super(ReasonPhrases.INTERNAL_SERVER_ERROR, message);
   }
 };

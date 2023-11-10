@@ -9,28 +9,42 @@ import { PRISMA_ERROR_CODE } from '../constants/prismaErrorCodes.js';
 
 export const getOrganisationById = async (req: express.Request, res: express.Response) => {
   const organisationId = organisationIdSchema.parse(req.params.organisationId);
-  const prisma = await getClientByTenantId(req.tenantId);
-  const organisations = await prisma.organisation.findUniqueOrThrow({
-    where: {
-      organisationId: organisationId
-    },
-    include: {
-      userOrganisation: {
-        select: {
-          userOrganisationId: true, jobTitle: true, role: true, taskColour: true, user: {
-            select: { userId: true, email: true, firstName: true, lastName: true }
-          }
-        },
+  try {
+    const prisma = await getClientByTenantId(req.tenantId);
+    const organisations = await prisma.organisation.findUniqueOrThrow({
+      where: {
+        organisationId: organisationId
+      },
+      include: {
+        userOrganisation: {
+          select: {
+            userOrganisationId: true, jobTitle: true, role: true, taskColour: true, user: {
+              select: { userId: true, email: true, firstName: true, lastName: true }
+            }
+          },
+        }
+      }
+    });
+    return new SuccessResponse(StatusCodes.OK, organisations, 'Organisation selected').send(res);
+  } catch (error) {
+    console.log(error);
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === PRISMA_ERROR_CODE.NOT_FOUND) {
+        throw new BadRequestError(`no matches were found.`);
       }
     }
-  });
-  return new SuccessResponse(StatusCodes.OK, organisations, 'Organisation selected').send(res);
+  }
 };
 
 export const createOrganisation = async (req: express.Request, res: express.Response) => {
   const { organisationName, industry, status, country, listOfNonWorkingDays } = createOrganisationSchema.parse(req.body);
   if (!req.userId) { throw new BadRequestError('userId not found!!') };
   const prisma = await getClientByTenantId(req.tenantId);
+  
+  // CASE : One user can create only one organisation 
+  // const findOrganisation = await prisma.userOrganisation.findFirst({ where: { userId: req.userId } });
+  // if (findOrganisation) { throw new BadRequestError('Organisation is already created') };
+  
   try {
     const organisation = await prisma.organisation.create({
       data: {

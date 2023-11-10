@@ -11,6 +11,8 @@ import OrganisationRoutes from "./routers/organisation.routes.js";
 import { authMiddleware } from "./middleware/auth.middleware.js";
 import { defualtHeaderMiddleware } from "./middleware/header.middleware.js";
 import { ErrorHandlerMiddleware } from "./middleware/error.middleware.js";
+import ProjectRoutes from "./routers/project.routes.js";
+import TaskRoutes from "./routers/task.routes.js";
 
 const app: Application = express();
 
@@ -36,6 +38,8 @@ app.use(defualtHeaderMiddleware);
 app.use("/api/auth", AuthRoutes);
 app.use("/api/user", authMiddleware, UserRoutes);
 app.use("/api/organisation", authMiddleware, OrganisationRoutes);
+app.use("/api/project", authMiddleware, ProjectRoutes);
+app.use("/api/task", authMiddleware, TaskRoutes);
 
 app.get("/", async (req: Request, res: Response) => {
   return res.status(200).send({ ok: true });

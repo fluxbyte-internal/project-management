@@ -4,10 +4,8 @@ import { InternalServerError, UnAuthorizedError } from '../config/apiError.js';
 
 export const authMiddleware = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const token = req.headers["authorization"];
+  if (!token) { throw new UnAuthorizedError() };
   try {
-    if (!token) {
-      throw new UnAuthorizedError();
-    };
     const decoded = verifyJwtToken(token.replace('Bearer ', ''));
     req.userId = decoded.userId;
     req.tenantId = decoded.tenantId;

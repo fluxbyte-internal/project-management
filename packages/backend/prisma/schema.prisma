@@ -20,6 +20,28 @@ enum UserStatusEnum {
   INACTIVE
 }
 
+enum ProjectStatusEnum {
+  NOT_STARTED
+  ACTIVE
+  ON_HOLD
+  CLOSED
+}
+
+enum TaskStatusEnum {
+  NOT_STARTED
+  COMPLETED
+}
+
+enum TaskDependenciesEnum {
+  BLOCKING
+  WAITING_ON
+}
+
+enum OrganisationStatusEnum {
+  ACTIVE
+  INACTIVE
+}
+
 model User {
   userId           String             @id @default(uuid()) @map("user_id")
   email            String             @unique @map("email")
@@ -34,23 +56,26 @@ model User {
   updatedAt        DateTime           @updatedAt @map("updated_at")
   userOrganisation UserOrganisation[]
 
+  comment Comments[]
+
   @@unique([email, password])
   @@index([userId, email])
 }
 
 model Organisation {
-  organisationId       String             @id @default(uuid()) @map("organisation_id")
-  organisationName     String             @map("organisation_name")
-  industry             String             @map("industry")
-  status               String             @map("status")
-  country              String             @map("country")
-  listOfNonWorkingDays Int                @map("list_of_non_working_days")
-  createdAt            DateTime           @default(now()) @map("created_at")
-  updatedAt            DateTime           @updatedAt @map("updated_at")
+  organisationId       String                 @id @default(uuid()) @map("organisation_id")
+  organisationName     String                 @map("organisation_name")
+  industry             String                 @map("industry")
+  status               OrganisationStatusEnum @map("status")
+  country              String                 @map("country")
+  listOfNonWorkingDays Int                    @map("list_of_non_working_days")
+  createdAt            DateTime               @default(now()) @map("created_at")
+  updatedAt            DateTime               @updatedAt @map("updated_at")
   userOrganisation     UserOrganisation[]
-  tenantId             String?            @map("tenant_id")
-  createdBy            String             @map("created_by")
-  // tenant               Tenant             @relation(fields: [TenantId], references: [TenantId])
+  tenantId             String?                @map("tenant_id")
+  createdBy            String                 @map("created_by")
+
+  projects Project[]
 
   @@unique([organisationName, industry, createdBy])
   @@index([organisationId, tenantId])
@@ -81,4 +106,81 @@ model UserOrganisation {
 
   @@unique([userId, organisationId])
   @@index([userId, organisationId, role])
+}
+
+model Project {
+  projectId             String            @id @unique @default(uuid()) @map("project_id")
+  organisationId        String            @map("organisation_id")
+  projectName           String            @map("project_name")
+  projectDescription    String?           @map("project_description")
+  startDate             DateTime          @map("start_date")
+  estimatedEndDate      DateTime?         @map("estimated_end_date")
+  actualEndDate         DateTime?         @map("actual_end_date")
+  status                ProjectStatusEnum @default(NOT_STARTED) @map("status")
+  timeTrack             String?           @map("time_track")
+  budgetTrack           String?           @map("budget_track")
+  estimatedBudget       String?           @map("estimated_budget")
+  actualCost            String?           @map("actual_cost")
+  progressionPercentage String?           @map("progression_percentage")
+  createdAt             DateTime          @default(now()) @map("created_at")
+  updatedAt             DateTime          @updatedAt @map("updated_at")
+
+  tasks        Task[]
+  organisation Organisation @relation(fields: [organisationId], references: [organisationId])
+
+  @@index([projectId, organisationId])
+}
+
+model Task {
+  taskId              String               @id @default(uuid()) @map("task_id")
+  projectId           String               @map("project_id")
+  taskName            String               @map("task_name")
+  taskDescription     String?              @map("task_description")
+  startDate           DateTime             @map("start_date")
+  endDate             DateTime             @map("end_date")
+  duration            String               @map("duration")
+  completionPecentage String?              @map("completion_percentage")
+  status              TaskStatusEnum       @map("status")
+  assignee            String               @map("assignee")
+  documentAttachments String?              @map("document_attachments")
+  dependencies        TaskDependenciesEnum @map("dependecies")
+  milestoneIndicator  Boolean              @map("milestone_indicator")
+  flag                String?              @map("flag")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+
+  project  Project    @relation(fields: [projectId], references: [projectId])
+  comments Comments[]
+
+  parentTaskId String? @map("parent_task_id")
+  parent       Task?   @relation("parentTask", fields: [parentTaskId], references: [taskId])
+  subtasks     Task[]  @relation("parentTask")
+
+  @@index([taskId, projectId, assignee])
+}
+
+model History {
+  historyId         String   @id @default(uuid()) @map("history_id")
+  historyRefrenceId String   @map("history_reference_id")
+  historyType       String   @map("history_type")
+  historyData       Json     @map("history_data")
+  historyCreatedBy  String   @map("history_created_by")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@index([historyId, historyRefrenceId, historyCreatedBy])
+}
+
+model Comments {
+  commentId       String   @id @default(uuid()) @map("comment_id")
+  taskId          String   @map("task_id")
+  commentText     String   @map("comment_text")
+  commentByUserId String   @map("comment_by_user_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  task            Task     @relation(fields: [taskId], references: [taskId])
+
+  user User @relation(fields: [commentByUserId], references: [userId])
+
+  @@index([commentId, commentByUserId])
 }
