@@ -11,7 +11,7 @@ import { isAxiosError } from "axios";
 function Login() {
   const navigate = useNavigate();
   const loginMutation = useLoginMutation();
-  const errorStyle = "text-red-400 mt-2.5 ml-2.5";
+  const errorStyle = "text-sm text-red-400 mt-2.5 ml-2.5";
   const inputStyle =
     "block w-full p-2.5 mt-1 border-gray-300 rounded-md shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50";
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -73,7 +73,7 @@ function Login() {
               >
                 Email
               </label>
-              <div className="flex flex-col items-start">
+              <div>
                 <input
                   type="text"
                   name="email"
@@ -97,7 +97,7 @@ function Login() {
               >
                 Password
               </label>
-              <div className="flex flex-col items-start">
+              <div>
                 <input
                   type={`${showPassword ? "text" : "password"}`}
                   name="password"

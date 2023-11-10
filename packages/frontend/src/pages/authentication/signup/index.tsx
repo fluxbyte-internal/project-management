@@ -10,7 +10,7 @@ import { isAxiosError } from "axios";
 
 function Signup() {
   const navigate = useNavigate();
-  const errorStyle = "text-red-400 mt-2.5 ml-2.5";
+  const errorStyle = "text-sm text-red-400 mt-2.5 ml-2.5";
   const inputStyle =
     "block w-full p-2.5 mt-1 border-gray-300 rounded-md shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50";
   const [showPassword, setShowPassword] = useState(false);
@@ -93,7 +93,7 @@ function Signup() {
                 >
                   First Name
                 </label>
-                <div className="flex flex-col items-start">
+                <div>
                   <input
                     type="text"
                     name="firstName"
@@ -115,7 +115,7 @@ function Signup() {
                 >
                   Last Name
                 </label>
-                <div className="flex flex-col items-start">
+                <div>
                   <input
                     type="text"
                     name="lastName"
@@ -138,7 +138,7 @@ function Signup() {
                 >
                   Email
                 </label>
-                <div className="flex flex-col items-start">
+                <div>
                   <input
                     type="email"
                     name="email"
@@ -160,7 +160,7 @@ function Signup() {
                 >
                   Job Title
                 </label>
-                <div className="flex flex-col items-start">
+                <div>
                   <input
                     type="jobTitle"
                     name="jobTitle"
@@ -188,7 +188,7 @@ function Signup() {
                   onClick={handleShowPassword}
                   placeholder={`${showPassword ? "Hide" : "Show"}`}
                 ></label>
-                <div className="flex flex-col items-start">
+                <div>
                   <input
                     type={`${showPassword ? "text" : "password"}`}
                     name="password"
@@ -217,7 +217,7 @@ function Signup() {
                 >
                   Confirm Password
                 </label>
-                <div className="flex flex-col items-start">
+                <div>
                   <input
                     type={`${showConfirmationPassword ? "text" : "password"}`}
                     name="confirmPassword"
@@ -250,7 +250,7 @@ function Signup() {
                 >
                   Select Country
                 </label>
-                <div className="flex flex-col items-start">
+                <div>
                   <select
                     name="country"
                     className={inputStyle}
@@ -276,7 +276,7 @@ function Signup() {
                 >
                   Select Time Zone
                 </label>
-                <div className="flex flex-col items-start">
+                <div>
                   <select
                     name="timeZone"
                     className={inputStyle}

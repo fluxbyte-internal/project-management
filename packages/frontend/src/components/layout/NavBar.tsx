@@ -7,10 +7,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { LogOut } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const navbarData = [
   {
@@ -42,6 +42,12 @@ const navbarData = [
 ];
 
 function NavBar() {
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
   return (
     <div className="w-full h-14 bg-primary-50 shadow-side z-10  fixed border-b-2 border-primary-200 flex items-center flex-col ">
       <div className="flex items-center w-full h-full justify-between px-3 md:px-28">
@@ -68,7 +74,7 @@ function NavBar() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-40">
                       {item.dropDown.map(
-                        ({ contentName, contentLink, }, contentIndex) => (
+                        ({ contentName, contentLink }, contentIndex) => (
                           <DropdownMenuItem key={contentIndex}>
                             <div className="flex justify-between items-center">
                               <div className="flex break-all">
@@ -118,7 +124,6 @@ function NavBar() {
                         } ${item.id === 1 && "md:hidden"}`}
                       >
                         {item.dropDown ? (
-
                           <div className="flex items-center gap-2">
                             <div className="text-sm font-medium text-primary-900 relative cursor-pointer">
                               {item.name}
@@ -173,9 +178,9 @@ function NavBar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
+                <button className="button">Log out</button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
