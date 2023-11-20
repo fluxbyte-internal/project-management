@@ -9,8 +9,8 @@ export type SideBarProps = {
   isSidebarExpanded: boolean;
 };
 
-function SideBar({ toggleSidebar, isSidebarExpanded, }: SideBarProps) {
-  const [isSelected, setIsSelected,] = useState(1);
+function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
+  const [isSelected, setIsSelected] = useState(1);
 
   const handleClick = (id: number) => {
     setIsSelected(id);

@@ -25,7 +25,7 @@ function Login() {
       password: "",
     },
     validationSchema: toFormikValidationSchema(authLoginSchema),
-    onSubmit: async (values, helper) => {
+    onSubmit: (values, helper) => {
       loginMutation.mutate(values, {
         onSuccess(data) {
           if (data.data.data.token) {

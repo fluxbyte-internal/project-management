@@ -3,12 +3,13 @@ import organisationImage from "../../assets/png/organisation.png";
 import backGroundImage from "../../assets/png/background2.png";
 import OrganisationForm from "./organisationForm";
 function Organisation() {
-  const [organisationForm, setOrganisationForm,] = useState<boolean>(false);
+  const [organisationForm, setOrganisationForm] = useState<boolean>(false);
   return (
     <>
       <div
         className={`w-full h-full flex justify-center items-center bg-[url(/src/assets/png/background2.png)] bg-cover bg-no-repeat`}
         style={{ backgroundImage: backGroundImage, }}
+
       >
         <div className="flex flex-col justify-center items-center gap-24">
           <img
