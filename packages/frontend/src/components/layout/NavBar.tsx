@@ -7,7 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -68,7 +68,7 @@ function NavBar() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-40">
                       {item.dropDown.map(
-                        ({ contentName, contentLink, }, contentIndex) => (
+                        ({ contentName, contentLink }, contentIndex) => (
                           <DropdownMenuItem key={contentIndex}>
                             <div className="flex justify-between items-center">
                               <div className="flex break-all">
