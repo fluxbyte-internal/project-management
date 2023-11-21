@@ -40,7 +40,7 @@ function Signup() {
       jobTitle: "",
     },
     validationSchema: toFormikValidationSchema(authSignUpSchema),
-    onSubmit: async (values, helper) => {
+    onSubmit: (values, helper) => {
       signupMutation.mutate(values, {
         onSuccess(data) {
           if (data.data.data.token) {
