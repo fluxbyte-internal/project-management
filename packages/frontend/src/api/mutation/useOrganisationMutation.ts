@@ -1,20 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 import { requestURLs } from "../../Environment";
-import axios, { AxiosError, AxiosResponse } from "axios";
-import { createOrganisationSchema } from "backend/src/schemas/organisationSchema";
+import axios from "axios";
+import type { createOrganisationSchema } from "backend/src/schemas/organisationSchema";
 import { z } from "zod";
-
-export type ResponseType<T> = {
-  code: number;
-  message: string;
-  data: T;
-};
-
-export type ErrorResponseType = {
-  code: number;
-  message: string;
-  errors: unknown;
-};
+import { AxiosResponseAndError, ResponseType } from "./useLoginMutation";
 
 type OrganisationApiResponse = ResponseType<{
   organisationId: string;
@@ -28,11 +17,6 @@ type OrganisationApiResponse = ResponseType<{
   tenantId: string;
   createdBy: string;
 }>;
-
-export type AxiosResponseAndError<T> = {
-  response: AxiosResponse<T>;
-  error: AxiosError<ErrorResponseType>;
-};
 
 function useOrganisationMutation() {
   const mutation = useMutation<

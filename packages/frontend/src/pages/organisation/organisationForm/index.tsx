@@ -5,29 +5,21 @@ import { createOrganisationSchema } from "../../../../../backend/src/schemas/org
 import useOrganisationMutation from "@/api/mutation/useOrganisationMutation";
 import { isAxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
-
+import { z } from "zod";
 interface Props {
   close: () => void;
 }
 
 function OrganisationForm(props: Props) {
   const { close } = props;
-  const errorStyle = "text-red-400 mt text-sm mb-3 ml-2.5";
+  const errorStyle = "text-red-400 text-sm mb-3 ml-2.5";
   const labelStyle = "block text-gray-500 text-sm font-bold mb-1";
   const inputStyle =
     "block w-full p-2.5 border-gray-300 text-gray-500 text-sm rounded-md shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50  placeholder:text-gray-400";
   const navigate = useNavigate();
   const organisationMutation = useOrganisationMutation();
 
-  type FormValues = {
-    organisationName: string;
-    industry: string;
-    status: string;
-    listOfNonWorkingDays: number;
-    country: string;
-  };
-
-  const formik = useFormik<FormValues>({
+  const formik = useFormik<z.infer<typeof createOrganisationSchema>>({
     initialValues: {
       organisationName: "",
       industry: "",
