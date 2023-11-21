@@ -89,41 +89,15 @@ export const deleteProject = async (req: express.Request, res: express.Response)
 export const updateProject = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) { throw new BadRequestError('organisationId not found!') };
   const projectId = projectIdSchema.parse(req.params.projectId);
-  const {
-    projectName,
-    projectDescription,
-    startDate,
-    estimatedEndDate,
-    estimatedBudget,
-    defaultView,
-    progressionPercentage,
-    actualCost,
-    budgetTrack,
-    timeTrack,
-    actualEndDate
-  } = updateProjectSchema.parse(req.body);
+  const prisma = await getClientByTenantId(req.tenantId);
+  const findProject = await prisma.project.findFirstOrThrow({ where: { projectId: projectId } });
+  let updateObj = { ...findProject, ...updateProjectSchema.parse(req.body) };
   try {
-    const prisma = await getClientByTenantId(req.tenantId);
-    const findProject = await prisma.project.findFirstOrThrow({ where: { projectId: projectId } });
-    if (findProject) {
-      const projectUpdate = await prisma.project.update({
-        where: { projectId: projectId },
-        data: {
-          projectName: projectName ?? findProject.projectName,
-          projectDescription: projectDescription ?? findProject.projectDescription,
-          startDate: startDate ?? findProject.startDate,
-          estimatedEndDate: estimatedEndDate ?? findProject.estimatedEndDate,
-          actualEndDate: actualEndDate ?? findProject.actualEndDate,
-          defaultView: defaultView ?? findProject.defaultView,
-          timeTrack: timeTrack ?? findProject.timeTrack,
-          budgetTrack: budgetTrack ?? findProject.budgetTrack,
-          estimatedBudget: estimatedBudget ?? findProject.estimatedBudget,
-          actualCost: actualCost ?? findProject.actualCost,
-          progressionPercentage: progressionPercentage ?? findProject.progressionPercentage
-        },
-      });
-      return new SuccessResponse(StatusCodes.OK, projectUpdate, 'project updated successfully').send(res);
-    }
+    const projectUpdate = await prisma.project.update({
+      where: { projectId: projectId },
+      data: { ...updateObj },
+    });
+    return new SuccessResponse(StatusCodes.OK, projectUpdate, 'project updated successfully').send(res);
   } catch (error) {
     console.log(error);
     if (error instanceof PrismaClientValidationError || PrismaClientKnownRequestError) {
