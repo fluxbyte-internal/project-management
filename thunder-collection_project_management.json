@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "project_management",
-    "dateExported": "2023-11-04T06:27:30.865Z",
+    "dateExported": "2023-11-21T10:50:04.504Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -14,12 +14,12 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2023-11-04T05:57:48.297Z",
-            "modified": "2023-11-04T06:24:14.876Z",
+            "modified": "2023-11-10T09:52:43.671Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n    \"organisationName\": \"New Organisation\",\n    \"industry\": \"Guidence\",\n    \"status\": \"active\",\n    \"listOfNonWorkingDays\": 5,\n    \"country\": \"India\"\n}",
+                "raw": "{\n  \"organisationName\":\"Admin ORG\",\n    \"industry\": \"IT Software Development\",\n    \"status\": \"ACTIVE\",\n    \"listOfNonWorkingDays\": 5,\n    \"country\": \"India\"\n}",
                 "form": []
             },
             "auth": {
@@ -33,11 +33,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Organisation - get",
-            "url": "{{ip_url}}/api/organisation/c8b4c998-4b08-4060-ad96-e86eaaded588",
+            "url": "{{ip_url}}/api/organisation/4b7924ed-aa88-4c82-943c-767c827fe96c",
             "method": "GET",
             "sortNum": 20000,
             "created": "2023-11-04T06:05:19.672Z",
-            "modified": "2023-11-04T06:24:27.836Z",
+            "modified": "2023-11-20T04:11:05.888Z",
             "headers": [],
             "params": [],
             "auth": {
@@ -73,12 +73,12 @@
             "method": "POST",
             "sortNum": 40000,
             "created": "2023-11-04T06:05:59.969Z",
-            "modified": "2023-11-04T06:21:18.121Z",
+            "modified": "2023-11-20T11:45:36.605Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n    \"email\":\"bhavesh.fluxbyte@gmail.com\",\n    \"password\":\"bhavesh\"\n}",
+                "raw": "{\n    \"email\":\"yashmadlani710@gmail.com\",\n    \"password\":\"yash711\"\n}",
                 "form": []
             },
             "auth": {
@@ -96,17 +96,306 @@
             "method": "POST",
             "sortNum": 50000,
             "created": "2023-11-04T06:06:15.625Z",
-            "modified": "2023-11-04T06:21:43.715Z",
+            "modified": "2023-11-20T11:44:24.568Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n    \"email\":\"flux.fluxbyte@gmail.com\",\n    \"password\":\"flux\"\n}",
+                "raw": "{\n    \"email\":\"yashmadlani710@gmail.com\",\n    \"password\":\"yash711\",\n    \"confirmPassword\":\"yash711\"\n}",
                 "form": []
             },
             "auth": {
                 "type": "bearer",
                 "bearer": "{{access_token}}"
+            },
+            "tests": []
+        },
+        {
+            "_id": "149b8094-d596-40bf-825e-4ec2a8b938df",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Auth - access token",
+            "url": "{{ip_url}}/api/auth/access-token",
+            "method": "GET",
+            "sortNum": 80000,
+            "created": "2023-11-04T08:47:08.455Z",
+            "modified": "2023-11-06T05:48:58.481Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "0d3e94ca-aa6c-4c8a-b441-9d5d17175096",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Projects - get All",
+            "url": "{{ip_url}}/api/project",
+            "method": "GET",
+            "sortNum": 100000,
+            "created": "2023-11-08T13:19:30.767Z",
+            "modified": "2023-11-10T09:54:43.570Z",
+            "headers": [
+                {
+                    "name": "organisation-id",
+                    "value": "{{organisation_id}}"
+                }
+            ],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "8a12a904-e118-4763-b9cd-c315c478d55b",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Project - create",
+            "url": "{{ip_url}}/api/project",
+            "method": "POST",
+            "sortNum": 110000,
+            "created": "2023-11-09T05:52:54.555Z",
+            "modified": "2023-11-20T12:08:09.156Z",
+            "headers": [
+                {
+                    "name": "organisation-id",
+                    "value": "{{organisation_id}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"projectName\": \"777\",\n  \"projectDescription\": \"HRMS description\",\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedEndDate\": \"2023-11-22T00:00:00.000Z\",\n  \"estimatedBudget\": \"50000\",\n  \"actualEndDate\": \"2023-11-21T00:00:00.000Z\",\n  \"actualCost\": \"48000\",\n  \"budgetTrack\": \"1\",\n  \"timeTrack\": \"0\",\n  \"defaultView\":\"KANBAN\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "6ac6142b-74bb-49ff-acda-fd30d02edaf8",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Project - delete",
+            "url": "{{ip_url}}/api/project/90d309eb-6918-47ed-836f-bab93ec788d9",
+            "method": "DELETE",
+            "sortNum": 120000,
+            "created": "2023-11-09T09:06:50.391Z",
+            "modified": "2023-11-20T11:47:55.313Z",
+            "headers": [
+                {
+                    "name": "organisation-id",
+                    "value": "{{organisation_id}}"
+                }
+            ],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "08c98319-84b9-46e8-abf2-46ff94994308",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Project - get By Id",
+            "url": "{{ip_url}}/api/project/5daef29f-2add-49dc-a5ef-a46539e3fd54",
+            "method": "GET",
+            "sortNum": 130000,
+            "created": "2023-11-09T11:26:07.278Z",
+            "modified": "2023-11-20T10:21:12.998Z",
+            "headers": [
+                {
+                    "name": "organisation-id",
+                    "value": "{{organisation_id}}"
+                }
+            ],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "89ceca60-032e-44b6-aae3-d204c87deef6",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Tasks - get All",
+            "url": "{{ip_url}}/api/task/67083a32-be83-4269-aa17-9b6ff7147bd5",
+            "method": "GET",
+            "sortNum": 140000,
+            "created": "2023-11-09T11:37:29.783Z",
+            "modified": "2023-11-21T06:42:34.665Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "f9c817fe-d9a2-447c-a0b2-8ff959f8df31",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - get By Id",
+            "url": "{{ip_url}}/api/task/byId/7ff229ef-73b5-4b5a-a198-507386d8f297",
+            "method": "GET",
+            "sortNum": 150000,
+            "created": "2023-11-09T11:39:48.196Z",
+            "modified": "2023-11-21T06:46:39.573Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "786256ca-43a8-4a9b-aa0a-06873a390fbe",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - delete",
+            "url": "{{ip_url}}/api/task/7779c323-362b-4d4c-aba0-23887dc3cb7c",
+            "method": "DELETE",
+            "sortNum": 160000,
+            "created": "2023-11-09T11:40:16.597Z",
+            "modified": "2023-11-21T07:05:06.521Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "36f738f8-1bf2-4942-8c02-2d54b2ae130f",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - create",
+            "url": "{{ip_url}}/api/task/67083a32-be83-4269-aa17-9b6ff7147bd5/fda59615-a168-4ddc-85af-413d082fccf8",
+            "method": "POST",
+            "sortNum": 170000,
+            "created": "2023-11-09T11:40:37.643Z",
+            "modified": "2023-11-21T10:38:52.066Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"taskName\": \"SUB NATURAK 4\",\n  \"taskDescription\": \"SSS\",\n  \"duration\": 10,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"endDate\": \"2024-01-28T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\",\n  \"documentAttachments\": [\n    {\n      \"name\": \"test\",\n      \"url\": \"www.google.com\"\n    },\n    {\n      \"name\": \"test22\",\n      \"url\": \"www.google.com\"\n    }\n  ],\n  \"assignee\": \"902ce2a5-18d0-498d-b34c-c716bd0ba15b\",\n  \"status\": \"NOT_STARTED\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "7fb952aa-3f74-4022-8781-821356bb6056",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Project - Status change",
+            "url": "{{ip_url}}/api/project/status/ebc838da-8301-413c-ad01-66637e438b62",
+            "method": "PUT",
+            "sortNum": 180000,
+            "created": "2023-11-20T05:04:36.167Z",
+            "modified": "2023-11-20T11:59:37.760Z",
+            "headers": [
+                {
+                    "name": "organisation-id",
+                    "value": "{{organisation_id}}"
+                }
+            ],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "075c17bc-7a4a-4080-85f8-2efd45f59d61",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Comment - add ",
+            "url": "{{ip_url}}/api/task/comment/7ff229ef-73b5-4b5a-a198-507386d8f297",
+            "method": "POST",
+            "sortNum": 190000,
+            "created": "2023-11-20T06:27:48.233Z",
+            "modified": "2023-11-21T10:21:58.548Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"commentText\": \"I have started working on this task\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "7772ca18-bfa4-43a1-91e6-35fbb83fa87e",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Comment - update",
+            "url": "{{ip_url}}/api/task/comment/b91510be-66e8-4fe6-80e6-980f0306a9a6",
+            "method": "PUT",
+            "sortNum": 200000,
+            "created": "2023-11-20T06:31:59.094Z",
+            "modified": "2023-11-21T10:28:59.628Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"commentText\": \"updated stop\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "c86b1893-523b-4989-a1c5-2691f6215173",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Comment - delete",
+            "url": "{{ip_url}}/api/task/comment/b91510be-66e8-4fe6-80e6-980f0306a9a6",
+            "method": "DELETE",
+            "sortNum": 210000,
+            "created": "2023-11-20T06:32:22.003Z",
+            "modified": "2023-11-21T10:29:18.193Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "066d25c9-fbd2-4a1f-880a-67793df555c8",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Project - update",
+            "url": "{{ip_url}}/api/project/f67dbdf3-cdf1-4127-9b96-267e616f7252",
+            "method": "PUT",
+            "sortNum": 220000,
+            "created": "2023-11-20T12:09:08.467Z",
+            "modified": "2023-11-21T04:23:47.088Z",
+            "headers": [
+                {
+                    "name": "organisation-id",
+                    "value": "{{organisation_id}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"projectName\": \"333\",\n  \"projectDescription\": \"HRMS description\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "94e5c49f-cf18-4e6a-8df8-0a2ffe5da2ed",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - status change",
+            "url": "{{ip_url}}/api/task/status/7ff229ef-73b5-4b5a-a198-507386d8f297",
+            "method": "PUT",
+            "sortNum": 230000,
+            "created": "2023-11-21T07:17:16.435Z",
+            "modified": "2023-11-21T07:22:03.229Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"status\": \"NOT_STARTED\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "c0394778-12c6-4dab-b8f9-21408857a831",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - update",
+            "url": "{{ip_url}}/api/task/7ff229ef-73b5-4b5a-a198-507386d8f297",
+            "method": "PUT",
+            "sortNum": 240000,
+            "created": "2023-11-21T09:43:22.189Z",
+            "modified": "2023-11-21T10:09:39.621Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"taskName\": \"Updated\",\n  \"taskDescription\": \"SSS\",\n  \"duration\": 10,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"endDate\": \"2024-01-28T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\",\n  \"documentAttachments\": [\n    {\n      \"name\": \"test\",\n      \"url\": \"www.google.com\"\n    },\n    {\n      \"name\": \"test22\",\n      \"url\": \"www.google.com\"\n    }\n  ],\n  \"assignee\": \"902ce2a5-18d0-498d-b34c-c716bd0ba15b\",\n  \"status\": \"NOT_STARTED\"\n}",
+                "form": []
             },
             "tests": []
         }
