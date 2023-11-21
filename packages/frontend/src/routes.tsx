@@ -5,6 +5,7 @@ import Test from "./pages/Test";
 import AuthGuard from "./guards/AuthGuard";
 import Organisation from "./pages/organisation";
 import Signup from "./pages/authentication/signup";
+import Projects from "./pages/projects";
 
 export const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ export const router = createBrowserRouter([
       {
         path: "/organisation",
         element: <Organisation />,
+      },
+      {
+        path: "/projects",
+        element: <Projects/>,
       },
     ],
   },
