@@ -14,6 +14,7 @@
     "module": "NodeNext",
     "lib": ["ES2022",],
     "outDir": "./build",
+    "baseUrl": "src"
   },
   "include": ["src/**/*"]
 }
