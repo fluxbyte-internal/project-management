@@ -3,7 +3,7 @@ import { requestURLs } from "../../Environment";
 import axios from "axios";
 import type { createOrganisationSchema } from "backend/src/schemas/organisationSchema";
 import { z } from "zod";
-import { AxiosResponseAndError, ResponseType } from "./useLoginMutation";
+import { AxiosResponseAndError, ResponseType } from "@/api/types/axiosResponseType";
 
 type OrganisationApiResponse = ResponseType<{
   organisationId: string;

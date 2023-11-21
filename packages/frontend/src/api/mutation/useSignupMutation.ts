@@ -3,10 +3,8 @@ import { requestURLs } from "../../Environment";
 import axios from "axios";
 import { authSignUpSchema } from "backend/src/schemas/authSchema";
 import { z } from "zod";
-import {
-  ResponseType,
-  AxiosResponseAndError,
-} from "../mutation/useLoginMutation";
+import { AxiosResponseAndError, ResponseType } from "@/api/types/axiosResponseType";
+
 
 type SignupResponseType = ResponseType<{
   token: string;

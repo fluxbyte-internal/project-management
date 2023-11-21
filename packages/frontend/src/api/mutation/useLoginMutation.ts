@@ -1,20 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import { requestURLs } from "../../Environment";
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
 import { authLoginSchema } from "backend/src/schemas/authSchema";
 import { z } from "zod";
+import { AxiosResponseAndError, ResponseType } from "@/api/types/axiosResponseType";
 
-export type ResponseType<T> = {
-  code: number;
-  message: string;
-  data: T;
-};
-
-export type ErrorResponseType = {
-  code: number;
-  message: string;
-  errors: unknown;
-};
 
 type LoginApiResponse = ResponseType<{
   token: string;
@@ -32,10 +22,6 @@ type LoginApiResponse = ResponseType<{
   };
 }>;
 
-export type AxiosResponseAndError<T> = {
-  response: AxiosResponse<T>;
-  error: AxiosError<ErrorResponseType>;
-};
 
 function useLoginMutation() {
   const mutation = useMutation<
