@@ -1,0 +1,5 @@
+export const PRISMA_ERROR_CODE = {
+  UNIQUE_CONSTRAINT: 'P2002',
+  NOT_FOUND: 'P2025',
+  CANNOT_CREATE: 'P2002'
+} as const;

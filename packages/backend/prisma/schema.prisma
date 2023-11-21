@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRoleEnum {
+  ADMINISTRATOR
+  PROJECT_MANAGER
+  TEAM_MEMBER
+  SUPER_ADMIN
+  OPERATOR
+}
+
+enum UserStatusEnum {
+  ACTIVE
+  INACTIVE
+}
+
+enum ProjectStatusEnum {
+  NOT_STARTED
+  ACTIVE
+  ON_HOLD
+  CLOSED
+}
+
+enum ProjectDefaultViewEnum {
+  KANBAN
+  GANTT
+  CALENDER
+  LIST
+}
+
+model User {
+  userId           String             @id @default(uuid()) @map("user_id")
+  email            String             @unique @map("email")
+  password         String             @map("password")
+  status           UserStatusEnum     @map("status")
+  firstName        String?            @map("first_name")
+  lastName         String?            @map("last_name")
+  timezone         String?            @map("time_zone")
+  country          String?            @map("country")
+  avatarImg        String?            @map("avatar_img")
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  userOrganisation UserOrganisation[]
+
+  @@unique([email, password])
+  @@index([userId, email])
+}
+
+model Organisation {
+  organisationId       String             @id @default(uuid()) @map("organisation_id")
+  organisationName     String             @map("organisation_name")
+  industry             String             @map("industry")
+  status               String             @map("status")
+  country              String             @map("country")
+  listOfNonWorkingDays Int                @map("list_of_non_working_days")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+  userOrganisation     UserOrganisation[]
+  tenantId             String?            @map("tenant_id")
+  createdBy            String             @map("created_by")
+  // tenant               Tenant             @relation(fields: [TenantId], references: [TenantId])
+
+  projects Project[]
+
+  @@unique([organisationName, industry, createdBy])
+  @@index([organisationId, tenantId])
+}
+
+model Tenant {
+  tenantId         String   @id @default(uuid()) @map("tenant_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  // organisations    Organisation[]
+  connectionString String?  @map("connection_string") // prisma connn url middleware by OrgId
+
+  @@index([tenantId])
+}
+
+model UserOrganisation {
+  userOrganisationId String       @id @default(uuid()) @map("user_organisation_id")
+  userId             String       @map("user_id")
+  organisationId     String       @map("organisation_id")
+  role               UserRoleEnum @map("role")
+  jobTitle           String?      @map("job_title")
+  taskColour         String?      @map("task_colour")
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @updatedAt @map("updated_at")
+
+  organisation Organisation? @relation(fields: [organisationId], references: [organisationId])
+  user         User?         @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@unique([userId, organisationId])
+  @@index([userId, organisationId, role])
+}
+
+model Project {
+  projectId             String                 @id @unique @default(uuid()) @map("project_id")
+  organisationId        String                 @map("organisation_id")
+  projectName           String                 @map("project_name")
+  projectDescription    String                 @map("project_description")
+  startDate             DateTime               @map("start_date")
+  estimatedEndDate      DateTime               @map("estimated_end_date")
+  actualEndDate         DateTime?              @map("actual_end_date")
+  status                ProjectStatusEnum      @default(NOT_STARTED) @map("status")
+  defaultView           ProjectDefaultViewEnum @default(LIST) @map("default_view")
+  timeTrack             String?                @map("time_track")
+  budgetTrack           String?                @map("budget_track")
+  estimatedBudget       String                 @map("estimated_budget")
+  actualCost            String?                @map("actual_cost")
+  progressionPercentage String?                @map("progression_percentage")
+  createdAt             DateTime               @default(now()) @map("created_at")
+  updatedAt             DateTime               @updatedAt @map("updated_at")
+
+  organisation Organisation @relation(fields: [organisationId], references: [organisationId])
+
+  @@index([projectId, organisationId])
+}

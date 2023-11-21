@@ -1,14 +1,28 @@
 import "dotenv/config";
-import express, { Application, Request, Response, NextFunction } from "express";
+import express, { Application, Request, Response } from "express";
 import "express-async-errors";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
 import { settings } from "./config/settings.js";
+import UserRoutes from "./routers/user.routes.js";
+import AuthRoutes from "./routers/auth.routes.js";
+import OrganisationRoutes from "./routers/organisation.routes.js";
+import ProjectRoutes from "./routers/project.routes.js";
+import { authMiddleware } from "./middleware/auth.middleware.js";
+import { defualtHeaderMiddleware } from "./middleware/header.middleware.js";
+import { ErrorHandlerMiddleware } from "./middleware/error.middleware.js";
 
 const app: Application = express();
 
 // CORS configuration
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true,
+}));
+
+//Cookie
+app.use(cookieParser());
 
 // Helmet configuration
 app.use(helmet());
@@ -18,7 +32,12 @@ app.use(express.json());
 
 app.set("json spaces", 2);
 
-// Add middlewares here
+app.use(defualtHeaderMiddleware);
+
+app.use("/api/auth", AuthRoutes);
+app.use("/api/user", authMiddleware, UserRoutes);
+app.use("/api/organisation", authMiddleware, OrganisationRoutes);
+app.use("/api/project", authMiddleware, ProjectRoutes);
 
 app.get("/", async (req: Request, res: Response) => {
   return res.status(200).send({ ok: true });
@@ -30,15 +49,7 @@ app.use("*", (req: Request, res: Response) => {
 });
 
 // Error handling middleware
-app.use(function (
-  error: any,
-  request: Request,
-  response: Response,
-  next: NextFunction
-) {
-  console.error(error);
-  return response.status(500).send(error?.message ?? "Something went wrong");
-});
+app.use(ErrorHandlerMiddleware.handler);
 
 app.listen(settings.port, () =>
   console.log(`Server is listening on port ${settings.port}!`)

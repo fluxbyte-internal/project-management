@@ -5,6 +5,10 @@
   "repository": "https://Mihir-Fluxbyte@github.com/Mihir-Fluxbyte/project-management.git",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "app:backend": "yarn workspace backend",
+    "app:frontend": "yarn workspace frontend"
+  },
   "workspaces": [
     "packages/*"
   ]
