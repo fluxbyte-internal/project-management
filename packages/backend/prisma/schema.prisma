@@ -20,6 +20,20 @@ enum UserStatusEnum {
   INACTIVE
 }
 
+enum ProjectStatusEnum {
+  NOT_STARTED
+  ACTIVE
+  ON_HOLD
+  CLOSED
+}
+
+enum ProjectDefaultViewEnum {
+  KANBAN
+  GANTT
+  CALENDER
+  LIST
+}
+
 model User {
   userId           String             @id @default(uuid()) @map("user_id")
   email            String             @unique @map("email")
@@ -52,6 +66,8 @@ model Organisation {
   createdBy            String             @map("created_by")
   // tenant               Tenant             @relation(fields: [TenantId], references: [TenantId])
 
+  projects Project[]
+
   @@unique([organisationName, industry, createdBy])
   @@index([organisationId, tenantId])
 }
@@ -81,4 +97,27 @@ model UserOrganisation {
 
   @@unique([userId, organisationId])
   @@index([userId, organisationId, role])
+}
+
+model Project {
+  projectId             String                 @id @unique @default(uuid()) @map("project_id")
+  organisationId        String                 @map("organisation_id")
+  projectName           String                 @map("project_name")
+  projectDescription    String                 @map("project_description")
+  startDate             DateTime               @map("start_date")
+  estimatedEndDate      DateTime               @map("estimated_end_date")
+  actualEndDate         DateTime?              @map("actual_end_date")
+  status                ProjectStatusEnum      @default(NOT_STARTED) @map("status")
+  defaultView           ProjectDefaultViewEnum @default(LIST) @map("default_view")
+  timeTrack             String?                @map("time_track")
+  budgetTrack           String?                @map("budget_track")
+  estimatedBudget       String                 @map("estimated_budget")
+  actualCost            String?                @map("actual_cost")
+  progressionPercentage String?                @map("progression_percentage")
+  createdAt             DateTime               @default(now()) @map("created_at")
+  updatedAt             DateTime               @updatedAt @map("updated_at")
+
+  organisation Organisation @relation(fields: [organisationId], references: [organisationId])
+
+  @@index([projectId, organisationId])
 }

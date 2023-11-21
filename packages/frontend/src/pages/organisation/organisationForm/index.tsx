@@ -26,7 +26,7 @@ function OrganisationForm(props: Props) {
       country: "",
     },
     validationSchema: toFormikValidationSchema(createOrganisationSchema),
-    onSubmit: (values) => {},
+    onSubmit: () => {},
   });
   return (
     <div className="absolute w-full h-full top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-primary-900 bg-opacity-50 ">
