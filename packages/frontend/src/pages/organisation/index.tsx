@@ -8,7 +8,7 @@ function Organisation() {
     <>
       <div
         className={`w-full h-full flex justify-center items-center bg-[url(/src/assets/png/background2.png)] bg-cover bg-no-repeat`}
-        style={{ backgroundImage: backGroundImage, }}
+        style={{ backgroundImage: backGroundImage }}
 
       >
         <div className="flex flex-col justify-center items-center gap-24">

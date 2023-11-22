@@ -9,10 +9,14 @@ const buttonVariants = cva(
         none: "",
         default:
           "bg-slate-900 text-slate-50 hover:bg-slate-900/90 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90",
+        primary:
+          "bg-primary-500 text-primary-900 hover:bg-primary-500/90 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90",
         destructive:
           "bg-red-500 text-slate-50 hover:bg-red-500/90 dark:bg-red-900 dark:text-slate-50 dark:hover:bg-red-900/90",
         outline:
           "border border-slate-200 bg-white hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50",
+        primary_outline:
+          "border border-primary-200 bg-white hover:bg-primary-100 hover:text-primary-500 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50",
         secondary:
           "bg-slate-100 text-slate-900 hover:bg-slate-100/80 dark:bg-slate-800 dark:text-slate-50 dark:hover:bg-slate-800/80",
         ghost:
@@ -46,13 +50,13 @@ const Button = ({
   return (
     <button
       className={cn(buttonVariants({ variant, size, className }), {
-        "relative pointer-events-none": isLoading,
+        relative: isLoading,
       })}
       {...props}
     >
       {children}
       {isLoading && (
-        <div className="absolute w-full h-full grid place-content-center backdrop-blur-[1px] bg-[#00000036]">
+        <div className="absolute w-full h-full grid place-content-center backdrop-blur-[0.5px] bg-[#00000036]">
           <svg
             width="20"
             height="20"
