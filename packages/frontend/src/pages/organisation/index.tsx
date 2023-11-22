@@ -5,10 +5,11 @@ import OrganisationForm from "./organisationForm";
 function Organisation() {
   const [organisationForm, setOrganisationForm] = useState<boolean>(false);
   return (
-    <div>
+    <>
       <div
-        className={`w-full h-screen flex justify-center items-center bg-[url(/src/assets/png/background2.png)] bg-cover bg-no-repeat`}
+        className={`w-full h-full flex justify-center items-center bg-[url(/src/assets/png/background2.png)] bg-cover bg-no-repeat`}
         style={{ backgroundImage: backGroundImage }}
+
       >
         <div className="flex flex-col justify-center items-center gap-24">
           <img
@@ -39,7 +40,7 @@ function Organisation() {
       {organisationForm && (
         <OrganisationForm close={() => setOrganisationForm(false)} />
       )}
-    </div>
+    </>
   );
 }
 
