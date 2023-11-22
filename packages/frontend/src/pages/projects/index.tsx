@@ -5,27 +5,28 @@ import useProjectMutation, {
   Project,
 } from "../../api/mutation/useProjectMutation";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 function Projects() {
   const [data, setData] = useState<Project[]>();
   useEffect(() => {
-    // getProjects();
-    setData(dataSource);
-  }, []);
-  const projectMutation = useProjectMutation();
-  const getProjects = () => {
     projectMutation
       .mutateAsync()
       .then((res) => {
-        console.log(typeof res.data.data);
         setData(res.data.data);
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
       });
-  };
+  }, []);
+  const projectMutation = useProjectMutation();
 
   const columnDef: columeDef[] = [
     { key: "projectName", label: "Project Name" },
+    {
+      key: "pm",
+      label: "PM",
+      onCellRender: (item) => renderPm(item),
+    },
     {
       key: "status",
       label: "Status",
@@ -34,12 +35,12 @@ function Projects() {
     {
       key: "startDate",
       label: "Start Date",
-      onCellRender: (item) => dateFormater(item.startDate),
+      onCellRender: (item) => startDateFormate(item),
     },
     {
       key: "actualEndDate",
       label: "End Date",
-      onCellRender: (item) => dateFormater(item.actualEndDate),
+      onCellRender: (item) => endDateFormate(item),
     },
     {
       key: "prograss",
@@ -53,165 +54,37 @@ function Projects() {
     },
   ];
 
-  const dataSource: Project[] = [
-    {
-      projectId: "67083a32-be83-4269-aa17-9b6ff7147bd5",
-      organisationId: "61dd26ee-b064-43e9-b12f-21a7b7832737",
-      projectName: "Hello",
-      projectDescription: "HRMS description",
-      startDate: "2023-12-09T00:00:00.000Z",
-      estimatedEndDate: "2023-11-22T00:00:00.000Z",
-      actualEndDate: "2023-11-21T00:00:00.000Z",
-      status: "NOT_STARTED",
-      defaultView: "KANBAN",
-      timeTrack: "0",
-      budgetTrack: "1",
-      estimatedBudget: "50000",
-      actualCost: "48000",
-      progressionPercentage: " 30",
-      createdAt: "2023-11-20T12:08:09.122Z",
-      updatedAt: "2023-11-20T12:09:56.432Z",
-    },
-    {
-      projectId: "bfe74e8a-e7cd-482a-afee-1de9788772b2",
-      organisationId: "61dd26ee-b064-43e9-b12f-21a7b7832737",
-      projectName: "111",
-      projectDescription: "HRMS description",
-      startDate: "2023-12-09T00:00:00.000Z",
-      estimatedEndDate: "2023-11-22T00:00:00.000Z",
-      actualEndDate: null,
-      status: "NOT_STARTED",
-      defaultView: "KANBAN",
-      timeTrack: null,
-      budgetTrack: null,
-      estimatedBudget: "50000",
-      actualCost: null,
-      progressionPercentage: "20",
-      createdAt: "2023-11-20T11:47:48.785Z",
-      updatedAt: "2023-11-20T11:47:48.785Z",
-    },
-    {
-      projectId: "f67dbdf3-cdf1-4127-9b96-267e616f7252",
-      organisationId: "61dd26ee-b064-43e9-b12f-21a7b7832737",
-      projectName: "333",
-      projectDescription: "HRMS description",
-      startDate: "2023-12-09T00:00:00.000Z",
-      estimatedEndDate: "2023-11-22T00:00:00.000Z",
-      actualEndDate: "2023-11-21T00:00:00.000Z",
-      status: "NOT_STARTED",
-      defaultView: "KANBAN",
-      timeTrack: "0",
-      budgetTrack: "1",
-      estimatedBudget: "50000",
-      actualCost: "48000",
-      progressionPercentage: " 90",
-      createdAt: "2023-11-20T12:06:49.895Z",
-      updatedAt: "2023-11-21T03:49:32.238Z",
-    },
-    {
-      projectId: "67083a32-be83-4269-aa17-9b6ff7147bd5",
-      organisationId: "61dd26ee-b064-43e9-b12f-21a7b7832737",
-      projectName: "Hello",
-      projectDescription: "HRMS description",
-      startDate: "2023-12-09T00:00:00.000Z",
-      estimatedEndDate: "2023-11-22T00:00:00.000Z",
-      actualEndDate: "2023-11-21T00:00:00.000Z",
-      status: "NOT_STARTED",
-      defaultView: "KANBAN",
-      timeTrack: "0",
-      budgetTrack: "1",
-      estimatedBudget: "50000",
-      actualCost: "48000",
-      progressionPercentage: " 30",
-      createdAt: "2023-11-20T12:08:09.122Z",
-      updatedAt: "2023-11-20T12:09:56.432Z",
-    },
-    {
-      projectId: "bfe74e8a-e7cd-482a-afee-1de9788772b2",
-      organisationId: "61dd26ee-b064-43e9-b12f-21a7b7832737",
-      projectName: "111",
-      projectDescription: "HRMS description",
-      startDate: "2023-12-09T00:00:00.000Z",
-      estimatedEndDate: "2023-11-22T00:00:00.000Z",
-      actualEndDate: null,
-      status: "NOT_STARTED",
-      defaultView: "KANBAN",
-      timeTrack: null,
-      budgetTrack: null,
-      estimatedBudget: "50000",
-      actualCost: null,
-      progressionPercentage: "20",
-      createdAt: "2023-11-20T11:47:48.785Z",
-      updatedAt: "2023-11-20T11:47:48.785Z",
-    },
-    {
-      projectId: "f67dbdf3-cdf1-4127-9b96-267e616f7252",
-      organisationId: "61dd26ee-b064-43e9-b12f-21a7b7832737",
-      projectName: "333",
-      projectDescription: "HRMS description",
-      startDate: "2023-12-09T00:00:00.000Z",
-      estimatedEndDate: "2023-11-22T00:00:00.000Z",
-      actualEndDate: "2023-11-21T00:00:00.000Z",
-      status: "NOT_STARTED",
-      defaultView: "KANBAN",
-      timeTrack: "0",
-      budgetTrack: "1",
-      estimatedBudget: "50000",
-      actualCost: "48000",
-      progressionPercentage: " 90",
-      createdAt: "2023-11-20T12:06:49.895Z",
-      updatedAt: "2023-11-21T03:49:32.238Z",
-    },
-    {
-      projectId: "67083a32-be83-4269-aa17-9b6ff7147bd5",
-      organisationId: "61dd26ee-b064-43e9-b12f-21a7b7832737",
-      projectName: "Hello",
-      projectDescription: "HRMS description",
-      startDate: "2023-12-09T00:00:00.000Z",
-      estimatedEndDate: "2023-11-22T00:00:00.000Z",
-      actualEndDate: "2023-11-21T00:00:00.000Z",
-      status: "NOT_STARTED",
-      defaultView: "KANBAN",
-      timeTrack: "0",
-      budgetTrack: "1",
-      estimatedBudget: "50000",
-      actualCost: "48000",
-      progressionPercentage: " 30",
-      createdAt: "2023-11-20T12:08:09.122Z",
-      updatedAt: "2023-11-20T12:09:56.432Z",
-    },
-    
-  ];
   return (
-    <div className=" h-full w-full bg-[url(/src/assets/png/background2.png)] bg-cover bg-no-repeat">
-      <div className="mt-14 mx-14">
-        <div className="flex justify-between items-center">
-          <h2 className="font-medium text-2xl leading-normal text-gray-600">
-            Projects
-          </h2>
-          <div>
-            <button className="font-medium text-sm leading-normal rounded py-2 px-4 text-[#943B0C] bg-[#FFB819]">
-              Add Project
-            </button>
-          </div>
+    <div className=" h-full py-5 p-4 lg:p-14  w-full bg-[url(/src/assets/png/background2.png)] bg-cover bg-no-repeat">
+      <div className="flex justify-between items-center">
+        <h2 className="font-medium text-2xl leading-normal text-gray-600">
+          Projects
+        </h2>
+        <div>
+          <Button className="font-medium text-sm leading-normal rounded py-2 px-4 text-[#943B0C] bg-[#FFB819]">
+            Add Project
+          </Button>
         </div>
-        <div className="mt-8">
-          {data && (
-            <Table key="Project view" columnDef={columnDef} data={data} />
-          )}
-        </div>
+      </div>
+      <div className="my-8 h-full">
+        {data && <Table key="Project view" columnDef={columnDef} data={data} />}
       </div>
     </div>
   );
 }
 
+function startDateFormate(props: Project) {
+  const { startDate } = props;
+  return <>{dateFormater(startDate)}</>;
+}
+function endDateFormate(props: Project) {
+  const { estimatedEndDate } = props;
+  return <>{dateFormater(estimatedEndDate)}</>;
+}
+
 function renderProgress(props: Project) {
   const { progressionPercentage } = props;
-  return (
-    <div>
-      <PercentageCircle percentage={progressionPercentage} />
-    </div>
-  );
+  return <PercentageCircle percentage={progressionPercentage} />;
 }
 
 function renderStuts(props: Project) {
@@ -229,6 +102,20 @@ function renderEdit(props: Project) {
     <button className="w-32 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex">
       Edit
     </button>
+  );
+}
+function renderPm(props: Project) {
+  const projectManager = "Jhon Dev";
+  const name =
+    projectManager.split(" ")[0].charAt(0) +
+    projectManager.split(" ")[1].charAt(0);
+  return (
+    <div className="flex flex-col lg:flex-row justify-between items-center w-fit gap-3">
+      <div className="rounded-full font-bold text-xl bg-[#FFE388] h-11 w-11 flex justify-center items-center  text-yellow-900">
+        {name}
+      </div>
+      <div className="text-sm font-medium w">{projectManager}</div>
+    </div>
   );
 }
 

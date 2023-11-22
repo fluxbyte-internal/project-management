@@ -1,6 +1,6 @@
 export default function dateFormater(inputDate: string): string {
   if (!inputDate) {
-   return '-'
+    return '-';
   } 
   const dateObject = new Date(inputDate);
   const year = dateObject.getUTCFullYear();
