@@ -8,7 +8,7 @@ import list from "../../assets/svg/List.svg";
 import InfoCircle from "../../assets/svg/Info circle.svg";
 import { useState } from "react";
 import { toFormikValidationSchema } from "zod-formik-adapter";
-import { createProjectSchema } from "backend/src/schemas/projectSchema";
+import { createProjectSchema } from "@backend/src/schemas/projectSchema";
 import { z } from "zod";
 
 type addProjectType = {
