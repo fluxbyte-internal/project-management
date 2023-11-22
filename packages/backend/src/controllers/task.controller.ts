@@ -5,7 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { projectIdSchema } from '../schemas/projectSchema.js';
 import { PrismaClientKnownRequestError, PrismaClientValidationError } from '@prisma/client/runtime/library.js';
 import { PRISMA_ERROR_CODE } from '../constants/prismaErrorCodes.js';
-import { commentIdSchma, createCommentTaskSchema, createTaskSchema, taskIdSchema, taskStatusSchema, updateTaskSchema } from '../schemas/taskSchema.js';
+import { attachmentIdSchma, attachmentTaskSchema, commentIdSchma, createCommentTaskSchema, createTaskSchema, taskIdSchema, taskStatusSchema, updateTaskSchema } from '../schemas/taskSchema.js';
 import { TaskService } from '../services/task.services.js';
 
 export const getTasks = async (req: express.Request, res: express.Response) => {
@@ -88,7 +88,7 @@ export const createTask = async (req: express.Request, res: express.Response) =>
         status: status,
         parentTaskId: parentTaskId ? parentTaskId : null,
         documentAttachments: {
-          create: documentAttachments.map((attachment) => ({
+          create: documentAttachments?.map((attachment) => ({
             name: attachment.name,
             url: attachment.url,
           })),
@@ -112,13 +112,16 @@ export const updateTask = async (req: express.Request, res: express.Response) =>
   const tasktId = taskIdSchema.parse(req.params.taskId);
   const prisma = await getClientByTenantId(req.tenantId);
   const findtask = await prisma.task.findFirstOrThrow({ where: { taskId: tasktId }, include: { documentAttachments: true } });
-  let newUpdateObj = { ...findtask, ...updateTaskSchema.parse(req.body) };
+  const newUpdateObj = { ...findtask, ...updateTaskSchema.parse(req.body) };
   try {
     const taskUpdateDB = await prisma.task.update({
       where: { taskId: tasktId },
       data: { ...newUpdateObj, documentAttachments: {} },
     });
+
+    // Calculate Task endDate
     const endDate = TaskService.calculateTaskEndDate(taskUpdateDB.startDate, taskUpdateDB.duration);
+
     return new SuccessResponse(StatusCodes.OK, { ...taskUpdateDB, endDate }, 'task updated successfully').send(res);
   } catch (error) {
     console.log(error);
@@ -133,8 +136,7 @@ export const deleteTask = async (req: express.Request, res: express.Response) =>
   const taskId = taskIdSchema.parse(req.params.taskId);
   try {
     const prisma = await getClientByTenantId(req.tenantId);
-    const findTask = await prisma.task.findFirstOrThrow({ where: { taskId: taskId } });
-    if (findTask) {
+    if (taskId && await prisma.task.findFirstOrThrow({ where: { taskId: taskId } })) {
       await prisma.task.delete({
         where: { taskId },
         include: { comments: true, documentAttachments: true, subtasks: true }
@@ -157,8 +159,7 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
   const statusBody = taskStatusSchema.parse(req.body);
   try {
     const prisma = await getClientByTenantId(req.tenantId);
-    const findTask = await prisma.task.findFirstOrThrow({ where: { taskId: taskId } });
-    if (findTask) {
+    if (taskId && await prisma.task.findFirstOrThrow({ where: { taskId: taskId } })) {
       let updatedTask = await prisma.task.update({
         where: { taskId: taskId },
         data: { status: statusBody.status },
@@ -224,8 +225,7 @@ export const deleteComment = async (req: express.Request, res: express.Response)
   const commentId = commentIdSchma.parse(req.params.commentId);
   try {
     const prisma = await getClientByTenantId(req.tenantId);
-    const findComment = await prisma.comments.findFirstOrThrow({ where: { commentId: commentId } });
-    if (findComment) {
+    if (commentId && await prisma.comments.findFirstOrThrow({ where: { commentId: commentId } })) {
       await prisma.comments.delete({ where: { commentId } });
       return new SuccessResponse(StatusCodes.OK, {}, 'comment deleted successfully').send(res);
     };
@@ -234,6 +234,50 @@ export const deleteComment = async (req: express.Request, res: express.Response)
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === PRISMA_ERROR_CODE.NOT_FOUND) {
         throw new NotFoundError(`no comment were found`);
+      }
+    }
+  }
+};
+
+export const updateAttachment = async (req: express.Request, res: express.Response) => {
+  const attachemtnBody = attachmentTaskSchema.parse(req.body);
+  const taskId = taskIdSchema.parse(req.params.taskId);
+  try {
+    const prisma = await getClientByTenantId(req.tenantId);
+    attachemtnBody.map(async (data) => {
+      if (data.attachmentId && await prisma.taskAttachment.findFirstOrThrow({ where: { attachmentId: data.attachmentId } })) {
+        await prisma.taskAttachment.update({
+          where: { attachmentId: data.attachmentId },
+          data: { name: data.name, url: data.url },
+        });
+      } else {
+        await prisma.taskAttachment.create({
+          data: { name: data.name, url: data.url, taskId: taskId }
+        });
+      }
+    });
+    return new SuccessResponse(StatusCodes.OK, {}, 'Attachment updated successfully').send(res);
+  } catch (error) {
+    console.log(error);
+    if (error instanceof PrismaClientValidationError || PrismaClientKnownRequestError) {
+      throw new BadRequestError(`A attachment cannot be updated, ${error}`);
+    }
+  }
+};
+
+export const deleteAttachment = async (req: express.Request, res: express.Response) => {
+  const attachmentId = attachmentIdSchma.parse(req.params.attachmentId);
+  try {
+    const prisma = await getClientByTenantId(req.tenantId);
+    if (attachmentId && await prisma.taskAttachment.findFirstOrThrow({ where: { attachmentId: attachmentId } })) {
+      await prisma.taskAttachment.delete({ where: { attachmentId } });
+      return new SuccessResponse(StatusCodes.OK, {}, 'Attachment deleted successfully').send(res);
+    };
+  } catch (error) {
+    console.log(error);
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === PRISMA_ERROR_CODE.NOT_FOUND) {
+        throw new NotFoundError(`no attachment were found`);
       }
     }
   }

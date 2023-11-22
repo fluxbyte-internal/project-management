@@ -14,7 +14,7 @@ export const authMiddleware = async (req: express.Request, res: express.Response
     next()
   } catch (error: unknown | any) {
     console.log(error);
-    if (error.name === 'JsonWebTokenError') {
+    if (error.name === 'JsonWebTokenError', error.name === 'TokenExpiredError') {
       throw new UnAuthorizedError();
     };
     throw new InternalServerError('Internal server error');

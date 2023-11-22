@@ -9,6 +9,9 @@ router.put('/comment/:commentId', TaskController.updateComment);
 router.delete('/comment/:commentId', TaskController.deleteComment);
 router.post('/comment/:taskId', TaskController.addComment);
 
+router.put('/attachment/:taskId', TaskController.updateAttachment);
+router.delete('/attachment/:attachmentId', TaskController.deleteAttachment);
+
 router.get('/byId/:taskId', TaskController.getTaskById);
 router.get('/:projectId', TaskController.getTasks);
 router.put('/:taskId', TaskController.updateTask);

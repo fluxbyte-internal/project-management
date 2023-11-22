@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "project_management",
-    "dateExported": "2023-11-21T10:50:04.504Z",
+    "dateExported": "2023-11-22T05:44:16.337Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -224,11 +224,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Task - get By Id",
-            "url": "{{ip_url}}/api/task/byId/7ff229ef-73b5-4b5a-a198-507386d8f297",
+            "url": "{{ip_url}}/api/task/byId/1b533bf6-c61d-4532-a8eb-14f5eeb0626a",
             "method": "GET",
             "sortNum": 150000,
             "created": "2023-11-09T11:39:48.196Z",
-            "modified": "2023-11-21T06:46:39.573Z",
+            "modified": "2023-11-21T13:04:17.944Z",
             "headers": [],
             "params": [],
             "tests": []
@@ -252,16 +252,16 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Task - create",
-            "url": "{{ip_url}}/api/task/67083a32-be83-4269-aa17-9b6ff7147bd5/fda59615-a168-4ddc-85af-413d082fccf8",
+            "url": "{{ip_url}}/api/task/67083a32-be83-4269-aa17-9b6ff7147bd5/34ddb183-ec45-416b-afdf-ac3583f438c3",
             "method": "POST",
             "sortNum": 170000,
             "created": "2023-11-09T11:40:37.643Z",
-            "modified": "2023-11-21T10:38:52.066Z",
+            "modified": "2023-11-22T04:15:11.049Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"taskName\": \"SUB NATURAK 4\",\n  \"taskDescription\": \"SSS\",\n  \"duration\": 10,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"endDate\": \"2024-01-28T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\",\n  \"documentAttachments\": [\n    {\n      \"name\": \"test\",\n      \"url\": \"www.google.com\"\n    },\n    {\n      \"name\": \"test22\",\n      \"url\": \"www.google.com\"\n    }\n  ],\n  \"assignee\": \"902ce2a5-18d0-498d-b34c-c716bd0ba15b\",\n  \"status\": \"NOT_STARTED\"\n}",
+                "raw": "{\n  \"taskName\": \"OP SUB CURD\",\n  \"taskDescription\": \"SSS\",\n  \"duration\": 10,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"endDate\": \"2024-01-28T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\",\n  \"assignee\": \"902ce2a5-18d0-498d-b34c-c716bd0ba15b\",\n  \"status\": \"NOT_STARTED\"\n}",
                 "form": []
             },
             "tests": []
@@ -342,11 +342,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Project - update",
-            "url": "{{ip_url}}/api/project/f67dbdf3-cdf1-4127-9b96-267e616f7252",
+            "url": "{{ip_url}}/api/project/64bce508-c34c-4350-b61a-bae5161267f8",
             "method": "PUT",
             "sortNum": 220000,
             "created": "2023-11-20T12:09:08.467Z",
-            "modified": "2023-11-21T04:23:47.088Z",
+            "modified": "2023-11-21T12:52:25.136Z",
             "headers": [
                 {
                     "name": "organisation-id",
@@ -356,7 +356,7 @@
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"projectName\": \"333\",\n  \"projectDescription\": \"HRMS description\"\n}",
+                "raw": "{\n  \"projectName\": null,\n  \"projectDescription\": \"HRMS description\",\n  \"defaultView\": \"LIST\"\n}",
                 "form": []
             },
             "tests": []
@@ -385,18 +385,51 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Task - update",
-            "url": "{{ip_url}}/api/task/7ff229ef-73b5-4b5a-a198-507386d8f297",
+            "url": "{{ip_url}}/api/task/1b533bf6-c61d-4532-a8eb-14f5eeb0626a",
             "method": "PUT",
             "sortNum": 240000,
             "created": "2023-11-21T09:43:22.189Z",
-            "modified": "2023-11-21T10:09:39.621Z",
+            "modified": "2023-11-21T12:58:21.531Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"taskName\": \"Updated\",\n  \"taskDescription\": \"SSS\",\n  \"duration\": 10,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"endDate\": \"2024-01-28T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\",\n  \"documentAttachments\": [\n    {\n      \"name\": \"test\",\n      \"url\": \"www.google.com\"\n    },\n    {\n      \"name\": \"test22\",\n      \"url\": \"www.google.com\"\n    }\n  ],\n  \"assignee\": \"902ce2a5-18d0-498d-b34c-c716bd0ba15b\",\n  \"status\": \"NOT_STARTED\"\n}",
+                "raw": "{\n  \"taskName\": \"SUB CURD\",\n  \"taskDescription\": \"SSS\",\n  \"duration\": 10,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"endDate\": \"2024-01-28T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\"\n}",
                 "form": []
             },
+            "tests": []
+        },
+        {
+            "_id": "ab5ad6ee-b870-4c12-b330-25ff0e9081c6",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - Attachment add or update",
+            "url": "{{ip_url}}/api/task/attachment/1b533bf6-c61d-4532-a8eb-14f5eeb0626a",
+            "method": "PUT",
+            "sortNum": 250000,
+            "created": "2023-11-22T05:36:02.260Z",
+            "modified": "2023-11-22T05:40:17.301Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "[\n  {\n    \"attachmentId\": \"352c8841-7eb7-451d-bcf8-48ea56b0e4c6\",\n    \"name\": \"FINAL 1\",\n    \"url\": \"www.hitesh.com\"\n  },\n  {\n    \"attachmentId\": \"c5691d3a-92c7-4851-9cfb-aad66264d849\",\n    \"name\": \"Final 2\",\n    \"url\": \"www.hiteshzala.com\"\n  },\n  {\n    \"name\": \"create\",\n    \"url\": \"create.com\"\n  }\n]",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "e33683f3-dc5e-4668-b822-e3c215366ad3",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - Attachment delete",
+            "url": "{{ip_url}}/api/task/attachment/c5691d3a-92c7-4851-9cfb-aad66264d849",
+            "method": "DELETE",
+            "sortNum": 260000,
+            "created": "2023-11-22T05:36:17.877Z",
+            "modified": "2023-11-22T05:40:46.175Z",
+            "headers": [],
+            "params": [],
             "tests": []
         }
     ],

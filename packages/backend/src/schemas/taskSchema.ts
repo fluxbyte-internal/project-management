@@ -6,7 +6,7 @@ export const taskIdSchema = z.string().uuid();
 
 export const createTaskSchema = z.object({
   taskName: z.string(),
-  taskDescription: z.string().nullable(),
+  taskDescription: z.string().optional(),
   startDate: z.string(),
   duration: z.number(),
   status: z.nativeEnum(TaskStatusEnum),
@@ -14,10 +14,10 @@ export const createTaskSchema = z.object({
   documentAttachments: z.object({
     name: z.string(),
     url: z.string()
-  }).array(),
+  }).array().optional(),
   dependencies: z.nativeEnum(TaskDependenciesEnum),
   milestoneIndicator: z.boolean(),
-  flag: z.string().nullable(),
+  flag: z.string().optional(),
 });
 
 export const updateTaskSchema = z.object({
@@ -42,3 +42,11 @@ export const commentIdSchma = z.string().uuid();
 export const createCommentTaskSchema = z.object({
   commentText: z.string(),
 });
+
+export const attachmentIdSchma = z.string().uuid();
+
+export const attachmentTaskSchema = z.object({
+  attachmentId: z.string().uuid().optional(),
+  name: z.string(),
+  url: z.string()
+}).array();
