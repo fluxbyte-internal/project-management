@@ -4,11 +4,12 @@ import { getClientByTenantId } from '../config/db.js';
 import { settings } from '../config/settings.js';
 import { createJwtToken, verifyJwtToken } from '../utils/jwtHelper.js';
 import { compareEncryption, encrypt } from '../utils/encryption.js';
-import { BadRequestError, SuccessResponse } from '../config/apiError.js';
+import { SuccessResponse, UnAuthorizedError } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
 import { authLoginSchema, authRefreshTokenSchema, authSignUpSchema } from '../schemas/authSchema.js';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js';
 import { PRISMA_ERROR_CODE } from '../constants/prismaErrorCodes.js';
+import { ZodError } from 'zod';
 
 
 
@@ -33,7 +34,12 @@ export const signUp = async (req: express.Request, res: express.Response) => {
     console.error(error);
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === PRISMA_ERROR_CODE.UNIQUE_CONSTRAINT) {
-        throw new BadRequestError('User with given email exists');
+        throw new ZodError([{
+          code: 'invalid_string',
+          message: 'User with given email already exists',
+          path: ['email'],
+          validation: "email",
+        }]);
       }
     }
   }
@@ -50,9 +56,11 @@ export const login = async (req: express.Request, res: express.Response) => {
     const token = createJwtToken(tokenPayload)
     const refreshToken = createJwtToken(tokenPayload, true)
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
-    return new SuccessResponse(StatusCodes.OK, { user, token }, 'Login successfully').send(res);
+    const { password, ...userInfoWithoutPassword } = user;
+
+    return new SuccessResponse(StatusCodes.OK, { user: userInfoWithoutPassword, token }, 'Login successfully').send(res);
   }
-  throw new BadRequestError('Invalid credentials');
+  throw new UnAuthorizedError();
 };
 
 export const getAccessToken = (req: express.Request, res: express.Response) => {

@@ -12,17 +12,17 @@ export const createProjectSchema = z.object({
 });
 
 export const updateProjectSchema = z.object({
-  projectName: z.string().min(1).optional().or(z.string().nonempty()),
-  projectDescription: z.string().min(1).optional().or(z.string().nonempty()),
-  startDate: z.string().min(1).optional().or(z.string().nonempty()),
-  estimatedEndDate: z.string().min(1).optional().or(z.string().nonempty()),
-  estimatedBudget: z.string().min(1).optional().or(z.string().nonempty()),
-  defaultView: z.nativeEnum(ProjectDefaultViewEnum).optional().or(z.nativeEnum(ProjectDefaultViewEnum)),
-  progressionPercentage: z.string().min(1).optional().or(z.string().nonempty()),
-  actualCost: z.string().min(1).optional().or(z.string().nonempty()),
-  budgetTrack: z.string().min(1).optional().or(z.string().nonempty()),
-  timeTrack: z.string().min(1).optional().or(z.string().nonempty()),
-  actualEndDate: z.string().min(1).optional().or(z.string().nonempty())
+  projectName: z.string().min(1).optional(),
+  projectDescription: z.string().min(1).optional(),
+  startDate: z.string().min(1).optional(),
+  estimatedEndDate: z.string().min(1).optional(),
+  estimatedBudget: z.string().min(1).optional(),
+  defaultView: z.nativeEnum(ProjectDefaultViewEnum).optional(),
+  progressionPercentage: z.string().min(1).optional(),
+  actualCost: z.string().min(1).optional(),
+  budgetTrack: z.string().min(1).optional(),
+  timeTrack: z.string().min(1).optional()
+
 });
 
 export const projectIdSchema = z.string().uuid();

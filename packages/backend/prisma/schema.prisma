@@ -34,6 +34,16 @@ enum ProjectDefaultViewEnum {
   LIST
 }
 
+enum TaskStatusEnum {
+  NOT_STARTED
+  COMPLETED
+}
+
+enum TaskDependenciesEnum {
+  BLOCKING
+  WAITING_ON
+}
+
 model User {
   userId           String             @id @default(uuid()) @map("user_id")
   email            String             @unique @map("email")
@@ -47,6 +57,8 @@ model User {
   createdAt        DateTime           @default(now()) @map("created_at")
   updatedAt        DateTime           @updatedAt @map("updated_at")
   userOrganisation UserOrganisation[]
+
+  comment Comments[]
 
   @@unique([email, password])
   @@index([userId, email])
@@ -106,7 +118,6 @@ model Project {
   projectDescription    String                 @map("project_description")
   startDate             DateTime               @map("start_date")
   estimatedEndDate      DateTime               @map("estimated_end_date")
-  actualEndDate         DateTime?              @map("actual_end_date")
   status                ProjectStatusEnum      @default(NOT_STARTED) @map("status")
   defaultView           ProjectDefaultViewEnum @default(LIST) @map("default_view")
   timeTrack             String?                @map("time_track")
@@ -117,7 +128,59 @@ model Project {
   createdAt             DateTime               @default(now()) @map("created_at")
   updatedAt             DateTime               @updatedAt @map("updated_at")
 
+  tasks        Task[]
   organisation Organisation @relation(fields: [organisationId], references: [organisationId])
 
   @@index([projectId, organisationId])
+}
+
+model Task {
+  taskId              String               @id @default(uuid()) @map("task_id")
+  projectId           String               @map("project_id")
+  taskName            String               @map("task_name")
+  taskDescription     String?              @map("task_description")
+  startDate           DateTime             @map("start_date")
+  duration            Int                  @map("duration")
+  completionPecentage String?              @map("completion_percentage")
+  status              TaskStatusEnum       @map("status")
+  assignee            String               @map("assignee")
+  dependencies        TaskDependenciesEnum @map("dependecies")
+  milestoneIndicator  Boolean              @map("milestone_indicator")
+  flag                String?              @map("flag")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+
+  project  Project    @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  comments Comments[]
+  documentAttachments TaskAttachment[]
+
+  parentTaskId String? @map("parent_task_id")
+  parent       Task?   @relation("parentTask", fields: [parentTaskId], references: [taskId])
+  subtasks     Task[]  @relation("parentTask")
+
+  @@index([taskId, projectId, assignee])
+}
+
+model TaskAttachment {
+  attachmentId String   @id @default(uuid()) @map("attachment_id")
+  name         String   @map("name")
+  url          String   @map("url")
+  taskId       String   @map("task_id")
+  task         Task     @relation(fields: [taskId], references: [taskId], onDelete: Cascade)
+
+  @@index([taskId])
+}
+
+model Comments {
+  commentId       String   @id @default(uuid()) @map("comment_id")
+  taskId          String   @map("task_id")
+  commentText     String   @map("comment_text")
+  commentByUserId String   @map("comment_by_user_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  task            Task     @relation(fields: [taskId], references: [taskId], onDelete: Cascade)
+
+  user User @relation(fields: [commentByUserId], references: [userId], onDelete: Cascade)
+
+  @@index([commentId, commentByUserId])
 }
