@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { LogOut } from "lucide-react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const navbarData = [
@@ -42,14 +43,18 @@ const navbarData = [
 ];
 
 function NavBar() {
+  const [isOpenPopUp, setisOpenPopUp] = useState(false);
+
+  const handleOpenPopUp = () => {
+    setisOpenPopUp(!isOpenPopUp);
+  };
   const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.clear();
     navigate("/login");
   };
-
   return (
-    <div className="w-full h-14 bg-primary-50 shadow-side z-10  fixed border-b-2 border-primary-200 flex items-center flex-col ">
+    <div className="w-full h-14   z-10  fixed border-b-2 border-#E2E8F0 flex items-center flex-col ">
       <div className="flex items-center w-full h-full justify-between px-3 md:px-28">
         <div className="flex gap-10 justify-between overflow-hidden items-center">
           {navbarData.map((item, index) => {
@@ -64,7 +69,7 @@ function NavBar() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <div className="flex items-center gap-2">
-                        <div className="text-sm font-medium text-primary-900 relative cursor-pointer">
+                        <div className="text-sm font-medium text-gray-500 relative cursor-pointer">
                           {item.name}
                         </div>
                         <div className="w-full h-full flex items-center aspect-square">
@@ -93,7 +98,7 @@ function NavBar() {
                 ) : (
                   <Link
                     to={item.link}
-                    className="text-sm font-medium text-primary-900 relative cursor-pointer"
+                    className="text-sm font-medium text-gray-500 relative cursor-pointer"
                   >
                     {item.name}
                   </Link>
@@ -105,7 +110,7 @@ function NavBar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <div className="flex items-center justify-center gap-2">
-                  <div className="text-sm font-medium text-primary-900 cursor-pointer">
+                  <div className="text-sm font-medium text-gray-500 cursor-pointer">
                     More
                   </div>
                   <div className=" w-full h-full flex  aspect-square">
@@ -119,13 +124,13 @@ function NavBar() {
                     return (
                       <div
                         key={index}
-                        className={`flex justify-between text-sm font-medium text-primary-900 relative cursor-pointer p-1 ${
+                        className={`flex justify-between text-sm font-medium text-gray-500 relative cursor-pointer p-1 ${
                           item.id === 2 && "lg:hidden"
                         } ${item.id === 1 && "md:hidden"}`}
                       >
                         {item.dropDown ? (
                           <div className="flex items-center gap-2">
-                            <div className="text-sm font-medium text-primary-900 relative cursor-pointer">
+                            <div className="text-sm font-medium text-gray-500 relative cursor-pointer">
                               {item.name}
                             </div>
                             <div className="w-full h-full flex items-center aspect-square">
@@ -135,7 +140,7 @@ function NavBar() {
                         ) : (
                           <Link
                             to={item.link}
-                            className="text-sm font-medium text-primary-900 relative cursor-pointer"
+                            className="text-sm font-medium text-gray-500 relative cursor-pointer"
                           >
                             {item.name}
                           </Link>
@@ -148,18 +153,25 @@ function NavBar() {
             </DropdownMenu>
           </div>
           <div className="lg:block hidden">
-            <Button className="bg-gradient-to-t from-[#227D9B]  to-[#0C66E4] rounded-md px-3 py-2 text-white text-sm font-medium">
+            <Button
+              variant={"none"}
+              className="bg-primary-400 rounded-md px-3 py-2 text-primary-800 text-sm font-medium"
+              onClick={handleOpenPopUp}
+            >
               Create
             </Button>
           </div>
           <div className="block lg:hidden">
-            <button className="bg-gradient-to-t from-[#227D9B] to-[#0C66E4] rounded-md  text-white text-lg font-medium h-12 w-12">
+            <button
+              className="bg-primary-400 rounded-md px-3 py-2 text-primary-800 text-lg font-medium h-12 w-12 hover:bg-primary-400"
+              onClick={handleOpenPopUp}
+            >
               <span className="flex justify-center items-center">+</span>
             </button>
           </div>
         </div>
         <div className="flex md:gap-5 gap-2 items-center relative cursor-pointer">
-          <div className="w-8 h-8 aspect-square  rounded-full bg-primary-400 ">
+          <div className="w-8 h-8 aspect-square  rounded-full bg-primary-100 ">
             <img
               src={Notification}
               className="w-full h-full justify-center flex p-1"
@@ -170,8 +182,8 @@ function NavBar() {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <div className="w-8 h-8 aspect-square rounded-full bg-primary-100 outline-none cursor-pointer">
-                <span className="text-blue-500 text-sm font-bold flex justify-center items-center w-full h-full">
+              <div className="w-8 h-8 aspect-square rounded-full bg-primary-200 outline-none cursor-pointer">
+                <span className="text-primary-800 text-sm font-bold flex justify-center items-center w-full h-full">
                   SA
                 </span>
               </div>
@@ -186,6 +198,7 @@ function NavBar() {
           </DropdownMenu>
         </div>
       </div>
+      {isOpenPopUp && <CreateProjectForm handleClosePopUp={handleOpenPopUp} />}
     </div>
   );
 }
