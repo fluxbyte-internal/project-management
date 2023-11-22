@@ -36,7 +36,7 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
     });
     return new SuccessResponse(StatusCodes.OK, task, 'task selected').send(res);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === PRISMA_ERROR_CODE.NOT_FOUND) {
         throw new NotFoundError(`no matches were found`);
@@ -102,7 +102,7 @@ export const createTask = async (req: express.Request, res: express.Response) =>
     });
     return new SuccessResponse(StatusCodes.CREATED, { ...task, endDate }, 'task created successfully').send(res);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientValidationError || PrismaClientKnownRequestError) {
       throw new BadRequestError(`A new task cannot be created, ${error}`);
     }
@@ -126,7 +126,7 @@ export const updateTask = async (req: express.Request, res: express.Response) =>
 
     return new SuccessResponse(StatusCodes.OK, { ...taskUpdateDB, endDate }, 'task updated successfully').send(res);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientValidationError || PrismaClientKnownRequestError) {
       throw new BadRequestError(`A task cannot be updated`);
     }
@@ -146,7 +146,7 @@ export const deleteTask = async (req: express.Request, res: express.Response) =>
       return new SuccessResponse(StatusCodes.OK, {}, 'task deleted successfully').send(res);
     };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === PRISMA_ERROR_CODE.NOT_FOUND) {
         throw new NotFoundError(`no task were found`);
@@ -176,7 +176,7 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
       return new SuccessResponse(StatusCodes.OK, updatedTask, 'task status change successfully').send(res);
     };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === PRISMA_ERROR_CODE.NOT_FOUND) {
         throw new NotFoundError(`no task were found`);
@@ -198,7 +198,7 @@ export const statusCompletedAllTAsk = async (req: express.Request, res: express.
     };
     return new SuccessResponse(StatusCodes.OK, {}, 'all task status change to completed successfully').send(res);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientValidationError || PrismaClientKnownRequestError) {
       throw new BadRequestError(`A task status cannot be completed`);
     }
@@ -220,7 +220,7 @@ export const addComment = async (req: express.Request, res: express.Response) =>
     });
     return new SuccessResponse(StatusCodes.CREATED, comment, 'comment added successfully').send(res);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientValidationError || error instanceof PrismaClientKnownRequestError) {
       throw new BadRequestError(`A new comment cannot be added`);
     }
@@ -241,7 +241,7 @@ export const updateComment = async (req: express.Request, res: express.Response)
       return new SuccessResponse(StatusCodes.OK, findComment, 'comment updated successfully').send(res);
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === PRISMA_ERROR_CODE.NOT_FOUND) {
         throw new NotFoundError(`no comment were found`);
@@ -259,7 +259,7 @@ export const deleteComment = async (req: express.Request, res: express.Response)
       return new SuccessResponse(StatusCodes.OK, {}, 'comment deleted successfully').send(res);
     };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === PRISMA_ERROR_CODE.NOT_FOUND) {
         throw new NotFoundError(`no comment were found`);
@@ -288,7 +288,7 @@ export const updateAttachment = async (req: express.Request, res: express.Respon
     });
     return new SuccessResponse(StatusCodes.OK, {}, 'Attachment updated successfully').send(res);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientValidationError || PrismaClientKnownRequestError) {
       throw new BadRequestError(`A attachment cannot be updated, ${error}`);
     }
@@ -304,7 +304,7 @@ export const deleteAttachment = async (req: express.Request, res: express.Respon
       return new SuccessResponse(StatusCodes.OK, {}, 'Attachment deleted successfully').send(res);
     };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === PRISMA_ERROR_CODE.NOT_FOUND) {
         throw new NotFoundError(`no attachment were found`);

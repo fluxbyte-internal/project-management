@@ -27,7 +27,7 @@ export const getProjectById = async (req: express.Request, res: express.Response
     const projectProgression = await ProjectService.calculateProjectProgressionPercentage(projectId, req.tenantId);
     return new SuccessResponse(StatusCodes.OK, { ...projects, projectProgression }, 'project selected').send(res);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === PRISMA_ERROR_CODE.NOT_FOUND) {
         throw new NotFoundError(`no matches were found.`);
@@ -62,7 +62,7 @@ export const createProject = async (req: express.Request, res: express.Response)
     });
     return new SuccessResponse(StatusCodes.CREATED, project, 'project created successfully').send(res);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientValidationError || PrismaClientKnownRequestError) {
       throw new BadRequestError(`A new project cannot be created`);
     }
@@ -80,7 +80,7 @@ export const deleteProject = async (req: express.Request, res: express.Response)
       return new SuccessResponse(StatusCodes.OK, {}, 'project deleted successfully').send(res);
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === PRISMA_ERROR_CODE.NOT_FOUND) {
         throw new NotFoundError(`no project were found`);
@@ -102,7 +102,7 @@ export const updateProject = async (req: express.Request, res: express.Response)
     });
     return new SuccessResponse(StatusCodes.OK, projectUpdate, 'project updated successfully').send(res);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientValidationError || PrismaClientKnownRequestError) {
       throw new BadRequestError(`A project cannot be updated`);
     }
@@ -127,7 +127,7 @@ export const statusChangeProject = async (req: express.Request, res: express.Res
     });
     return new SuccessResponse(StatusCodes.OK, {}, 'project status change successfully').send(res);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     if (error instanceof PrismaClientValidationError || PrismaClientKnownRequestError) {
       throw new BadRequestError(`project status cannot be change`);
     }

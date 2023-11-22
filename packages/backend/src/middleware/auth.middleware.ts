@@ -13,7 +13,7 @@ export const authMiddleware = async (req: express.Request, res: express.Response
     req.tenantId = decoded.tenantId;
     next()
   } catch (error: unknown | any) {
-    console.log(error);
+    console.error(error);
     if (error.name === 'JsonWebTokenError', error.name === 'TokenExpiredError') {
       throw new UnAuthorizedError();
     };
