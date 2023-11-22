@@ -10,7 +10,7 @@ function Test() {
         ApiRequest.get(requestURLs.me);
       }
     } catch (error) {
-      console.log("error", error);
+      console.error(error);
     }
   }, []);
   return (
