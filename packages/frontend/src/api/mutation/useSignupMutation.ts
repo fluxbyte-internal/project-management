@@ -2,10 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { requestURLs } from "../../Environment";
 import axios from "axios";
 import { z } from "zod";
-import {
-  ResponseType,
-  AxiosResponseAndError,
-} from "../mutation/useLoginMutation";
+import { AxiosResponseAndError, ResponseType } from "@/api/types/axiosResponseType";
 import { authSignUpSchema } from "@backend/src/schemas/authSchema";
 
 type SignupResponseType = ResponseType<{

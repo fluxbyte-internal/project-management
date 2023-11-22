@@ -2,32 +2,60 @@ import { useFormik } from "formik";
 import closeImage from "../../../assets/png/close.png";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { createOrganisationSchema } from "../../../../../backend/src/schemas/organisationSchema";
-
+import useOrganisationMutation from "@/api/mutation/useOrganisationMutation";
+import { isAxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
+import { z } from "zod";
 interface Props {
   close: () => void;
 }
 
 function OrganisationForm(props: Props) {
   const { close } = props;
-  const errorStyle = "text-red-400 mt text-sm mb-3 ml-2.5";
+  const errorStyle = "text-red-400 text-sm mb-3 ml-2.5";
   const labelStyle = "block text-gray-500 text-sm font-bold mb-1";
   const inputStyle =
     "block w-full p-2.5 border-gray-300 text-gray-500 text-sm rounded-md shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50  placeholder:text-gray-400";
+  const navigate = useNavigate();
+  const organisationMutation = useOrganisationMutation();
 
-  // const toggleInputStyle =
-  //   "appearance-none w-9 focus:outline-none checked:bg-orange-200 h-5 bg-gray-300 rounded-full before:inline-block before:rounded-full before:bg-warning before:h-4 before:w-4 checked:before:translate-x-full shadow-inner transition-all duration-300 before:ml-0.5";
-
-  const formik = useFormik({
+  const formik = useFormik<z.infer<typeof createOrganisationSchema>>({
     initialValues: {
       organisationName: "",
       industry: "",
       status: "ACTIVE",
-      listOfNonWorkingDays: "",
+      listOfNonWorkingDays: 1,
       country: "",
     },
     validationSchema: toFormikValidationSchema(createOrganisationSchema),
-    onSubmit: () => {},
+    onSubmit: (values, helper) => {
+      organisationMutation.mutate(values, {
+        onSuccess(data) {
+          localStorage.setItem(
+            "organisation-id",
+            data.data.data.organisationId
+          );
+          navigate("/");
+        },
+        onError(error) {
+          if (isAxiosError(error)) {
+            if (
+              error.response?.status === 400 &&
+              error.response.data?.errors &&
+              Array.isArray(error.response?.data.errors)
+            ) {
+              error.response.data.errors.map(
+                (item: { message: string; path: [string] }) => {
+                  helper.setFieldError(item.path[0], item.message);
+                }
+              );
+            }
+          }
+        },
+      });
+    },
   });
+
   return (
     <div className="absolute w-full h-full top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-primary-900 bg-opacity-50 ">
       <div className="bg-white rounded-lg shadow-md px-2.5 md:px-6 lg:px-8 pt-6 pb-8 mb-4 md:w-3/4 w-11/12 lg:w-[40rem]">
@@ -123,5 +151,4 @@ function OrganisationForm(props: Props) {
     </div>
   );
 }
-
 export default OrganisationForm;
