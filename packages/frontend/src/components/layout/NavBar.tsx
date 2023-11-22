@@ -10,9 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { LogOut } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useState } from "react";
-import CreateProjectForm from "../project/CreateProjectForm";
+import { Link, useNavigate } from "react-router-dom";
 
 const navbarData = [
   {
@@ -48,6 +47,11 @@ function NavBar() {
 
   const handleOpenPopUp = () => {
     setisOpenPopUp(!isOpenPopUp);
+  };
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
   };
   return (
     <div className="w-full h-14   z-10  fixed border-b-2 border-#E2E8F0 flex items-center flex-col ">
@@ -186,9 +190,9 @@ function NavBar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
+                <button className="button">Log out</button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

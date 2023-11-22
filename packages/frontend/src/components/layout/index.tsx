@@ -9,7 +9,7 @@ function Layout() {
           <NavBar />
         </div>
 
-        <div id="detail" className="mt-14 flex justify-center">
+        <div id="detail" className="h-[calc(100vh-3.5rem)] mt-14 flex justify-center">
           <Outlet />
         </div>
       </div>

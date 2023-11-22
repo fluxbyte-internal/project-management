@@ -3,14 +3,14 @@ import { NavLink, useNavigate } from "react-router-dom";
 import show from "../../../assets/eye-alt.svg";
 import hide from "../../../assets/eye-slash.svg";
 import { useFormik } from "formik";
-import { authSignUpSchema } from "backend/src/schemas/authSchema";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import useSignupMutation from "../../../api/mutation/useSignupMutation";
 import { isAxiosError } from "axios";
+import ErrorMessage from "@/components/common/ErrorMessage";
+import { authSignUpSchema } from "@backend/src/schemas/authSchema";
 
 function Signup() {
   const navigate = useNavigate();
-  const errorStyle = "text-red-400 mt-2.5 ml-2.5";
   const inputStyle =
     "block w-full p-2.5 mt-1 border-gray-300 rounded-md shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50";
   const [showPassword, setShowPassword] = useState(false);
@@ -40,7 +40,7 @@ function Signup() {
       jobTitle: "",
     },
     validationSchema: toFormikValidationSchema(authSignUpSchema),
-    onSubmit: async (values, helper) => {
+    onSubmit: (values, helper) => {
       signupMutation.mutate(values, {
         onSuccess(data) {
           if (data.data.data.token) {
@@ -93,7 +93,7 @@ function Signup() {
                 >
                   First Name
                 </label>
-                <div className="flex flex-col items-start">
+                <div>
                   <input
                     type="text"
                     name="firstName"
@@ -103,9 +103,9 @@ function Signup() {
                     onChange={formik.handleChange}
                   />
                 </div>
-                <span className={errorStyle}>
+                <ErrorMessage>
                   {formik.touched.firstName && formik.errors.firstName}
-                </span>
+                </ErrorMessage>
               </div> */}
               {/* Last Name */}
               {/* <div className="w-full">
@@ -115,7 +115,7 @@ function Signup() {
                 >
                   Last Name
                 </label>
-                <div className="flex flex-col items-start">
+                <div>
                   <input
                     type="text"
                     name="lastName"
@@ -125,9 +125,9 @@ function Signup() {
                     onChange={formik.handleChange}
                   />
                 </div>
-                <span className={errorStyle}>
+                <ErrorMessage>
                   {formik.touched.lastName && formik.errors.lastName}
-                </span>
+                </ErrorMessage>
               </div> */}
             </div>
             <div className="flex md:flex-row flex-col justify-between items-center gap-5 mt-4">
@@ -138,19 +138,17 @@ function Signup() {
                 >
                   Email
                 </label>
-                <div className="flex flex-col items-start">
-                  <input
-                    type="email"
-                    name="email"
-                    className={inputStyle}
-                    placeholder="Enter email"
-                    value={formik.values.email}
-                    onChange={formik.handleChange}
-                  />
-                </div>
-                <span className={errorStyle}>
+                <input
+                  type="email"
+                  name="email"
+                  className={inputStyle}
+                  placeholder="Enter email"
+                  value={formik.values.email}
+                  onChange={formik.handleChange}
+                />
+                <ErrorMessage>
                   {formik.touched.email && formik.errors.email}
-                </span>
+                </ErrorMessage>
               </div>
               {/* Job Title */}
               {/* <div className="w-full">
@@ -160,7 +158,7 @@ function Signup() {
                 >
                   Job Title
                 </label>
-                <div className="flex flex-col items-start">
+                <div>
                   <input
                     type="jobTitle"
                     name="jobTitle"
@@ -170,9 +168,9 @@ function Signup() {
                     disabled
                   />
                 </div>
-                <span className={errorStyle}>
+                <ErrorMessage>
                   {formik.touched.jobTitle && formik.errors.jobTitle}
-                </span>
+                </ErrorMessage>
               </div> */}
             </div>
             <div className="flex md:flex-row flex-col justify-between items-center gap-5 mt-4">
@@ -188,16 +186,14 @@ function Signup() {
                   onClick={handleShowPassword}
                   placeholder={`${showPassword ? "Hide" : "Show"}`}
                 ></label>
-                <div className="flex flex-col items-start">
-                  <input
-                    type={`${showPassword ? "text" : "password"}`}
-                    name="password"
-                    className={inputStyle}
-                    placeholder="Enter password"
-                    value={formik.values.password}
-                    onChange={formik.handleChange}
-                  />
-                </div>
+                <input
+                  type={`${showPassword ? "text" : "password"}`}
+                  name="password"
+                  className={inputStyle}
+                  placeholder="Enter password"
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                />
                 <div className="p-2.5 absolute top-[30%] right-[5%]">
                   <img
                     src={showPassword ? show : hide}
@@ -206,9 +202,9 @@ function Signup() {
                     height={18}
                   />
                 </div>
-                <span className={errorStyle}>
+                <ErrorMessage>
                   {formik.touched.password && formik.errors.password}
-                </span>
+                </ErrorMessage>
               </div>
               <div className="relative w-full">
                 <label
@@ -217,16 +213,14 @@ function Signup() {
                 >
                   Confirm Password
                 </label>
-                <div className="flex flex-col items-start">
-                  <input
-                    type={`${showConfirmationPassword ? "text" : "password"}`}
-                    name="confirmPassword"
-                    className={inputStyle}
-                    placeholder="Enter password again"
-                    value={formik.values.confirmPassword}
-                    onChange={formik.handleChange}
-                  />
-                </div>
+                <input
+                  type={`${showConfirmationPassword ? "text" : "password"}`}
+                  name="confirmPassword"
+                  className={inputStyle}
+                  placeholder="Enter password again"
+                  value={formik.values.confirmPassword}
+                  onChange={formik.handleChange}
+                />
                 <div className="p-2.5 absolute top-[30%] right-[5%]">
                   <img
                     src={showPassword ? show : hide}
@@ -235,10 +229,10 @@ function Signup() {
                     height={18}
                   />
                 </div>
-                <span className={errorStyle}>
+                <ErrorMessage>
                   {formik.touched.confirmPassword &&
                     formik.errors.confirmPassword}
-                </span>
+                </ErrorMessage>
               </div>
             </div>
             {/* Select Country & Time Zone*/}
@@ -250,7 +244,7 @@ function Signup() {
                 >
                   Select Country
                 </label>
-                <div className="flex flex-col items-start">
+                <div>
                   <select
                     name="country"
                     className={inputStyle}
@@ -265,9 +259,9 @@ function Signup() {
                     <option value="Korea">Korea</option>
                   </select>
                 </div>
-                <span className={errorStyle}>
+                <ErrorMessage>
                   {formik.touched.country && formik.errors.country}
-                </span>
+                </ErrorMessage>
               </div>
               <div className="w-full">
                 <label
@@ -276,7 +270,7 @@ function Signup() {
                 >
                   Select Time Zone
                 </label>
-                <div className="flex flex-col items-start">
+                <div>
                   <select
                     name="timeZone"
                     className={inputStyle}
@@ -293,9 +287,9 @@ function Signup() {
                     <option value="UTC +9">Japan Standard Time</option>
                   </select>
                 </div>
-                <span className={errorStyle}>
+                <ErrorMessage>
                   {formik.touched.timeZone && formik.errors.timeZone}
-                </span>
+                </ErrorMessage>
               </div>
             </div> */}
             <a href="#" className="text-xs text-danger hover:underline">

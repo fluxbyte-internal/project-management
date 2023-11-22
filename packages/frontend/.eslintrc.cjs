@@ -24,10 +24,10 @@ module.exports = {
     'comma-dangle': [
       'warn',
       {
-        'arrays': 'always',
-        'objects': 'always',
-        'imports': 'never',
-        'exports': 'never',
+        'arrays': 'always-multiline',
+        'objects': 'always-multiline',
+        'imports': 'always-multiline',
+        'exports': 'always-multiline',
         'functions': 'never'
       }
     ],
