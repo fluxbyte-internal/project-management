@@ -3,15 +3,15 @@ import { NavLink, useNavigate } from "react-router-dom";
 import show from "../../../assets/eye-alt.svg";
 import hide from "../../../assets/eye-slash.svg";
 import { useFormik } from "formik";
-import { authLoginSchema } from "backend/src/schemas/authSchema";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import useLoginMutation from "../../../api/mutation/useLoginMutation";
 import { isAxiosError } from "axios";
+import ErrorMessage from "@/components/common/ErrorMessage";
+import { authLoginSchema } from "@backend/src/schemas/authSchema";
 
 function Login() {
   const navigate = useNavigate();
   const loginMutation = useLoginMutation();
-  const errorStyle = "text-red-400 mt-2.5 ml-2.5";
   const inputStyle =
     "block w-full p-2.5 mt-1 border-gray-300 rounded-md shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50";
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -73,22 +73,20 @@ function Login() {
               >
                 Email
               </label>
-              <div className="flex flex-col items-start">
-                <input
-                  type="text"
-                  name="email"
-                  className={inputStyle}
-                  id="email"
-                  placeholder="Enter email"
-                  value={formik.values.email}
-                  onChange={(e) => {
-                    formik.handleChange(e);
-                  }}
-                />
-              </div>
-              <span className={errorStyle}>
+              <input
+                type="text"
+                name="email"
+                className={inputStyle}
+                id="email"
+                placeholder="Enter email"
+                value={formik.values.email}
+                onChange={(e) => {
+                  formik.handleChange(e);
+                }}
+              />
+              <ErrorMessage>
                 {formik.touched.email && formik.errors.email}
-              </span>
+              </ErrorMessage>
             </div>
             <div className="relative w-full mt-4">
               <label
@@ -97,16 +95,14 @@ function Login() {
               >
                 Password
               </label>
-              <div className="flex flex-col items-start">
-                <input
-                  type={`${showPassword ? "text" : "password"}`}
-                  name="password"
-                  className={inputStyle}
-                  placeholder="Enter password"
-                  value={formik.values.password}
-                  onChange={formik.handleChange}
-                />
-              </div>
+              <input
+                type={`${showPassword ? "text" : "password"}`}
+                name="password"
+                className={inputStyle}
+                placeholder="Enter password"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+              />
               <div className="p-2 absolute top-[35%] right-[5%]">
                 <img
                   src={showPassword ? show : hide}
@@ -115,9 +111,9 @@ function Login() {
                   height={18}
                 />
               </div>
-              <span className={errorStyle}>
+              <ErrorMessage>
                 {formik.touched.password && formik.errors.password}
-              </span>
+              </ErrorMessage>
             </div>
             <a href="#" className="text-xs text-danger hover:underline">
               Forget Password?

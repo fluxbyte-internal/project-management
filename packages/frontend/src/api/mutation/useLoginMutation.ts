@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { requestURLs } from "../../Environment";
 import axios, { AxiosError, AxiosResponse } from "axios";
-import { authLoginSchema } from "backend/src/schemas/authSchema";
 import { z } from "zod";
+import { authLoginSchema } from "@backend/src/schemas/authSchema";
 
 export type ResponseType<T> = {
   code: number;
