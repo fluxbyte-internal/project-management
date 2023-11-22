@@ -6,7 +6,7 @@ import { useFormik } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import useLoginMutation from "../../../api/mutation/useLoginMutation";
 import { isAxiosError } from "axios";
-import ErrorMessage from "@/components/common/errorMessage";
+import ErrorMessage from "@/components/common/ErrorMessage";
 import { authLoginSchema } from "@backend/src/schemas/authSchema";
 
 function Login() {
