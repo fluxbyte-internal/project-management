@@ -50,7 +50,9 @@ export const login = async (req: express.Request, res: express.Response) => {
     const token = createJwtToken(tokenPayload)
     const refreshToken = createJwtToken(tokenPayload, true)
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
-    return new SuccessResponse(StatusCodes.OK, { user, token }, 'Login successfully').send(res);
+    const { password, ...userInfoWithoutPassword } = user;
+
+    return new SuccessResponse(StatusCodes.OK, { user: userInfoWithoutPassword, token }, 'Login successfully').send(res);
   }
   throw new BadRequestError('Invalid credentials');
 };

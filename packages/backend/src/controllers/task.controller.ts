@@ -7,12 +7,14 @@ import { PrismaClientKnownRequestError, PrismaClientValidationError } from '@pri
 import { PRISMA_ERROR_CODE } from '../constants/prismaErrorCodes.js';
 import { attachmentIdSchma, attachmentTaskSchema, commentIdSchma, createCommentTaskSchema, createTaskSchema, taskIdSchema, taskStatusSchema, updateTaskSchema } from '../schemas/taskSchema.js';
 import { TaskService } from '../services/task.services.js';
+import { TaskStatusEnum } from '@prisma/client';
 
 export const getTasks = async (req: express.Request, res: express.Response) => {
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const tasks = await prisma.task.findMany({
-    where: { projectId: projectId }
+    where: { projectId: projectId },
+    orderBy: { createdAt: 'desc' }
   });
   return new SuccessResponse(StatusCodes.OK, tasks, 'get all task successfully').send(res);
 };
@@ -159,10 +161,17 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
   const statusBody = taskStatusSchema.parse(req.body);
   try {
     const prisma = await getClientByTenantId(req.tenantId);
-    if (taskId && await prisma.task.findFirstOrThrow({ where: { taskId: taskId } })) {
+    if (taskId) {
+      const findTask = await prisma.task.findFirstOrThrow({ where: { taskId: taskId } })
       let updatedTask = await prisma.task.update({
         where: { taskId: taskId },
-        data: { status: statusBody.status },
+        data: {
+          status: statusBody.status,
+          completionPecentage:
+            statusBody.status === TaskStatusEnum.COMPLETED
+              ? '100'
+              : findTask.completionPecentage
+        },
       });
       return new SuccessResponse(StatusCodes.OK, updatedTask, 'task status change successfully').send(res);
     };
@@ -172,6 +181,26 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
       if (error.code === PRISMA_ERROR_CODE.NOT_FOUND) {
         throw new NotFoundError(`no task were found`);
       }
+    }
+  }
+};
+
+export const statusCompletedAllTAsk = async (req: express.Request, res: express.Response) => {
+  const projectId = projectIdSchema.parse(req.params.projectId);
+  try {
+    const prisma = await getClientByTenantId(req.tenantId);
+    const findAllTaskByProjectId = await prisma.task.findMany({ where: { projectId: projectId } });
+    if (findAllTaskByProjectId.length > 0) {
+      await prisma.task.updateMany({
+        where: { projectId: projectId },
+        data: { status: TaskStatusEnum.COMPLETED, completionPecentage: '100' }
+      })
+    };
+    return new SuccessResponse(StatusCodes.OK, {}, 'all task status change to completed successfully').send(res);
+  } catch (error) {
+    console.log(error);
+    if (error instanceof PrismaClientValidationError || PrismaClientKnownRequestError) {
+      throw new BadRequestError(`A task status cannot be completed`);
     }
   }
 };
@@ -243,6 +272,7 @@ export const updateAttachment = async (req: express.Request, res: express.Respon
   const attachemtnBody = attachmentTaskSchema.parse(req.body);
   const taskId = taskIdSchema.parse(req.params.taskId);
   try {
+    // Todo: Need to do with blob and AWS S3
     const prisma = await getClientByTenantId(req.tenantId);
     attachemtnBody.map(async (data) => {
       if (data.attachmentId && await prisma.taskAttachment.findFirstOrThrow({ where: { attachmentId: data.attachmentId } })) {

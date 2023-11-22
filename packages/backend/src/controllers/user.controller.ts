@@ -1,6 +1,6 @@
 import express from 'express';
 import { getClientByTenantId } from '../config/db.js';
-import { SuccessResponse } from '../config/apiError.js';
+import { NotFoundError, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
 
 
@@ -14,5 +14,7 @@ export const me = async (req: express.Request, res: express.Response) => {
       }
     }
   });
-  return new SuccessResponse(StatusCodes.OK, user, 'Login user details').send(res);
+  if (!user) throw new NotFoundError('User not found!');
+  const { password, ...userInfoWithoutPassword } = user;
+  return new SuccessResponse(StatusCodes.OK, userInfoWithoutPassword, 'Login user details').send(res);
 };
