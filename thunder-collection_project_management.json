@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "project_management",
-    "dateExported": "2023-11-22T05:44:16.337Z",
+    "dateExported": "2023-11-22T10:22:13.876Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -191,11 +191,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Project - get By Id",
-            "url": "{{ip_url}}/api/project/5daef29f-2add-49dc-a5ef-a46539e3fd54",
+            "url": "{{ip_url}}/api/project/67083a32-be83-4269-aa17-9b6ff7147bd5",
             "method": "GET",
             "sortNum": 130000,
             "created": "2023-11-09T11:26:07.278Z",
-            "modified": "2023-11-20T10:21:12.998Z",
+            "modified": "2023-11-22T06:07:31.757Z",
             "headers": [
                 {
                     "name": "organisation-id",
@@ -252,16 +252,16 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Task - create",
-            "url": "{{ip_url}}/api/task/67083a32-be83-4269-aa17-9b6ff7147bd5/34ddb183-ec45-416b-afdf-ac3583f438c3",
+            "url": "{{ip_url}}/api/task/67083a32-be83-4269-aa17-9b6ff7147bd5/",
             "method": "POST",
             "sortNum": 170000,
             "created": "2023-11-09T11:40:37.643Z",
-            "modified": "2023-11-22T04:15:11.049Z",
+            "modified": "2023-11-22T07:22:57.700Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"taskName\": \"OP SUB CURD\",\n  \"taskDescription\": \"SSS\",\n  \"duration\": 10,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"endDate\": \"2024-01-28T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\",\n  \"assignee\": \"902ce2a5-18d0-498d-b34c-c716bd0ba15b\",\n  \"status\": \"NOT_STARTED\"\n}",
+                "raw": "{\n  \"taskName\": \"OP SUB CURD\",\n  \"taskDescription\": \"SSS\",\n  \"duration\": 90,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"endDate\": \"2024-01-28T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\",\n  \"assignee\": \"902ce2a5-18d0-498d-b34c-c716bd0ba15b\",\n  \"status\": \"NOT_STARTED\"\n}",
                 "form": []
             },
             "tests": []
@@ -428,6 +428,20 @@
             "sortNum": 260000,
             "created": "2023-11-22T05:36:17.877Z",
             "modified": "2023-11-22T05:40:46.175Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "f5e6230b-9416-4dd4-b7bd-1a489bf05041",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - All task completed",
+            "url": "{{ip_url}}/api/task/status/completed/67083a32-be83-4269-aa17-9b6ff7147bd5",
+            "method": "PUT",
+            "sortNum": 270000,
+            "created": "2023-11-22T06:07:47.927Z",
+            "modified": "2023-11-22T06:09:19.897Z",
             "headers": [],
             "params": [],
             "tests": []
