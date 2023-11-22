@@ -29,19 +29,13 @@ export type AxiosResponseAndError<T> = {
   error: AxiosError<ErrorResponseType>;
 };
 
-const headers = {
-  "organisation-id": "61dd26ee-b064-43e9-b12f-21a7b7832737",
-  authorization:
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmMjNmZDMyNy0xMWJlLTQwMGUtOWJmYS1hMzc1ZmI3YWE3NGIiLCJlbWFpbCI6InRlc3RAeW9wbWFpbC5jb20iLCJ0ZW5hbnRJZCI6InJvb3QiLCJpYXQiOjE3MDA2NTYyOTgsImV4cCI6MTcwMDc0MjY5OH0.jrtSLn-eST4PO_UxTuHT7XZ5TB9hcThkxBra7303NV4"};
 function useProjectMutation() {
   const mutation = useMutation<
     AxiosResponseAndError<ProjectApiResponse>["response"],
     AxiosResponseAndError<ProjectApiResponse>["error"]
   >({
     mutationFn: () =>
-      axios.get<ProjectApiResponse>(requestURLs.getProject, {
-        headers: headers,
-      }),
+      axios.get<ProjectApiResponse>(requestURLs.getProject),
   });
 
   return mutation;
