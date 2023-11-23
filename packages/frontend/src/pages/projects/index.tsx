@@ -1,58 +1,79 @@
 import PercentageCircle from "@/components/shared/percentageCircle";
-import Table, { columeDef } from "@/components/shared/table";
+import Table, { ColumeDef } from "@/components/shared/table";
 import dateFormater from "@/helperFuntions/dateFormater";
-import useProjectMutation, {
-  Project,
-} from "../../api/mutation/useProjectMutation";
+import useProjectQuary, { Project } from "../../api/query/useProjectQuery";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import ProfileName from "@/components/shared/profile";
 function Projects() {
   const [data, setData] = useState<Project[]>();
+  const projectQuary = useProjectQuary();
   useEffect(() => {
-    projectMutation
-      .mutateAsync()
-      .then((res) => {
-        setData(res.data.data);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  }, []);
-  const projectMutation = useProjectMutation();
+    setData(projectQuary.data?.data.data);
+  }, [projectQuary.data?.data.data]);
 
-  const columnDef: columeDef[] = [
-    { key: "projectName", label: "Project Name" },
+  const columnDef: ColumeDef[] = [
+    { key: "projectName", header: "Project Name", sorting: true },
     {
       key: "pm",
-      label: "PM",
-      onCellRender: (item) => renderPm(item),
+      header: "PM",
+      onCellRender: (item: Project) => (
+        <>
+          <ProfileName lable={item.projectManager} url={item.profile} />
+        </>
+      ),
     },
     {
       key: "status",
-      label: "Status",
-      onCellRender: (item) => renderStuts(item),
+      header: "Status",
+      onCellRender: (item: Project) => (
+        <>
+          <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
+            <div className="text-cyan-700 text-xs font-medium  leading-tight">
+              {item.status}
+            </div>
+          </div>
+        </>
+      ),
     },
     {
       key: "startDate",
-      label: "Start Date",
-      onCellRender: (item) => startDateFormate(item),
+      header: "Start Date",
+      sorting: true,
+      onCellRender: (item: Project) => <>{dateFormater(`${item.startDate}`)}</>,
     },
     {
       key: "actualEndDate",
-      label: "End Date",
-      onCellRender: (item) => endDateFormate(item),
+      header: "End Date",
+      onCellRender: (item: Project) => (
+        <>{dateFormater(`${item.actualEndDate}`)}</>
+      ),
     },
     {
       key: "prograss",
-      label: "Prograss",
-      onCellRender: (item) => renderProgress(item),
+      header: "Prograss",
+      onCellRender: (item: Project) => (
+        <PercentageCircle percentage={item.progressionPercentage} />
+      ),
+    },
+    {
+      key: "estimatedBudget",
+      header: "Budget",
+      sorting: true,
     },
     {
       key: "Action",
-      label: "Action",
-      onCellRender: (item) => renderEdit(item),
+      header: "Action",
+      onCellRender: (item: Project) => (
+        <>
+          <button className="w-32 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex">
+            Edit
+          </button>
+        </>
+      ),
     },
   ];
+
 
   return (
     <div className=" h-full py-5 p-4 lg:p-14  w-full bg-[url(/src/assets/png/background2.png)] bg-cover bg-no-repeat">
@@ -69,52 +90,6 @@ function Projects() {
       <div className="my-8 h-full">
         {data && <Table key="Project view" columnDef={columnDef} data={data} />}
       </div>
-    </div>
-  );
-}
-
-function startDateFormate(props: Project) {
-  const { startDate } = props;
-  return <>{dateFormater(startDate)}</>;
-}
-function endDateFormate(props: Project) {
-  const { estimatedEndDate } = props;
-  return <>{dateFormater(estimatedEndDate)}</>;
-}
-
-function renderProgress(props: Project) {
-  const { progressionPercentage } = props;
-  return <PercentageCircle percentage={progressionPercentage} />;
-}
-
-function renderStuts(props: Project) {
-  const { status } = props;
-  return (
-    <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
-      <div className="text-cyan-700 text-xs font-medium  leading-tight">
-        {status}
-      </div>
-    </div>
-  );
-}
-function renderEdit(props: Project) {
-  return (
-    <button className="w-32 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex">
-      Edit
-    </button>
-  );
-}
-function renderPm(props: Project) {
-  const projectManager = "Jhon Dev";
-  const name =
-    projectManager.split(" ")[0].charAt(0) +
-    projectManager.split(" ")[1].charAt(0);
-  return (
-    <div className="flex flex-col lg:flex-row justify-between items-center w-fit gap-3">
-      <div className="rounded-full font-bold text-xl bg-[#FFE388] h-11 w-11 flex justify-center items-center  text-yellow-900">
-        {name}
-      </div>
-      <div className="text-sm font-medium w">{projectManager}</div>
     </div>
   );
 }

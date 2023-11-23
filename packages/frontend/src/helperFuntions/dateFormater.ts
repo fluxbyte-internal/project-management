@@ -1,15 +1,14 @@
 export default function dateFormater(inputDate: string): string {
-  if (!inputDate) {
-    return '-';
-  } 
   const dateObject = new Date(inputDate);
-  const year = dateObject.getUTCFullYear();
-  const month = dateObject.getUTCMonth() + 1;
-  const day = dateObject.getUTCDate();
+  if (!isNaN(Date.parse(`${dateObject}`))) {
+    const year = dateObject.getFullYear();
+    const month = dateObject.getMonth() + 1;
+    const day = dateObject.getDate();
 
-  const formattedDate = `${day.toString().padStart(2, "0")}/${month
-    .toString()
-    .padStart(2, "0")}/${year}`;
-
-  return formattedDate;
+    return `${day.toString().padStart(2, "0")}/${month
+      .toString()
+      .padStart(2, "0")}/${year}`;
+  } else {
+    return "";
+  }
 }

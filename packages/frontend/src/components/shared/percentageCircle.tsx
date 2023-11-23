@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
-type props = {
-  percentage: string | number;
+type Props = {
+  percentage: string | number | null;
 };
-function PercentageCircle(props: props) {
+function PercentageCircle(props: Props) {
   const { percentage } = props;
   const [color, setColor] = useState("#ff06068f");
   const [per, setPer] = useState(0);

@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import arrowImg from "../../assets/png/arrow.png";
-export type columeDef = {
+import arrowImg from "../../assets/svg/Arrow.svg";
+import downArrow from "../../assets/svg/DownArrow.svg";
+export type ColumeDef = {
   key: string;
-  label: string;
+  header: string;
+  sorting?: boolean;
   onCellRender?: (data: any) => JSX.Element;
 };
 export type Props = {
-  columnDef: columeDef[];
+  columnDef: ColumeDef[];
   data: any[];
 };
 
@@ -18,6 +20,8 @@ function Table(props: Props) {
   const [dataPerPage, setDataPerPage] = useState(0);
   const [pages, setPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [ascendingToggle, setAscendingToggle] = useState<boolean>(false);
 
   const table = useRef<HTMLDivElement>(null);
   const tableRow = useRef<HTMLTableRowElement>(null);
@@ -68,11 +72,52 @@ function Table(props: Props) {
     [data]
   );
 
+  function compare(a: string, b: string) {
+    let valStringA;
+    let valStringB;
+    if (
+      !isNaN(Date.parse(new Date(a).toString())) &&
+      !isNaN(Date.parse(new Date(a).toString()))
+    ) {
+      valStringA = new Date(a);
+      valStringB = new Date(b);
+    } else if (!isNaN(parseInt(a)) && !isNaN(parseInt(a))) {
+      valStringA = parseInt(a);
+      valStringB = parseInt(b);
+    } else {
+      valStringA = a;
+      valStringB = b;
+    }
+
+    if (ascendingToggle) {
+      if (valStringA > valStringB) {
+        return 1;
+      } else if (valStringA < valStringB) {
+        return -1;
+      } else {
+        return 0;
+      }
+    } else {
+      if (valStringA < valStringB) {
+        return 1;
+      } else if (valStringA > valStringB) {
+        return -1;
+      } else {
+        return 0;
+      }
+    }
+  }
+
+  const shorting = (key: string) => {
+    setDataSource(data.sort((a, b) => compare(a[key], b[key])));
+    setAscendingToggle((prev) => !prev);
+  };
+
   return (
     <>
       <div
         ref={table}
-        className="py-9 px-3 border rounded-md text-sm h-[90%] overflow-y-hidden overflow-x-auto"
+        className="py-9 px-3 relative border rounded-md text-sm h-[90%] overflow-y-hidden overflow-x-auto"
       >
         <table className="w-full">
           <thead>
@@ -80,7 +125,22 @@ function Table(props: Props) {
               {columnDef.map((item, index) => {
                 return (
                   <th className="px-2.5 lg:px-0 py-1" key={index}>
-                    {item.label}
+                    {item.sorting ? (
+                      <>
+                        <div
+                          className="flex  gap-1 items-center cursor-pointer group"
+                          onClick={() => shorting(item.key)}
+                        >
+                          {item.header}
+                          <img
+                            src={downArrow}
+                            className={`${!ascendingToggle ? "rotate-180" : "" } group-hover:opacity-50 opacity-0 `}
+                          />
+                        </div>
+                      </>
+                    ) : (
+                      item.header
+                    )}
                   </th>
                 );
               })}
@@ -90,14 +150,14 @@ function Table(props: Props) {
             {dataSource.map((item, index) => {
               return (
                 <tr ref={tableRow} className="border-b" key={index}>
-                  {columnDef.map((key: columeDef) => {
+                  {columnDef.map((key: ColumeDef) => {
                     return (
                       <td
                         className="px-2.5 max-md:truncate lg:break-words lg:px-0 py-2.5 max-w-[25ch] lg:max-w-[15ch]"
                         key={key.key}
                       >
                         {" "}
-                        {key.onCellRender
+                        {key.onCellRender && key.key
                           ? key.onCellRender(item)
                           : null ?? item[key.key]}
                       </td>
@@ -109,7 +169,7 @@ function Table(props: Props) {
           </tbody>
         </table>
         {dataPerPage < data.length && (
-          <div className="flex gap-3 fixed bottom-16 right-8 lg:bottom-16 lg:right-20 justify-end items-center mb-1">
+          <div className="flex gap-3 fixed max-w-full bottom-12 right-6 -translate-x-5 -translate-y-0  sm:bottom-14 sm:right-14 p-0 sm:p-3 justify-end items-center mb-1">
             <button
               className="disabled:opacity-50 p-2"
               onClick={previousPage}

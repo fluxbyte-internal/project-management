@@ -1,7 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { requestURLs } from "../../Environment";
 import axios, { AxiosError, AxiosResponse } from "axios";
-import { ErrorResponseType, ResponseType } from "./useLoginMutation";
+import { ErrorResponseType, ResponseType } from "../mutation/useLoginMutation";
+import { QUERY_KEYS } from "./querykeys";
 
 export type Project = {
   projectId: string;
@@ -9,7 +10,8 @@ export type Project = {
   projectName: string;
   projectDescription: string;
   startDate: string;
-  projectManager:string;
+  projectManager: string;
+  profile: string;
   estimatedEndDate: string;
   actualEndDate: string | null;
   status: string;
@@ -18,7 +20,7 @@ export type Project = {
   budgetTrack: string | null;
   estimatedBudget: string;
   actualCost: string | null;
-  progressionPercentage: number | string ;
+  progressionPercentage: number | string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -29,16 +31,17 @@ export type AxiosResponseAndError<T> = {
   error: AxiosError<ErrorResponseType>;
 };
 
-function useProjectMutation() {
-  const mutation = useMutation<
+function useProjectQuary() {
+  const mutation = useQuery<
     AxiosResponseAndError<ProjectApiResponse>["response"],
     AxiosResponseAndError<ProjectApiResponse>["error"]
   >({
-    mutationFn: () =>
+    queryFn: () =>
       axios.get<ProjectApiResponse>(requestURLs.getProject),
+    queryKey: [QUERY_KEYS.currentUser],
   });
 
   return mutation;
 }
 
-export default useProjectMutation;
+export default useProjectQuary;
