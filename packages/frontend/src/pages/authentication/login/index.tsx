@@ -1,41 +1,41 @@
-import { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import {  useState } from "react";
+import { NavLink  } from "react-router-dom";
 import show from "../../../assets/eye-alt.svg";
 import hide from "../../../assets/eye-slash.svg";
 import { useFormik } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
-import useLoginMutation from "../../../api/mutation/useLoginMutation";
-import { isAxiosError } from "axios";
+import useLoginMutation from "@/api/mutation/useLoginMutation";
 import ErrorMessage from "@/components/common/ErrorMessage";
 import { authLoginSchema } from "@backend/src/schemas/authSchema";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { isAxiosError } from "axios";
+
+export type LoginValues = {
+  email: string;
+  password: string;
+};
 
 function Login() {
-  const navigate = useNavigate();
+  const { login } = useAuth();
   const loginMutation = useLoginMutation();
   const labelStyle = "font-medium text-base text-gray-8 ";
   const inputStyle =
     "py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[46px] focus:outline-[#943B0C]";
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
-  type FormValues = {
-    email: string;
-    password: string;
-  };
-  const formik = useFormik<FormValues>({
+
+  const formik = useFormik<LoginValues>({
     initialValues: {
       email: "",
       password: "",
     },
     validationSchema: toFormikValidationSchema(authLoginSchema),
-    onSubmit: (values, helper) => {
+    onSubmit: (values, helper ) => {
       setIsLoading(true);
       loginMutation.mutate(values, {
         onSuccess(data) {
-          if (data.data.data.token) {
-            localStorage.setItem("Token", data.data.data.token);
-            navigate("/");
-          }
+          login(data);
         },
         onError(error) {
           if (isAxiosError(error)) {
@@ -45,11 +45,9 @@ function Login() {
               error.response.data?.errors &&
               Array.isArray(error.response?.data.errors)
             ) {
-              error.response.data.errors.map(
-                (item: { message: string; path: [string] }) => {
-                  helper.setFieldError(item.path[0], item.message);
-                }
-              );
+              error.response.data.errors.forEach((item) => {
+                helper.setFieldError(item.path[0], item.message);
+              });
             }
           }
         },

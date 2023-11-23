@@ -11,7 +11,10 @@ import {
 } from "../ui/dropdown-menu";
 import { LogOut } from "lucide-react";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import CreateProjectForm from "../project/CreateProjectForm";
+import { useAuth } from "@/hooks/useAuth";
+import { useUser } from "@/hooks/useUser";
 
 const navbarData = [
   {
@@ -44,14 +47,10 @@ const navbarData = [
 
 function NavBar() {
   const [isOpenPopUp, setisOpenPopUp] = useState(false);
-
+  const {  logout  } = useAuth();
+  const {user} = useUser();
   const handleOpenPopUp = () => {
     setisOpenPopUp(!isOpenPopUp);
-  };
-  const navigate = useNavigate();
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
   };
   return (
     <div className="w-full h-14   z-10  fixed border-b-2 border-#E2E8F0 flex items-center flex-col ">
@@ -184,13 +183,13 @@ function NavBar() {
             <DropdownMenuTrigger asChild>
               <div className="w-8 h-8 aspect-square rounded-full bg-primary-200 outline-none cursor-pointer">
                 <span className="text-primary-800 text-sm font-bold flex justify-center items-center w-full h-full">
-                  SA
+                  {user?.firstName ? user.firstName.charAt(0) : "A"}{user?.lastName ? user?.lastName.charAt(0) : user?.firstName ? user.firstName.charAt(1) : "B"}
                 </span>
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuItem onClick={handleLogout}>
+              <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <button className="button">Log out</button>
               </DropdownMenuItem>
