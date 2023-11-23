@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { requestURLs } from "../../Environment";
 import axios, { AxiosError, AxiosResponse } from "axios";
-import { ErrorResponseType, ResponseType } from "../mutation/useLoginMutation";
 import { QUERY_KEYS } from "./querykeys";
+import { ErrorResponseType, ResponseType } from "../types/axiosResponseType";
 
 export type Project = {
   projectId: string;

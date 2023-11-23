@@ -38,7 +38,7 @@ function Table(props: Props) {
         setPages(count);
       }
     }
-  }, [data, height, tableRowHeight]);
+  }, [data, height, tableRowHeight,ascendingToggle]);
 
   const nextPage = () => {
     if (currentPage < pages) {
@@ -110,6 +110,7 @@ function Table(props: Props) {
 
   const shorting = (key: string) => {
     setDataSource(data.sort((a, b) => compare(a[key], b[key])));
+    setCurrentPage(1);
     setAscendingToggle((prev) => !prev);
   };
 
