@@ -62,7 +62,6 @@ function CreateUpdateProjectForm(props: addProjectType) {
     },
     validationSchema: toFormikValidationSchema(createProjectSchema),
     onSubmit: (values, { resetForm }) => {
-      console.log("Form values:", values);
       resetForm();
     },
   });

@@ -6,7 +6,7 @@ import { AxiosResponseAndError, ResponseType } from "@/api/types/axiosResponseTy
 import { authLoginSchema } from "@backend/src/schemas/authSchema";
 
 
-type LoginApiResponse = ResponseType<{
+export type LoginApiResponse = ResponseType<{
   token: string;
   user: {
     userId: string;

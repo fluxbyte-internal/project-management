@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import show from "../../../assets/eye-alt.svg";
 import hide from "../../../assets/eye-slash.svg";
 import { useFormik } from "formik";
@@ -9,9 +9,10 @@ import { isAxiosError } from "axios";
 import ErrorMessage from "@/components/common/ErrorMessage";
 import { authSignUpSchema } from "@backend/src/schemas/authSchema";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 
 function Signup() {
-  const navigate = useNavigate();
+  const { login } = useAuth();
   const labelStyle = "font-medium text-base text-gray-8 ";
   const inputStyle =
     "py-1.5 px-3 rounded-md border border-gray-100 mt-2  w-full h-[46px] focus:outline-[#943B0C]";
@@ -45,13 +46,9 @@ function Signup() {
     validationSchema: toFormikValidationSchema(authSignUpSchema),
     onSubmit: (values, helper) => {
       setIsLoading(true);
-      setTimeout(() => setIsLoading(false), 2000);
       signupMutation.mutate(values, {
         onSuccess(data) {
-          if (data.data.data.token) {
-            localStorage.setItem("Token", data.data.data.token);
-            navigate("/");
-          }
+          login(data);
         },
         onError(error) {
           if (isAxiosError(error)) {
