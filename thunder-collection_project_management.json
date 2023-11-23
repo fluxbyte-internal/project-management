@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "project_management",
-    "dateExported": "2023-11-22T10:22:13.876Z",
+    "dateExported": "2023-11-23T09:31:53.233Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -14,12 +14,12 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2023-11-04T05:57:48.297Z",
-            "modified": "2023-11-10T09:52:43.671Z",
+            "modified": "2023-11-23T04:52:48.012Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"organisationName\":\"Admin ORG\",\n    \"industry\": \"IT Software Development\",\n    \"status\": \"ACTIVE\",\n    \"listOfNonWorkingDays\": 5,\n    \"country\": \"India\"\n}",
+                "raw": "{\n  \"organisationName\":\"ORG\",\n    \"industry\": \"IT Software Development\",\n    \"status\": \"ACTIVE\",\n    \"listOfNonWorkingDays\": 5,\n    \"country\": \"India\"\n}",
                 "form": []
             },
             "auth": {
@@ -73,12 +73,12 @@
             "method": "POST",
             "sortNum": 40000,
             "created": "2023-11-04T06:05:59.969Z",
-            "modified": "2023-11-20T11:45:36.605Z",
+            "modified": "2023-11-23T04:22:25.811Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n    \"email\":\"yashmadlani710@gmail.com\",\n    \"password\":\"yash711\"\n}",
+                "raw": "{\n    \"email\":\"hitesh@gmail.com\",\n    \"password\":\"hitesh\",\n    \"confirmPassword\":\"hitesh\"\n}",
                 "form": []
             },
             "auth": {
@@ -96,12 +96,12 @@
             "method": "POST",
             "sortNum": 50000,
             "created": "2023-11-04T06:06:15.625Z",
-            "modified": "2023-11-20T11:44:24.568Z",
+            "modified": "2023-11-23T04:22:11.363Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n    \"email\":\"yashmadlani710@gmail.com\",\n    \"password\":\"yash711\",\n    \"confirmPassword\":\"yash711\"\n}",
+                "raw": "{\n    \"email\":\"hitesh@gmail.com\",\n    \"password\":\"hitesh\",\n    \"confirmPassword\":\"hitesh\"\n}",
                 "form": []
             },
             "auth": {
@@ -152,7 +152,7 @@
             "method": "POST",
             "sortNum": 110000,
             "created": "2023-11-09T05:52:54.555Z",
-            "modified": "2023-11-20T12:08:09.156Z",
+            "modified": "2023-11-23T06:32:59.466Z",
             "headers": [
                 {
                     "name": "organisation-id",
@@ -162,7 +162,7 @@
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"projectName\": \"777\",\n  \"projectDescription\": \"HRMS description\",\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedEndDate\": \"2023-11-22T00:00:00.000Z\",\n  \"estimatedBudget\": \"50000\",\n  \"actualEndDate\": \"2023-11-21T00:00:00.000Z\",\n  \"actualCost\": \"48000\",\n  \"budgetTrack\": \"1\",\n  \"timeTrack\": \"0\",\n  \"defaultView\":\"KANBAN\"\n}",
+                "raw": "{\n  \"projectName\": \"updated\",\n  \"projectDescription\": \"description\",\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedEndDate\": \"2023-11-22T00:00:00.000Z\",\n  \"estimatedBudget\": \"50000\",\n  \"defaultView\": \"KANBAN\"\n}",
                 "form": []
             },
             "tests": []
@@ -172,11 +172,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Project - delete",
-            "url": "{{ip_url}}/api/project/90d309eb-6918-47ed-836f-bab93ec788d9",
+            "url": "{{ip_url}}/api/project/d78ed919-a34c-4bfc-83c5-ce120177ee8c",
             "method": "DELETE",
             "sortNum": 120000,
             "created": "2023-11-09T09:06:50.391Z",
-            "modified": "2023-11-20T11:47:55.313Z",
+            "modified": "2023-11-23T06:33:36.016Z",
             "headers": [
                 {
                     "name": "organisation-id",
@@ -210,11 +210,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Tasks - get All",
-            "url": "{{ip_url}}/api/task/67083a32-be83-4269-aa17-9b6ff7147bd5",
+            "url": "{{ip_url}}/api/task/60d05784-82ea-4f3a-966b-8c88ad017f94",
             "method": "GET",
             "sortNum": 140000,
             "created": "2023-11-09T11:37:29.783Z",
-            "modified": "2023-11-21T06:42:34.665Z",
+            "modified": "2023-11-23T06:54:52.226Z",
             "headers": [],
             "params": [],
             "tests": []
@@ -224,11 +224,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Task - get By Id",
-            "url": "{{ip_url}}/api/task/byId/1b533bf6-c61d-4532-a8eb-14f5eeb0626a",
+            "url": "{{ip_url}}/api/task/byId/c5e9343b-ad1a-47db-8645-0a9a7209b733",
             "method": "GET",
             "sortNum": 150000,
             "created": "2023-11-09T11:39:48.196Z",
-            "modified": "2023-11-21T13:04:17.944Z",
+            "modified": "2023-11-23T09:09:43.783Z",
             "headers": [],
             "params": [],
             "tests": []
@@ -238,11 +238,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Task - delete",
-            "url": "{{ip_url}}/api/task/7779c323-362b-4d4c-aba0-23887dc3cb7c",
+            "url": "{{ip_url}}/api/task/e24dd02f-c79a-4758-83a5-dc9aba42cc7a",
             "method": "DELETE",
             "sortNum": 160000,
             "created": "2023-11-09T11:40:16.597Z",
-            "modified": "2023-11-21T07:05:06.521Z",
+            "modified": "2023-11-23T09:24:05.927Z",
             "headers": [],
             "params": [],
             "tests": []
@@ -252,16 +252,16 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Task - create",
-            "url": "{{ip_url}}/api/task/67083a32-be83-4269-aa17-9b6ff7147bd5/",
+            "url": "{{ip_url}}/api/task/60d05784-82ea-4f3a-966b-8c88ad017f94/c5e9343b-ad1a-47db-8645-0a9a7209b733",
             "method": "POST",
             "sortNum": 170000,
             "created": "2023-11-09T11:40:37.643Z",
-            "modified": "2023-11-22T07:22:57.700Z",
+            "modified": "2023-11-23T09:12:40.603Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"taskName\": \"OP SUB CURD\",\n  \"taskDescription\": \"SSS\",\n  \"duration\": 90,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"endDate\": \"2024-01-28T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\",\n  \"assignee\": \"902ce2a5-18d0-498d-b34c-c716bd0ba15b\",\n  \"status\": \"NOT_STARTED\"\n}",
+                "raw": "{\n  \"taskName\": \"1SUB CODE\",\n  \"taskDescription\": \"SSS\",\n  \"duration\": 90,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\",\n  \"assignee\": \"09c99764-162f-4a80-a387-9412f042869d\"\n}",
                 "form": []
             },
             "tests": []
@@ -271,11 +271,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Project - Status change",
-            "url": "{{ip_url}}/api/project/status/ebc838da-8301-413c-ad01-66637e438b62",
+            "url": "{{ip_url}}/api/project/status/e24dd02f-c79a-4758-83a5-dc9aba42cc7a",
             "method": "PUT",
             "sortNum": 180000,
             "created": "2023-11-20T05:04:36.167Z",
-            "modified": "2023-11-20T11:59:37.760Z",
+            "modified": "2023-11-23T09:22:15.785Z",
             "headers": [
                 {
                     "name": "organisation-id",
@@ -283,6 +283,11 @@
                 }
             ],
             "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"status\": \"CLOSED\"\n}",
+                "form": []
+            },
             "tests": []
         },
         {
@@ -290,16 +295,16 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Comment - add ",
-            "url": "{{ip_url}}/api/task/comment/7ff229ef-73b5-4b5a-a198-507386d8f297",
+            "url": "{{ip_url}}/api/task/comment/c5e9343b-ad1a-47db-8645-0a9a7209b733",
             "method": "POST",
             "sortNum": 190000,
             "created": "2023-11-20T06:27:48.233Z",
-            "modified": "2023-11-21T10:21:58.548Z",
+            "modified": "2023-11-23T09:25:33.469Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"commentText\": \"I have started working on this task\"\n}",
+                "raw": "{\n  \"commentText\": \"started\"\n}",
                 "form": []
             },
             "tests": []
@@ -309,11 +314,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Comment - update",
-            "url": "{{ip_url}}/api/task/comment/b91510be-66e8-4fe6-80e6-980f0306a9a6",
+            "url": "{{ip_url}}/api/task/comment/f98227a8-6a88-4870-b5bf-425f11cb834f",
             "method": "PUT",
             "sortNum": 200000,
             "created": "2023-11-20T06:31:59.094Z",
-            "modified": "2023-11-21T10:28:59.628Z",
+            "modified": "2023-11-23T09:28:50.572Z",
             "headers": [],
             "params": [],
             "body": {
@@ -328,11 +333,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Comment - delete",
-            "url": "{{ip_url}}/api/task/comment/b91510be-66e8-4fe6-80e6-980f0306a9a6",
+            "url": "{{ip_url}}/api/task/comment/f98227a8-6a88-4870-b5bf-425f11cb834f",
             "method": "DELETE",
             "sortNum": 210000,
             "created": "2023-11-20T06:32:22.003Z",
-            "modified": "2023-11-21T10:29:18.193Z",
+            "modified": "2023-11-23T09:29:11.488Z",
             "headers": [],
             "params": [],
             "tests": []
@@ -366,11 +371,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Task - status change",
-            "url": "{{ip_url}}/api/task/status/7ff229ef-73b5-4b5a-a198-507386d8f297",
+            "url": "{{ip_url}}/api/task/status/e24dd02f-c79a-4758-83a5-dc9aba42cc7a",
             "method": "PUT",
             "sortNum": 230000,
             "created": "2023-11-21T07:17:16.435Z",
-            "modified": "2023-11-21T07:22:03.229Z",
+            "modified": "2023-11-23T09:22:33.330Z",
             "headers": [],
             "params": [],
             "body": {
@@ -385,16 +390,16 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Task - update",
-            "url": "{{ip_url}}/api/task/1b533bf6-c61d-4532-a8eb-14f5eeb0626a",
+            "url": "{{ip_url}}/api/task/c5e9343b-ad1a-47db-8645-0a9a7209b733",
             "method": "PUT",
             "sortNum": 240000,
             "created": "2023-11-21T09:43:22.189Z",
-            "modified": "2023-11-21T12:58:21.531Z",
+            "modified": "2023-11-23T09:14:06.772Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"taskName\": \"SUB CURD\",\n  \"taskDescription\": \"SSS\",\n  \"duration\": 10,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"endDate\": \"2024-01-28T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\"\n}",
+                "raw": "{\n  \"taskName\": \"Updated\",\n  \"taskDescription\": \"SSS\",\n  \"duration\": 10,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"endDate\": \"2024-01-28T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\"\n}",
                 "form": []
             },
             "tests": []
@@ -404,16 +409,16 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Task - Attachment add or update",
-            "url": "{{ip_url}}/api/task/attachment/1b533bf6-c61d-4532-a8eb-14f5eeb0626a",
+            "url": "{{ip_url}}/api/task/attachment/c5e9343b-ad1a-47db-8645-0a9a7209b733",
             "method": "PUT",
             "sortNum": 250000,
             "created": "2023-11-22T05:36:02.260Z",
-            "modified": "2023-11-22T05:40:17.301Z",
+            "modified": "2023-11-23T09:27:50.784Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "[\n  {\n    \"attachmentId\": \"352c8841-7eb7-451d-bcf8-48ea56b0e4c6\",\n    \"name\": \"FINAL 1\",\n    \"url\": \"www.hitesh.com\"\n  },\n  {\n    \"attachmentId\": \"c5691d3a-92c7-4851-9cfb-aad66264d849\",\n    \"name\": \"Final 2\",\n    \"url\": \"www.hiteshzala.com\"\n  },\n  {\n    \"name\": \"create\",\n    \"url\": \"create.com\"\n  }\n]",
+                "raw": "[\n  {\n    \"name\": \"33 create\",\n    \"url\": \"create.com\"\n  }\n]",
                 "form": []
             },
             "tests": []
@@ -423,11 +428,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Task - Attachment delete",
-            "url": "{{ip_url}}/api/task/attachment/c5691d3a-92c7-4851-9cfb-aad66264d849",
+            "url": "{{ip_url}}/api/task/attachment/fedb0309-2be9-405d-b93d-7decc21a6d72",
             "method": "DELETE",
             "sortNum": 260000,
             "created": "2023-11-22T05:36:17.877Z",
-            "modified": "2023-11-22T05:40:46.175Z",
+            "modified": "2023-11-23T09:28:25.588Z",
             "headers": [],
             "params": [],
             "tests": []
@@ -437,13 +442,37 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Task - All task completed",
-            "url": "{{ip_url}}/api/task/status/completed/67083a32-be83-4269-aa17-9b6ff7147bd5",
+            "url": "{{ip_url}}/api/task/status/completed/60d05784-82ea-4f3a-966b-8c88ad017f94",
             "method": "PUT",
             "sortNum": 270000,
             "created": "2023-11-22T06:07:47.927Z",
-            "modified": "2023-11-22T06:09:19.897Z",
+            "modified": "2023-11-23T09:18:49.436Z",
             "headers": [],
             "params": [],
+            "tests": []
+        },
+        {
+            "_id": "2988ee34-da51-4184-82b9-fecc5fabadb6",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Project - Update",
+            "url": "{{ip_url}}/api/project/60d05784-82ea-4f3a-966b-8c88ad017f94",
+            "method": "PUT",
+            "sortNum": 280000,
+            "created": "2023-11-23T06:38:51.009Z",
+            "modified": "2023-11-23T06:41:23.820Z",
+            "headers": [
+                {
+                    "name": "organisation-id",
+                    "value": "{{organisation_id}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"projectName\": \"updated\",\n  \"projectDescription\": \"description\",\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedEndDate\": \"2023-11-22T00:00:00.000Z\",\n  \"estimatedBudget\": \"50000\",\n  \"defaultView\": \"KANBAN\"\n}",
+                "form": []
+            },
             "tests": []
         }
     ],

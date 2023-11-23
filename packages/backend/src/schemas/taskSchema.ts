@@ -7,7 +7,7 @@ export const taskIdSchema = z.string().uuid();
 export const createTaskSchema = z.object({
   taskName: z.string(),
   taskDescription: z.string().optional(),
-  startDate: z.string(),
+  startDate: z.coerce.date(),
   duration: z.number(),
   status: z.nativeEnum(TaskStatusEnum),
   assignee: z.string(),
@@ -23,13 +23,13 @@ export const createTaskSchema = z.object({
 export const updateTaskSchema = z.object({
   taskName: z.string().min(1).optional(),
   taskDescription: z.string().min(1).optional(),
-  startDate: z.string().min(1).optional(),
+  startDate: z.coerce.date().optional(),
   duration: z.number().nonnegative().optional(),
   completionPecentage: z.string().optional(),
   status: z.nativeEnum(TaskStatusEnum).optional(),
   assignee: z.string().uuid().optional(),
   dependencies: z.nativeEnum(TaskDependenciesEnum).optional(),
-  milestoneIndicator: z.boolean().optional().or(z.boolean()),
+  milestoneIndicator: z.boolean().optional(),
   flag: z.string().min(1).optional(),
 });
 

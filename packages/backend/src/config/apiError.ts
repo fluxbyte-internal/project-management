@@ -1,6 +1,8 @@
 import { ReasonPhrases, StatusCodes, getStatusCode } from "http-status-codes";
-import express, { Request, Response } from "express";
+import { Response } from "express";
 import { ZodError } from "zod";
+import { PrismaClientKnownRequestError, PrismaClientValidationError } from "@prisma/client/runtime/library.js";
+import { PRISMA_ERROR_CODE } from "../constants/prismaErrorCodes.js";
 
 type ReturnStatus = number | StatusCodes;
 
@@ -82,7 +84,8 @@ export abstract class ApiError extends Error {
   constructor(
     public type: ReasonPhrases,
     public message: string = "error",
-    public data?: any
+    public data?: any,
+    public code?: string | number
   ) {
     super(type as string);
   }
@@ -108,6 +111,19 @@ export abstract class ApiError extends Error {
       ).send(res);
     }
     else {
+      if (err instanceof PrismaClientKnownRequestError || PrismaClientValidationError) {
+        switch (err.code) {
+          case PRISMA_ERROR_CODE.UNIQUE_CONSTRAINT:
+            err.message = `There is a unique constraint violation, a new data cannot be created`;
+            break;
+          case PRISMA_ERROR_CODE.FOREIGN_CONSTRAINT:
+            err.message = `Foreign key constraint failed`;
+            break;
+          case PRISMA_ERROR_CODE.NOT_FOUND:
+            err.message = err.message;
+            break;
+        }
+      };
       return new ErrorResponse<any>(
         StatusCodes.INTERNAL_SERVER_ERROR,
         err.data,
@@ -134,7 +150,7 @@ export class BadRequestError extends ApiError {
 };
 
 export class InternalServerError extends ApiError {
-  constructor(message: string = ReasonPhrases.INTERNAL_SERVER_ERROR){
+  constructor(message: string = ReasonPhrases.INTERNAL_SERVER_ERROR) {
     super(ReasonPhrases.INTERNAL_SERVER_ERROR, message);
   }
 };
