@@ -38,7 +38,7 @@ function Table(props: Props) {
         setPages(count);
       }
     }
-  }, [data, height, tableRowHeight,ascendingToggle]);
+  }, [data, height, tableRowHeight, ascendingToggle]);
 
   const nextPage = () => {
     if (currentPage < pages) {
@@ -72,44 +72,55 @@ function Table(props: Props) {
     [data]
   );
 
-  function compare(a: string, b: string) {
-    let valStringA;
-    let valStringB;
-    if (
-      !isNaN(Date.parse(new Date(a).toString())) &&
-      !isNaN(Date.parse(new Date(a).toString()))
-    ) {
-      valStringA = new Date(a);
-      valStringB = new Date(b);
-    } else if (!isNaN(parseInt(a)) && !isNaN(parseInt(a))) {
-      valStringA = parseInt(a);
-      valStringB = parseInt(b);
-    } else {
-      valStringA = a;
-      valStringB = b;
-    }
+  function dynamicSort(property: any) {
+    return function (a: string, b: string) {
+      let aValue, bValue;
 
-    if (ascendingToggle) {
-      if (valStringA > valStringB) {
-        return 1;
-      } else if (valStringA < valStringB) {
-        return -1;
-      } else {
-        return 0;
+      aValue = a[property];
+      bValue = b[property];
+
+      if (typeof aValue === "string") {
+        aValue = aValue.toUpperCase();
+        bValue = bValue.toUpperCase();
       }
-    } else {
-      if (valStringA < valStringB) {
-        return 1;
-      } else if (valStringA > valStringB) {
-        return -1;
-      } else {
-        return 0;
+
+      if (isValidDate(aValue) && isValidDate(bValue)) {
+        const [aDay, aMonth, aYear] = parseDate(aValue);
+        const [bDay, bMonth, bYear] = parseDate(bValue);
+
+        aValue = new Date(`${aYear}-${aMonth}-${aDay}`);
+        bValue = new Date(`${bYear}-${bMonth}-${bDay}`);
       }
-    }
+      if (typeof aValue === "string" && !isNaN(Number(aValue))) {
+        aValue = Number(aValue);
+      }
+
+      if (typeof bValue === "string" && !isNaN(Number(bValue))) {
+        bValue = Number(bValue);
+      }
+      let comparison = 0;
+
+      if (aValue > bValue) {
+        comparison = 1;
+      } else if (aValue < bValue) {
+        comparison = -1;
+      }
+
+      return !ascendingToggle ? comparison * -1 : comparison;
+    };
+  }
+
+  function isValidDate(dateString: string) {
+    const regex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+    return regex.test(dateString);
+  }
+  function parseDate(dateString: string) {
+    const [day, month, year] = dateString.split("/").map(Number);
+    return [day, month, year];
   }
 
   const shorting = (key: string) => {
-    setDataSource(data.sort((a, b) => compare(a[key], b[key])));
+    setDataSource(data.sort(dynamicSort(key)));
     setCurrentPage(1);
     setAscendingToggle((prev) => !prev);
   };
@@ -118,14 +129,17 @@ function Table(props: Props) {
     <>
       <div
         ref={table}
-        className="py-9 px-3 relative border rounded-md text-sm h-[90%] overflow-y-hidden overflow-x-auto"
+        className="py-9 sm:pb-9  bg-white px-6 relative border rounded-md text-sm h-[90%] overflow-y-hidden overflow-x-auto"
       >
         <table className="w-full">
           <thead>
             <tr className="text-left border-b border-[#D1D1D1] ">
               {columnDef.map((item, index) => {
                 return (
-                  <th className="px-2.5 lg:px-0 py-1" key={index}>
+                  <th
+                    className="py-2.5 px-2 w-fit whitespace-nowrap"
+                    key={index}
+                  >
                     {item.sorting ? (
                       <>
                         <div
@@ -154,7 +168,7 @@ function Table(props: Props) {
                   {columnDef.map((key: ColumeDef) => {
                     return (
                       <td
-                        className="px-2.5 max-md:truncate lg:break-words lg:px-0 py-2.5 max-w-[25ch] lg:max-w-[15ch]"
+                        className="px-2 py-2.5 max-md:truncate lg:break-words "
                         key={key.key}
                       >
                         {" "}
@@ -170,9 +184,9 @@ function Table(props: Props) {
           </tbody>
         </table>
         {dataPerPage < data.length && (
-          <div className="flex gap-3 fixed max-w-full bottom-12 right-6 -translate-x-5 -translate-y-0  sm:bottom-14 sm:right-14 p-0 sm:p-3 justify-end items-center mb-1">
+          <div className="flex gap-x-3 gap-y-5 fixed sm:absolute max-w-full bottom-[3%]  right-[7%]  sm:bottom-[0%] sm:right-[1%] p-0  justify-end items-center mb-2">
             <button
-              className="disabled:opacity-50 p-2"
+              className="disabled:opacity-50 "
               onClick={previousPage}
               disabled={currentPage <= 1}
             >
@@ -180,7 +194,7 @@ function Table(props: Props) {
             </button>
             {currentPage}/{pages}
             <button
-              className="disabled:opacity-50 p-2"
+              className="disabled:opacity-50 "
               onClick={nextPage}
               disabled={currentPage === pages}
             >
