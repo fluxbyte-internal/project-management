@@ -45,3 +45,7 @@ img {
 #root {
   min-height: 100vh;
 }
+
+:focus{
+  outline-color: #943B0C;
+}
