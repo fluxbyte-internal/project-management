@@ -59,9 +59,9 @@ function NavBar() {
   };
 
   return (
-    <div className="w-full h-14   z-10  fixed border-b-2 border-[#E2E8F0] flex items-center flex-col ">
+    <div className="w-full h-14 z-10 fixed border-b-2 border-[#E2E8F0] flex items-center flex-col ">
       <div className="flex items-center w-full h-full justify-between sm:px-3 px-2">
-        <div className="flex gap-5  items-center ">
+        <div className="flex gap-5 items-center ">
           <div className="text-primary-800 text-sm font-bold flex justify-center items-center w-auto h-auto">
             {user?.userOrganisation[0]?.organisation?.organisationName}
           </div>
@@ -120,7 +120,6 @@ function NavBar() {
                   );
                 })}
               </div>
-
               <div className="flex gap-2 items-center lg:hidden">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -128,8 +127,8 @@ function NavBar() {
                       <div className="text-sm font-medium text-gray-500 cursor-pointer">
                         More
                       </div>
-                      <div className=" w-full h-full flex  aspect-square">
-                        <img src={DownArrow} className=" w-full h-full  "></img>
+                      <div className="w-full h-full flex aspect-square">
+                        <img src={DownArrow} className="w-full h-full"></img>
                       </div>
                     </div>
                   </DropdownMenuTrigger>
@@ -144,11 +143,11 @@ function NavBar() {
                             } ${item.id === 1 ? "md:hidden" : ""}`}
                           >
                             {item.dropDown ? (
-                              <div className="flex items-center  justify-between  w-full gap-2">
+                              <div className="flex items-center justify-between w-full gap-2">
                                 <div className="text-sm font-medium text-gray-500 relative cursor-pointer">
                                   {item.name}
                                 </div>
-                                <div className=" h-full flex items-center aspect-square">
+                                <div className="h-full flex items-center aspect-square">
                                   <img src={DownArrow} alt="Dropdown Arrow" />
                                 </div>
                               </div>
@@ -186,7 +185,7 @@ function NavBar() {
           )}
         </div>
         <div className="flex md:gap-5 gap-2 items-center relative cursor-pointer">
-          <div className="w-8 h-8 aspect-square  rounded-full bg-primary-100 md:block hidden">
+          <div className="w-8 h-8 aspect-square rounded-full bg-primary-100 md:block hidden">
             <img
               src={Notification}
               className="w-full h-full justify-center flex p-1"

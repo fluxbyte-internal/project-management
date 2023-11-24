@@ -1,9 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { requestURLs } from "../../Environment";
-import axios from "axios";
 import type { createOrganisationSchema } from "backend/src/schemas/organisationSchema";
 import { z } from "zod";
-import { AxiosResponseAndError, ResponseType } from "@/api/types/axiosResponseType";
+import {
+  AxiosResponseAndError,
+  ResponseType,
+} from "@/api/types/axiosResponseType";
+import ApiRequest from "../ApiRequest";
 
 type OrganisationApiResponse = ResponseType<{
   organisationId: string;
@@ -25,7 +28,7 @@ function useOrganisationMutation() {
     z.infer<typeof createOrganisationSchema>
   >({
     mutationFn: (data) =>
-      axios.post<OrganisationApiResponse>(requestURLs.organisation, data),
+      ApiRequest.post<OrganisationApiResponse>(requestURLs.organisation, data),
   });
 
   return mutation;

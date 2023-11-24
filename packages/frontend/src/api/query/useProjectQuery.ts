@@ -1,8 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { requestURLs } from "../../Environment";
-import axios, { AxiosError, AxiosResponse } from "axios";
 import { QUERY_KEYS } from "./querykeys";
-import { ErrorResponseType, ResponseType } from "../types/axiosResponseType";
+import {
+  AxiosResponseAndError,
+  ResponseType,
+} from "../types/axiosResponseType";
+import ApiRequest from "../ApiRequest";
 
 export type Project = {
   projectId: string;
@@ -26,22 +29,15 @@ export type Project = {
 };
 type ProjectApiResponse = ResponseType<Project[]>;
 
-export type AxiosResponseAndError<T> = {
-  response: AxiosResponse<T>;
-  error: AxiosError<ErrorResponseType>;
-};
-
 function useProjectQuery() {
-  const query = useQuery<
+  return useQuery<
     AxiosResponseAndError<ProjectApiResponse>["response"],
     AxiosResponseAndError<ProjectApiResponse>["error"]
   >({
-    queryFn: () =>
-      axios.get<ProjectApiResponse>(requestURLs.getProject),
     queryKey: [QUERY_KEYS.getProjects],
+    queryFn: async () => await ApiRequest.get(requestURLs.organisation),
+    enabled: false,
   });
-
-  return query;
 }
 
 export default useProjectQuery;

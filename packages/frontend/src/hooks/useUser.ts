@@ -32,7 +32,7 @@ export type OrganisationType = {
     industry: string;
     status: string;
     country: string;
-    listOfNonWorkingDays: 5;
+    listOfNonWorkingDays: number;
     createdAt: Date;
     updatedAt: Date;
     tenantId: string;
@@ -40,19 +40,7 @@ export type OrganisationType = {
   };
 };
 
-export type UserResponseType = ResponseType<{
-  userId: string;
-  email: string;
-  status: string;
-  firstName: string | null;
-  lastName: string | null;
-  timezone: string | null;
-  country: string | null;
-  avatarImg: string | null;
-  createdAt: string;
-  updatedAt: string;
-  userOrganisation: OrganisationType[];
-}>
+export type UserResponseType = ResponseType<UserType>;
 
 export function useUser() {
   const { setAuthUser, authUser } = useContext(AuthContext);
@@ -73,7 +61,7 @@ export function useUser() {
       fetchingUser.current = false;
       setAuthUser(user);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFetching]);
 
   return { user: authUser };
