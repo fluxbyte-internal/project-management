@@ -110,20 +110,26 @@ export abstract class ApiError extends Error {
         err.issues,
       ).send(res);
     }
+    else if (err instanceof PrismaClientKnownRequestError || PrismaClientValidationError) {
+      let code = StatusCodes.INTERNAL_SERVER_ERROR;
+      let message: string = ReasonPhrases.INTERNAL_SERVER_ERROR;
+      switch (err.code) {
+        case PRISMA_ERROR_CODE.UNIQUE_CONSTRAINT:
+          message = `There is a unique constraint violation, a new data cannot be created`;
+          break;
+        case PRISMA_ERROR_CODE.FOREIGN_CONSTRAINT:
+          message = `Foreign key constraint failed`;
+          break;
+        case PRISMA_ERROR_CODE.NOT_FOUND:
+          message = err.message;
+          code = StatusCodes.NOT_FOUND;
+          break;
+      }
+      return new ErrorResponse(
+        code, err.message, undefined
+      ).send(res);
+    }
     else {
-      if (err instanceof PrismaClientKnownRequestError || PrismaClientValidationError) {
-        switch (err.code) {
-          case PRISMA_ERROR_CODE.UNIQUE_CONSTRAINT:
-            err.message = `There is a unique constraint violation, a new data cannot be created`;
-            break;
-          case PRISMA_ERROR_CODE.FOREIGN_CONSTRAINT:
-            err.message = `Foreign key constraint failed`;
-            break;
-          case PRISMA_ERROR_CODE.NOT_FOUND:
-            err.message = err.message;
-            break;
-        }
-      };
       return new ErrorResponse<any>(
         StatusCodes.INTERNAL_SERVER_ERROR,
         err.data,
