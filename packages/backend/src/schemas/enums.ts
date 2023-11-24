@@ -1,5 +1,5 @@
 import type { ProjectDefaultViewEnum, ProjectStatusEnum, TaskDependenciesEnum, TaskStatusEnum } from "@prisma/client";
-import type { EnumStringValueObj } from "../types/EnumStringValueObject.js";
+import type { EnumStringValueObj } from "../types/enumStringValueObject.js";
 
 export const ProjectDefaultViewEnumValue: EnumStringValueObj<ProjectDefaultViewEnum> = {
   CALENDER: 'CALENDER',
