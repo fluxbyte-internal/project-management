@@ -9,7 +9,7 @@ export const createTaskSchema = z.object({
   taskDescription: z.string().optional(),
   startDate: z.coerce.date(),
   duration: z.number(),
-  assginedToUserId: z.string(),
+  assginedToUserId: z.string().uuid(),
   documentAttachments: z.object({
     name: z.string(),
     url: z.string()
