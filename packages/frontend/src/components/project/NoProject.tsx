@@ -29,7 +29,7 @@ function NoProject() {
             <div className="flex items-center ">
               <button
                 onClick={() => setIsOpenPopUp(true)}
-                className=" w-full mt-3 tracking-wide lg:mt-0 lg:w-fit bg-warning hover:bg-opacity-80 text-lg font-medium text-orange-800 py-3 px-7 rounded-md gap-4"
+                className="w-full mt-3 tracking-wide lg:mt-0 lg:w-fit bg-warning hover:bg-opacity-80 text-lg font-medium text-orange-800 py-3 px-7 rounded-md gap-4"
               >
                 Create
               </button>

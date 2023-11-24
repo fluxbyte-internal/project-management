@@ -19,7 +19,7 @@ function Organisation() {
           <div className="lg:flex justify-between gap-x-5 w-full">
             {user && user.userOrganisation.length > 0 ? (
               <>
-                <div className="">
+                <div>
                   <span className="text-gray-400 text-2xl sm:text-3xl font-medium font-['Poppins']">
                     You already have an organisation
                     <br />
@@ -33,7 +33,7 @@ function Organisation() {
                 <div className="flex items-center ">
                   <button
                     onClick={() => navigate("/projects")}
-                    className=" w-full mt-3 tracking-wide lg:mt-0 lg:w-fit bg-warning hover:bg-opacity-80 text-lg font-medium text-orange-800 py-3 px-7 rounded-md gap-4"
+                    className="w-full mt-3 tracking-wide lg:mt-0 lg:w-fit bg-warning hover:bg-opacity-80 text-lg font-medium text-orange-800 py-3 px-7 rounded-md gap-4"
                   >
                     Go to projects
                   </button>
@@ -53,7 +53,7 @@ function Organisation() {
                 <div className="flex items-center ">
                   <button
                     onClick={() => setOrganisationForm(true)}
-                    className=" w-full mt-3 tracking-wide lg:mt-0 lg:w-fit bg-warning hover:bg-opacity-80 text-lg font-medium text-orange-800 py-3 px-7 rounded-md gap-4"
+                    className="w-full mt-3 tracking-wide lg:mt-0 lg:w-fit bg-warning hover:bg-opacity-80 text-lg font-medium text-orange-800 py-3 px-7 rounded-md gap-4"
                   >
                     Create
                   </button>

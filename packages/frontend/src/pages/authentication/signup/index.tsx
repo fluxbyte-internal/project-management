@@ -15,7 +15,7 @@ function Signup() {
   const { login } = useAuth();
   const labelStyle = "font-medium text-base text-gray-8 ";
   const inputStyle =
-    "py-1.5 px-3 rounded-md border border-gray-100 mt-2  w-full h-[46px] focus:outline-[#943B0C]";
+    "py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[46px] focus:outline-[#943B0C]";
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmationPassword, setShowConfirmationPassword] =
     useState(false);

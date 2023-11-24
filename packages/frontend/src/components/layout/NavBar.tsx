@@ -47,13 +47,13 @@ const navbarData = [
 
 function NavBar() {
   const [isOpenPopUp, setisOpenPopUp] = useState(false);
-  const {  logout  } = useAuth();
+  const { logout } = useAuth();
   const {user} = useUser();
   const handleOpenPopUp = () => {
     setisOpenPopUp(!isOpenPopUp);
   };
   return (
-    <div className="w-full h-14   z-10  fixed border-b-2 border-#E2E8F0 flex items-center flex-col ">
+    <div className="w-full h-14 z-10 fixed border-b-2 border-#E2E8F0 flex items-center flex-col ">
       <div className="flex items-center w-full h-full justify-between px-3 md:px-28">
         <div className="flex gap-10 justify-between overflow-hidden items-center">
           {navbarData.map((item, index) => {
@@ -112,8 +112,8 @@ function NavBar() {
                   <div className="text-sm font-medium text-gray-500 cursor-pointer">
                     More
                   </div>
-                  <div className=" w-full h-full flex  aspect-square">
-                    <img src={DownArrow} className=" w-full h-full  "></img>
+                  <div className="w-full h-full flex aspect-square">
+                    <img src={DownArrow} className="w-full h-full"></img>
                   </div>
                 </div>
               </DropdownMenuTrigger>
@@ -170,7 +170,7 @@ function NavBar() {
           </div>
         </div>
         <div className="flex md:gap-5 gap-2 items-center relative cursor-pointer">
-          <div className="w-8 h-8 aspect-square  rounded-full bg-primary-100 ">
+          <div className="w-8 h-8 aspect-square rounded-full bg-primary-100 ">
             <img
               src={Notification}
               className="w-full h-full justify-center flex p-1"

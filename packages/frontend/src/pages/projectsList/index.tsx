@@ -36,7 +36,7 @@ function ProjectsList() {
       onCellRender: (item: Project) => (
         <>
           <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
-            <div className="text-cyan-700 text-xs font-medium  leading-tight">
+            <div className="text-cyan-700 text-xs font-medium leading-tight">
               {item.status}
             </div>
           </div>
@@ -86,7 +86,7 @@ function ProjectsList() {
   return (
     <>
       {data && data.length > 0 ? (
-        <div className=" h-full py-5 p-4 lg:p-14  w-full bg-[url(/src/assets/png/background2.png)] bg-cover bg-no-repeat">
+        <div className="h-full py-5 p-4 lg:p-14 w-full bg-[url(/src/assets/png/background2.png)] bg-cover bg-no-repeat">
           <div className="flex justify-between items-center">
             <h2 className="font-medium text-3xl leading-normal text-gray-600">
               Projects
