@@ -5,13 +5,20 @@ import useProjectQuary, { Project } from "../../api/query/useProjectQuery";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import ProfileName from "@/components/shared/profile";
-function Projects() {
+import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
+import NoProject from "../../components/project/NoProject";
+function ProjectsList() {
   const [data, setData] = useState<Project[]>();
+  const [isOpenPopUp, setIsOpenPopUp] = useState(false);
+
   const projectQuary = useProjectQuary();
   useEffect(() => {
     setData(projectQuary.data?.data.data);
   }, [projectQuary.data?.data.data]);
-
+  
+  const close = () => {
+    setIsOpenPopUp(false);
+  };
   const columnDef: ColumeDef[] = [
     { key: "projectName", header: "Project Name", sorting: true },
     {
@@ -48,9 +55,7 @@ function Projects() {
       key: "actualEndDate",
       header: "End Date",
       onCellRender: (item: Project) => (
-        <>
-          {item.actualEndDate && dateFormater(new Date(item.actualEndDate))}
-        </>
+        <>{item.actualEndDate && dateFormater(new Date(item.actualEndDate))}</>
       ),
     },
     {
@@ -78,24 +83,40 @@ function Projects() {
     },
   ];
 
-  
   return (
-    <div className=" h-full py-5 p-4 lg:p-14  w-full bg-[url(/src/assets/png/background2.png)] bg-cover bg-no-repeat">
-      <div className="flex justify-between items-center">
-        <h2 className="font-medium text-3xl leading-normal text-gray-600">
-          Projects
-        </h2>
-        <div>
-          <Button className="font-medium text-sm leading-normal rounded py-2 px-4 text-[#943B0C] bg-[#FFB819]">
-            Add Project
-          </Button>
+    <>
+      {data && data.length > 0 ? (
+        <div className=" h-full py-5 p-4 lg:p-14  w-full bg-[url(/src/assets/png/background2.png)] bg-cover bg-no-repeat">
+          <div className="flex justify-between items-center">
+            <h2 className="font-medium text-3xl leading-normal text-gray-600">
+              Projects
+            </h2>
+            <div>
+              <Button
+                onClick={() => setIsOpenPopUp(true)}
+                className="font-medium text-sm leading-normal rounded py-2 px-4 text-[#943B0C] bg-[#FFB819]"
+              >
+                Add Project
+              </Button>
+            </div>
+          </div>
+          <div className="my-8 h-full">
+            {data && (
+              <Table key="Project view" columnDef={columnDef} data={data} />
+            )}
+            {!data && (
+              <div className="flex justify-center p-3 w-full">
+                No projects available
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-      <div className="my-8 h-full">
-        {data && <Table key="Project view" columnDef={columnDef} data={data} />}
-      </div>
-    </div>
+      ) : (
+        <NoProject />
+      )}
+      {isOpenPopUp && <CreateUpdateProjectForm handleClosePopUp={close} />}
+    </>
   );
 }
 
-export default Projects;
+export default ProjectsList;

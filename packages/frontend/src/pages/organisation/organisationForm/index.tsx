@@ -6,6 +6,9 @@ import useOrganisationMutation from "@/api/mutation/useOrganisationMutation";
 import { isAxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
+import countries from "../../../assets/json/countries.json";
 interface Props {
   close: () => void;
 }
@@ -18,6 +21,7 @@ function OrganisationForm(props: Props) {
     "block w-full p-2.5 border-gray-300 text-gray-500 text-sm rounded-md shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50  placeholder:text-gray-400";
   const navigate = useNavigate();
   const organisationMutation = useOrganisationMutation();
+  const { refetch, isFetched } = useCurrentUserQuery();
 
   const formik = useFormik<z.infer<typeof createOrganisationSchema>>({
     initialValues: {
@@ -35,7 +39,11 @@ function OrganisationForm(props: Props) {
             "organisation-id",
             data.data.data.organisationId
           );
-          navigate("/");
+          close();
+          refetch();
+          if (isFetched) {
+            navigate("/projects");
+          }
         },
         onError(error) {
           if (isAxiosError(error)) {
@@ -57,7 +65,7 @@ function OrganisationForm(props: Props) {
   });
 
   return (
-    <div className="absolute w-full h-full top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-primary-900 bg-opacity-50 ">
+    <div className="absolute w-full h-full z-50 top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-gray-900 bg-opacity-50 ">
       <div className="bg-white rounded-lg shadow-md px-2.5 md:px-6 lg:px-8 pt-6 pb-8 mb-4 md:w-3/4 w-11/12 lg:w-[40rem]">
         <div className="flex justify-between my-1 mb-5">
           <h1 className="text-2xl lg:text-3xl font-bold text-gray-500">
@@ -108,8 +116,6 @@ function OrganisationForm(props: Props) {
               onBlur={formik.handleBlur}
               value={formik.values.listOfNonWorkingDays}
               type="number"
-              min={0}
-              max={7}
               placeholder="Working Days"
             />
             <span className={errorStyle}>
@@ -128,23 +134,24 @@ function OrganisationForm(props: Props) {
               placeholder="Country"
             >
               <option value="">Select Country</option>
-              <option value="India">India</option>
-              <option value="Pakistan">Pakistan</option>
-              <option value="Khalistan">Khalistan</option>
-              <option value="Afghanistan">Afghanistan</option>
-              <option value="China">China</option>
+              {countries.map((countrie) => {
+                return (
+                  <option value={countrie.isoCode}>{countrie.name}</option>
+                );
+              })}
             </select>
             <span className={errorStyle}>
               {formik.touched.country && formik.errors.country}
             </span>
           </div>
           <div>
-            <button
+            <Button
               type="submit"
-              className="w-full bg-warning py-2.5 mt-5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
+              variant={"primary"}
+              className="w-full py-2.5 mt-5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
             >
               Submit
-            </button>
+            </Button>
           </div>
         </form>
       </div>

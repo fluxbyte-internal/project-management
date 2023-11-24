@@ -83,7 +83,7 @@ function CreateUpdateProjectForm(props: addProjectType) {
           </div>
         </div>
         <div className="lg:px-16 px-4 overflow-y-auto max-h-screen">
-          <div className="lg:flex rounded-lg  border border-gray-100  lg:justfy-center lg:mb-5 mt-4">
+          <div className="lg:flex rounded-lg  border border-gray-100  lg:justfy-center mt-4">
             <div className="p-5 ">
               <form onSubmit={formik.handleSubmit}>
                 <div className="w-full lg:flex  lg:gap-[100px]">
