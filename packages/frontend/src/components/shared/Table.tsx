@@ -129,7 +129,7 @@ function Table(props: Props) {
     <>
       <div
         ref={table}
-        className="py-9 sm:pb-9  bg-white px-6 relative border rounded-md text-sm h-[90%] overflow-y-hidden overflow-x-auto"
+        className="py-9 sm:pb-9 bg-white px-6 relative border rounded-md text-sm h-[90%] overflow-y-hidden overflow-x-auto"
       >
         <table className="w-full">
           <thead>
@@ -143,7 +143,7 @@ function Table(props: Props) {
                     {item.sorting ? (
                       <>
                         <div
-                          className="flex  gap-1 items-center cursor-pointer group"
+                          className="flex gap-1 items-center cursor-pointer group"
                           onClick={() => sorting(item.key)}
                         >
                           {item.header}
@@ -184,7 +184,7 @@ function Table(props: Props) {
           </tbody>
         </table>
         {dataPerPage < data.length && (
-          <div className="flex gap-x-3 gap-y-5 fixed sm:absolute max-w-full bottom-[3%]  right-[7%]  sm:bottom-[0%] sm:right-[1%] p-0  justify-end items-center mb-2">
+          <div className="flex gap-x-3 gap-y-5 fixed sm:absolute max-w-full bottom-[3%]  right-[7%]  sm:bottom-[0%] sm:right-[1%] p-0 justify-end items-center mb-2">
             <button
               className="disabled:opacity-50 "
               onClick={previousPage}

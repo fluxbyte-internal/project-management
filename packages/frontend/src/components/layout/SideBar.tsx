@@ -39,14 +39,14 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
 
   return (
     <div
-      className={`bg-white border-r-2 border-primary-400 h-screen fixed   ${
-        isSidebarExpanded ? "md:w-64" : "w-0  pl-4 "
+      className={`bg-white border-r-2 border-primary-400 h-screen fixed ${
+        isSidebarExpanded ? "md:w-64" : "w-0 pl-4 "
       } overflow-hidden `}
       onClick={handleSidebarClick}
     >
       <button
         onClick={toggleSidebar}
-        className={`fixed top-16  w-6 h-6 z-10  text-black  ${
+        className={`fixed top-16 w-6 h-6 z-10 text-black ${
           isSidebarExpanded
             ? "md:left-52 left-36"
             : "left-1 rounded-full bg-primary-100 flex justify-center items-center"

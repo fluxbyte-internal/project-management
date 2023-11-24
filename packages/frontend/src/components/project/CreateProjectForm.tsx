@@ -46,10 +46,10 @@ function CreateUpdateProjectForm(props: addProjectType) {
   const { handleClosePopUp } = props;
   const [showTooltip, setshowTooltip] = useState<boolean>(false);
 
-  const errorStyle = "text-red-400 block  text-sm h-1";
+  const errorStyle = "text-red-400 block text-sm h-1";
   const labelStyle = "font-medium text-base text-gray-700 ";
   const inputStyle =
-    "py-1.5 px-3 rounded-md border border-gray-100  mt-2  w-full h-[46px]";
+    "py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[46px]";
 
   const formik = useFormik<z.infer<typeof createProjectSchema>>({
     initialValues: {
@@ -72,9 +72,9 @@ function CreateUpdateProjectForm(props: addProjectType) {
 
   return (
     <div className="fixed bg-[#00000066] w-full top-0 h-full items-center flex justify-center z-50">
-      <div className="lg:rounded-lg  border border-white bg-[#fff] md:max-w-5xl  w-full  flex flex-col h-full  lg:max-h-[690px] max-h-screen lg:overflow-y-auto ">
+      <div className="lg:rounded-lg border border-white bg-[#fff] md:max-w-5xl w-full flex flex-col h-full lg:max-h-[690px] max-h-screen lg:overflow-y-auto ">
         <div className="flex justify-between py-5 lg:px-12 px-4 border-b border-gray-100 lg:border-none">
-          <div className="font-semibold text-2xl ">Create New Project</div>
+          <div className="text-2xl lg:text-3xl font-bold text-gray-500 ">Create New Project</div>
           <div
             onClick={handleClosePopUp}
             className="flex items-center justify-center "
@@ -83,10 +83,10 @@ function CreateUpdateProjectForm(props: addProjectType) {
           </div>
         </div>
         <div className="lg:px-16 px-4 overflow-y-auto max-h-screen">
-          <div className="lg:flex rounded-lg  border border-gray-100  lg:justfy-center lg:mb-5 mt-4">
+          <div className="lg:flex rounded-lg border border-gray-100 lg:justfy-center mt-4">
             <div className="p-5 ">
               <form onSubmit={formik.handleSubmit}>
-                <div className="w-full lg:flex  lg:gap-[100px]">
+                <div className="w-full lg:flex lg:gap-[100px]">
                   <div className="flex gap-4 flex-col lg:w-[50%]">
                     <div className="text-left">
                       <label className={labelStyle}>Name</label>
@@ -105,7 +105,7 @@ function CreateUpdateProjectForm(props: addProjectType) {
                           formik.errors.projectName}
                       </span>
                     </div>
-                    <div className=" text-left">
+                    <div className="text-left">
                       <label className={labelStyle}>Descrption</label>
 
                       <textarea
@@ -113,7 +113,7 @@ function CreateUpdateProjectForm(props: addProjectType) {
                         cols={30}
                         name="projectDescription"
                         placeholder="Placeholder"
-                        className="py-1.5 px-3 rounded-md border border-gray-100  mt-2  w-full"
+                        className="py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full"
                         value={formik.values.projectDescription}
                         onChange={(e) => {
                           if (e.target.value.length <= 50) {
@@ -127,7 +127,7 @@ function CreateUpdateProjectForm(props: addProjectType) {
                           {formik.touched.projectDescription &&
                             formik.errors.projectDescription}
                         </span>
-                        <span className="text-sm text-gray-500  font-normal block text-right ">
+                        <span className="text-sm text-gray-500 font-normal block text-right ">
                           {formik.values.projectDescription.length}/50
                         </span>
                       </span>
@@ -150,7 +150,7 @@ function CreateUpdateProjectForm(props: addProjectType) {
                         </span>
                       </div>
                       <div className="text-left sm:w-1/2">
-                        <label className="font-medium text-base text-gray-700  flex gap-3 mt-4 sm:mt-0">
+                        <label className="font-medium text-base text-gray-700 flex gap-3 mt-4 sm:mt-0">
                           Estimated End date
                           <div
                             className="flex items-center justify-center relative"
@@ -203,7 +203,7 @@ function CreateUpdateProjectForm(props: addProjectType) {
                     </div>
                   </div>
                   <div className="lg:w-[50%]">
-                    <div className="text-xl font-medium  mb-5 text-gray-700 mt-4 lg:mt-0">
+                    <div className="text-xl font-medium mb-5 text-gray-700 mt-4 lg:mt-0">
                       Default View
                     </div>
                     <div className="flex flex-col gap-5 ">
@@ -258,8 +258,8 @@ function CreateUpdateProjectForm(props: addProjectType) {
                 <div className="flex justify-center mt-6 lg:mt-2">
                   <Button
                     type="submit"
-                    variant={"none"}
-                    className="bg-primary-400 text-primary-800 font-medium text-lg"
+                    variant={"primary"}
+                    className="font-medium text-lg"
                   >
                     Save
                   </Button>

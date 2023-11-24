@@ -15,30 +15,32 @@ export type UserType = {
   avatarImg: string | null;
   createdAt: string;
   updatedAt: string;
-  userOrganisation: {
-    organisationId: string,
-    jobTitle: string | null,
-    role: string | null
-  }[]
-}
-
-export type UserResponseType = ResponseType<{
+  userOrganisation: OrganisationType[];
+};
+export type OrganisationType = {
+  userOrganisationId: string;
   userId: string;
-  email: string;
-  status: string;
-  firstName: string | null;
-  lastName: string | null;
-  timezone: string | null;
-  country: string | null;
-  avatarImg: string | null;
-  createdAt: string;
-  updatedAt: string;
-  userOrganisation: {
-    organisationId: string,
-    jobTitle: string | null,
-    role: string | null
-  }[]
-}>
+  organisationId: string;
+  role: string;
+  jobTitle: null;
+  taskColour: null;
+  createdAt: Date;
+  updatedAt: Date;
+  organisation: {
+    organisationId: string;
+    organisationName: string;
+    industry: string;
+    status: string;
+    country: string;
+    listOfNonWorkingDays: 5;
+    createdAt: Date;
+    updatedAt: Date;
+    tenantId: string;
+    createdBy: string;
+  };
+};
+
+export type UserResponseType = ResponseType<UserType>;
 
 export function useUser() {
   const { setAuthUser, authUser } = useContext(AuthContext);
@@ -57,8 +59,8 @@ export function useUser() {
       fetchingUser.current = false;
       setAuthUser(user);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFetching]);
 
-  return {user: authUser};
+  return { user: authUser };
 }
