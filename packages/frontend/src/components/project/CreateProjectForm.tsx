@@ -1,7 +1,7 @@
 import CrossIcon from "../../assets/svg/CrossIcon.svg";
 import { Button } from "../ui/button";
 import { useFormik } from "formik";
-import kanaban from "../../assets/svg/kanbanView.svg";
+import kanaban from "../../assets/svg/KanbanView.svg";
 import gantt from "../../assets/svg/Gantt.svg";
 import calendar from "../../assets/svg/Calendar.svg";
 import list from "../../assets/svg/List.svg";
