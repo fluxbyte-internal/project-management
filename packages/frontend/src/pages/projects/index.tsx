@@ -68,7 +68,7 @@ function Projects() {
     {
       key: "Action",
       header: "Action",
-      onCellRender: (item: Project) => (
+      onCellRender: () => (
         <>
           <button className="w-32 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex">
             Edit

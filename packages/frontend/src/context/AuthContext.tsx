@@ -10,7 +10,7 @@ const AuthContext = React.createContext<{
     });
 
 const AuthProvider = (props: { children: ReactNode}) => {
-  const [authUser, setAuthUser,] = useState<UserType | null>(null);
+  const [authUser, setAuthUser] = useState<UserType | null>(null);
 
   const value = {
     authUser,
