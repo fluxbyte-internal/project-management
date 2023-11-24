@@ -29,12 +29,14 @@ export const router = createBrowserRouter([
         element: <Organisation />,
       },
       {
-        path: "/projects",
-        element: (
-          <OrganisationGuard>
-            <ProjectsList />
-          </OrganisationGuard>
-        ),
+        path: "/",
+        element: <OrganisationGuard />,
+        children: [
+          {
+            path: "/projects",
+            element: <ProjectsList />,
+          },
+        ],
       },
     ],
   },
