@@ -57,6 +57,7 @@ export function useUser() {
       fetchingUser.current = false;
       setAuthUser(user);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFetching]);
 
   return {user: authUser};
