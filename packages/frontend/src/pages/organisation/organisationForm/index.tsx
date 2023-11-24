@@ -69,7 +69,7 @@ function OrganisationForm(props: Props) {
       <div className="bg-white rounded-lg shadow-md px-2.5 md:px-6 lg:px-8 pt-6 pb-8 mb-4 md:w-3/4 w-11/12 lg:w-[40rem]">
         <div className="flex justify-between my-1 mb-5">
           <h1 className="text-2xl lg:text-3xl font-bold text-gray-500">
-            Create new organisation
+            Create Organisation
           </h1>
           <button onClick={close}>
             <img src={closeImage} alt="close" className="w-5" />

@@ -1,10 +1,10 @@
-import PercentageCircle from "@/components/shared/percentageCircle";
-import Table, { ColumeDef } from "@/components/shared/table";
+import PercentageCircle from "@/components/shared/PercentageCircle";
+import Table, { ColumeDef } from "@/components/shared/Table";
 import dateFormater from "@/helperFuntions/dateFormater";
 import useProjectQuary, { Project } from "../../api/query/useProjectQuery";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import ProfileName from "@/components/shared/profile";
+import ProfileName from "@/components/shared/Profile";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 import NoProject from "../../components/project/NoProject";
 function ProjectsList() {

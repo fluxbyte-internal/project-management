@@ -74,7 +74,7 @@ function CreateUpdateProjectForm(props: addProjectType) {
     <div className="fixed bg-[#00000066] w-full top-0 h-full items-center flex justify-center z-50">
       <div className="lg:rounded-lg  border border-white bg-[#fff] md:max-w-5xl  w-full  flex flex-col h-full  lg:max-h-[690px] max-h-screen lg:overflow-y-auto ">
         <div className="flex justify-between py-5 lg:px-12 px-4 border-b border-gray-100 lg:border-none">
-          <div className="font-semibold text-2xl ">Create New Project</div>
+          <div className="text-2xl lg:text-3xl font-bold text-gray-500 ">Create New Project</div>
           <div
             onClick={handleClosePopUp}
             className="flex items-center justify-center "
@@ -259,8 +259,8 @@ function CreateUpdateProjectForm(props: addProjectType) {
                 <div className="flex justify-center mt-6 lg:mt-2">
                   <Button
                     type="submit"
-                    variant={"none"}
-                    className="bg-primary-400 text-primary-800 font-medium text-lg"
+                    variant={"primary"}
+                    className=" font-medium text-lg"
                   >
                     Save
                   </Button>
