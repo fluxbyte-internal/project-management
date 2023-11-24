@@ -15,12 +15,30 @@ export type UserType = {
   avatarImg: string | null;
   createdAt: string;
   updatedAt: string;
-  userOrganisation: {
-    organisationId: string,
-    jobTitle: string | null,
-    role: string | null
-  }[]
-}
+  userOrganisation: OrganisationType[];
+};
+export type OrganisationType = {
+  userOrganisationId: string;
+  userId: string;
+  organisationId: string;
+  role: string;
+  jobTitle: null;
+  taskColour: null;
+  createdAt: Date;
+  updatedAt: Date;
+  organisation: {
+    organisationId: string;
+    organisationName: string;
+    industry: string;
+    status: string;
+    country: string;
+    listOfNonWorkingDays: 5;
+    createdAt: Date;
+    updatedAt: Date;
+    tenantId: string;
+    createdBy: string;
+  };
+};
 
 export type UserResponseType = ResponseType<{
   userId: string;
@@ -33,11 +51,7 @@ export type UserResponseType = ResponseType<{
   avatarImg: string | null;
   createdAt: string;
   updatedAt: string;
-  userOrganisation: {
-    organisationId: string,
-    jobTitle: string | null,
-    role: string | null
-  }[]
+  userOrganisation: OrganisationType[];
 }>
 
 export function useUser() {
@@ -46,9 +60,11 @@ export function useUser() {
   const fetchingUser = useRef(false);
   const { data, refetch, isFetching, isFetched } = useCurrentUserQuery();
 
-  if (token && !isFetching && !isFetched) {
-    refetch();
-  }
+  useEffect(() => {
+    if (token && !authUser) {
+      refetch();
+    }
+  }, [token]);
 
   useEffect(() => {
     if (isFetching) fetchingUser.current = true;
@@ -60,5 +76,5 @@ export function useUser() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFetching]);
 
-  return {user: authUser};
+  return { user: authUser };
 }
