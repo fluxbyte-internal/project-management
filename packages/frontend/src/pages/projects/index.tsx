@@ -40,13 +40,17 @@ function Projects() {
       key: "startDate",
       header: "Start Date",
       sorting: true,
-      onCellRender: (item: Project) => <>{dateFormater(`${item.startDate}`)}</>,
+      onCellRender: (item: Project) => (
+        <>{dateFormater(new Date(item.startDate))}</>
+      ),
     },
     {
       key: "actualEndDate",
       header: "End Date",
       onCellRender: (item: Project) => (
-        <>{dateFormater(`${item.actualEndDate}`)}</>
+        <>
+          {item.actualEndDate && dateFormater(new Date(item.actualEndDate))}
+        </>
       ),
     },
     {

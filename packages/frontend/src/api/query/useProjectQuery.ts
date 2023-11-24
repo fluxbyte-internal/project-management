@@ -31,17 +31,17 @@ export type AxiosResponseAndError<T> = {
   error: AxiosError<ErrorResponseType>;
 };
 
-function useProjectQuary() {
-  const mutation = useQuery<
+function useProjectQuery() {
+  const query = useQuery<
     AxiosResponseAndError<ProjectApiResponse>["response"],
     AxiosResponseAndError<ProjectApiResponse>["error"]
   >({
     queryFn: () =>
       axios.get<ProjectApiResponse>(requestURLs.getProject),
-    queryKey: [QUERY_KEYS.currentUser],
+    queryKey: [QUERY_KEYS.getProjects],
   });
 
-  return mutation;
+  return query;
 }
 
-export default useProjectQuary;
+export default useProjectQuery;

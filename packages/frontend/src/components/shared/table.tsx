@@ -119,7 +119,7 @@ function Table(props: Props) {
     return [day, month, year];
   }
 
-  const shorting = (key: string) => {
+  const sorting = (key: string) => {
     setDataSource(data.sort(dynamicSort(key)));
     setCurrentPage(1);
     setAscendingToggle((prev) => !prev);
@@ -144,7 +144,7 @@ function Table(props: Props) {
                       <>
                         <div
                           className="flex  gap-1 items-center cursor-pointer group"
-                          onClick={() => shorting(item.key)}
+                          onClick={() => sorting(item.key)}
                         >
                           {item.header}
                           <img
