@@ -10,10 +10,10 @@ type AccountPropsType = {
 function AccountSettings(props: AccountPropsType) {
   const { handleCloseAccountPopUp } = props;
   const { user } = useUser();
-  const errorStyle = "text-red-400 block  text-sm h-1";
+  const errorStyle = "text-red-400 block text-sm h-1";
   const labelStyle = "font-medium text-base text-gray-700 ";
   const inputStyle =
-    "py-1.5 px-3 rounded-md border border-gray-100  mt-1  w-full h-[46px]";
+    "py-1.5 px-3 rounded-md border border-gray-100 mt-1 w-full h-[46px]";
 
   const formik = useFormik({
     initialValues: {
@@ -26,8 +26,8 @@ function AccountSettings(props: AccountPropsType) {
 
   return (
     <div className="fixed bg-[#00000066] w-full top-0 h-full items-center flex justify-center z-50">
-      <div className="sm:rounded-lg  border border-white bg-[#fff] w-full  sm:w-auto h-full sm:h-auto flex flex-col  ">
-        <div className="flex justify-between py-5  px-4 border-b border-gray-100 lg:border-none">
+      <div className="sm:rounded-lg border border-white bg-[#fff] w-full sm:w-auto h-full sm:h-auto flex flex-col ">
+        <div className="flex justify-between py-5 px-4 border-b border-gray-100 lg:border-none">
           <div className="font-semibold text-2xl ">Update User Profile</div>
           <div
             onClick={handleCloseAccountPopUp}
