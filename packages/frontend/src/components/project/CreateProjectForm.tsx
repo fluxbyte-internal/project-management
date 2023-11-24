@@ -61,7 +61,7 @@ function CreateUpdateProjectForm(props: addProjectType) {
       defaultView: "KANBAN",
     },
     validationSchema: toFormikValidationSchema(createProjectSchema),
-    onSubmit: (values, { resetForm }) => {
+    onSubmit: (_, { resetForm }) => {
       resetForm();
     },
   });
