@@ -1,5 +1,5 @@
-import { TaskDependenciesEnum, TaskStatusEnum } from "@prisma/client";
 import { z } from "zod";
+import { TaskDependenciesEnumValue, TaskStatusEnumValue } from "./enums.js";
 
 
 export const taskIdSchema = z.string().uuid();
@@ -9,13 +9,13 @@ export const createTaskSchema = z.object({
   taskDescription: z.string().optional(),
   startDate: z.coerce.date(),
   duration: z.number(),
-  status: z.nativeEnum(TaskStatusEnum),
+  status: z.nativeEnum(TaskStatusEnumValue),
   assignee: z.string(),
   documentAttachments: z.object({
     name: z.string(),
     url: z.string()
   }).array().optional(),
-  dependencies: z.nativeEnum(TaskDependenciesEnum),
+  dependencies: z.nativeEnum(TaskDependenciesEnumValue),
   milestoneIndicator: z.boolean(),
   flag: z.string().optional(),
 });
@@ -26,16 +26,16 @@ export const updateTaskSchema = z.object({
   startDate: z.coerce.date().optional(),
   duration: z.number().nonnegative().optional(),
   completionPecentage: z.string().optional(),
-  status: z.nativeEnum(TaskStatusEnum).optional(),
+  status: z.nativeEnum(TaskStatusEnumValue).optional(),
   assignee: z.string().uuid().optional(),
-  dependencies: z.nativeEnum(TaskDependenciesEnum).optional(),
+  dependencies: z.nativeEnum(TaskDependenciesEnumValue).optional(),
   milestoneIndicator: z.boolean().optional(),
   flag: z.string().min(1).optional(),
 });
 
 
 export const taskStatusSchema = z.object({
-  status: z.nativeEnum(TaskStatusEnum)
+  status: z.nativeEnum(TaskStatusEnumValue)
 });
 export const commentIdSchma = z.string().uuid();
 
