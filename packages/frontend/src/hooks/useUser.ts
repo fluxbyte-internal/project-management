@@ -32,7 +32,7 @@ export type OrganisationType = {
     industry: string;
     status: string;
     country: string;
-    listOfNonWorkingDays: 5;
+    listOfNonWorkingDays: number;
     createdAt: Date;
     updatedAt: Date;
     tenantId: string;
@@ -48,9 +48,11 @@ export function useUser() {
   const fetchingUser = useRef(false);
   const { data, refetch, isFetching, isFetched } = useCurrentUserQuery();
 
-  if (token && !isFetching && !isFetched) {
-    refetch();
-  }
+  useEffect(() => {
+    if (token && !authUser) {
+      refetch();
+    }
+  }, [token]);
 
   useEffect(() => {
     if (isFetching) fetchingUser.current = true;
