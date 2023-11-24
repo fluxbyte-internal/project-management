@@ -134,9 +134,9 @@ function OrganisationForm(props: Props) {
               placeholder="Country"
             >
               <option value="">Select Country</option>
-              {countries.map((countrie) => {
+              {countries.map((country) => {
                 return (
-                  <option value={countrie.isoCode}>{countrie.name}</option>
+                  <option value={country.isoCode}>{country.name}</option>
                 );
               })}
             </select>
