@@ -9,8 +9,7 @@ export const createTaskSchema = z.object({
   taskDescription: z.string().optional(),
   startDate: z.coerce.date(),
   duration: z.number(),
-  status: z.nativeEnum(TaskStatusEnumValue),
-  assignee: z.string(),
+  assginedToUserId: z.string().uuid(),
   documentAttachments: z.object({
     name: z.string(),
     url: z.string()
@@ -27,7 +26,7 @@ export const updateTaskSchema = z.object({
   duration: z.number().nonnegative().optional(),
   completionPecentage: z.string().optional(),
   status: z.nativeEnum(TaskStatusEnumValue).optional(),
-  assignee: z.string().uuid().optional(),
+  assginedToUserId: z.string().uuid().optional(),
   dependencies: z.nativeEnum(TaskDependenciesEnumValue).optional(),
   milestoneIndicator: z.boolean().optional(),
   flag: z.string().min(1).optional(),

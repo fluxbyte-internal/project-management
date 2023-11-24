@@ -25,7 +25,7 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
     include: {
       comments: {
         orderBy: { createdAt: 'desc' },
-        include: { user: { select: { firstName: true, lastName: true, email: true } } }
+        include: { commentByUser: { select: { firstName: true, lastName: true, email: true } } }
       },
       documentAttachments: true,
       subtasks: true
@@ -42,7 +42,7 @@ export const createTask = async (req: express.Request, res: express.Response) =>
     startDate,
     duration,
     documentAttachments,
-    assignee,
+    assginedToUserId,
     dependencies,
     flag,
     milestoneIndicator
@@ -73,9 +73,10 @@ export const createTask = async (req: express.Request, res: express.Response) =>
       milestoneIndicator: milestoneIndicator,
       dependencies: dependencies,
       flag: flag,
-      assignee: assignee,
+      assginedToUserId: assginedToUserId,
       status: TaskStatusEnum.NOT_STARTED,
       parentTaskId: parentTaskId ? parentTaskId : null,
+      createdByUserId: req.userId,
       documentAttachments: {
         create: documentAttachments?.map((attachment) => ({
           name: attachment.name,
@@ -95,7 +96,7 @@ export const updateTask = async (req: express.Request, res: express.Response) =>
   const tasktId = taskIdSchema.parse(req.params.taskId);
   const prisma = await getClientByTenantId(req.tenantId);
   const findtask = await prisma.task.findFirstOrThrow({ where: { taskId: tasktId }, include: { documentAttachments: true } });
-  const newUpdateObj = { ...findtask, ...updateTaskSchema.parse(req.body) };
+  const newUpdateObj = { ...findtask, ...updateTaskSchema.parse(req.body), updatedByUserId: req.userId };
   const taskUpdateDB = await prisma.task.update({
     where: { taskId: tasktId },
     data: { ...newUpdateObj, documentAttachments: {} },
@@ -134,7 +135,8 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
         completionPecentage:
           statusBody.status === TaskStatusEnum.COMPLETED
             ? '100'
-            : findTask.completionPecentage
+            : findTask.completionPecentage,
+        updatedByUserId: req.userId
       },
     });
     return new SuccessResponse(StatusCodes.OK, updatedTask, 'task status change successfully').send(res);
@@ -142,13 +144,14 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
 };
 
 export const statusCompletedAllTAsk = async (req: express.Request, res: express.Response) => {
+  if (!req.userId) { throw new BadRequestError('userId not found!!') };
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const findAllTaskByProjectId = await prisma.task.findMany({ where: { projectId: projectId } });
   if (findAllTaskByProjectId.length > 0) {
     await prisma.task.updateMany({
       where: { projectId: projectId },
-      data: { status: TaskStatusEnum.COMPLETED, completionPecentage: '100' }
+      data: { status: TaskStatusEnum.COMPLETED, completionPecentage: '100', updatedByUserId: req.userId }
     })
     return new SuccessResponse(StatusCodes.OK, {}, 'all task status change to completed successfully').send(res);
   };

@@ -42,7 +42,7 @@ export const createOrganisation = async (req: express.Request, res: express.Resp
       listOfNonWorkingDays: listOfNonWorkingDays,
       country: country,
       tenantId: req.tenantId,
-      createdBy: req.userId,
+      createdByUserId: req.userId,
       userOrganisation: {
         create: {
           userId: req.userId,

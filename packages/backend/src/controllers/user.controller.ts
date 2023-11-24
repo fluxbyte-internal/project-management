@@ -9,9 +9,7 @@ export const me = async (req: express.Request, res: express.Response) => {
   const user = await prisma.user.findUnique({
     where: { userId: req.userId },
     include: {
-      userOrganisation: {
-        select: { organisationId: true, jobTitle: true, role: true }
-      }
+      userOrganisation: { include: { organisation: true }}
     }
   });
   if (!user) throw new NotFoundError('User not found!');

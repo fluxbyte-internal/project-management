@@ -27,6 +27,7 @@ export const getProjectById = async (req: express.Request, res: express.Response
 
 export const createProject = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) { throw new BadRequestError('organisationId not found!') };
+  if (!req.userId) { throw new BadRequestError('userId not found!') };
   const {
     projectName,
     projectDescription,
@@ -45,7 +46,8 @@ export const createProject = async (req: express.Request, res: express.Response)
       estimatedEndDate: estimatedEndDate,
       status: ProjectStatusEnum.NOT_STARTED,
       estimatedBudget: estimatedBudget,
-      defaultView: defaultView
+      defaultView: defaultView,
+      createdByUserId: req.userId
     }
   });
   return new SuccessResponse(StatusCodes.CREATED, project, 'project created successfully').send(res);
@@ -64,10 +66,11 @@ export const deleteProject = async (req: express.Request, res: express.Response)
 
 export const updateProject = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) { throw new BadRequestError('organisationId not found!') };
+  if (!req.userId) { throw new BadRequestError('userId not found!') };
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const findProject = await prisma.project.findFirstOrThrow({ where: { projectId: projectId, organisationId: req.organisationId } });
-  let updateObj = { ...findProject, ...updateProjectSchema.parse(req.body) };
+  let updateObj = { ...findProject, ...updateProjectSchema.parse(req.body), updatedByUserId: req.userId };
   const projectUpdate = await prisma.project.update({
     where: { projectId: projectId },
     data: { ...updateObj },
@@ -77,6 +80,7 @@ export const updateProject = async (req: express.Request, res: express.Response)
 
 export const statusChangeProject = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) { throw new BadRequestError('organisationId not found!') };
+  if (!req.userId) { throw new BadRequestError('userId not found!') };
   const { status } = projectStatusSchema.parse(req.body);
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -89,7 +93,7 @@ export const statusChangeProject = async (req: express.Request, res: express.Res
   };
   const updateProject = await prisma.project.update({
     where: { projectId: projectId },
-    data: { status: status },
+    data: { status: status, updatedByUserId: req.userId },
   });
   return new SuccessResponse(StatusCodes.OK, updateProject, 'project status change successfully').send(res);
 };
