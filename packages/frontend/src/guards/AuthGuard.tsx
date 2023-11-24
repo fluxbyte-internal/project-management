@@ -1,7 +1,7 @@
-import { ReactNode } from "react";
+import { PropsWithChildren } from "react";
 import { Navigate } from "react-router";
 
-const AuthGuard = (props: { children: ReactNode }) => {
+const AuthGuard = (props: PropsWithChildren) => {
   const token = localStorage.getItem("Token");
   const { children } = props;
   if (!token) {

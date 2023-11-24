@@ -1,8 +1,8 @@
 import { useUser } from "@/hooks/useUser";
-import { ReactNode } from "react";
+import { PropsWithChildren } from "react";
 import { Navigate } from "react-router";
 
-const OrganisationGuard = (props: { children: ReactNode }) => {
+const OrganisationGuard = (props: PropsWithChildren) => {
   const { children } = props;
   const { user } = useUser();
   
