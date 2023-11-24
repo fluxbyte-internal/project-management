@@ -55,8 +55,8 @@ function CreateUpdateProjectForm(props: addProjectType) {
     initialValues: {
       projectName: "",
       projectDescription: "",
-      startDate: "",
-      estimatedEndDate: "",
+      startDate: new Date(),
+      estimatedEndDate: new Date(),
       estimatedBudget: "",
       defaultView: "KANBAN",
     },
@@ -136,18 +136,17 @@ function CreateUpdateProjectForm(props: addProjectType) {
                     <div className="sm:flex sm:gap-[10px] w-full">
                       <div className="text-left sm:w-1/2">
                         <label className={labelStyle}>Start Date</label>
-
                         <input
                           type="date"
                           name="startDate"
                           className={inputStyle}
-                          value={formik.values.startDate}
+                          value={formik.values.startDate as unknown as string }
                           placeholder="Placeholder"
                           onChange={formik.handleChange}
                           onBlur={formik.handleBlur}
                         />
                         <span className={errorStyle}>
-                          {formik.touched.startDate && formik.errors.startDate}
+                          {formik.touched.startDate && formik.errors.startDate as string}
                         </span>
                       </div>
                       <div className="text-left sm:w-1/2">
@@ -175,13 +174,13 @@ function CreateUpdateProjectForm(props: addProjectType) {
                           name="estimatedEndDate"
                           className={inputStyle}
                           placeholder="Placeholder"
-                          value={formik.values.estimatedEndDate ?? ""}
+                          value={formik.values.estimatedEndDate as unknown as string ?? ""}
                           onChange={formik.handleChange}
                           onBlur={formik.handleBlur}
                         />
                         <span className={errorStyle}>
                           {formik.touched.estimatedEndDate &&
-                            formik.errors.estimatedEndDate}
+                            formik.errors.estimatedEndDate as string}
                         </span>
                       </div>
                     </div>

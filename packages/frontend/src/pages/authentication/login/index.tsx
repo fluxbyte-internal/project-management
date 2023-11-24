@@ -1,5 +1,5 @@
-import {  useState } from "react";
-import { NavLink  } from "react-router-dom";
+import { useState } from "react";
+import { NavLink } from "react-router-dom";
 import show from "../../../assets/eye-alt.svg";
 import hide from "../../../assets/eye-slash.svg";
 import { useFormik } from "formik";
@@ -31,7 +31,7 @@ function Login() {
       password: "",
     },
     validationSchema: toFormikValidationSchema(authLoginSchema),
-    onSubmit: (values, helper ) => {
+    onSubmit: (values, helper) => {
       setIsLoading(true);
       loginMutation.mutate(values, {
         onSuccess(data) {
@@ -122,12 +122,7 @@ function Login() {
                 isLoading={isLoading}
                 variant={"primary"}
                 className="w-full"
-                disabled={
-                  isLoading ||
-                  !formik.dirty ||
-                  !formik.isValid ||
-                  formik.isValidating
-                }
+                disabled={isLoading}
               >
                 Submit
               </Button>

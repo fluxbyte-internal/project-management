@@ -165,12 +165,7 @@ function Signup() {
               <Button
                 isLoading={isLoading}
                 variant={"primary"}
-                disabled={
-                  isLoading ||
-                  !formik.dirty ||
-                  !formik.isValid ||
-                  formik.isValidating
-                }
+                disabled={isLoading}
                 className="w-full py-2.5 mt-4 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
               >
                 Submit
