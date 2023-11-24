@@ -76,7 +76,7 @@ function OrganisationForm(props: Props) {
           </button>
         </div>
         <form onSubmit={formik.handleSubmit}>
-          <div className="">
+          <div >
             <label className={labelStyle}>Organisation Name</label>
             <input
               className={inputStyle}
@@ -92,7 +92,7 @@ function OrganisationForm(props: Props) {
                 formik.errors.organisationName}
             </span>
           </div>
-          <div className="">
+          <div >
             <label className={labelStyle}>Industry</label>
             <input
               className={inputStyle}
@@ -107,7 +107,7 @@ function OrganisationForm(props: Props) {
               {formik.touched.industry && formik.errors.industry}
             </span>
           </div>
-          <div className="">
+          <div >
             <label className={labelStyle}>Working Days</label>
             <input
               className={inputStyle}
@@ -123,7 +123,7 @@ function OrganisationForm(props: Props) {
                 formik.errors.listOfNonWorkingDays}
             </span>
           </div>
-          <div className="">
+          <div >
             <label className={labelStyle}>Country</label>
             <select
               className={inputStyle}
