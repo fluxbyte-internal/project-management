@@ -45,43 +45,57 @@ enum TaskDependenciesEnum {
 }
 
 model User {
-  userId           String             @id @default(uuid()) @map("user_id")
-  email            String             @unique @map("email")
-  password         String             @map("password")
-  status           UserStatusEnum     @map("status")
-  firstName        String?            @map("first_name")
-  lastName         String?            @map("last_name")
-  timezone         String?            @map("time_zone")
-  country          String?            @map("country")
-  avatarImg        String?            @map("avatar_img")
-  createdAt        DateTime           @default(now()) @map("created_at")
-  updatedAt        DateTime           @updatedAt @map("updated_at")
+  userId    String         @id @default(uuid()) @map("user_id")
+  email     String         @unique @map("email")
+  password  String         @map("password")
+  status    UserStatusEnum @map("status")
+  firstName String?        @map("first_name")
+  lastName  String?        @map("last_name")
+  timezone  String?        @map("time_zone")
+  country   String?        @map("country")
+  avatarImg String?        @map("avatar_img")
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  comment          Comments[]
+  task             Task[]
+  Organisation     Organisation[]
   userOrganisation UserOrganisation[]
 
-  comment Comments[]
-  Task    Task[]
+  createdOrganisations Organisation[] @relation("createdByUser")
+  updatedOrganisations Organisation[] @relation("updatedByUser")
+
+  createdProject Project[] @relation("createdByUser")
+  updatedProject Project[] @relation("updatedByUser")
+
+  createdTask Task[] @relation("createdByUser")
+  updatedTask Task[] @relation("updatedByUser")
 
   @@unique([email, password])
   @@index([userId, email])
 }
 
 model Organisation {
-  organisationId       String             @id @default(uuid()) @map("organisation_id")
-  organisationName     String             @map("organisation_name")
-  industry             String             @map("industry")
-  status               String             @map("status")
-  country              String             @map("country")
-  listOfNonWorkingDays Int                @map("list_of_non_working_days")
-  createdAt            DateTime           @default(now()) @map("created_at")
-  updatedAt            DateTime           @updatedAt @map("updated_at")
-  userOrganisation     UserOrganisation[]
-  tenantId             String?            @map("tenant_id")
-  createdBy            String             @map("created_by")
-  // tenant               Tenant             @relation(fields: [TenantId], references: [TenantId])
+  organisationId       String   @id @default(uuid()) @map("organisation_id")
+  organisationName     String   @map("organisation_name")
+  industry             String   @map("industry")
+  status               String   @map("status")
+  country              String   @map("country")
+  listOfNonWorkingDays Int      @map("list_of_non_working_days")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+  tenantId             String?  @map("tenant_id")
+  createdByUserId      String   @map("created_by_user_id")
+  createdByUser        User     @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  updatedByUserId      String?  @map("updated_by_user_id")
+  updatedByUser        User?    @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
 
-  projects Project[]
+  projects         Project[]
+  userOrganisation UserOrganisation[]
+  User             User?              @relation(fields: [userUserId], references: [userId])
+  userUserId       String?
 
-  @@unique([organisationName, industry, createdBy])
+  @@unique([organisationName, industry, createdByUserId])
   @@index([organisationId, tenantId])
 }
 
@@ -89,8 +103,7 @@ model Tenant {
   tenantId         String   @id @default(uuid()) @map("tenant_id")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
-  // organisations    Organisation[]
-  connectionString String?  @map("connection_string") // prisma connn url middleware by OrgId
+  connectionString String?  @map("connection_string")
 
   @@index([tenantId])
 }
@@ -115,6 +128,7 @@ model UserOrganisation {
 model Project {
   projectId             String                 @id @unique @default(uuid()) @map("project_id")
   organisationId        String                 @map("organisation_id")
+  organisation          Organisation           @relation(fields: [organisationId], references: [organisationId])
   projectName           String                 @map("project_name")
   projectDescription    String                 @map("project_description")
   startDate             DateTime               @map("start_date")
@@ -126,11 +140,14 @@ model Project {
   estimatedBudget       String                 @map("estimated_budget")
   actualCost            String?                @map("actual_cost")
   progressionPercentage String?                @map("progression_percentage")
+  createdByUserId       String                 @map("created_by_user_id")
+  createdByUser         User                   @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  updatedByUserId       String?                @map("updated_by_user_id")
+  updatedByUser         User?                  @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
   createdAt             DateTime               @default(now()) @map("created_at")
   updatedAt             DateTime               @updatedAt @map("updated_at")
 
-  tasks        Task[]
-  organisation Organisation @relation(fields: [organisationId], references: [organisationId])
+  tasks Task[]
 
   @@index([projectId, organisationId])
 }
@@ -138,29 +155,33 @@ model Project {
 model Task {
   taskId              String               @id @default(uuid()) @map("task_id")
   projectId           String               @map("project_id")
+  project             Project              @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
   taskName            String               @map("task_name")
   taskDescription     String?              @map("task_description")
   startDate           DateTime             @map("start_date")
   duration            Int                  @map("duration")
   completionPecentage String?              @map("completion_percentage")
   status              TaskStatusEnum       @map("status")
-  assignee            String               @map("assignee")
+  assginedToUserId    String               @map("assgined_to_user_id")
+  assginedToUser      User                 @relation(fields: [assginedToUserId], references: [userId])
   dependencies        TaskDependenciesEnum @map("dependecies")
   milestoneIndicator  Boolean              @map("milestone_indicator")
   flag                String?              @map("flag")
+  createdByUserId     String               @map("created_by_user_id")
+  createdByUser       User                 @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  updatedByUserId     String?              @map("updated_by_user_id")
+  updatedByUser       User?                @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
   createdAt           DateTime             @default(now()) @map("created_at")
   updatedAt           DateTime             @updatedAt @map("updated_at")
 
-  project             Project          @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  subtasks            Task[]           @relation("parentTask")
   comments            Comments[]
   documentAttachments TaskAttachment[]
 
   parentTaskId String? @map("parent_task_id")
   parent       Task?   @relation("parentTask", fields: [parentTaskId], references: [taskId])
-  subtasks     Task[]  @relation("parentTask")
-  User         User?   @relation(fields: [assignee], references: [userId])
 
-  @@index([taskId, projectId, assignee])
+  @@index([taskId, projectId, assginedToUserId])
 }
 
 model TaskAttachment {
@@ -182,7 +203,7 @@ model Comments {
   updatedAt       DateTime @updatedAt @map("updated_at")
   task            Task     @relation(fields: [taskId], references: [taskId], onDelete: Cascade)
 
-  user User @relation(fields: [commentByUserId], references: [userId], onDelete: Cascade)
+  commentByUser User @relation(fields: [commentByUserId], references: [userId], onDelete: Cascade)
 
   @@index([commentId, commentByUserId])
 }
