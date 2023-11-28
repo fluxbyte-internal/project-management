@@ -26,23 +26,7 @@ const navbarData = [
   {
     id: 2,
     name: "Project",
-    dropDown: [
-      {
-        id: 1,
-        contentName: " Project 1",
-        contentLink: "/projects",
-      },
-      {
-        id: 2,
-        contentName: " Project 2",
-        contentLink: "/projects",
-      },
-      {
-        id: 3,
-        contentName: " Project 3",
-        contentLink: "/projects",
-      },
-    ],
+    link: "/projects",
   },
 ];
 
@@ -76,46 +60,12 @@ function NavBar() {
                         item.id === 2 && "lg:flex"
                       } ${item.id === 1 && "md:flex"}`}
                     >
-                      {item.dropDown ? (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <div className="flex items-center gap-2">
-                              <div className="text-sm font-medium text-gray-500 relative cursor-pointer">
-                                {item.name}
-                              </div>
-                              <div className="w-full h-full flex items-center aspect-square">
-                                <img src={DownArrow} alt="Dropdown Arrow" />
-                              </div>
-                            </div>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent className="w-auto">
-                            {item.dropDown.map(
-                              ({ contentName, contentLink }, contentIndex) => (
-                                <DropdownMenuItem key={contentIndex}>
-                                  <div className="flex justify-between items-center">
-                                    <div className="flex break-all">
-                                      {contentLink ? (
-                                        <Link to={contentLink}>
-                                          {contentName}
-                                        </Link>
-                                      ) : (
-                                        contentName
-                                      )}
-                                    </div>
-                                  </div>
-                                </DropdownMenuItem>
-                              )
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      ) : (
-                        <Link
-                          to={item.link}
-                          className="text-sm font-medium text-gray-500 relative cursor-pointer"
-                        >
-                          {item.name}
-                        </Link>
-                      )}
+                      <Link
+                        to={item.link}
+                        className="text-sm font-medium text-gray-500 relative cursor-pointer"
+                      >
+                        {item.name}
+                      </Link>
                     </div>
                   );
                 })}
@@ -135,30 +85,18 @@ function NavBar() {
                   <DropdownMenuContent className="w-36">
                     {navbarData.map((item, index) => {
                       return (
-                        <DropdownMenuItem className="p-0">
+                        <DropdownMenuItem className="p-0" key={index}>
                           <div
-                            key={index}
                             className={`flex justify-between text-sm font-medium text-gray-500 relative cursor-pointer p-1 w-full ${
                               item.id === 2 ? "lg:hidden" : ""
                             } ${item.id === 1 ? "md:hidden" : ""}`}
                           >
-                            {item.dropDown ? (
-                              <div className="flex items-center justify-between w-full gap-2">
-                                <div className="text-sm font-medium text-gray-500 relative cursor-pointer">
-                                  {item.name}
-                                </div>
-                                <div className="h-full flex items-center aspect-square">
-                                  <img src={DownArrow} alt="Dropdown Arrow" />
-                                </div>
-                              </div>
-                            ) : (
-                              <Link
-                                to={item.link}
-                                className="text-sm font-medium text-gray-500 relative cursor-pointer"
-                              >
-                                {item.name}
-                              </Link>
-                            )}
+                            <Link
+                              to={item.link}
+                              className="text-sm font-medium text-gray-500 relative cursor-pointer"
+                            >
+                              {item.name}
+                            </Link>
                           </div>
                         </DropdownMenuItem>
                       );
