@@ -5,5 +5,7 @@ export const requestURLs = {
   signup: `${baseURL}/auth/sign-up`,
   getProject: `${baseURL}/project`,
   organisation: `${baseURL}/organisation`,
+  userUpdateProfile: `${baseURL}/user/`,
+  updateUserOrganisationSettings: `${baseURL}/user/organisation/`,
   me: `${baseURL}/user/me`,
 };
