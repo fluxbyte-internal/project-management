@@ -8,8 +8,8 @@ export enum OrgListOfNonWorkingDaysEnum {
   THU = "THU",
   FRI = "FRI",
   SAT = "SAT",
-  SUN = "SUN"
-};
+  SUN = "SUN",
+}
 
 export const organisationIdSchema = z.string().uuid();
 
@@ -18,7 +18,7 @@ export const createOrganisationSchema = z.object({
   industry: z.string().min(1),
   status: z.nativeEnum(OrgStatusEnum),
   country: z.string().min(1),
-  nonWorkingDays: z.nativeEnum(OrgListOfNonWorkingDaysEnum).array()
+  nonWorkingDays: z.nativeEnum(OrgListOfNonWorkingDaysEnum).array(),
 });
 
 export const updateOrganisationSchema = z.object({
@@ -26,5 +26,5 @@ export const updateOrganisationSchema = z.object({
   industry: z.string().min(1).optional(),
   status: z.nativeEnum(OrgStatusEnum).optional(),
   country: z.string().min(1).optional(),
-  nonWorkingDays: z.nativeEnum(OrgListOfNonWorkingDaysEnum).array().optional()
+  nonWorkingDays: z.nativeEnum(OrgListOfNonWorkingDaysEnum).array().optional(),
 });
