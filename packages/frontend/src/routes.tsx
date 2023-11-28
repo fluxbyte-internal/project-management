@@ -6,6 +6,7 @@ import Organisation from "./pages/organisation";
 import Signup from "./pages/authentication/signup";
 import OrganisationGuard from "./guards/OrganisationGuard";
 import ProjectsList from "./pages/projectsList";
+import AccountSettings from "./pages/account-settings";
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +28,14 @@ export const router = createBrowserRouter([
       {
         path: "/",
         element: <Organisation />,
+      },
+      {
+        path: "/dashboard",
+        element: <div>Dashboard</div>,
+      },
+      {
+        path: "/account-settings",
+        element: <AccountSettings />,
       },
       {
         path: "/",
