@@ -11,15 +11,14 @@ import { Project } from "../query/useProjectQuery";
 
 type ProjectApiResponse = ResponseType<Project>;
 
-function useProjectMutation() {
+function useProjectMutation(id:string) {
   const mutation = useMutation<
     AxiosResponseAndError<ProjectApiResponse>["response"],
     AxiosResponseAndError<ProjectApiResponse>["error"],
-    Project,
     z.infer<typeof updateProjectSchema>
   >({
     mutationFn: (data) =>
-      ApiRequest.put<ProjectApiResponse>(`${requestURLs.project}/${data.projectId}`, data, {
+      ApiRequest.put<ProjectApiResponse>(`${requestURLs.project}/${id}`, data, {
         headers: { "organisation-id": localStorage.getItem("organisation-id") },
       }),
   });

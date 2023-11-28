@@ -10,7 +10,7 @@ import NoProject from "../../components/project/NoProject";
 function ProjectsList() {
   const [data, setData] = useState<Project[]>();
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
-  const [editData, setEditData] = useState<Project>();
+  const [editData, setEditData] = useState<Project | undefined>();
 
   const projectQuery = useProjectQuery();
   useEffect(() => {
@@ -19,6 +19,7 @@ function ProjectsList() {
 
   const close = () => {
     setIsOpenPopUp(false);
+    setEditData(undefined);
   };
   const columnDef: ColumeDef[] = [
     { key: "projectName", header: "Project Name", sorting: true },

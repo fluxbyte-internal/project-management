@@ -8,11 +8,15 @@ import list from "../../assets/svg/List.svg";
 import InfoCircle from "../../assets/svg/Info circle.svg";
 import { useEffect, useState } from "react";
 import { toFormikValidationSchema } from "zod-formik-adapter";
-import { createProjectSchema } from "@backend/src/schemas/projectSchema";
+import {
+  createProjectSchema,
+  updateProjectSchema,
+} from "@backend/src/schemas/projectSchema";
 import { z } from "zod";
 import useProjectMutation from "@/api/mutation/useProjectMutation";
 import { isAxiosError } from "axios";
 import useProjectQuery, { Project } from "@/api/query/useProjectQuery";
+import useProjectUpdateMutation from "@/api/mutation/useProjectUpdateMutation";
 
 type addProjectType = {
   handleClosePopUp: () => void;
@@ -55,6 +59,9 @@ function CreateUpdateProjectForm(props: addProjectType) {
   const inputStyle =
     "py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[46px]";
   const projectMutation = useProjectMutation();
+  const projectUpdateMutation = useProjectUpdateMutation(
+    editData ? editData.projectId : ""
+  );
   const projectQuery = useProjectQuery();
 
   const formik = useFormik<z.infer<typeof createProjectSchema>>({
@@ -66,35 +73,64 @@ function CreateUpdateProjectForm(props: addProjectType) {
       estimatedBudget: "",
       defaultView: "KANBAN",
     },
-    validationSchema: toFormikValidationSchema(createProjectSchema),
+    validationSchema:
+      editData && editData.projectId
+        ? toFormikValidationSchema(updateProjectSchema)
+        : toFormikValidationSchema(createProjectSchema),
     onSubmit: (values, { resetForm }) => {
-      projectMutation.mutate(values, {
-        onSuccess() {
-          projectQuery.refetch();
-          handleClosePopUp();
-        },
-        onError(error) {
-          if (isAxiosError(error)) {
-            if (
-              error.response?.status === 400 &&
-              error.response.data?.errors &&
-              Array.isArray(error.response?.data.errors)
-            ) {
-              console.error(error.response.data);
+      if (editData && editData.projectId) {
+        projectUpdateMutation.mutate(values, {
+          onSuccess() {
+            projectQuery.refetch();
+            formik.resetForm();
+            handleClosePopUp();
+          },
+          onError(error) {
+            if (isAxiosError(error)) {
+              if (
+                error.response?.status === 400 &&
+                error.response.data?.errors &&
+                Array.isArray(error.response?.data.errors)
+              ) {
+                console.error(error.response.data);
+              }
             }
-          }
-        },
-      });
+          },
+        });
+      } else {
+        projectMutation.mutate(values, {
+          onSuccess() {
+            projectQuery.refetch();
+            formik.resetForm();
+
+            handleClosePopUp();
+          },
+          onError(error) {
+            if (isAxiosError(error)) {
+              if (
+                error.response?.status === 400 &&
+                error.response.data?.errors &&
+                Array.isArray(error.response?.data.errors)
+              ) {
+                console.error(error.response.data);
+              }
+            }
+          },
+        });
+      }
 
       resetForm();
     },
   });
   useEffect(() => {
-    
     if (editData) {
       formik.setValues({
-        startDate:new Date(editData.startDate),
-        estimatedEndDate: new Date(editData.estimatedEndDate),
+        startDate: new Date(editData.startDate)
+          .toISOString()
+          .split("T")[0] as unknown as Date,
+        estimatedEndDate: new Date(editData.estimatedEndDate)
+          .toISOString()
+          .split("T")[0] as unknown as Date,
         estimatedBudget: editData.estimatedBudget,
         projectDescription: editData.projectDescription,
         projectName: editData.projectName,
