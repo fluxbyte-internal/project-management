@@ -1,6 +1,6 @@
 import express from 'express';
 import { getClientByTenantId } from '../config/db.js';
-import { BadRequestError, SuccessResponse } from '../config/apiError.js';
+import { BadRequestError, NotFoundError, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
 import { createProjectSchema, projectIdSchema, projectStatusSchema, updateProjectSchema } from '../schemas/projectSchema.js';
 import { ProjectStatusEnum, TaskStatusEnum } from '@prisma/client';
@@ -47,7 +47,8 @@ export const createProject = async (req: express.Request, res: express.Response)
       status: ProjectStatusEnum.NOT_STARTED,
       estimatedBudget: estimatedBudget,
       defaultView: defaultView,
-      createdByUserId: req.userId
+      createdByUserId: req.userId,
+      updatedByUserId: req.userId
     }
   });
   return new SuccessResponse(StatusCodes.CREATED, project, 'project created successfully').send(res);
@@ -67,10 +68,17 @@ export const deleteProject = async (req: express.Request, res: express.Response)
 export const updateProject = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) { throw new BadRequestError('organisationId not found!') };
   if (!req.userId) { throw new BadRequestError('userId not found!') };
+  const projectUpdateValue = updateProjectSchema.parse(req.body)
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
-  const findProject = await prisma.project.findFirstOrThrow({ where: { projectId: projectId, organisationId: req.organisationId } });
-  let updateObj = { ...findProject, ...updateProjectSchema.parse(req.body), updatedByUserId: req.userId };
+  const findProject = await prisma.project.findFirstOrThrow({
+    where: {
+      projectId: projectId,
+      organisationId: req.organisationId
+    }
+  });
+  if (!findProject) throw new NotFoundError('Project not found');
+  let updateObj = { ...projectUpdateValue, updatedByUserId: req.userId };
   const projectUpdate = await prisma.project.update({
     where: { projectId: projectId },
     data: { ...updateObj },

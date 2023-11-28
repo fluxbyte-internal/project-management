@@ -77,6 +77,7 @@ export const createTask = async (req: express.Request, res: express.Response) =>
       status: TaskStatusEnum.NOT_STARTED,
       parentTaskId: parentTaskId ? parentTaskId : null,
       createdByUserId: req.userId,
+      updatedByUserId: req.userId,
       documentAttachments: {
         create: documentAttachments?.map((attachment) => ({
           name: attachment.name,
@@ -94,9 +95,16 @@ export const createTask = async (req: express.Request, res: express.Response) =>
 export const updateTask = async (req: express.Request, res: express.Response) => {
   if (!req.userId) { throw new BadRequestError('userId not found!!') };
   const tasktId = taskIdSchema.parse(req.params.taskId);
+  const taskUpdateValue = updateTaskSchema.parse(req.body)
   const prisma = await getClientByTenantId(req.tenantId);
-  const findtask = await prisma.task.findFirstOrThrow({ where: { taskId: tasktId }, include: { documentAttachments: true } });
-  const newUpdateObj = { ...findtask, ...updateTaskSchema.parse(req.body), updatedByUserId: req.userId };
+  const findtask = await prisma.task.findFirstOrThrow({
+    where: { taskId: tasktId },
+    include: {
+      documentAttachments: true
+    }
+  });
+  if (!findtask) { throw new NotFoundError('Task not found') }
+  const newUpdateObj = { ...taskUpdateValue, updatedByUserId: req.userId };
   const taskUpdateDB = await prisma.task.update({
     where: { taskId: tasktId },
     data: { ...newUpdateObj, documentAttachments: {} },

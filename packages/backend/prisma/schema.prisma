@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum OrgStatusEnum {
+  ACTIVE
+  DEACTIVE
+}
+
 enum UserRoleEnum {
   ADMINISTRATOR
   PROJECT_MANAGER
@@ -30,7 +35,7 @@ enum ProjectStatusEnum {
 enum ProjectDefaultViewEnum {
   KANBAN
   GANTT
-  CALENDER
+  CALENDAR
   LIST
 }
 
@@ -59,7 +64,6 @@ model User {
 
   comment          Comments[]
   task             Task[]
-  Organisation     Organisation[]
   userOrganisation UserOrganisation[]
 
   createdOrganisations Organisation[] @relation("createdByUser")
@@ -76,24 +80,22 @@ model User {
 }
 
 model Organisation {
-  organisationId       String   @id @default(uuid()) @map("organisation_id")
-  organisationName     String   @map("organisation_name")
-  industry             String   @map("industry")
-  status               String   @map("status")
-  country              String   @map("country")
-  listOfNonWorkingDays Int      @map("list_of_non_working_days")
-  createdAt            DateTime @default(now()) @map("created_at")
-  updatedAt            DateTime @updatedAt @map("updated_at")
-  tenantId             String?  @map("tenant_id")
-  createdByUserId      String   @map("created_by_user_id")
-  createdByUser        User     @relation("createdByUser", fields: [createdByUserId], references: [userId])
-  updatedByUserId      String?  @map("updated_by_user_id")
-  updatedByUser        User?    @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  organisationId   String        @id @default(uuid()) @map("organisation_id")
+  organisationName String        @map("organisation_name")
+  industry         String        @map("industry")
+  status           OrgStatusEnum @map("status")
+  country          String        @map("country")
+  nonWorkingDays   Json          @map("non_working_days")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+  tenantId         String?       @map("tenant_id")
+  createdByUserId  String        @map("created_by_user_id")
+  createdByUser    User          @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  updatedByUserId  String?       @map("updated_by_user_id")
+  updatedByUser    User?         @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
 
   projects         Project[]
   userOrganisation UserOrganisation[]
-  User             User?              @relation(fields: [userUserId], references: [userId])
-  userUserId       String?
 
   @@unique([organisationName, industry, createdByUserId])
   @@index([organisationId, tenantId])

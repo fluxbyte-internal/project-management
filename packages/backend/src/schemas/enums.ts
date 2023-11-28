@@ -2,7 +2,7 @@ import type { ProjectDefaultViewEnum, ProjectStatusEnum, TaskDependenciesEnum, T
 import type { EnumStringValueObj } from "../types/enumStringValueObject.js";
 
 export const ProjectDefaultViewEnumValue: EnumStringValueObj<ProjectDefaultViewEnum> = {
-  CALENDER: 'CALENDER',
+  CALENDAR: 'CALENDAR',
   GANTT: 'GANTT',
   KANBAN: 'KANBAN',
   LIST: 'LIST'
