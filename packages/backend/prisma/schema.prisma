@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum OrgStatusEnum {
+  ACTIVE
+  DEACTIVE
+}
+
 enum UserRoleEnum {
   ADMINISTRATOR
   PROJECT_MANAGER
@@ -75,19 +80,19 @@ model User {
 }
 
 model Organisation {
-  organisationId   String   @id @default(uuid()) @map("organisation_id")
-  organisationName String   @map("organisation_name")
-  industry         String   @map("industry")
-  status           String   @map("status")
-  country          String   @map("country")
-  nonWorkingDays   Json     @map("non_working_days")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
-  tenantId         String?  @map("tenant_id")
-  createdByUserId  String   @map("created_by_user_id")
-  createdByUser    User     @relation("createdByUser", fields: [createdByUserId], references: [userId])
-  updatedByUserId  String?  @map("updated_by_user_id")
-  updatedByUser    User?    @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  organisationId   String        @id @default(uuid()) @map("organisation_id")
+  organisationName String        @map("organisation_name")
+  industry         String        @map("industry")
+  status           OrgStatusEnum @map("status")
+  country          String        @map("country")
+  nonWorkingDays   Json          @map("non_working_days")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+  tenantId         String?       @map("tenant_id")
+  createdByUserId  String        @map("created_by_user_id")
+  createdByUser    User          @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  updatedByUserId  String?       @map("updated_by_user_id")
+  updatedByUser    User?         @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
 
   projects         Project[]
   userOrganisation UserOrganisation[]
