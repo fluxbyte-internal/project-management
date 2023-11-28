@@ -167,6 +167,12 @@ export class UnAuthorizedError extends ApiError {
   }
 };
 
+export class ForbiddenError extends ApiError {
+  constructor() {
+    super(ReasonPhrases.FORBIDDEN, ReasonPhrases.FORBIDDEN);
+  }
+};
+
 export class NotFoundError extends ApiError {
   constructor(message: string = ReasonPhrases.NOT_FOUND) {
     super(ReasonPhrases.NOT_FOUND, message);

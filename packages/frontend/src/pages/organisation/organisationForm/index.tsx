@@ -6,12 +6,13 @@ import useOrganisationMutation from "@/api/mutation/useOrganisationMutation";
 import { isAxiosError } from "axios";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import countries from "../../../assets/json/countries.json";
 import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
+import Select, { SingleValue, MultiValue } from "react-select";
 import { useNavigate } from "react-router-dom";
 interface Props {
   close: () => void;
 }
+type Options = { label: string; value: string };
 
 function OrganisationForm(props: Props) {
   const { close } = props;
@@ -23,12 +24,13 @@ function OrganisationForm(props: Props) {
   const organisationMutation = useOrganisationMutation();
   const { refetch } = useCurrentUserQuery();
   const navigate = useNavigate();
+
   const formik = useFormik<z.infer<typeof createOrganisationSchema>>({
     initialValues: {
       organisationName: "",
       industry: "",
       status: "ACTIVE",
-      listOfNonWorkingDays: 1,
+      nonWorkingDays: [],
       country: "",
     },
     validationSchema: toFormikValidationSchema(createOrganisationSchema),
@@ -65,6 +67,41 @@ function OrganisationForm(props: Props) {
     },
   });
 
+  const nonWorkingDays: Options[] = [
+    { label: "Sunday", value: "SUN" },
+    { label: "Monday", value: "MON" },
+    { label: "Tuesday", value: "TUE" },
+    { label: "Wednesday", value: "WED" },
+    { label: "Thursday", value: "THU" },
+    { label: "Friday", value: "FRI" },
+    { label: "Saturday", value: "SAT" },
+  ];
+  const [countryValue, setContryValue] = useState<SingleValue<Options>>();
+  const [nonWorkingDaysValue, setNonWorkingDaysValue] =
+    useState<MultiValue<Options>>();
+  const contrysFn = () => {
+    const value = countries.map((item) => {
+      return { label: item.name, value: item.isoCode };
+    });
+    return value;
+  };
+  const handleCountry = (val: SingleValue<Options>) => {
+    if (val) {
+      setContryValue(val);
+      formik.setFieldValue("country", val?.value);
+    }
+  };
+  const handleNonWorkingDays = (val: MultiValue<Options>) => {
+    if (val) {
+      setNonWorkingDaysValue(val);
+      formik.setFieldValue(
+        "nonWorkingDays",
+        val.map((item) => {
+          return item.value;
+        })
+      );
+    }
+  };
   return (
     <div className="absolute w-full h-full z-50 top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-gray-900 bg-opacity-50 ">
       <div className="bg-white rounded-lg shadow-md px-2.5 md:px-6 lg:px-8 pt-6 pb-8 mb-4 md:w-3/4 w-11/12 lg:w-[40rem]">
@@ -110,35 +147,32 @@ function OrganisationForm(props: Props) {
           </div>
           <div>
             <label className={labelStyle}>Working Days</label>
-            <input
-              className={inputStyle}
-              name="listOfNonWorkingDays"
-              onChange={formik.handleChange}
+            <Select
+              className={`${inputStyle} select !p-0`}
+              onChange={handleNonWorkingDays}
               onBlur={formik.handleBlur}
-              value={formik.values.listOfNonWorkingDays}
-              type="number"
-              placeholder="Working Days"
+              options={nonWorkingDays}
+              value={nonWorkingDaysValue}
+              name="nonWorkingDays"
+              placeholder="Select nonworkingdays"
+              isMulti
             />
             <span className={errorStyle}>
-              {formik.touched.listOfNonWorkingDays &&
-                formik.errors.listOfNonWorkingDays}
+              {formik.touched.nonWorkingDays && formik.errors.nonWorkingDays}
             </span>
           </div>
           <div>
             <label className={labelStyle}>Country</label>
-            <select
-              className={inputStyle}
-              name="country"
-              onChange={formik.handleChange}
+            <Select
+              className={`${inputStyle} select !p-0`}
+              onChange={handleCountry}
               onBlur={formik.handleBlur}
-              value={formik.values.country}
-              placeholder="Country"
-            >
-              <option value="">Select Country</option>
-              {countries.map((country) => {
-                return <option value={country.isoCode}>{country.name}</option>;
-              })}
-            </select>
+              options={contrysFn()}
+              value={countryValue}
+              placeholder="Select country"
+              name="country"
+            />
+
             <span className={errorStyle}>
               {formik.touched.country && formik.errors.country}
             </span>
