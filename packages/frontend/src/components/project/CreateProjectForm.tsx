@@ -6,13 +6,17 @@ import gantt from "../../assets/svg/Gantt.svg";
 import calendar from "../../assets/svg/Calendar.svg";
 import list from "../../assets/svg/List.svg";
 import InfoCircle from "../../assets/svg/Info circle.svg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { createProjectSchema } from "@backend/src/schemas/projectSchema";
 import { z } from "zod";
+import useProjectMutation from "@/api/mutation/useProjectMutation";
+import { isAxiosError } from "axios";
+import useProjectQuery, { Project } from "@/api/query/useProjectQuery";
 
 type addProjectType = {
   handleClosePopUp: () => void;
+  editData?: Project;
 };
 
 const RadioButtonData = [
@@ -24,13 +28,13 @@ const RadioButtonData = [
   },
   {
     id: 2,
-    title: " Gantt",
+    title: "Gantt",
     description: "Track Milestones and Deadlines with Gantt Charts",
     img: gantt,
   },
   {
     id: 3,
-    title: " Calendar",
+    title: "Calendar",
     description: "Master Your Daily, Weekly, and Monthly Planning",
     img: calendar,
   },
@@ -43,13 +47,15 @@ const RadioButtonData = [
 ];
 
 function CreateUpdateProjectForm(props: addProjectType) {
-  const { handleClosePopUp } = props;
+  const { handleClosePopUp, editData } = props;
   const [showTooltip, setshowTooltip] = useState<boolean>(false);
 
   const errorStyle = "text-red-400 block text-sm h-1";
   const labelStyle = "font-medium text-base text-gray-700 ";
   const inputStyle =
     "py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[46px]";
+  const projectMutation = useProjectMutation();
+  const projectQuery = useProjectQuery();
 
   const formik = useFormik<z.infer<typeof createProjectSchema>>({
     initialValues: {
@@ -61,11 +67,44 @@ function CreateUpdateProjectForm(props: addProjectType) {
       defaultView: "KANBAN",
     },
     validationSchema: toFormikValidationSchema(createProjectSchema),
-    onSubmit: (_, { resetForm }) => {
+    onSubmit: (values, { resetForm }) => {
+      projectMutation.mutate(values, {
+        onSuccess() {
+          projectQuery.refetch();
+          handleClosePopUp();
+        },
+        onError(error) {
+          if (isAxiosError(error)) {
+            if (
+              error.response?.status === 400 &&
+              error.response.data?.errors &&
+              Array.isArray(error.response?.data.errors)
+            ) {
+              console.error(error.response.data);
+            }
+          }
+        },
+      });
+
       resetForm();
     },
   });
-
+  useEffect(() => {
+    
+    if (editData) {
+      formik.setValues({
+        startDate:new Date(editData.startDate),
+        estimatedEndDate: new Date(editData.estimatedEndDate),
+        estimatedBudget: editData.estimatedBudget,
+        projectDescription: editData.projectDescription,
+        projectName: editData.projectName,
+        defaultView: editData.defaultView,
+      });
+    }
+  
+  }, [])
+  
+  
   const handleRadioChange = (value: string) => {
     formik.setFieldValue("defaultView", value);
   };
@@ -74,7 +113,9 @@ function CreateUpdateProjectForm(props: addProjectType) {
     <div className="fixed bg-[#00000066] w-full top-0 h-full items-center flex justify-center z-50">
       <div className="lg:rounded-lg border border-white bg-[#fff] md:max-w-5xl w-full flex flex-col h-full lg:max-h-[690px] max-h-screen lg:overflow-y-auto ">
         <div className="flex justify-between py-5 lg:px-12 px-4 border-b border-gray-100 lg:border-none">
-          <div className="text-2xl lg:text-3xl font-bold text-gray-500 ">Create New Project</div>
+          <div className="text-2xl lg:text-3xl font-bold text-gray-500 ">
+            Create New Project
+          </div>
           <div
             onClick={handleClosePopUp}
             className="flex items-center justify-center "
@@ -140,13 +181,14 @@ function CreateUpdateProjectForm(props: addProjectType) {
                           type="date"
                           name="startDate"
                           className={inputStyle}
-                          value={formik.values.startDate as unknown as string }
+                          value={formik.values.startDate as unknown as string}
                           placeholder="Placeholder"
                           onChange={formik.handleChange}
                           onBlur={formik.handleBlur}
                         />
                         <span className={errorStyle}>
-                          {formik.touched.startDate && formik.errors.startDate as string}
+                          {formik.touched.startDate &&
+                            (formik.errors.startDate as string)}
                         </span>
                       </div>
                       <div className="text-left sm:w-1/2">
@@ -174,13 +216,16 @@ function CreateUpdateProjectForm(props: addProjectType) {
                           name="estimatedEndDate"
                           className={inputStyle}
                           placeholder="Placeholder"
-                          value={formik.values.estimatedEndDate as unknown as string ?? ""}
+                          value={
+                            (formik.values
+                              .estimatedEndDate as unknown as string) ?? ""
+                          }
                           onChange={formik.handleChange}
                           onBlur={formik.handleBlur}
                         />
                         <span className={errorStyle}>
                           {formik.touched.estimatedEndDate &&
-                            formik.errors.estimatedEndDate as string}
+                            (formik.errors.estimatedEndDate as string)}
                         </span>
                       </div>
                     </div>

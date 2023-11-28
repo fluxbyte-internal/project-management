@@ -35,8 +35,10 @@ function useProjectQuery() {
     AxiosResponseAndError<ProjectApiResponse>["error"]
   >({
     queryKey: [QUERY_KEYS.getProjects],
-    queryFn: async () => await ApiRequest.get(requestURLs.organisation),
-    enabled: false,
+    queryFn: async () => await ApiRequest.get(requestURLs.project, {
+      headers: { "organisation-id": localStorage.getItem("organisation-id") },
+    }),
+    enabled: true,
   });
 }
 
