@@ -1,13 +1,20 @@
-type TokenExpiryTime = `${number}y` | `${number} days` | `${number}d` | `${number} hrs` | `${number}h` | `${number}m` | `${number}s`
+type TokenExpiryTime =
+  | `${number}y`
+  | `${number} days`
+  | `${number}d`
+  | `${number} hrs`
+  | `${number}h`
+  | `${number}m`
+  | `${number}s`;
 
 export type Settings = {
   port: string;
   jwt: {
-    refreshTokenCookieKey: string,
-    tokenExipryTime: TokenExpiryTime
-    refreshTokenExipryTime: TokenExpiryTime,
-    privateKey: string,
-  },
+    refreshTokenCookieKey: string;
+    tokenExipryTime: TokenExpiryTime;
+    refreshTokenExipryTime: TokenExpiryTime;
+    privateKey: string;
+  };
   encryption: {
     saltRound: number;
   };
@@ -40,7 +47,7 @@ export const settings: Settings = {
     saltRound: 10,
   },
   user: {
-    username: ROOT_USER_USERNAME??"",
-    password: ROOT_USER_PASSWORD??"",
+    username: ROOT_USER_USERNAME ?? "",
+    password: ROOT_USER_PASSWORD ?? "",
   },
 };

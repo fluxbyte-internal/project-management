@@ -22,19 +22,17 @@ function App() {
     setShow(value);
   };
   return (
-    <div>
-      <QueryClientProvider client={queryClient}>
-        {!Show && !notFound && (
-          <RootAuth allow={allowRoute} notfound={setNotFound} />
-        )}
-        {Show && (
-          <AuthProvider>
-            <RouterProvider router={router} />
-          </AuthProvider>
-        )}
-        {notFound && !Show && <Page404 />}
-      </QueryClientProvider>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      {!Show && !notFound && (
+        <RootAuth allow={allowRoute} notfound={setNotFound} />
+      )}
+      {Show && (
+        <AuthProvider>
+          <RouterProvider router={router} />
+        </AuthProvider>
+      )}
+      {notFound && !Show && <Page404 />}
+    </QueryClientProvider>
   );
 }
 

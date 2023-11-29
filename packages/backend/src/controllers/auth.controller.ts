@@ -78,7 +78,6 @@ export const getAccessToken = (req: express.Request, res: express.Response) => {
 export const verifyRoot = (req: express.Request, res: express.Response) => {
   const username = req.body.username;
   const password = req.body.password;
-    console.log(settings.user.username);
   if (
     username == settings.user.username &&
     password == settings.user.password
