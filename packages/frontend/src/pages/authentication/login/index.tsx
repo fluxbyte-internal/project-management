@@ -119,9 +119,10 @@ function Login() {
             </div>
             <div className="flex items-center">
               <Button
-                isLoading={isLoading}
+                type="submit"
                 variant={"primary"}
                 className="w-full"
+                isLoading={isLoading}
                 disabled={isLoading}
               >
                 Submit

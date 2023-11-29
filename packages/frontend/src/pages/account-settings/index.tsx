@@ -14,7 +14,7 @@ import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
 import FormLabel from "@/components/common/FormLabel";
 import InputText from "@/components/common/InputText";
 import InputSelect from "@/components/common/InputSelect";
-import UserOrganizationCard from "./UserOrganizationCard";
+import UserOrganisationCard from "./UserOrganisationCard";
 import { NavLink } from "react-router-dom";
 
 const countryOptions = countries.map((item) => {
@@ -199,7 +199,10 @@ function AccountSettings() {
                 Your Organisations
               </div>
               {user.userOrganisation.map((userOrg) => (
-                <UserOrganizationCard userOrganisation={userOrg} />
+                <UserOrganisationCard
+                  key={userOrg.userOrganisationId}
+                  userOrganisation={userOrg}
+                />
               ))}
 
               {user.userOrganisation.length === 0 && (

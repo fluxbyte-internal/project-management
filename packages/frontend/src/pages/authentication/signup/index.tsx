@@ -163,8 +163,9 @@ function Signup() {
             </div>
             <div className="flex items-center">
               <Button
-                isLoading={isLoading}
+                type="submit"
                 variant={"primary"}
+                isLoading={isLoading}
                 disabled={isLoading}
                 className="w-full py-2.5 mt-4 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
               >

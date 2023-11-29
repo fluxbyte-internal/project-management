@@ -1,7 +1,7 @@
 import { ReasonPhrases, StatusCodes, getStatusCode } from "http-status-codes";
 import { Response } from "express";
 import { ZodError } from "zod";
-import { PrismaClientKnownRequestError, PrismaClientValidationError } from "@prisma/client/runtime/library.js";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library.js";
 import { PRISMA_ERROR_CODE } from "../constants/prismaErrorCodes.js";
 
 type ReturnStatus = number | StatusCodes;
@@ -11,7 +11,7 @@ abstract class ApiResponse {
     protected status: StatusCodes,
     protected message: string,
     protected code: ReturnStatus
-  ) { }
+  ) {}
 
   protected prepare<T extends ApiResponse>(
     res: Response,
@@ -110,7 +110,7 @@ export abstract class ApiError extends Error {
         err.issues,
       ).send(res);
     }
-    else if (err instanceof PrismaClientKnownRequestError || PrismaClientValidationError) {
+    else if (err instanceof PrismaClientKnownRequestError) {
       let code = StatusCodes.INTERNAL_SERVER_ERROR;
       let message: string = ReasonPhrases.INTERNAL_SERVER_ERROR;
       switch (err.code) {
@@ -121,7 +121,8 @@ export abstract class ApiError extends Error {
           message = `Foreign key constraint failed`;
           break;
         case PRISMA_ERROR_CODE.NOT_FOUND:
-          message = err.message;
+          message =
+            typeof err.meta?.cause == "string" ? err.meta.cause : err.message;
           code = StatusCodes.NOT_FOUND;
           break;
       }

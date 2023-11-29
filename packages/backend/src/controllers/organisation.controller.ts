@@ -1,38 +1,81 @@
-import express from 'express';
-import { getClientByTenantId } from '../config/db.js';
-import { BadRequestError, ForbiddenError, NotFoundError, SuccessResponse } from '../config/apiError.js';
-import { StatusCodes } from 'http-status-codes';
-import { createOrganisationSchema, organisationIdSchema, updateOrganisationSchema } from '../schemas/organisationSchema.js';
-import { UserRoleEnum } from '@prisma/client';
+import express from "express";
+import { getClientByTenantId } from "../config/db.js";
+import {
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
+  SuccessResponse,
+} from "../config/apiError.js";
+import { StatusCodes } from "http-status-codes";
+import {
+  createOrganisationSchema,
+  organisationIdSchema,
+  updateOrganisationSchema,
+  addOrganisationMemberSchema,
+} from "../schemas/organisationSchema.js";
+import { UserRoleEnum } from "@prisma/client";
+import { encrypt } from "../utils/encryption.js";
+import { uuidSchema } from "../schemas/commonSchema.js";
+import { ZodError } from "zod";
 
-export const getOrganisationById = async (req: express.Request, res: express.Response) => {
+export const getOrganisationById = async (
+  req: express.Request,
+  res: express.Response
+) => {
   const organisationId = organisationIdSchema.parse(req.params.organisationId);
   const prisma = await getClientByTenantId(req.tenantId);
-  const organisations = await prisma.organisation.findUniqueOrThrow({
+  const organisations = await prisma.organisation.findFirstOrThrow({
     where: {
-      organisationId: organisationId
+      organisationId: organisationId,
     },
     include: {
       userOrganisation: {
         select: {
-          userOrganisationId: true, jobTitle: true, role: true, taskColour: true, user: {
-            select: { userId: true, email: true, firstName: true, lastName: true }
-          }
+          userOrganisationId: true,
+          jobTitle: true,
+          role: true,
+          taskColour: true,
+          user: {
+            select: {
+              userId: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              avatarImg: true,
+            },
+          },
         },
-      }
-    }
+        orderBy: {
+          createdAt: 'asc',
+        }
+      },
+    },
   });
-  return new SuccessResponse(StatusCodes.OK, organisations, 'Organisation selected').send(res);
+  return new SuccessResponse(
+    StatusCodes.OK,
+    organisations,
+    "Organisation selected"
+  ).send(res);
 };
 
-export const createOrganisation = async (req: express.Request, res: express.Response) => {
-  const { organisationName, industry, status, country, nonWorkingDays } = createOrganisationSchema.parse(req.body);
-  if (!req.userId) { throw new BadRequestError('userId not found!!') };
+export const createOrganisation = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const { organisationName, industry, status, country, nonWorkingDays } =
+    createOrganisationSchema.parse(req.body);
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
   const prisma = await getClientByTenantId(req.tenantId);
 
-  // CASE : One user can create only one organisation 
-  const findOrganisation = await prisma.userOrganisation.findFirst({ where: { userId: req.userId } });
-  if (findOrganisation) { throw new BadRequestError('Organisation is already created') };
+  // CASE : One user can create only one organisation
+  const findOrganisation = await prisma.userOrganisation.findFirst({
+    where: { userId: req.userId },
+  });
+  if (findOrganisation) {
+    throw new BadRequestError("Organisation is already created");
+  }
 
   const organisation = await prisma.organisation.create({
     data: {
@@ -46,17 +89,26 @@ export const createOrganisation = async (req: express.Request, res: express.Resp
       userOrganisation: {
         create: {
           userId: req.userId,
-          role: UserRoleEnum.ADMINISTRATOR
-        }
+          role: UserRoleEnum.ADMINISTRATOR,
+        },
       },
-      nonWorkingDays: nonWorkingDays
+      nonWorkingDays: nonWorkingDays,
     },
   });
-  return new SuccessResponse(StatusCodes.CREATED, organisation, 'Organisation created successfully').send(res);
+  return new SuccessResponse(
+    StatusCodes.CREATED,
+    organisation,
+    "Organisation created successfully"
+  ).send(res);
 };
 
-export const updateOrganisation = async (req: express.Request, res: express.Response) => {
-  if (!req.userId) { throw new BadRequestError('userId not found!') };
+export const updateOrganisation = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!");
+  }
   const organisationId = organisationIdSchema.parse(req.params.organisationId);
   const updateOrganisationValue = updateOrganisationSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -66,17 +118,19 @@ export const updateOrganisation = async (req: express.Request, res: express.Resp
       organisationId: organisationId,
     },
     include: {
-      userOrganisation: true
-    }
+      userOrganisation: true,
+    },
   });
 
-  if (!organisation) throw new NotFoundError('Organisation not found')
+  if (!organisation) throw new NotFoundError("Organisation not found");
 
-  if (!organisation.userOrganisation.some(uo =>
-    uo.userId === req.userId && UserRoleEnum.ADMINISTRATOR == uo.role)
+  if (
+    !organisation.userOrganisation.some(
+      (uo) => uo.userId === req.userId && UserRoleEnum.ADMINISTRATOR == uo.role
+    )
   ) {
     throw new ForbiddenError();
-  };
+  }
 
   let updateObj = { ...updateOrganisationValue, updatedByUserId: req.userId };
   const organisationUpdate = await prisma.organisation.update({
@@ -85,10 +139,80 @@ export const updateOrganisation = async (req: express.Request, res: express.Resp
       userOrganisation: {
         some: {
           role: UserRoleEnum.ADMINISTRATOR,
-        }
-      }
+        },
+      },
     },
     data: { ...updateObj },
   });
-  return new SuccessResponse(StatusCodes.OK, organisationUpdate, 'Organisation updated successfully').send(res);
+  return new SuccessResponse(
+    StatusCodes.OK,
+    organisationUpdate,
+    "Organisation updated successfully"
+  ).send(res);
+};
+
+export const addOrganisationMember = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const member = addOrganisationMemberSchema.parse(req.body);
+  const organisationId = uuidSchema.parse(req.params.organisationId);
+  const prisma = await getClientByTenantId(req.tenantId);
+  const user = await prisma.user.findFirst({
+    where: {
+      email: member.email,
+    },
+    include: {
+      userOrganisation: {
+        include: {
+          organisation: true,
+        },
+      },
+    },
+  });
+  if (!user) {
+    const hashedPassword = await encrypt("Password@123");
+    const newUser = await prisma.user.create({
+      data: {
+        email: member.email,
+        password: hashedPassword,
+        status: "ACTIVE",
+      },
+    });
+    await prisma.userOrganisation.create({
+      data: {
+        role: member.role,
+        userId: newUser.userId,
+        organisationId,
+      },
+    });
+    return new SuccessResponse(200, null).send(res);
+  } else {
+    if (
+      user.userOrganisation.find((uo) => uo.organisationId === organisationId)
+    ) {
+      throw new ZodError([{
+        code: 'invalid_string',
+        message: 'User already added in your organisation',
+        path: ['email'],
+        validation: "email",
+      }]);
+    }
+    if (user.userOrganisation.length !== 0) {
+      throw new ZodError([{
+        code: 'invalid_string',
+        message: 'User is part of other organisation',
+        path: ['email'],
+        validation: "email",
+      }]);
+    }
+    await prisma.userOrganisation.create({
+      data: {
+        role: member.role,
+        userId: user.userId,
+        organisationId,
+      },
+    });
+    return new SuccessResponse(200, null).send(res);
+  }
 };
