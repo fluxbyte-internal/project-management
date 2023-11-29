@@ -189,7 +189,7 @@ function OrganisationForm(props: Props) {
               name="country"
               styles={reactSelectStyle}
              
-
+/>
             <ErrorMessage>
               {formik.touched.country && formik.errors.country}
             </ErrorMessage>
