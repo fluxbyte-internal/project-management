@@ -1,4 +1,4 @@
-import { useFormik } from "formik";
+import {  useFormik } from "formik";
 import closeImage from "../../../assets/png/close.png";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { createOrganisationSchema } from "../../../../../backend/src/schemas/organisationSchema";
@@ -11,6 +11,7 @@ import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
 import { useState } from "react";
 import Select, { SingleValue, MultiValue } from "react-select";
 import countries from "../../../assets/json/countries.json";
+import ErrorMessage from "@/components/common/ErrorMessage";
 interface Props {
   close: () => void;
 }
@@ -18,13 +19,18 @@ type Options = { label: string; value: string };
 
 function OrganisationForm(props: Props) {
   const { close } = props;
-  const errorStyle = "text-red-400 text-sm mb-3 ml-2.5";
   const labelStyle = "block text-gray-500 text-sm font-bold mb-1";
   const inputStyle =
-    "block w-full p-2.5 border-gray-300 text-gray-500 text-sm rounded-md shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 placeholder:text-gray-400";
+    "block w-full p-2.5 border border-gray-100 text-gray-500 text-sm rounded-md shadow-sm placeholder:text-gray-400";
   const navigate = useNavigate();
   const organisationMutation = useOrganisationMutation();
   const { refetch, isFetched } = useCurrentUserQuery();
+  
+  const [countryValue, setContryValue] = useState<SingleValue<Options>>();
+  const [nonWorkingDaysValue, setNonWorkingDaysValue] =
+    useState<MultiValue<Options>>();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
   const formik = useFormik<z.infer<typeof createOrganisationSchema>>({
     initialValues: {
       organisationName: "",
@@ -35,6 +41,7 @@ function OrganisationForm(props: Props) {
     },
     validationSchema: toFormikValidationSchema(createOrganisationSchema),
     onSubmit: (values, helper) => {
+      setIsSubmitting(true);
       organisationMutation.mutate(values, {
         onSuccess(data) {
           localStorage.setItem(
@@ -46,6 +53,7 @@ function OrganisationForm(props: Props) {
           if (isFetched) {
             navigate("/projects");
           }
+          setIsSubmitting(false);
         },
         onError(error) {
           if (isAxiosError(error)) {
@@ -61,11 +69,22 @@ function OrganisationForm(props: Props) {
               );
             }
           }
+          setIsSubmitting(false);
         },
       });
     },
   });
-
+  const reactSelectStyle={
+    control: (provided: Record<string, unknown>, state: { isFocused: boolean; }) => ({
+      ...provided,
+      border: state.isFocused ? "2px solid #943B0C" : "0px solid #943B0C",
+      boxShadow: state.isFocused ? "2px #943B0C" : "none",
+      "&:hover": {
+        border: state.isFocused ? "2px solid #943B0C" : "0px solid #943B0C",
+        boxShadow: "1px 0px 0px #943B0C",
+      },
+    }),
+  };
   const nonWorkingDays: Options[] = [
     { label: "Sunday", value: "SUN" },
     { label: "Monday", value: "MON" },
@@ -75,9 +94,7 @@ function OrganisationForm(props: Props) {
     { label: "Friday", value: "FRI" },
     { label: "Saturday", value: "SAT" },
   ];
-  const [countryValue, setContryValue] = useState<SingleValue<Options>>();
-  const [nonWorkingDaysValue, setNonWorkingDaysValue] =
-    useState<MultiValue<Options>>();
+
   const contrysFn = () => {
     const value = countries.map((item) => {
       return { label: item.name, value: item.isoCode };
@@ -87,7 +104,7 @@ function OrganisationForm(props: Props) {
   const handleCountry = (val: SingleValue<Options>) => {
     if (val) {
       setContryValue(val);
-      formik.setFieldValue("country", val?.value);
+      formik.setFieldValue("country", val.value);
     }
   };
   const handleNonWorkingDays = (val: MultiValue<Options>) => {
@@ -108,12 +125,12 @@ function OrganisationForm(props: Props) {
           <h1 className="text-2xl lg:text-3xl font-bold text-gray-500">
             Create Organisation
           </h1>
-          <button onClick={close}>
+          <button onClick={close} className="cursor-pointer">
             <img src={closeImage} alt="close" className="w-5" />
           </button>
         </div>
         <form onSubmit={formik.handleSubmit}>
-          <div >
+          <div>
             <label className={labelStyle}>Organisation Name</label>
             <input
               className={inputStyle}
@@ -124,10 +141,10 @@ function OrganisationForm(props: Props) {
               type="text"
               placeholder="Organisation Name"
             />
-            <span className={errorStyle}>
+            <ErrorMessage>
               {formik.touched.organisationName &&
                 formik.errors.organisationName}
-            </span>
+            </ErrorMessage>
           </div>
           <div >
             <label className={labelStyle}>Industry</label>
@@ -140,45 +157,50 @@ function OrganisationForm(props: Props) {
               type="text"
               placeholder="Industry"
             />
-            <span className={errorStyle}>
+            <ErrorMessage>
               {formik.touched.industry && formik.errors.industry}
-            </span>
+            </ErrorMessage>
           </div>
           <div>
             <label className={labelStyle}>Working Days</label>
             <Select
               className={`${inputStyle} select !p-0`}
               onChange={handleNonWorkingDays}
-              onBlur={formik.handleBlur}
+              onBlur={()=>formik.setTouched({nonWorkingDays:true})}
               options={nonWorkingDays}
               value={nonWorkingDaysValue}
               name="nonWorkingDays"
               placeholder="Select nonworkingdays"
               isMulti
+              styles={reactSelectStyle}
             />
-            <span className={errorStyle}>
+            <ErrorMessage>
               {formik.touched.nonWorkingDays && formik.errors.nonWorkingDays}
-            </span>
+            </ErrorMessage>
           </div>
-          <div >
+          <div>
             <label className={labelStyle}>Country</label>
             <Select
               className={`${inputStyle} select !p-0`}
               onChange={handleCountry}
-              onBlur={formik.handleBlur}
+              onBlur={()=>formik.setTouched({country:true})}
               options={contrysFn()}
               value={countryValue}
               placeholder="Select country"
               name="country"
+              styles={reactSelectStyle}
+             
             />
-            <span className={errorStyle}>
+            <ErrorMessage>
               {formik.touched.country && formik.errors.country}
-            </span>
+            </ErrorMessage>
           </div>
           <div>
             <Button
               type="submit"
               variant={"primary"}
+              isLoading={isSubmitting}
+              disabled={isSubmitting}
               className="w-full py-2.5 mt-5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
             >
               Submit

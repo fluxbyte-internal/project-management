@@ -10,7 +10,8 @@ function NoProject() {
   return (
     <>
       <div
-        className={`w-full px-5 h-full flex justify-center items-center bg-[url(/src/assets/png/background2.png)] bg-cover bg-no-repeat`}
+        style={{backgroundSize:"102% 106%",backgroundPosition:"-2rem"}}
+        className={`w-full px-5 h-full flex  justify-center  items-center bg-[url(/src/assets/png/background2.png)]  bg-no-repeat`}
       >
         <div className="flex flex-col justify-center items-center gap-24">
           <div className="p-6">
