@@ -10,13 +10,12 @@ import { uuidSchema } from "../schemas/commonSchema.js";
 
 export const me = async (req: express.Request, res: express.Response) => {
   const prisma = await getClientByTenantId(req.tenantId);
-  const user = await prisma.user.findUnique({
+  const user = await prisma.user.findUniqueOrThrow({
     where: { userId: req.userId },
     include: {
       userOrganisation: { include: { organisation: true } },
     },
   });
-  if (!user) throw new NotFoundError("User not found!");
   const { password, ...userInfoWithoutPassword } = user;
   return new SuccessResponse(
     StatusCodes.OK,

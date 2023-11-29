@@ -1,4 +1,4 @@
-import { UserType } from '@/hooks/useUser';
+import { UserType } from '@/api/query/useCurrentUserQuery';
 import React, { ReactNode, useState } from 'react';
 
 const AuthContext = React.createContext<{

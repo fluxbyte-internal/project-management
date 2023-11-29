@@ -1,10 +1,12 @@
 import useOrgSettingsUpdateMutation from "@/api/mutation/useOrgSettingsUpdateMutation";
-import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
+import useCurrentUserQuery, {
+  OrganisationType,
+} from "@/api/query/useCurrentUserQuery";
 import ErrorMessage from "@/components/common/ErrorMessage";
 import FormLabel from "@/components/common/FormLabel";
 import InputText from "@/components/common/InputText";
 import { Button } from "@/components/ui/button";
-import { OrganisationType } from "@/hooks/useUser";
+import { NavLink } from "react-router-dom";
 import {
   userOrgSettingsUpdateSchema,
   TaskColorPaletteEnum,
@@ -27,7 +29,7 @@ const taskColors = Object.keys(TaskColorPaletteEnum).map((colorPalette) => {
   };
 });
 
-function UserOrganizationCard(props: { userOrganisation: OrganisationType }) {
+function UserOrganisationCard(props: { userOrganisation: OrganisationType }) {
   const { userOrganisation } = props;
   const { refetch: refetchUser } = useCurrentUserQuery();
   const orgSettingsUpdateMutation = useOrgSettingsUpdateMutation(
@@ -83,7 +85,7 @@ function UserOrganizationCard(props: { userOrganisation: OrganisationType }) {
           ({userOrganisation.role})
         </span>
       </div>
-      <div>
+      <NavLink to={`/organisation/${userOrganisation.organisationId}`}>
         <Button
           className="transition ease-in-out duration-150 opacity-0 group-hover:opacity-100 focus:opacity-100 absolute right-1 top-1"
           variant={"primary_outline"}
@@ -91,10 +93,12 @@ function UserOrganizationCard(props: { userOrganisation: OrganisationType }) {
         >
           View
         </Button>
-      </div>
+      </NavLink>
       <div className="mt-1 py-2 px-4">
         <form onSubmit={userOrgSettingForm.handleSubmit} className="@container">
-          <div className="text-gray-600 font-bold mb-2">Organisation Settings</div>
+          <div className="text-gray-600 font-bold mb-2">
+            Organisation Settings
+          </div>
           <div className="grid gap-2">
             <div>
               <FormLabel htmlFor="jobTitle">Job Title</FormLabel>
@@ -117,6 +121,7 @@ function UserOrganizationCard(props: { userOrganisation: OrganisationType }) {
               <div className="flex flex-wrap gap-4">
                 {taskColors.map((taskColor) => (
                   <div
+                    key={taskColor.colorPalette}
                     onClick={() =>
                       userOrgSettingForm.setFieldValue(
                         "taskColour",
@@ -165,4 +170,4 @@ function UserOrganizationCard(props: { userOrganisation: OrganisationType }) {
   );
 }
 
-export default UserOrganizationCard;
+export default UserOrganisationCard;

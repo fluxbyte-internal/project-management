@@ -1,46 +1,7 @@
 import { useContext, useEffect, useRef } from "react";
-import { ResponseType } from "@/api/types/axiosResponseType";
 import { AuthContext } from "@/context/AuthContext";
 import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
 import { useAuth } from "./useAuth";
-
-export type UserType = {
-  userId: string;
-  email: string;
-  status: string;
-  firstName: string | null;
-  lastName: string | null;
-  timezone: string | null;
-  country: string | null;
-  avatarImg: string | null;
-  createdAt: string;
-  updatedAt: string;
-  userOrganisation: OrganisationType[];
-};
-export type OrganisationType = {
-  userOrganisationId: string;
-  userId: string;
-  organisationId: string;
-  role: string;
-  jobTitle: null;
-  taskColour: null;
-  createdAt: Date;
-  updatedAt: Date;
-  organisation: {
-    organisationId: string;
-    organisationName: string;
-    industry: string;
-    status: string;
-    country: string;
-    listOfNonWorkingDays: number;
-    createdAt: Date;
-    updatedAt: Date;
-    tenantId: string;
-    createdBy: string;
-  };
-};
-
-export type UserResponseType = ResponseType<UserType>;
 
 export function useUser() {
   const { setAuthUser, authUser } = useContext(AuthContext);

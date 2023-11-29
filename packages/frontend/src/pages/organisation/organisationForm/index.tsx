@@ -162,7 +162,7 @@ function OrganisationForm(props: Props) {
             </ErrorMessage>
           </div>
           <div>
-            <label className={labelStyle}>Working Days</label>
+            <label className={labelStyle}>Non Working Days</label>
             <Select
               className={`${inputStyle} select !p-0`}
               onChange={handleNonWorkingDays}

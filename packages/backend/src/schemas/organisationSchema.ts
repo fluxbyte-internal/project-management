@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { OrgStatusEnumValue } from "./enums.js";
+import { OrgStatusEnumValue, UserRoleEnumValue } from "./enums.js";
 
 export enum OrgListOfNonWorkingDaysEnum {
   MON = "MON",
@@ -27,4 +27,21 @@ export const updateOrganisationSchema = z.object({
   status: z.nativeEnum(OrgStatusEnumValue).optional(),
   country: z.string().min(1).optional(),
   nonWorkingDays: z.nativeEnum(OrgListOfNonWorkingDaysEnum).array().optional(),
+});
+
+
+export const addOrganisationMemberSchema = z.object({
+  email: z.string().email({ message: "Email is not valid" }),
+  role: z.nativeEnum(UserRoleEnumValue).refine(
+    (value) => {
+      return (
+        value in UserRoleEnumValue &&
+        (value === UserRoleEnumValue.TEAM_MEMBER ||
+          value === UserRoleEnumValue.PROJECT_MANAGER)
+      );
+    },
+    {
+      message: "Only team member and project manager role allowed",
+    }
+  ),
 });

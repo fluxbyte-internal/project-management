@@ -14,11 +14,13 @@ type OrganisationApiResponse = ResponseType<{
   industry: string;
   status: string;
   country: string;
-  listOfNonWorkingDays: number;
+  nonWorkingDays: number;
   createdAt: Date;
   updatedAt: Date;
   tenantId: string;
   createdBy: string;
+  createdByUserId: string;
+  updatedByUserId: string;
 }>;
 
 function useOrganisationMutation() {
