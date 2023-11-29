@@ -4,7 +4,7 @@ import { getClientByTenantId } from '../config/db.js';
 import { settings } from '../config/settings.js';
 import { createJwtToken, verifyJwtToken } from '../utils/jwtHelper.js';
 import { compareEncryption, encrypt } from '../utils/encryption.js';
-import { SuccessResponse, UnAuthorizedError } from '../config/apiError.js';
+import { BadRequestError, SuccessResponse, UnAuthorizedError } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
 import { authLoginSchema, authRefreshTokenSchema, authSignUpSchema } from '../schemas/authSchema.js';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js';
@@ -74,3 +74,17 @@ export const getAccessToken = (req: express.Request, res: express.Response) => {
   res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
   return new SuccessResponse(StatusCodes.OK, { token }, 'Access token retrived successfully').send(res);
 };
+
+export const verifyRoot = (req: express.Request, res: express.Response) => {
+  const username = req.body.username;
+  const password = req.body.password;
+    console.log(settings.user.username);
+  if (
+    username == settings.user.username &&
+    password == settings.user.password
+  ) {
+      return new SuccessResponse(StatusCodes.OK, null, 'Ok').send(res);
+  } else {
+    throw new BadRequestError()
+  }
+}
