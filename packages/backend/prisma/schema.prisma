@@ -65,6 +65,7 @@ model User {
   comment          Comments[]
   task             Task[]
   userOrganisation UserOrganisation[]
+  userOtp          UserOTP[]
 
   createdOrganisations Organisation[] @relation("createdByUser")
   updatedOrganisations Organisation[] @relation("updatedByUser")
@@ -77,6 +78,19 @@ model User {
 
   @@unique([email, password])
   @@index([userId, email])
+}
+
+model UserOTP {
+  otpId      String   @id @default(uuid()) @map("otp_id")
+  userId     String   @map("user_id")
+  otp        String   @map("otp")
+  expiryTime DateTime @map("expiry_time")
+  isUsed     Boolean  @map("is_used")
+  meta       Json?    @map("meta")
+  createdAt  DateTime @default(now()) @map("created_at")
+  user       User?    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([userId, otp])
 }
 
 model Organisation {

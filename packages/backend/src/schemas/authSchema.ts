@@ -23,3 +23,7 @@ export const authLoginSchema = z.object({
 });
 
 export const authRefreshTokenSchema = z.string();
+
+export const verifyEmailOtpSchema = z.object({
+  otp: z.string().min(1, "Otp is required field")
+});
