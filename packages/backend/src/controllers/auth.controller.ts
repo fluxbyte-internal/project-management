@@ -15,7 +15,6 @@ import { EmailService } from '../services/email.services.js';
 import { OtpService } from '../services/userOtp.services.js';
 
 
-
 export const signUp = async (req: express.Request, res: express.Response) => {
   const { email, password } = authSignUpSchema.parse(req.body);
   try {
@@ -91,6 +90,7 @@ export const getAccessToken = (req: express.Request, res: express.Response) => {
   return new SuccessResponse(StatusCodes.OK, { token }, 'Access token retrived successfully').send(res);
 };
 
+
 export const otpVerify = async (req: express.Request, res: express.Response) => {
   const { otp } = verifyEmailOtpSchema.parse(req.body);
   const checkOtp = await OtpService.verifyOTP(otp, req.userId!, req.tenantId);
@@ -129,4 +129,17 @@ export const resendOTP = async (req: express.Request, res: express.Response) => 
     throw new InternalServerError();
   };
   return new SuccessResponse(StatusCodes.OK, {}, 'Resend OTP successfully').send(res);
+};
+
+export const verifyRoot = (req: express.Request, res: express.Response) => {
+  const username = req.body.username;
+  const password = req.body.password;
+  if (
+    username == settings.user.username &&
+    password == settings.user.password
+  ) {
+      return new SuccessResponse(StatusCodes.OK, null, 'Ok').send(res);
+  } else {
+    throw new BadRequestError();
+  };
 };
