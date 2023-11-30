@@ -1,5 +1,20 @@
-import express from 'express';
+export const generateRandomPassword = (): string => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(),.?":{}|<>';
 
-export const sendResponse = (res: express.Response, status: number, message: string, data?: any) => {
-  return res.status(status).json({ status, message, data });
+  const randomChar:
+    () => string | undefined =
+    () => chars[Math.floor(Math.random() * chars.length)];
+
+  const password = Array.from(
+    {
+      length: 8
+    }, (_, i) => i === 0
+      ? randomChar() ?? ''
+      : i === 1
+        ? randomChar() ?? ''
+        : i === 2
+          ? randomChar() ?? ''
+          : randomChar()).join('');
+
+  return password;
 };

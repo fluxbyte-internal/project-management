@@ -21,6 +21,7 @@ import { OtpService } from "../services/userOtp.services.js";
 import { generateOTP } from "../utils/otpHelper.js";
 import { EmailService } from "../services/email.services.js";
 import { settings } from "../config/settings.js";
+import { generateRandomPassword } from "../config/helper.js";
 
 export const getOrganisationById = async (
   req: express.Request,
@@ -175,7 +176,7 @@ export const addOrganisationMember = async (
     },
   });
   if (!user) {
-    const randomPassword = 'Password@123'
+    const randomPassword = generateRandomPassword();
     const hashedPassword = await encrypt(randomPassword);
     const newUser = await prisma.user.create({
       data: {
