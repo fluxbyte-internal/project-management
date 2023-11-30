@@ -8,6 +8,7 @@ import OrganisationGuard from "./guards/OrganisationGuard";
 import ProjectsList from "./pages/projectsList";
 import AccountSettings from "./pages/account-settings";
 import OrganisationDetails from "./pages/organisation/OrganisationDetails";
+import Verification from "./pages/authentication/verification";
 
 export const router = createBrowserRouter([
   {
@@ -17,6 +18,14 @@ export const router = createBrowserRouter([
   {
     path: "/signup",
     element: <Signup />,
+  },
+  {
+    path: "/verify-email",
+    element: (
+      <AuthGuard>
+        <Verification />
+      </AuthGuard>
+    ),
   },
   {
     path: "/",

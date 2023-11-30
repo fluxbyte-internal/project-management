@@ -9,4 +9,6 @@ export const requestURLs = {
   userUpdateProfile: `${baseURL}/user/`,
   updateUserOrganisationSettings: `${baseURL}/user/organisation/`,
   me: `${baseURL}/user/me`,
+  verifyEmail: `${baseURL}/user/verify-email`,
+  resendVerifyEmailOtp: `${baseURL}/user/resend-otp`,
 };
