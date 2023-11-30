@@ -28,7 +28,8 @@ type Options = { label: string; value: string };
 function OrganisationForm(props: Props) {
   const { close, editData } = props;
   const labelStyle = "block text-gray-500 text-sm font-bold mb-1";
-  const inputStyle = "block w-full p-2.5 border border-gray-100 text-gray-500 text-sm rounded-md shadow-sm placeholder:text-gray-400";
+  const inputStyle =
+    "block w-full p-2.5 border border-gray-100 text-gray-500 text-sm rounded-md shadow-sm placeholder:text-gray-400";
   const organisationMutation = useOrganisationMutation();
 
   const organisationUpdateMutation = useOrganisationUpdateMutation(
@@ -41,7 +42,6 @@ function OrganisationForm(props: Props) {
   const [nonWorkingDaysValue, setNonWorkingDaysValue] =
     useState<MultiValue<Options>>();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
 
   const formik = useFormik<z.infer<typeof createOrganisationSchema>>({
     initialValues: {
@@ -63,24 +63,24 @@ function OrganisationForm(props: Props) {
             refetch();
             setIsSubmitting(false);
           },
-        onError(error) {
-          if (isAxiosError(error)) {
-            if (
-              error.response?.status === 400 &&
-              error.response.data?.errors &&
-              Array.isArray(error.response?.data.errors)
-            ) {
-              error.response.data.errors.map(
-                (item: { message: string; path: [string] }) => {
-                  helper.setFieldError(item.path[0], item.message);
-                }
-              );
-
+          onError(error) {
+            if (isAxiosError(error)) {
+              if (
+                error.response?.status === 400 &&
+                error.response.data?.errors &&
+                Array.isArray(error.response?.data.errors)
+              ) {
+                error.response.data.errors.map(
+                  (item: { message: string; path: [string] }) => {
+                    helper.setFieldError(item.path[0], item.message);
+                  }
+                );
+              }
+              setIsSubmitting(false);
             }
-            setIsSubmitting(false);
           },
         });
-      } else {
+      }else{
         organisationMutation.mutate(values, {
           onSuccess(data) {
             localStorage.setItem(
@@ -234,7 +234,7 @@ function OrganisationForm(props: Props) {
             <Select
               className={`${inputStyle} select !p-0`}
               onChange={handleNonWorkingDays}
-              onBlur={()=>formik.setTouched({nonWorkingDays:true})}
+              onBlur={() => formik.setTouched({ nonWorkingDays: true })}
               options={nonWorkingDays}
               value={nonWorkingDaysValue}
               name="nonWorkingDays"
@@ -251,14 +251,13 @@ function OrganisationForm(props: Props) {
             <Select
               className={`${inputStyle} select !p-0`}
               onChange={handleCountry}
-              onBlur={()=>formik.setTouched({country:true})}
+              onBlur={() => formik.setTouched({ country: true })}
               options={contrysFn()}
               value={countryValue}
               placeholder="Select country"
               name="country"
               styles={reactSelectStyle}
-             
-/>
+            />
             <ErrorMessage>
               {formik.touched.country && formik.errors.country}
             </ErrorMessage>
