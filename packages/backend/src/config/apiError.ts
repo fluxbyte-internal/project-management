@@ -127,10 +127,11 @@ export abstract class ApiError extends Error {
           break;
       }
       return new ErrorResponse(
-        code, err.message, undefined
+        code, message, undefined
       ).send(res);
     }
     else {
+      console.error(err)
       return new ErrorResponse<any>(
         StatusCodes.INTERNAL_SERVER_ERROR,
         err.data,
