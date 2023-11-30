@@ -13,10 +13,15 @@ import {
   updateOrganisationSchema,
   addOrganisationMemberSchema,
 } from "../schemas/organisationSchema.js";
-import { UserRoleEnum } from "@prisma/client";
+import { UserRoleEnum, UserStatusEnum } from "@prisma/client";
 import { encrypt } from "../utils/encryption.js";
 import { uuidSchema } from "../schemas/commonSchema.js";
 import { ZodError } from "zod";
+import { OtpService } from "../services/userOtp.services.js";
+import { generateOTP } from "../utils/otpHelper.js";
+import { EmailService } from "../services/email.services.js";
+import { settings } from "../config/settings.js";
+import { generateRandomPassword } from "../utils/generateRandomPassword.js";
 
 export const getOrganisationById = async (
   req: express.Request,
@@ -171,21 +176,55 @@ export const addOrganisationMember = async (
     },
   });
   if (!user) {
-    const hashedPassword = await encrypt("Password@123");
+    const randomPassword = generateRandomPassword();
+    const hashedPassword = await encrypt(randomPassword);
     const newUser = await prisma.user.create({
       data: {
         email: member.email,
         password: hashedPassword,
-        status: "ACTIVE",
+        status: UserStatusEnum.ACTIVE,
+        userOrganisation: {
+          create: {
+            role: member.role,
+            organisationId: organisationId
+          }
+        }
       },
+      include: {
+        userOrganisation: {
+          include: {
+            organisation: true
+          }
+        }
+      }
     });
-    await prisma.userOrganisation.create({
-      data: {
-        role: member.role,
-        userId: newUser.userId,
-        organisationId,
-      },
-    });
+    try {
+      const newUserOrg = newUser.userOrganisation.find(org => org.organisationId === organisationId);
+      const subjectMessage = `Invited`;
+      const bodyMessage = `
+      You are invited in Organisation ${newUserOrg?.organisation?.organisationName}
+      
+      URL: ${settings.appURL}/login
+      PASSWORD: ${randomPassword}
+      `
+      await EmailService.sendEmail(newUser.email, subjectMessage, bodyMessage);
+    } catch (error) {
+      console.error('Failed to sign up email', error)
+    }
+    // Generate and save verify otp
+    const otpValue = generateOTP();
+    const subjectMessage = `Login OTP`;
+    const expiresInMinutes = 10;
+    const bodyMessage = `Here is your login OTP : ${otpValue}, OTP is valid for ${expiresInMinutes} minutes`;
+    await OtpService.saveOTP(
+      otpValue, newUser.userId, req.tenantId, expiresInMinutes * 60
+    );
+    try {
+      // Send verify otp in email
+      await EmailService.sendEmail(newUser.email, subjectMessage, bodyMessage);
+    } catch (error) {
+      console.error('Failed to otp email', error)
+    }
     return new SuccessResponse(200, null).send(res);
   } else {
     if (

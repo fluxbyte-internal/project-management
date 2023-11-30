@@ -5,8 +5,8 @@ import { useUser } from "@/hooks/useUser";
 import { useNavigate } from "react-router-dom";
 function Organisation() {
   const [organisationForm, setOrganisationForm] = useState<boolean>(false);
-  const { user } = useUser();
   const navigate = useNavigate();
+  const { user } = useUser();
   return (
     <>
       <div
@@ -64,9 +64,7 @@ function Organisation() {
           </div>
         </div>
       </div>
-      {organisationForm && (
-        <OrganisationForm close={() => setOrganisationForm(false)} />
-      )}
+      {organisationForm && <OrganisationForm close={()=>setOrganisationForm(false)} />}
     </>
   );
 }
