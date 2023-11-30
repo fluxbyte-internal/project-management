@@ -21,7 +21,7 @@ import { OtpService } from "../services/userOtp.services.js";
 import { generateOTP } from "../utils/otpHelper.js";
 import { EmailService } from "../services/email.services.js";
 import { settings } from "../config/settings.js";
-import { generateRandomPassword } from "../config/helper.js";
+import { generateRandomPassword } from "../utils/generateRandomPassword.js";
 
 export const getOrganisationById = async (
   req: express.Request,

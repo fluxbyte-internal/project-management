@@ -9,7 +9,22 @@ import { ProjectService } from '../services/project.services.js';
 export const getProjects = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) { throw new BadRequestError('organisationId not found!') };
   const prisma = await getClientByTenantId(req.tenantId);
-  const projects = await prisma.project.findMany({ where: { organisationId: req.organisationId }, orderBy: { createdAt: 'desc' } });
+  const projects = await prisma.project.findMany({
+    where: {
+      organisationId: req.organisationId
+    },
+    include: {
+      createdByUser: {
+        select: {
+          firstName: true,
+          lastName: true,
+          email: true,
+          avatarImg: true
+        }
+      }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
   return new SuccessResponse(StatusCodes.OK, projects, 'get all project successfully').send(res);
 };
 
@@ -19,7 +34,17 @@ export const getProjectById = async (req: express.Request, res: express.Response
   const prisma = await getClientByTenantId(req.tenantId);
   const projects = await prisma.project.findFirstOrThrow({
     where: { organisationId: req.organisationId, projectId: projectId },
-    include: { tasks: true }
+    include: {
+      tasks: true,
+      createdByUser: {
+        select: {
+          firstName: true,
+          lastName: true,
+          email: true,
+          avatarImg: true
+        }
+      }
+    }
   });
   const projectProgression = await ProjectService.calculateProjectProgressionPercentage(projectId, req.tenantId);
   return new SuccessResponse(StatusCodes.OK, { ...projects, projectProgression }, 'project selected').send(res);

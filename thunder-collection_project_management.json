@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "project_management",
-    "dateExported": "2023-11-30T07:01:32.014Z",
+    "dateExported": "2023-11-30T10:39:17.333Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -14,7 +14,7 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2023-11-04T05:57:48.297Z",
-            "modified": "2023-11-28T05:12:37.193Z",
+            "modified": "2023-11-27T11:51:39.879Z",
             "headers": [],
             "params": [],
             "body": {
@@ -33,11 +33,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Organisation - get",
-            "url": "{{ip_url}}/api/organisation/fd1a8c9b-0655-492e-9550-d94765ce591d",
+            "url": "{{ip_url}}/api/organisation/8c3fa22b-f480-4f01-a626-79794477966b",
             "method": "GET",
             "sortNum": 20000,
             "created": "2023-11-04T06:05:19.672Z",
-            "modified": "2023-11-30T06:38:28.241Z",
+            "modified": "2023-11-27T08:51:56.411Z",
             "headers": [],
             "params": [],
             "auth": {
@@ -73,12 +73,12 @@
             "method": "POST",
             "sortNum": 40000,
             "created": "2023-11-04T06:05:59.969Z",
-            "modified": "2023-11-30T07:00:39.618Z",
+            "modified": "2023-11-27T12:21:54.753Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n    \"email\":\"test.test@gmail.com\",\n    \"password\":\"T1estproject@gmail.com\"\n}",
+                "raw": "{\n    \"email\":\"test@yopmail.com\",\n    \"password\":\"Test@123\"\n}",
                 "form": []
             },
             "auth": {
@@ -96,12 +96,12 @@
             "method": "POST",
             "sortNum": 50000,
             "created": "2023-11-04T06:06:15.625Z",
-            "modified": "2023-11-30T07:00:43.074Z",
+            "modified": "2023-11-27T12:21:25.355Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n    \"email\":\"test@gmail.com\",\n    \"password\":\"T1estproject@gmail.com\",\n    \"confirmPassword\":\"T1estproject@gmail.com\"\n}",
+                "raw": "{\n    \"email\":\"test@yopmail.com\",\n    \"password\":\"Test@123\",\n    \"confirmPassword\":\"Test@123\"\n}",
                 "form": []
             },
             "auth": {
@@ -152,7 +152,7 @@
             "method": "POST",
             "sortNum": 110000,
             "created": "2023-11-09T05:52:54.555Z",
-            "modified": "2023-11-29T05:56:29.059Z",
+            "modified": "2023-11-24T08:32:19.303Z",
             "headers": [
                 {
                     "name": "organisation-id",
@@ -162,7 +162,7 @@
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"projectName\": \"Latest MANAGEMENT\",\n  \"projectDescription\": \"description\",\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedEndDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedBudget\": \"50000\",\n  \"defaultView\": \"KANBAN\"\n}",
+                "raw": "{\n  \"projectName\": \"MY MANAGEMENT\",\n  \"projectDescription\": \"description\",\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedEndDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedBudget\": \"50000\",\n  \"defaultView\": \"KANBAN\"\n}",
                 "form": []
             },
             "tests": []
@@ -252,16 +252,16 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Task - create",
-            "url": "{{ip_url}}/api/task/ea8d5e58-43d4-4451-9d88-d9428bacf3e2/56644c20-a3b0-48ec-804a-dac89458d6d2",
+            "url": "{{ip_url}}/api/task/dc1d49fc-8e49-4014-a761-712b76c5f2b5",
             "method": "POST",
             "sortNum": 170000,
             "created": "2023-11-09T11:40:37.643Z",
-            "modified": "2023-11-29T05:57:20.357Z",
+            "modified": "2023-11-24T08:36:01.577Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"taskName\": \"Latest SUB 1 Task\",\n  \"taskDescription\": \"Task's Description\",\n  \"duration\": 90,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\",\n  \"assginedToUserId\": \"ce1d4e46-206e-4ea3-b149-ffe152dc7739\"\n}",
+                "raw": "{\n  \"taskName\": \"Task\",\n  \"taskDescription\": \"Task's Description\",\n  \"duration\": 90,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\",\n  \"assginedToUserId\": \"79926ffa-0e0d-4c3a-aebe-86cf6552cbf3\"\n}",
                 "form": []
             },
             "tests": []
@@ -619,7 +619,7 @@
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"email\": \"test@gmail.com\",\n  \"role\": \"TEAM_MEMBER\"\n}",
+                "raw": "{\n  \"email\": \"test@yopmail.com\",\n  \"role\": \"TEAM_MEMBER\"\n}",
                 "form": []
             },
             "tests": []
