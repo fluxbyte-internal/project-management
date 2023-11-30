@@ -13,7 +13,7 @@ import {
   updateOrganisationSchema,
   addOrganisationMemberSchema,
 } from "../schemas/organisationSchema.js";
-import { UserRoleEnum } from "@prisma/client";
+import { UserRoleEnum, UserStatusEnum } from "@prisma/client";
 import { encrypt } from "../utils/encryption.js";
 import { uuidSchema } from "../schemas/commonSchema.js";
 import { ZodError } from "zod";
@@ -181,7 +181,13 @@ export const addOrganisationMember = async (
       data: {
         email: member.email,
         password: hashedPassword,
-        status: "ACTIVE",
+        status: UserStatusEnum.ACTIVE,
+        userOrganisation: {
+          create: {
+            role: member.role,
+            organisationId: organisationId
+          }
+        }
       },
       include: {
         userOrganisation: {
@@ -190,13 +196,6 @@ export const addOrganisationMember = async (
           }
         }
       }
-    });
-    await prisma.userOrganisation.create({
-      data: {
-        role: member.role,
-        userId: newUser.userId,
-        organisationId,
-      },
     });
     try {
       const newUserOrg = newUser.userOrganisation.find(org => org.organisationId === organisationId);
