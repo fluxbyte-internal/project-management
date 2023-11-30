@@ -68,8 +68,8 @@ function CreateUpdateProjectForm(props: addProjectType) {
     initialValues: {
       projectName: "",
       projectDescription: "",
-      startDate: new Date(),
-      estimatedEndDate: new Date(),
+      startDate: '' as unknown as Date,
+      estimatedEndDate: '' as unknown as Date,
       estimatedBudget: "",
       defaultView: "KANBAN",
     },
@@ -77,7 +77,7 @@ function CreateUpdateProjectForm(props: addProjectType) {
       editData && editData.projectId
         ? toFormikValidationSchema(updateProjectSchema)
         : toFormikValidationSchema(createProjectSchema),
-    onSubmit: (values, { resetForm }) => {
+    onSubmit: (values, helper) => {
       if (editData && editData.projectId) {
         projectUpdateMutation.mutate(values, {
           onSuccess() {
@@ -92,7 +92,9 @@ function CreateUpdateProjectForm(props: addProjectType) {
                 error.response.data?.errors &&
                 Array.isArray(error.response?.data.errors)
               ) {
-                console.error(error.response.data);
+                error.response.data.errors.forEach((item) => {
+                  helper.setFieldError(item.path[0], item.message);
+                });
               }
             }
           },
@@ -102,7 +104,6 @@ function CreateUpdateProjectForm(props: addProjectType) {
           onSuccess() {
             projectQuery.refetch();
             formik.resetForm();
-
             handleClosePopUp();
           },
           onError(error) {
@@ -112,14 +113,14 @@ function CreateUpdateProjectForm(props: addProjectType) {
                 error.response.data?.errors &&
                 Array.isArray(error.response?.data.errors)
               ) {
-                console.error(error.response.data);
+                error.response.data.errors.forEach((item) => {
+                  helper.setFieldError(item.path[0], item.message);
+                });
               }
             }
           },
         });
       }
-
-      resetForm();
     },
   });
   useEffect(() => {
@@ -137,10 +138,8 @@ function CreateUpdateProjectForm(props: addProjectType) {
         defaultView: editData.defaultView,
       });
     }
-  
-  }, [])
-  
-  
+  }, []);
+
   const handleRadioChange = (value: string) => {
     formik.setFieldValue("defaultView", value);
   };

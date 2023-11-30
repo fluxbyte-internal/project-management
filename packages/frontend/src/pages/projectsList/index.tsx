@@ -1,6 +1,6 @@
 import PercentageCircle from "@/components/shared/PercentageCircle";
 import Table, { ColumeDef } from "@/components/shared/Table";
-import dateFormater from "@/helperFuntions/dateFormater";
+import dateFormatter from "@/helperFuntions/dateFormater";
 import useProjectQuery, { Project } from "../../api/query/useProjectQuery";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,7 @@ function ProjectsList() {
       header: "Manager",
       onCellRender: (item: Project) => (
         <>
-          <ProfileName lable={item.projectManager} url={item.profile} />
+          <ProfileName user={item.createdByUser}/>
         </>
       ),
     },
@@ -50,14 +50,14 @@ function ProjectsList() {
       header: "Start Date",
       sorting: true,
       onCellRender: (item: Project) => (
-        <>{dateFormater(new Date(item.startDate))}</>
+        <>{dateFormatter(new Date(item.startDate))}</>
       ),
     },
     {
       key: "actualEndDate",
       header: "End Date",
       onCellRender: (item: Project) => (
-        <>{item.actualEndDate && dateFormater(new Date(item.actualEndDate))}</>
+        <>{item.estimatedEndDate && dateFormatter(new Date(item.estimatedEndDate))}</>
       ),
     },
     {
@@ -78,7 +78,7 @@ function ProjectsList() {
       onCellRender: (item) => (
         <>
           <button
-            onClick={() => heandleEdite(item)}
+            onClick={() => handleEdit(item)}
             className="w-32 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex"
           >
             Edit
@@ -88,9 +88,9 @@ function ProjectsList() {
     },
   ];
 
-  const heandleEdite = (item:Project) => {
+  const handleEdit = (item:Project) => {
     setIsOpenPopUp(true);
-    setEditData(item)
+    setEditData(item);
   };
 
   return (

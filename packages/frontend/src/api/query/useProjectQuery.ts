@@ -13,8 +13,6 @@ export type Project = {
   projectName: string;
   projectDescription: string;
   startDate: string;
-  projectManager: string;
-  profile: string;
   estimatedEndDate: string;
   actualEndDate: string | null;
   status: string;
@@ -26,7 +24,16 @@ export type Project = {
   progressionPercentage: number | string | null;
   createdAt: string;
   updatedAt: string;
+  createdByUser: CreatedByUser;
 };
+
+export interface CreatedByUser {
+  firstName: string;
+  lastName: string;
+  email: string;
+  avatarImg: null;
+}
+
 type ProjectApiResponse = ResponseType<Project[]>;
 
 function useProjectQuery() {
@@ -35,9 +42,10 @@ function useProjectQuery() {
     AxiosResponseAndError<ProjectApiResponse>["error"]
   >({
     queryKey: [QUERY_KEYS.getProjects],
-    queryFn: async () => await ApiRequest.get(requestURLs.project, {
-      headers: { "organisation-id": localStorage.getItem("organisation-id") },
-    }),
+    queryFn: async () =>
+      await ApiRequest.get(requestURLs.project, {
+        headers: { "organisation-id": localStorage.getItem("organisation-id") },
+      }),
     enabled: true,
   });
 }
