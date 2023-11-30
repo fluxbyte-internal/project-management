@@ -8,6 +8,7 @@ import { requestURLs } from "@/Environment";
 import { useQuery } from "@tanstack/react-query";
 import { UserRoleEnumValue } from "@backend/src/schemas/enums";
 import { TaskColorPaletteEnum } from "@backend/src/schemas/userSchema";
+import { OrgListOfNonWorkingDaysEnum } from "@backend/src/schemas/organisationSchema";
 
 type UserOrganisationType = {
   userOrganisationId: string;
@@ -29,7 +30,7 @@ export type OrganisationResponseType = ResponseType<{
   industry: string;
   status: string;
   country: string;
-  nonWorkingDays: number;
+  nonWorkingDays: OrgListOfNonWorkingDaysEnum[];
   createdAt: Date;
   updatedAt: Date;
   tenantId: string;
