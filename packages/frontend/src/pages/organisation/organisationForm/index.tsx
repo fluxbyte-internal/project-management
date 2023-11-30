@@ -11,6 +11,7 @@ import Select, { SingleValue, MultiValue } from "react-select";
 import { useNavigate } from "react-router-dom";
 import countries from "../../../assets/json/countries.json";
 import ErrorMessage from "@/components/common/ErrorMessage";
+import { useState } from "react";
 interface Props {
   close: () => void;
 }
@@ -53,7 +54,8 @@ function OrganisationForm(props: Props) {
             close();
           setIsSubmitting(false);
 
-        },
+        })
+      },
         onError(error) {
           if (isAxiosError(error)) {
             if (
