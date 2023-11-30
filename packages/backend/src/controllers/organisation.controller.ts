@@ -1,8 +1,8 @@
 import express from 'express';
 import { getClientByTenantId } from '../config/db.js';
-import { BadRequestError, SuccessResponse } from '../config/apiError.js';
+import { BadRequestError, ForbiddenError, NotFoundError, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
-import { createOrganisationSchema, organisationIdSchema } from '../schemas/organisationSchema.js';
+import { createOrganisationSchema, organisationIdSchema, updateOrganisationSchema } from '../schemas/organisationSchema.js';
 import { UserRoleEnum } from '@prisma/client';
 
 export const getOrganisationById = async (req: express.Request, res: express.Response) => {
@@ -26,7 +26,7 @@ export const getOrganisationById = async (req: express.Request, res: express.Res
 };
 
 export const createOrganisation = async (req: express.Request, res: express.Response) => {
-  const { organisationName, industry, status, country, listOfNonWorkingDays } = createOrganisationSchema.parse(req.body);
+  const { organisationName, industry, status, country, nonWorkingDays } = createOrganisationSchema.parse(req.body);
   if (!req.userId) { throw new BadRequestError('userId not found!!') };
   const prisma = await getClientByTenantId(req.tenantId);
 
@@ -39,17 +39,56 @@ export const createOrganisation = async (req: express.Request, res: express.Resp
       organisationName: organisationName,
       industry: industry,
       status: status,
-      listOfNonWorkingDays: listOfNonWorkingDays,
       country: country,
       tenantId: req.tenantId,
       createdByUserId: req.userId,
+      updatedByUserId: req.userId,
       userOrganisation: {
         create: {
           userId: req.userId,
           role: UserRoleEnum.ADMINISTRATOR
         }
-      }
-    }
+      },
+      nonWorkingDays: nonWorkingDays
+    },
   });
   return new SuccessResponse(StatusCodes.CREATED, organisation, 'Organisation created successfully').send(res);
+};
+
+export const updateOrganisation = async (req: express.Request, res: express.Response) => {
+  if (!req.userId) { throw new BadRequestError('userId not found!') };
+  const organisationId = organisationIdSchema.parse(req.params.organisationId);
+  const updateOrganisationValue = updateOrganisationSchema.parse(req.body);
+  const prisma = await getClientByTenantId(req.tenantId);
+
+  const organisation = await prisma.organisation.findFirst({
+    where: {
+      organisationId: organisationId,
+    },
+    include: {
+      userOrganisation: true
+    }
+  });
+
+  if (!organisation) throw new NotFoundError('Organisation not found')
+
+  if (!organisation.userOrganisation.some(uo =>
+    uo.userId === req.userId && UserRoleEnum.ADMINISTRATOR == uo.role)
+  ) {
+    throw new ForbiddenError();
+  };
+
+  let updateObj = { ...updateOrganisationValue, updatedByUserId: req.userId };
+  const organisationUpdate = await prisma.organisation.update({
+    where: {
+      organisationId: organisationId,
+      userOrganisation: {
+        some: {
+          role: UserRoleEnum.ADMINISTRATOR,
+        }
+      }
+    },
+    data: { ...updateObj },
+  });
+  return new SuccessResponse(StatusCodes.OK, organisationUpdate, 'Organisation updated successfully').send(res);
 };

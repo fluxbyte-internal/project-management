@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "project_management",
-    "dateExported": "2023-11-23T09:31:53.233Z",
+    "dateExported": "2023-11-27T12:39:37.043Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -14,12 +14,12 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2023-11-04T05:57:48.297Z",
-            "modified": "2023-11-23T04:52:48.012Z",
+            "modified": "2023-11-27T11:51:39.879Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"organisationName\":\"ORG\",\n    \"industry\": \"IT Software Development\",\n    \"status\": \"ACTIVE\",\n    \"listOfNonWorkingDays\": 5,\n    \"country\": \"India\"\n}",
+                "raw": "{\n  \"organisationName\": \"My's Org\",\n  \"industry\": \"IT\",\n  \"status\": \"Active\",\n  \"country\": \"US\",\n  \"nonWorkingDays\": [\"SAT\",\"SUN\"]\n}",
                 "form": []
             },
             "auth": {
@@ -33,11 +33,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Organisation - get",
-            "url": "{{ip_url}}/api/organisation/4b7924ed-aa88-4c82-943c-767c827fe96c",
+            "url": "{{ip_url}}/api/organisation/8c3fa22b-f480-4f01-a626-79794477966b",
             "method": "GET",
             "sortNum": 20000,
             "created": "2023-11-04T06:05:19.672Z",
-            "modified": "2023-11-20T04:11:05.888Z",
+            "modified": "2023-11-27T08:51:56.411Z",
             "headers": [],
             "params": [],
             "auth": {
@@ -73,12 +73,12 @@
             "method": "POST",
             "sortNum": 40000,
             "created": "2023-11-04T06:05:59.969Z",
-            "modified": "2023-11-23T04:22:25.811Z",
+            "modified": "2023-11-27T12:21:54.753Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n    \"email\":\"hitesh@gmail.com\",\n    \"password\":\"hitesh\",\n    \"confirmPassword\":\"hitesh\"\n}",
+                "raw": "{\n    \"email\":\"ttt.fluxbyte@gmail.com\",\n    \"password\":\"ttt\"\n}",
                 "form": []
             },
             "auth": {
@@ -96,12 +96,12 @@
             "method": "POST",
             "sortNum": 50000,
             "created": "2023-11-04T06:06:15.625Z",
-            "modified": "2023-11-23T04:22:11.363Z",
+            "modified": "2023-11-27T12:21:25.355Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n    \"email\":\"hitesh@gmail.com\",\n    \"password\":\"hitesh\",\n    \"confirmPassword\":\"hitesh\"\n}",
+                "raw": "{\n    \"email\":\"ttt.fluxbyte@gmail.com\",\n    \"password\":\"ttt\",\n    \"confirmPassword\":\"ttt\"\n}",
                 "form": []
             },
             "auth": {
@@ -152,7 +152,7 @@
             "method": "POST",
             "sortNum": 110000,
             "created": "2023-11-09T05:52:54.555Z",
-            "modified": "2023-11-23T06:32:59.466Z",
+            "modified": "2023-11-24T08:32:19.303Z",
             "headers": [
                 {
                     "name": "organisation-id",
@@ -162,7 +162,7 @@
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"projectName\": \"updated\",\n  \"projectDescription\": \"description\",\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedEndDate\": \"2023-11-22T00:00:00.000Z\",\n  \"estimatedBudget\": \"50000\",\n  \"defaultView\": \"KANBAN\"\n}",
+                "raw": "{\n  \"projectName\": \"MY MANAGEMENT\",\n  \"projectDescription\": \"description\",\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedEndDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedBudget\": \"50000\",\n  \"defaultView\": \"KANBAN\"\n}",
                 "form": []
             },
             "tests": []
@@ -172,11 +172,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Project - delete",
-            "url": "{{ip_url}}/api/project/d78ed919-a34c-4bfc-83c5-ce120177ee8c",
+            "url": "{{ip_url}}/api/project/fb0e0684-0cf8-4e4b-b790-83a102803fb0",
             "method": "DELETE",
             "sortNum": 120000,
             "created": "2023-11-09T09:06:50.391Z",
-            "modified": "2023-11-23T06:33:36.016Z",
+            "modified": "2023-11-24T08:33:15.348Z",
             "headers": [
                 {
                     "name": "organisation-id",
@@ -191,11 +191,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Project - get By Id",
-            "url": "{{ip_url}}/api/project/67083a32-be83-4269-aa17-9b6ff7147bd5",
+            "url": "{{ip_url}}/api/project/e4ab7295-c8a4-47f4-83ea-b710392b659f",
             "method": "GET",
             "sortNum": 130000,
             "created": "2023-11-09T11:26:07.278Z",
-            "modified": "2023-11-22T06:07:31.757Z",
+            "modified": "2023-11-24T08:55:59.023Z",
             "headers": [
                 {
                     "name": "organisation-id",
@@ -252,16 +252,16 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Task - create",
-            "url": "{{ip_url}}/api/task/60d05784-82ea-4f3a-966b-8c88ad017f94/c5e9343b-ad1a-47db-8645-0a9a7209b733",
+            "url": "{{ip_url}}/api/task/dc1d49fc-8e49-4014-a761-712b76c5f2b5",
             "method": "POST",
             "sortNum": 170000,
             "created": "2023-11-09T11:40:37.643Z",
-            "modified": "2023-11-23T09:12:40.603Z",
+            "modified": "2023-11-24T08:36:01.577Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"taskName\": \"1SUB CODE\",\n  \"taskDescription\": \"SSS\",\n  \"duration\": 90,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\",\n  \"assignee\": \"09c99764-162f-4a80-a387-9412f042869d\"\n}",
+                "raw": "{\n  \"taskName\": \"Task\",\n  \"taskDescription\": \"Task's Description\",\n  \"duration\": 90,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\",\n  \"assginedToUserId\": \"79926ffa-0e0d-4c3a-aebe-86cf6552cbf3\"\n}",
                 "form": []
             },
             "tests": []
@@ -371,11 +371,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Task - status change",
-            "url": "{{ip_url}}/api/task/status/e24dd02f-c79a-4758-83a5-dc9aba42cc7a",
+            "url": "{{ip_url}}/api/task/status/71f08c48-604b-4539-8c12-27c9980d3053",
             "method": "PUT",
             "sortNum": 230000,
             "created": "2023-11-21T07:17:16.435Z",
-            "modified": "2023-11-23T09:22:33.330Z",
+            "modified": "2023-11-24T08:37:00.256Z",
             "headers": [],
             "params": [],
             "body": {
@@ -390,16 +390,16 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Task - update",
-            "url": "{{ip_url}}/api/task/c5e9343b-ad1a-47db-8645-0a9a7209b733",
+            "url": "{{ip_url}}/api/task/71f08c48-604b-4539-8c12-27c9980d3053",
             "method": "PUT",
             "sortNum": 240000,
             "created": "2023-11-21T09:43:22.189Z",
-            "modified": "2023-11-23T09:14:06.772Z",
+            "modified": "2023-11-24T08:36:50.943Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"taskName\": \"Updated\",\n  \"taskDescription\": \"SSS\",\n  \"duration\": 10,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"endDate\": \"2024-01-28T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\"\n}",
+                "raw": "{\n  \"taskName\": \"UPDATED TASK\",\n  \"taskDescription\": \"TASK's Description\",\n  \"duration\": 10,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"endDate\": \"2024-01-28T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\"\n}",
                 "form": []
             },
             "tests": []
@@ -456,11 +456,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Project - Update",
-            "url": "{{ip_url}}/api/project/60d05784-82ea-4f3a-966b-8c88ad017f94",
+            "url": "{{ip_url}}/api/project/fb0e0684-0cf8-4e4b-b790-83a102803fb0",
             "method": "PUT",
             "sortNum": 280000,
             "created": "2023-11-23T06:38:51.009Z",
-            "modified": "2023-11-23T06:41:23.820Z",
+            "modified": "2023-11-24T08:32:57.129Z",
             "headers": [
                 {
                     "name": "organisation-id",
@@ -470,7 +470,26 @@
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"projectName\": \"updated\",\n  \"projectDescription\": \"description\",\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedEndDate\": \"2023-11-22T00:00:00.000Z\",\n  \"estimatedBudget\": \"50000\",\n  \"defaultView\": \"KANBAN\"\n}",
+                "raw": "{\n  \"projectName\": \"UPDATED MANAGEMENT\",\n  \"projectDescription\": \"description\",\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedEndDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedBudget\": \"50000\",\n  \"defaultView\": \"KANBAN\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "4642e9dd-178b-4c35-bac6-70b5599323a3",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Organisation - update",
+            "url": "{{ip_url}}/api/organisation/faf07511-be64-4802-a216-43c5eee84070",
+            "method": "PUT",
+            "sortNum": 290000,
+            "created": "2023-11-27T11:47:48.619Z",
+            "modified": "2023-11-27T12:22:11.031Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"organisationName\": \"My's updated Org\",\n  \"industry\": \"IT\",\n  \"status\": \"Active\",\n  \"country\": \"US\",\n  \"nonWorkingDays\": [\"WED\",\"MON\"]\n}",
                 "form": []
             },
             "tests": []

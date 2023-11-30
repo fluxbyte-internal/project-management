@@ -11,11 +11,10 @@ import {
 } from "../ui/dropdown-menu";
 import { LogOut, Settings } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CreateProjectForm from "../project/CreateProjectForm";
 import { useAuth } from "@/hooks/useAuth";
 import { useUser } from "@/hooks/useUser";
-import AccountSettings from "../Account/AccountSettings";
 
 const navbarData = [
   {
@@ -26,36 +25,20 @@ const navbarData = [
   {
     id: 2,
     name: "Project",
-    dropDown: [
-      {
-        id: 1,
-        contentName: " Project 1",
-        contentLink: "/projects",
-      },
-      {
-        id: 2,
-        contentName: " Project 2",
-        contentLink: "/projects",
-      },
-      {
-        id: 3,
-        contentName: " Project 3",
-        contentLink: "/projects",
-      },
-    ],
+    link: "/projects",
   },
 ];
 
 function NavBar() {
+  const navigate = useNavigate();
   const [isOpenPopUp, setisOpenPopUp] = useState(false);
-  const [isOpenAccountPopUp, setisOpenAccountPopUp] = useState(false);
   const { logout } = useAuth();
   const { user } = useUser();
   const handleOpenPopUp = () => {
     setisOpenPopUp(!isOpenPopUp);
   };
-  const handleOpenAccountPopUp = () => {
-    setisOpenAccountPopUp(!isOpenAccountPopUp);
+  const openAccountSettings = () => {
+    navigate("/account-settings");
   };
 
   return (
@@ -76,46 +59,12 @@ function NavBar() {
                         item.id === 2 && "lg:flex"
                       } ${item.id === 1 && "md:flex"}`}
                     >
-                      {item.dropDown ? (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <div className="flex items-center gap-2">
-                              <div className="text-sm font-medium text-gray-500 relative cursor-pointer">
-                                {item.name}
-                              </div>
-                              <div className="w-full h-full flex items-center aspect-square">
-                                <img src={DownArrow} alt="Dropdown Arrow" />
-                              </div>
-                            </div>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent className="w-auto">
-                            {item.dropDown.map(
-                              ({ contentName, contentLink }, contentIndex) => (
-                                <DropdownMenuItem key={contentIndex}>
-                                  <div className="flex justify-between items-center">
-                                    <div className="flex break-all">
-                                      {contentLink ? (
-                                        <Link to={contentLink}>
-                                          {contentName}
-                                        </Link>
-                                      ) : (
-                                        contentName
-                                      )}
-                                    </div>
-                                  </div>
-                                </DropdownMenuItem>
-                              )
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      ) : (
-                        <Link
-                          to={item.link}
-                          className="text-sm font-medium text-gray-500 relative cursor-pointer"
-                        >
-                          {item.name}
-                        </Link>
-                      )}
+                      <Link
+                        to={item.link}
+                        className="text-sm font-medium text-gray-500 relative cursor-pointer"
+                      >
+                        {item.name}
+                      </Link>
                     </div>
                   );
                 })}
@@ -135,30 +84,18 @@ function NavBar() {
                   <DropdownMenuContent className="w-36">
                     {navbarData.map((item, index) => {
                       return (
-                        <DropdownMenuItem className="p-0">
+                        <DropdownMenuItem className="p-0" key={index}>
                           <div
-                            key={index}
                             className={`flex justify-between text-sm font-medium text-gray-500 relative cursor-pointer p-1 w-full ${
                               item.id === 2 ? "lg:hidden" : ""
                             } ${item.id === 1 ? "md:hidden" : ""}`}
                           >
-                            {item.dropDown ? (
-                              <div className="flex items-center justify-between w-full gap-2">
-                                <div className="text-sm font-medium text-gray-500 relative cursor-pointer">
-                                  {item.name}
-                                </div>
-                                <div className="h-full flex items-center aspect-square">
-                                  <img src={DownArrow} alt="Dropdown Arrow" />
-                                </div>
-                              </div>
-                            ) : (
-                              <Link
-                                to={item.link}
-                                className="text-sm font-medium text-gray-500 relative cursor-pointer"
-                              >
-                                {item.name}
-                              </Link>
-                            )}
+                            <Link
+                              to={item.link}
+                              className="text-sm font-medium text-gray-500 relative cursor-pointer"
+                            >
+                              {item.name}
+                            </Link>
                           </div>
                         </DropdownMenuItem>
                       );
@@ -167,20 +104,30 @@ function NavBar() {
                 </DropdownMenu>
               </div>
 
-              <div className="lg:block hidden">
-                <Button variant={"primary"} onClick={handleOpenPopUp}>
-                  Create
-                </Button>
-              </div>
-              <div className="block lg:hidden">
-                <Button
-                  variant={"primary"}
-                  className="lg:px-1 md:py-1text-lg font-medium lg:h-12 lg:w-12 h-[30px] w-[30px]"
-                  onClick={handleOpenPopUp}
+              <Button
+                className="hidden lg:block"
+                variant={"primary"}
+                onClick={handleOpenPopUp}
+              >
+                Create
+              </Button>
+              <Button
+                className="block lg:hidden p-2"
+                variant={"primary"}
+                onClick={handleOpenPopUp}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
                 >
-                  <span className="text-lg">+</span>
-                </Button>
-              </div>
+                  <path
+                    fill="currentColor"
+                    d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"
+                  />
+                </svg>
+              </Button>
             </div>
           )}
         </div>
@@ -209,25 +156,19 @@ function NavBar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56 flex flex-col gap-1">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={handleOpenAccountPopUp}
-                className="flex md:hidden"
-              >
+              <DropdownMenuItem className="flex md:hidden">
                 <div className="mr-2 h-5 w-5">
                   <img src={Notification} className="mr-2 h-full w-full" />
                 </div>
                 <button className="button">Notification</button>
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handleOpenAccountPopUp}
-                className="flex md:hidden"
-              >
+              <DropdownMenuItem className="flex md:hidden">
                 <div className="mr-2 h-5 w-5">
                   <img src={Information} className="mr-2 h-full w-full" />
                 </div>
                 <button className="button">Information</button>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleOpenAccountPopUp}>
+              <DropdownMenuItem onClick={openAccountSettings}>
                 <Settings className="mr-2 h-4 w-4" />
                 <button className="button">Account Settings</button>
               </DropdownMenuItem>
@@ -240,9 +181,6 @@ function NavBar() {
         </div>
       </div>
       {isOpenPopUp && <CreateProjectForm handleClosePopUp={handleOpenPopUp} />}
-      {isOpenAccountPopUp && (
-        <AccountSettings handleCloseAccountPopUp={handleOpenAccountPopUp} />
-      )}
     </div>
   );
 }

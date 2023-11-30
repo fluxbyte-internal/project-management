@@ -1,8 +1,14 @@
-import type { ProjectDefaultViewEnum, ProjectStatusEnum, TaskDependenciesEnum, TaskStatusEnum } from "@prisma/client";
+import type {
+  ProjectDefaultViewEnum,
+  ProjectStatusEnum,
+  TaskDependenciesEnum,
+  TaskStatusEnum,
+  OrgStatusEnum,
+} from "@prisma/client";
 import type { EnumStringValueObj } from "../types/enumStringValueObject.js";
 
 export const ProjectDefaultViewEnumValue: EnumStringValueObj<ProjectDefaultViewEnum> = {
-  CALENDER: 'CALENDER',
+  CALENDAR: 'CALENDAR',
   GANTT: 'GANTT',
   KANBAN: 'KANBAN',
   LIST: 'LIST'
@@ -22,5 +28,10 @@ export const TaskDependenciesEnumValue: EnumStringValueObj<TaskDependenciesEnum>
 
 export const TaskStatusEnumValue: EnumStringValueObj<TaskStatusEnum> = {
   NOT_STARTED: 'NOT_STARTED',
-  COMPLETED: 'COMPLETED'
+  COMPLETED: 'COMPLETED',
+};
+
+export const OrgStatusEnumValue: EnumStringValueObj<OrgStatusEnum> = {
+  ACTIVE: 'ACTIVE',
+  DEACTIVE: 'DEACTIVE',
 };

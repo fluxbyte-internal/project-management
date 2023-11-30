@@ -17,6 +17,13 @@ import useProjectMutation from "@/api/mutation/useProjectMutation";
 import { isAxiosError } from "axios";
 import useProjectQuery, { Project } from "@/api/query/useProjectQuery";
 import useProjectUpdateMutation from "@/api/mutation/useProjectUpdateMutation";
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "../ui/tooltip";
+
 
 type addProjectType = {
   handleClosePopUp: () => void;
@@ -52,7 +59,8 @@ const RadioButtonData = [
 
 function CreateUpdateProjectForm(props: addProjectType) {
   const { handleClosePopUp, editData } = props;
-  const [showTooltip, setshowTooltip] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
 
   const errorStyle = "text-red-400 block text-sm h-1";
   const labelStyle = "font-medium text-base text-gray-700 ";
@@ -84,8 +92,10 @@ function CreateUpdateProjectForm(props: addProjectType) {
             projectQuery.refetch();
             formik.resetForm();
             handleClosePopUp();
+            setIsSubmitting(false);
           },
           onError(error) {
+            setIsSubmitting(false);
             if (isAxiosError(error)) {
               if (
                 error.response?.status === 400 &&
@@ -107,6 +117,7 @@ function CreateUpdateProjectForm(props: addProjectType) {
             handleClosePopUp();
           },
           onError(error) {
+            setIsSubmitting(false);
             if (isAxiosError(error)) {
               if (
                 error.response?.status === 400 &&
@@ -153,7 +164,7 @@ function CreateUpdateProjectForm(props: addProjectType) {
           </div>
           <div
             onClick={handleClosePopUp}
-            className="flex items-center justify-center "
+            className="flex items-center justify-center cursor-pointer"
           >
             <img src={CrossIcon}></img>
           </div>
@@ -231,19 +242,21 @@ function CreateUpdateProjectForm(props: addProjectType) {
                           Estimated End date
                           <div
                             className="flex items-center justify-center relative"
-                            onMouseEnter={() => setshowTooltip(true)}
-                            onMouseLeave={() => setshowTooltip(false)}
                           >
-                            {showTooltip ? (
-                              <div className="absolute bottom-4 left-3 bg-white p-1 border-gray-100 border rounded-md text-xs hauto w-auto ">
-                                Hi
-                              </div>
-                            ) : null}
-                            <img
-                              src={InfoCircle}
-                              className="h-[16px] w-[16px]"
-                              alt="InfoCircle"
-                            />
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <img
+                                    src={InfoCircle}
+                                    className="h-[16px] w-[16px]"
+                                    alt="InfoCircle"
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p> Estimated End date</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </div>
                         </label>
                         <input
@@ -293,7 +306,7 @@ function CreateUpdateProjectForm(props: addProjectType) {
                           className={`h-full w-full rounded-[5px] border ${
                             formik.values.defaultView ===
                             radioButton.title.toUpperCase()
-                              ? " border-primary-200 "
+                              ? " border-2 border-primary-800 "
                               : " border-gray-100"
                           }`}
                         >
@@ -340,6 +353,8 @@ function CreateUpdateProjectForm(props: addProjectType) {
                     type="submit"
                     variant={"primary"}
                     className="font-medium text-lg"
+                    isLoading={isSubmitting}
+                    disabled={isSubmitting}
                   >
                     Save
                   </Button>
