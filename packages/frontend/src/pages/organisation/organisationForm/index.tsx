@@ -4,14 +4,14 @@ import { toFormikValidationSchema } from "zod-formik-adapter";
 import { createOrganisationSchema } from "../../../../../backend/src/schemas/organisationSchema";
 import useOrganisationMutation from "@/api/mutation/useOrganisationMutation";
 import { isAxiosError } from "axios";
-import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
-import { useState } from "react";
 import Select, { SingleValue, MultiValue } from "react-select";
+import { useNavigate } from "react-router-dom";
 import countries from "../../../assets/json/countries.json";
 import ErrorMessage from "@/components/common/ErrorMessage";
+import { useState } from "react";
 interface Props {
   close: () => void;
 }
@@ -20,16 +20,15 @@ type Options = { label: string; value: string };
 function OrganisationForm(props: Props) {
   const { close } = props;
   const labelStyle = "block text-gray-500 text-sm font-bold mb-1";
-  const inputStyle =
-    "block w-full p-2.5 border border-gray-100 text-gray-500 text-sm rounded-md shadow-sm placeholder:text-gray-400";
-  const navigate = useNavigate();
+  const inputStyle = "block w-full p-2.5 border border-gray-100 text-gray-500 text-sm rounded-md shadow-sm placeholder:text-gray-400";
   const organisationMutation = useOrganisationMutation();
-  const { refetch, isFetched } = useCurrentUserQuery();
-  
+  const { refetch } = useCurrentUserQuery();
+  const navigate = useNavigate();
   const [countryValue, setContryValue] = useState<SingleValue<Options>>();
   const [nonWorkingDaysValue, setNonWorkingDaysValue] =
     useState<MultiValue<Options>>();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
 
   const formik = useFormik<z.infer<typeof createOrganisationSchema>>({
     initialValues: {
@@ -43,18 +42,20 @@ function OrganisationForm(props: Props) {
     onSubmit: (values, helper) => {
       setIsSubmitting(true);
       organisationMutation.mutate(values, {
-        onSuccess(data) {
+        onSuccess(organisationData) {
           localStorage.setItem(
             "organisation-id",
-            data.data.data.organisationId
+            organisationData.data.data.organisationId
           );
-          close();
-          refetch();
-          if (isFetched) {
-            navigate("/projects");
-          }
+          refetch().then((res) => {
+            if (res.data?.data.data.userOrganisation.length) {
+              navigate("/projects");
+            }
+            close();
           setIsSubmitting(false);
-        },
+
+        })
+      },
         onError(error) {
           if (isAxiosError(error)) {
             if (
@@ -146,7 +147,7 @@ function OrganisationForm(props: Props) {
                 formik.errors.organisationName}
             </ErrorMessage>
           </div>
-          <div >
+          <div>
             <label className={labelStyle}>Industry</label>
             <input
               className={inputStyle}
@@ -190,7 +191,7 @@ function OrganisationForm(props: Props) {
               name="country"
               styles={reactSelectStyle}
              
-            />
+/>
             <ErrorMessage>
               {formik.touched.country && formik.errors.country}
             </ErrorMessage>

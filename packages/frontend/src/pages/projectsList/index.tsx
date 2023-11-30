@@ -1,7 +1,7 @@
 import PercentageCircle from "@/components/shared/PercentageCircle";
 import Table, { ColumeDef } from "@/components/shared/Table";
-import dateFormater from "@/helperFuntions/dateFormater";
-import useProjectQuary, { Project } from "../../api/query/useProjectQuery";
+import dateFormatter from "@/helperFuntions/dateFormater";
+import useProjectQuery, { Project } from "../../api/query/useProjectQuery";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import ProfileName from "@/components/shared/Profile";
@@ -10,14 +10,16 @@ import NoProject from "../../components/project/NoProject";
 function ProjectsList() {
   const [data, setData] = useState<Project[]>();
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
+  const [editData, setEditData] = useState<Project | undefined>();
 
-  const projectQuary = useProjectQuary();
+  const projectQuery = useProjectQuery();
   useEffect(() => {
-    setData(projectQuary.data?.data.data);
-  }, [projectQuary.data?.data.data]);
-  
+    setData(projectQuery.data?.data.data);
+  }, [projectQuery.data?.data.data]);
+
   const close = () => {
     setIsOpenPopUp(false);
+    setEditData(undefined);
   };
   const columnDef: ColumeDef[] = [
     { key: "projectName", header: "Project Name", sorting: true },
@@ -26,7 +28,7 @@ function ProjectsList() {
       header: "Manager",
       onCellRender: (item: Project) => (
         <>
-          <ProfileName lable={item.projectManager} url={item.profile} />
+          <ProfileName user={item.createdByUser}/>
         </>
       ),
     },
@@ -48,14 +50,14 @@ function ProjectsList() {
       header: "Start Date",
       sorting: true,
       onCellRender: (item: Project) => (
-        <>{dateFormater(new Date(item.startDate))}</>
+        <>{dateFormatter(new Date(item.startDate))}</>
       ),
     },
     {
       key: "actualEndDate",
       header: "End Date",
       onCellRender: (item: Project) => (
-        <>{item.actualEndDate && dateFormater(new Date(item.actualEndDate))}</>
+        <>{item.estimatedEndDate && dateFormatter(new Date(item.estimatedEndDate))}</>
       ),
     },
     {
@@ -73,15 +75,23 @@ function ProjectsList() {
     {
       key: "Action",
       header: "Action",
-      onCellRender: () => (
+      onCellRender: (item) => (
         <>
-          <button className="w-32 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex">
+          <button
+            onClick={() => handleEdit(item)}
+            className="w-32 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex"
+          >
             Edit
           </button>
         </>
       ),
     },
   ];
+
+  const handleEdit = (item:Project) => {
+    setIsOpenPopUp(true);
+    setEditData(item);
+  };
 
   return (
     <>
@@ -92,10 +102,7 @@ function ProjectsList() {
               Projects
             </h2>
             <div>
-              <Button
-                onClick={() => setIsOpenPopUp(true)}
-                className="font-medium text-sm leading-normal rounded py-2 px-4 text-[#943B0C] bg-[#FFB819]"
-              >
+              <Button variant={"primary"} onClick={() => setIsOpenPopUp(true)}>
                 Add Project
               </Button>
             </div>
@@ -114,7 +121,9 @@ function ProjectsList() {
       ) : (
         <NoProject />
       )}
-      {isOpenPopUp && <CreateUpdateProjectForm handleClosePopUp={close} />}
+      {isOpenPopUp && (
+        <CreateUpdateProjectForm handleClosePopUp={close} editData={editData} />
+      )}
     </>
   );
 }
