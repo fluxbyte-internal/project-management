@@ -24,6 +24,16 @@ export class OtpService {
       }
     });
     if (findOtp) {
+      await prisma.userOTP.update({
+        where: { otpId: findOtp.otpId },
+        data: {
+          isUsed: true
+        }
+      });
+      await prisma.user.update({
+        where: { userId: findOtp.userId },
+        data: { isVerified: true }
+      });
       return true
     } return false
   }
