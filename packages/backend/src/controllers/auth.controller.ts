@@ -44,8 +44,8 @@ export const signUp = async (req: express.Request, res: express.Response) => {
       console.error('Failed to send email', error);
     };
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, { maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true, secure: true });
-    const userWithoutPassword = { ...user, password: undefined };
-    return new SuccessResponse(StatusCodes.CREATED, { user: userWithoutPassword, token }, 'Sign up successfully').send(res);
+    const { password: _, ...userInfoWithoutPassword } = user;
+    return new SuccessResponse(StatusCodes.CREATED, { user: userInfoWithoutPassword, token }, 'Sign up successfully').send(res);
   } catch (error) {
     console.error(error);
     if (error instanceof PrismaClientKnownRequestError) {
