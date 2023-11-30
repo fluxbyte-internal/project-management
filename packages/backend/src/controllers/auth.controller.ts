@@ -95,9 +95,8 @@ export const getAccessToken = (req: express.Request, res: express.Response) => {
 export const otpVerify = async (req: express.Request, res: express.Response) => {
   const { otp } = verifyEmailOtpSchema.parse(req.body);
   const checkOtp = await OtpService.verifyOTP(otp, req.userId!, req.tenantId);
-  console.log({ checkOtp })
   if (!checkOtp) { throw new BadRequestError("Invalid OTP") };
-  return new SuccessResponse(StatusCodes.OK, {}, 'OTP verified').send(res);
+  return new SuccessResponse(StatusCodes.OK, null, 'OTP verified successfully').send(res);
 };
 
 export const resendOTP = async (req: express.Request, res: express.Response) => {
@@ -129,7 +128,7 @@ export const resendOTP = async (req: express.Request, res: express.Response) => 
   } catch (error) {
     throw new InternalServerError();
   };
-  return new SuccessResponse(StatusCodes.OK, {}, 'Resend OTP successfully').send(res);
+  return new SuccessResponse(StatusCodes.OK, null, 'Resend OTP successfully').send(res);
 };
 
 export const verifyRoot = (req: express.Request, res: express.Response) => {

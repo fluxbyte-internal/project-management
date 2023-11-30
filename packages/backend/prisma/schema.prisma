@@ -50,17 +50,18 @@ enum TaskDependenciesEnum {
 }
 
 model User {
-  userId    String         @id @default(uuid()) @map("user_id")
-  email     String         @unique @map("email")
-  password  String         @map("password")
-  status    UserStatusEnum @map("status")
-  firstName String?        @map("first_name")
-  lastName  String?        @map("last_name")
-  timezone  String?        @map("time_zone")
-  country   String?        @map("country")
-  avatarImg String?        @map("avatar_img")
-  createdAt DateTime       @default(now()) @map("created_at")
-  updatedAt DateTime       @updatedAt @map("updated_at")
+  userId     String         @id @default(uuid()) @map("user_id")
+  email      String         @unique @map("email")
+  password   String         @map("password")
+  status     UserStatusEnum @map("status")
+  firstName  String?        @map("first_name")
+  lastName   String?        @map("last_name")
+  timezone   String?        @map("time_zone")
+  country    String?        @map("country")
+  avatarImg  String?        @map("avatar_img")
+  isVerified Boolean        @default(false) @map("is_verified")
+  createdAt  DateTime       @default(now()) @map("created_at")
+  updatedAt  DateTime       @updatedAt @map("updated_at")
 
   comment          Comments[]
   task             Task[]
