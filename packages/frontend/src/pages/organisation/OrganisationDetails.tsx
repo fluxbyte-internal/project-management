@@ -21,7 +21,9 @@ import useAddOrganisationMemberMutation from "@/api/mutation/useAddOrganisationM
 import { useUser } from "@/hooks/useUser";
 import InputText from "@/components/common/InputText";
 import useDebounce from "@/hooks/useDebounce";
-
+import Setting from "../../assets/svg/Setting.svg";
+import OrganisationForm from "./organisationForm";
+import { OrganisationType } from "@/api/mutation/useOrganisationMutation";
 const memberRoleOptions = [
   {
     value: UserRoleEnumValue.PROJECT_MANAGER,
@@ -87,6 +89,8 @@ function OrganisationDetails() {
   const [filteredOrganisationUsers, setFilteredOrganisationUsers] = useState(
     organisation?.userOrganisation ?? []
   );
+  const [organisationForm, setOrganisationForm] = useState(false);
+  const [editData, setEditData] = useState<OrganisationType>();
 
   const closeAddMember = () => {
     addOrgMemberForm.setValues({
@@ -136,12 +140,43 @@ function OrganisationDetails() {
   const currentUserIsAdmin =
     user?.userOrganisation.find((org) => org.organisationId === organisationId)
       ?.role === "ADMINISTRATOR";
-
+  const organisationFormOpen = () => {
+    if (organisation) {
+      setEditData({
+        country: organisation.country,
+        industry: organisation.industry,
+        organisationId: organisation.organisationId,
+        nonWorkingDays: organisation.nonWorkingDays,
+        status: organisation.status,
+        organisationName: data?.data.data.organisationName,
+        tenantId: organisation.tenantId,
+        createdByUserId: organisation.createdBy,
+        createdAt:organisation.createdAt,
+        updatedAt:organisation.updatedAt
+      });
+    }
+    setOrganisationForm(true);
+  };
+  const organisationFormClose = () => {
+    setEditData(undefined);
+    refetch()
+    setOrganisationForm(false);
+  };
   return (
     <>
       <div className="overflow-auto w-full">
         <div className="max-w-5xl mx-auto p-4 pb-5">
-          <div className="text-4xl">{organisation.organisationName}</div>
+          <div className="flex justify-between items-center">
+            <div className="text-4xl">{organisation.organisationName}</div>
+            <div>
+              <Button
+                onClick={organisationFormOpen}
+                variant={"outline"}
+              >
+                <img src={Setting} />
+              </Button>
+            </div>
+          </div>
           <div className="text-2xl mt-5 mb-3">Members</div>
           <div className="border rounded-lg min-h-[300px]">
             <div className="flex justify-between items-center px-2 py-1.5 sm:px-5 sm:py-4 flex-wrap gap-1.5">
@@ -265,6 +300,9 @@ function OrganisationDetails() {
             </form>
           </div>
         </Dialog>
+      )}
+      {organisationForm && (
+        <OrganisationForm editData={editData} close={organisationFormClose} />
       )}
     </>
   );
