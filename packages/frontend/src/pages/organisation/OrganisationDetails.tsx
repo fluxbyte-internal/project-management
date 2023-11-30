@@ -151,6 +151,8 @@ function OrganisationDetails() {
         organisationName: data?.data.data.organisationName,
         tenantId: organisation.tenantId,
         createdByUserId: organisation.createdBy,
+        createdAt:organisation.createdAt,
+        updatedAt:organisation.updatedAt
       });
     }
     setOrganisationForm(true);

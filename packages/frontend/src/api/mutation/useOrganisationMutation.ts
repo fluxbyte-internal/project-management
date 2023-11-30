@@ -15,8 +15,8 @@ export type OrganisationType = {
   status: string;
   country: string;
   nonWorkingDays: OrgListOfNonWorkingDaysEnum[];
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
   tenantId: string;
   createdByUserId: string;
   updatedByUserId?: string;
