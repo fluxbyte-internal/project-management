@@ -27,7 +27,7 @@ export class EmailService {
           Data: subjectMessage,
         },
       },
-      Source: 'yashmadlani710@gmail.com',
+      Source: settings.noReplyEmailId,
     };
     try {
       const result = await ses.sendEmail(params).promise();

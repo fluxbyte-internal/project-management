@@ -28,9 +28,19 @@ export type Settings = {
     username: string;
     password: string;
   };
+  noReplyEmailId: string
 };
 
-const { PORT, PRIVATE_KEY_FOR_JWT, EMAIL_ACCESS_KEY_ID, EMAIL_SECRET_ACCESS_KEY, EMAIL_REGION, APP_URL, ROOT_USER_USERNAME, ROOT_USER_PASSWORD } = process.env;
+const {
+  PORT,
+  PRIVATE_KEY_FOR_JWT,
+  EMAIL_ACCESS_KEY_ID,
+  EMAIL_SECRET_ACCESS_KEY,
+  EMAIL_REGION,
+  APP_URL,
+  ROOT_USER_USERNAME,
+  ROOT_USER_PASSWORD,
+  NO_REPLY_EMAIL } = process.env;
 
 if (!PRIVATE_KEY_FOR_JWT) {
   throw Error('Missing jwt private key in .env')
@@ -55,6 +65,10 @@ if (!ROOT_USER_USERNAME || !ROOT_USER_PASSWORD) {
   console.warn("Missing username and password");
 };
 
+if (!NO_REPLY_EMAIL) {
+  throw Error("Missing NO_REPLY_EMAIL in .env");
+};
+
 export const settings: Settings = {
   port: PORT! ?? 8000,
   jwt: {
@@ -76,4 +90,5 @@ export const settings: Settings = {
     username: ROOT_USER_USERNAME ?? "",
     password: ROOT_USER_PASSWORD ?? "",
   },
+  noReplyEmailId: NO_REPLY_EMAIL
 };
