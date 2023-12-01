@@ -2,12 +2,11 @@ name: Validation (Lint | Build)
 on:
   push:
     branches:
-      - development
-      - master
-  pull_request:
-    branches:
-      - development
-      - master
+      - '*'
+  # pull_request:
+  #   branches:
+  #     - development
+  #     - master
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -31,12 +30,9 @@ jobs:
 
       - name: 🧹 Lint Frontend
         run: yarn workspace frontend lint
-        continue-on-error: true
 
       - name: 🏗 Build Frontend
         run: yarn workspace frontend build
-        continue-on-error: true
 
       - name: 🛠 Build Backend
         run: yarn workspace backend build-ts
-        continue-on-error: true
