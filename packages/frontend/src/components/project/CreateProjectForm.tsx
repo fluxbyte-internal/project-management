@@ -24,13 +24,12 @@ import {
   TooltipContent,
 } from "../ui/tooltip";
 
-
-type addProjectType = {
+type AddProjectType = {
   handleClosePopUp: () => void;
   editData?: Project;
 };
 
-const RadioButtonData = [
+const RADIO_BUTTON_OPTIONS = [
   {
     id: 1,
     title: "Kanban",
@@ -57,7 +56,7 @@ const RadioButtonData = [
   },
 ];
 
-function CreateUpdateProjectForm(props: addProjectType) {
+function CreateUpdateProjectForm(props: AddProjectType) {
   const { handleClosePopUp, editData } = props;
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
@@ -136,13 +135,19 @@ function CreateUpdateProjectForm(props: addProjectType) {
   });
   useEffect(() => {
     if (editData) {
+      const formateDate = (inputDate: string) => {
+        const date = new Date(inputDate);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+
+        return `${year}-${month
+          .toString()
+          .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+      };
       formik.setValues({
-        startDate: new Date(editData.startDate)
-          .toISOString()
-          .split("T")[0] as unknown as Date,
-        estimatedEndDate: new Date(editData.estimatedEndDate)
-          .toISOString()
-          .split("T")[0] as unknown as Date,
+        startDate: formateDate(editData.startDate) as unknown as Date,
+        estimatedEndDate: formateDate(editData.estimatedEndDate)as unknown as Date,
         estimatedBudget: editData.estimatedBudget,
         projectDescription: editData.projectDescription,
         projectName: editData.projectName,
@@ -150,10 +155,6 @@ function CreateUpdateProjectForm(props: addProjectType) {
       });
     }
   }, []);
-
-  const handleRadioChange = (value: string) => {
-    formik.setFieldValue("defaultView", value);
-  };
 
   return (
     <div className="fixed bg-[#00000066] w-full top-0 h-full items-center flex justify-center z-50">
@@ -300,7 +301,7 @@ function CreateUpdateProjectForm(props: addProjectType) {
                       Default View
                     </div>
                     <div className="flex flex-col gap-5 ">
-                      {RadioButtonData.map((radioButton) => (
+                      {RADIO_BUTTON_OPTIONS.map((radioButton) => (
                         <div
                           key={radioButton.id}
                           className={`h-full w-full rounded-[5px] border ${
@@ -319,11 +320,7 @@ function CreateUpdateProjectForm(props: addProjectType) {
                                 formik.values.defaultView ===
                                 radioButton.title.toUpperCase()
                               }
-                              onChange={() =>
-                                handleRadioChange(
-                                  radioButton.title.toUpperCase()
-                                )
-                              }
+                              onChange={formik.handleChange}
                               className="hidden"
                             />
                             <div className="h-[70px] w-[70px] flex shrink-0 ">

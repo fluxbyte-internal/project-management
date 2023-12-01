@@ -152,14 +152,14 @@ function OrganisationDetails() {
         tenantId: organisation.tenantId,
         createdByUserId: organisation.createdBy,
         createdAt:organisation.createdAt,
-        updatedAt:organisation.updatedAt
+        updatedAt:organisation.updatedAt,
       });
     }
     setOrganisationForm(true);
   };
   const organisationFormClose = () => {
     setEditData(undefined);
-    refetch()
+    refetch();
     setOrganisationForm(false);
   };
   return (

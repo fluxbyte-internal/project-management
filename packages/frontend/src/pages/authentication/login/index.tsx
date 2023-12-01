@@ -10,6 +10,7 @@ import { authLoginSchema } from "@backend/src/schemas/authSchema";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { isAxiosError } from "axios";
+import InputEmail from "@/components/common/InputEmail";
 
 export type LoginValues = {
   email: string;
@@ -70,14 +71,12 @@ function Login() {
           </div>
           <hr />
           <form onSubmit={formik.handleSubmit} className="px-4">
-            <div className="mt-4">
+            <div className="mt-2">
               <label htmlFor="email" className={labelStyle}>
                 Email
               </label>
-              <input
-                type="text"
+              <InputEmail
                 name="email"
-                className={inputStyle}
                 id="email"
                 placeholder="Enter email"
                 value={formik.values.email}
@@ -91,7 +90,7 @@ function Login() {
                 </ErrorMessage>
               </div>
             </div>
-            <div className="relative w-full mt-4">
+            <div className="relative w-full mt-2">
               <label htmlFor="password" className={labelStyle}>
                 Password
               </label>
@@ -117,7 +116,7 @@ function Login() {
                 </ErrorMessage>
               </div>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center mt-2">
               <Button
                 type="submit"
                 variant={"primary"}

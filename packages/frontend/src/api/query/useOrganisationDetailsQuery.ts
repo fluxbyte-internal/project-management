@@ -6,7 +6,7 @@ import { QUERY_KEYS } from "./querykeys";
 import ApiRequest from "../ApiRequest";
 import { requestURLs } from "@/Environment";
 import { useQuery } from "@tanstack/react-query";
-import { UserRoleEnumValue } from "@backend/src/schemas/enums";
+import { OrgStatusEnumValue, UserRoleEnumValue } from "@backend/src/schemas/enums";
 import { TaskColorPaletteEnum } from "@backend/src/schemas/userSchema";
 import { OrgListOfNonWorkingDaysEnum } from "@backend/src/schemas/organisationSchema";
 
@@ -28,7 +28,7 @@ export type OrganisationResponseType = ResponseType<{
   organisationId: string;
   organisationName: string;
   industry: string;
-  status: string;
+  status: keyof typeof OrgStatusEnumValue;
   country: string;
   nonWorkingDays: OrgListOfNonWorkingDaysEnum[];
   createdAt: Date;

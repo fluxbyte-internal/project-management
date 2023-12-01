@@ -6,7 +6,7 @@ import { createJwtToken, verifyJwtToken } from '../utils/jwtHelper.js';
 import { compareEncryption, encrypt } from '../utils/encryption.js';
 import { BadRequestError, InternalServerError, NotFoundError, SuccessResponse, UnAuthorizedError } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
-import { authLoginSchema, authRefreshTokenSchema, authSignUpSchema, verifyEmailOtpSchema } from '../schemas/authSchema.js';
+import { authLoginSchema, authRefreshTokenSchema, authSignUpSchema } from '../schemas/authSchema.js';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js';
 import { PRISMA_ERROR_CODE } from '../constants/prismaErrorCodes.js';
 import { ZodError, date } from 'zod';
@@ -92,44 +92,6 @@ export const getAccessToken = (req: express.Request, res: express.Response) => {
 };
 
 
-export const otpVerify = async (req: express.Request, res: express.Response) => {
-  const { otp } = verifyEmailOtpSchema.parse(req.body);
-  const checkOtp = await OtpService.verifyOTP(otp, req.userId!, req.tenantId);
-  if (!checkOtp) { throw new BadRequestError("Invalid OTP") };
-  return new SuccessResponse(StatusCodes.OK, null, 'OTP verified successfully').send(res);
-};
-
-export const resendOTP = async (req: express.Request, res: express.Response) => {
-  const prisma = await getClientByTenantId(req.tenantId);
-  const user = await prisma.user.findFirst({
-    where: {
-      userId: req.userId
-    }
-  });
-  if (!user) { throw new NotFoundError('User not found') };
-  const findOtp = await prisma.userOTP.findFirst({
-    where: {
-      userId: req.userId,
-      createdAt: {
-        gt: new Date(Date.now() - 60 * 1000)
-      }
-    }
-  });
-  if (findOtp) { throw new BadRequestError('Please try again after 1 minute') };
-  const otpValue = generateOTP();
-  const subjectMessage = `Login OTP`;
-  const expiresInMinutes = 10;
-  const bodyMessage = `Here is your login OTP : ${otpValue}, OTP is valid for ${expiresInMinutes} minutes`;
-  try {
-    await EmailService.sendEmail(user.email, subjectMessage, bodyMessage);
-    await OtpService.saveOTP(
-      otpValue, user.userId, req.tenantId, expiresInMinutes * 60
-    );
-  } catch (error) {
-    throw new InternalServerError();
-  };
-  return new SuccessResponse(StatusCodes.OK, null, 'Resend OTP successfully').send(res);
-};
 
 export const verifyRoot = (req: express.Request, res: express.Response) => {
   const username = req.body.username;

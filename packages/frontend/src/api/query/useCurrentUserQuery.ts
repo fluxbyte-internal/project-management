@@ -15,6 +15,7 @@ export type UserType = {
   timezone: string | null;
   country: string | null;
   avatarImg: string | null;
+  isVerified:boolean
   createdAt: string;
   updatedAt: string;
   userOrganisation: UserOrganisationType[];
