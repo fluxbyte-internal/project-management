@@ -1,6 +1,5 @@
 import useOrgSettingsUpdateMutation from "@/api/mutation/useOrgSettingsUpdateMutation";
-import useCurrentUserQuery, {
-  OrganisationType,
+import useCurrentUserQuery, { UserOrganisationType,
 } from "@/api/query/useCurrentUserQuery";
 import ErrorMessage from "@/components/common/ErrorMessage";
 import FormLabel from "@/components/common/FormLabel";
@@ -29,7 +28,7 @@ const taskColors = Object.keys(TaskColorPaletteEnum).map((colorPalette) => {
   };
 });
 
-function UserOrganisationCard(props: { userOrganisation: OrganisationType }) {
+function UserOrganisationCard(props: { userOrganisation: UserOrganisationType }) {
   const { userOrganisation } = props;
   const { refetch: refetchUser } = useCurrentUserQuery();
   const orgSettingsUpdateMutation = useOrgSettingsUpdateMutation(

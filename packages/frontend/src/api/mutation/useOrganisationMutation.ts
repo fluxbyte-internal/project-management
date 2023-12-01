@@ -1,27 +1,28 @@
 import { useMutation } from "@tanstack/react-query";
 import { requestURLs } from "../../Environment";
-import type { createOrganisationSchema } from "backend/src/schemas/organisationSchema";
+import type { OrgListOfNonWorkingDaysEnum, createOrganisationSchema } from "backend/src/schemas/organisationSchema";
 import { z } from "zod";
 import {
   AxiosResponseAndError,
   ResponseType,
 } from "@/api/types/axiosResponseType";
 import ApiRequest from "../ApiRequest";
+import { OrgStatusEnumValue } from "@backend/src/schemas/enums";
 
-type OrganisationApiResponse = ResponseType<{
+export type OrganisationType = {
   organisationId: string;
   organisationName: string;
   industry: string;
-  status: string;
+  status: keyof typeof OrgStatusEnumValue;
   country: string;
-  nonWorkingDays: number;
+  nonWorkingDays: OrgListOfNonWorkingDaysEnum[];
   createdAt: Date;
   updatedAt: Date;
   tenantId: string;
-  createdBy: string;
   createdByUserId: string;
-  updatedByUserId: string;
-}>;
+  updatedByUserId?: string;
+}
+type OrganisationApiResponse = ResponseType<OrganisationType>;
 
 function useOrganisationMutation() {
   const mutation = useMutation<

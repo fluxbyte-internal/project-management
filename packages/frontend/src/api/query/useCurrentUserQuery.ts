@@ -4,6 +4,7 @@ import ApiRequest from "../ApiRequest";
 import { requestURLs } from "@/Environment";
 import { useQuery } from "@tanstack/react-query";
 import {UserRoleEnumValue} from '@backend/src/schemas/enums';
+import { OrganisationType } from "../mutation/useOrganisationMutation";
 
 export type UserType = {
   userId: string;
@@ -14,12 +15,13 @@ export type UserType = {
   timezone: string | null;
   country: string | null;
   avatarImg: string | null;
+  isVerified:boolean
   createdAt: string;
   updatedAt: string;
-  userOrganisation: OrganisationType[];
+  userOrganisation: UserOrganisationType[];
 };
 
-export type OrganisationType = {
+export type UserOrganisationType = {
   userOrganisationId: string;
   userId: string;
   organisationId: string;
@@ -28,18 +30,7 @@ export type OrganisationType = {
   taskColour: null;
   createdAt: Date;
   updatedAt: Date;
-  organisation: {
-    organisationId: string;
-    organisationName: string;
-    industry: string;
-    status: string;
-    country: string;
-    nonWorkingDays: number;
-    createdAt: Date;
-    updatedAt: Date;
-    tenantId: string;
-    createdBy: string;
-  };
+  organisation:OrganisationType
 };
 
 export type UserResponseType = ResponseType<UserType>;
