@@ -3,10 +3,10 @@ on:
   push:
     branches:
       - '*'
-  pull_request:
-    branches:
-      - development
-      - master
+  # pull_request:
+  #   branches:
+  #     - development
+  #     - master
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
