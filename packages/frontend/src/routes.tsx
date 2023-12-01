@@ -1,10 +1,14 @@
 import { createBrowserRouter } from "react-router-dom";
 import Login from "./pages/authentication/login";
 import Layout from "./components/layout";
-import Test from "./pages/Test";
 import AuthGuard from "./guards/AuthGuard";
 import Organisation from "./pages/organisation";
 import Signup from "./pages/authentication/signup";
+import OrganisationGuard from "./guards/OrganisationGuard";
+import ProjectsList from "./pages/projectsList";
+import AccountSettings from "./pages/account-settings";
+import OrganisationDetails from "./pages/organisation/OrganisationDetails";
+import Verification from "./pages/authentication/verification";
 
 export const router = createBrowserRouter([
   {
@@ -16,6 +20,14 @@ export const router = createBrowserRouter([
     element: <Signup />,
   },
   {
+    path: "/verify-email",
+    element: (
+      <AuthGuard>
+        <Verification />
+      </AuthGuard>
+    ),
+  },
+  {
     path: "/",
     element: (
       <AuthGuard>
@@ -25,11 +37,29 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Test />,
+        element: <Organisation />,
       },
       {
-        path: "/organisation",
-        element: <Organisation />,
+        path: "/dashboard",
+        element: <div>Dashboard</div>,
+      },
+      {
+        path: "/account-settings",
+        element: <AccountSettings />,
+      },
+      {
+        path: "/organisation/:organisationId",
+        element: <OrganisationDetails />,
+      },
+      {
+        path: "/",
+        element: <OrganisationGuard />,
+        children: [
+          {
+            path: "/projects",
+            element: <ProjectsList />,
+          },
+        ],
       },
     ],
   },

@@ -5,3 +5,13 @@
         margin: 0;
         -moz-appearance: textfield !important;
     }
+
+    .select>div {
+        @apply focus:!border-primary-800 ;
+    }
+    input[type="date"]::-webkit-datetime-edit-text,
+    input[type="date"]::-webkit-datetime-edit-month-field,
+    input[type="date"]::-webkit-datetime-edit-day-field,
+    input[type="date"]::-webkit-datetime-edit-year-field {
+      @apply text-gray-500
+    }

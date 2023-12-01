@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "project_management",
-    "dateExported": "2023-11-04T06:27:30.865Z",
+    "dateExported": "2023-12-01T09:24:15.005Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -14,12 +14,12 @@
             "method": "POST",
             "sortNum": 10000,
             "created": "2023-11-04T05:57:48.297Z",
-            "modified": "2023-11-04T06:24:14.876Z",
+            "modified": "2023-11-27T11:51:39.879Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n    \"organisationName\": \"New Organisation\",\n    \"industry\": \"Guidence\",\n    \"status\": \"active\",\n    \"listOfNonWorkingDays\": 5,\n    \"country\": \"India\"\n}",
+                "raw": "{\n  \"organisationName\": \"MANAGEMENT's Org\",\n  \"industry\": \"IT\",\n  \"status\": \"ACTIVE\",\n  \"country\": \"US\",\n  \"nonWorkingDays\": [\"SAT\",\"SUN\"]\n}",
                 "form": []
             },
             "auth": {
@@ -33,11 +33,11 @@
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
             "name": "Organisation - get",
-            "url": "{{ip_url}}/api/organisation/c8b4c998-4b08-4060-ad96-e86eaaded588",
+            "url": "{{ip_url}}/api/organisation/8c3fa22b-f480-4f01-a626-79794477966b",
             "method": "GET",
             "sortNum": 20000,
             "created": "2023-11-04T06:05:19.672Z",
-            "modified": "2023-11-04T06:24:27.836Z",
+            "modified": "2023-11-27T08:51:56.411Z",
             "headers": [],
             "params": [],
             "auth": {
@@ -73,12 +73,12 @@
             "method": "POST",
             "sortNum": 40000,
             "created": "2023-11-04T06:05:59.969Z",
-            "modified": "2023-11-04T06:21:18.121Z",
+            "modified": "2023-11-27T12:21:54.753Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n    \"email\":\"bhavesh.fluxbyte@gmail.com\",\n    \"password\":\"bhavesh\"\n}",
+                "raw": "{\n    \"email\":\"test@yopmail.com\",\n    \"password\":\"Test@123\"\n}",
                 "form": []
             },
             "auth": {
@@ -96,17 +96,569 @@
             "method": "POST",
             "sortNum": 50000,
             "created": "2023-11-04T06:06:15.625Z",
-            "modified": "2023-11-04T06:21:43.715Z",
+            "modified": "2023-11-27T12:21:25.355Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n    \"email\":\"flux.fluxbyte@gmail.com\",\n    \"password\":\"flux\"\n}",
+                "raw": "{\n    \"email\":\"test@yopmail.com\",\n    \"password\":\"Test@123\",\n    \"confirmPassword\":\"Test@123\"\n}",
                 "form": []
             },
             "auth": {
                 "type": "bearer",
                 "bearer": "{{access_token}}"
+            },
+            "tests": []
+        },
+        {
+            "_id": "149b8094-d596-40bf-825e-4ec2a8b938df",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Auth - access token",
+            "url": "{{ip_url}}/api/auth/access-token",
+            "method": "GET",
+            "sortNum": 80000,
+            "created": "2023-11-04T08:47:08.455Z",
+            "modified": "2023-11-06T05:48:58.481Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "0d3e94ca-aa6c-4c8a-b441-9d5d17175096",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Projects - get All",
+            "url": "{{ip_url}}/api/project",
+            "method": "GET",
+            "sortNum": 100000,
+            "created": "2023-11-08T13:19:30.767Z",
+            "modified": "2023-11-10T09:54:43.570Z",
+            "headers": [
+                {
+                    "name": "organisation-id",
+                    "value": "{{organisation_id}}"
+                }
+            ],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "8a12a904-e118-4763-b9cd-c315c478d55b",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Project - create",
+            "url": "{{ip_url}}/api/project",
+            "method": "POST",
+            "sortNum": 110000,
+            "created": "2023-11-09T05:52:54.555Z",
+            "modified": "2023-11-24T08:32:19.303Z",
+            "headers": [
+                {
+                    "name": "organisation-id",
+                    "value": "{{organisation_id}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"projectName\": \"MY MANAGEMENT\",\n  \"projectDescription\": \"description\",\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedEndDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedBudget\": \"50000\",\n  \"defaultView\": \"KANBAN\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "6ac6142b-74bb-49ff-acda-fd30d02edaf8",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Project - delete",
+            "url": "{{ip_url}}/api/project/fb0e0684-0cf8-4e4b-b790-83a102803fb0",
+            "method": "DELETE",
+            "sortNum": 120000,
+            "created": "2023-11-09T09:06:50.391Z",
+            "modified": "2023-11-24T08:33:15.348Z",
+            "headers": [
+                {
+                    "name": "organisation-id",
+                    "value": "{{organisation_id}}"
+                }
+            ],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "08c98319-84b9-46e8-abf2-46ff94994308",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Project - get By Id",
+            "url": "{{ip_url}}/api/project/e4ab7295-c8a4-47f4-83ea-b710392b659f",
+            "method": "GET",
+            "sortNum": 130000,
+            "created": "2023-11-09T11:26:07.278Z",
+            "modified": "2023-11-24T08:55:59.023Z",
+            "headers": [
+                {
+                    "name": "organisation-id",
+                    "value": "{{organisation_id}}"
+                }
+            ],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "89ceca60-032e-44b6-aae3-d204c87deef6",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Tasks - get All",
+            "url": "{{ip_url}}/api/task/60d05784-82ea-4f3a-966b-8c88ad017f94",
+            "method": "GET",
+            "sortNum": 140000,
+            "created": "2023-11-09T11:37:29.783Z",
+            "modified": "2023-11-23T06:54:52.226Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "f9c817fe-d9a2-447c-a0b2-8ff959f8df31",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - get By Id",
+            "url": "{{ip_url}}/api/task/byId/c5e9343b-ad1a-47db-8645-0a9a7209b733",
+            "method": "GET",
+            "sortNum": 150000,
+            "created": "2023-11-09T11:39:48.196Z",
+            "modified": "2023-11-23T09:09:43.783Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "786256ca-43a8-4a9b-aa0a-06873a390fbe",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - delete",
+            "url": "{{ip_url}}/api/task/e24dd02f-c79a-4758-83a5-dc9aba42cc7a",
+            "method": "DELETE",
+            "sortNum": 160000,
+            "created": "2023-11-09T11:40:16.597Z",
+            "modified": "2023-11-23T09:24:05.927Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "36f738f8-1bf2-4942-8c02-2d54b2ae130f",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - create",
+            "url": "{{ip_url}}/api/task/dc1d49fc-8e49-4014-a761-712b76c5f2b5",
+            "method": "POST",
+            "sortNum": 170000,
+            "created": "2023-11-09T11:40:37.643Z",
+            "modified": "2023-11-24T08:36:01.577Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"taskName\": \"Task\",\n  \"taskDescription\": \"Task's Description\",\n  \"duration\": 90,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\",\n  \"assginedToUserId\": \"79926ffa-0e0d-4c3a-aebe-86cf6552cbf3\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "7fb952aa-3f74-4022-8781-821356bb6056",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Project - Status change",
+            "url": "{{ip_url}}/api/project/status/e24dd02f-c79a-4758-83a5-dc9aba42cc7a",
+            "method": "PUT",
+            "sortNum": 180000,
+            "created": "2023-11-20T05:04:36.167Z",
+            "modified": "2023-11-23T09:22:15.785Z",
+            "headers": [
+                {
+                    "name": "organisation-id",
+                    "value": "{{organisation_id}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"status\": \"CLOSED\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "075c17bc-7a4a-4080-85f8-2efd45f59d61",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Comment - add ",
+            "url": "{{ip_url}}/api/task/comment/c5e9343b-ad1a-47db-8645-0a9a7209b733",
+            "method": "POST",
+            "sortNum": 190000,
+            "created": "2023-11-20T06:27:48.233Z",
+            "modified": "2023-11-23T09:25:33.469Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"commentText\": \"started\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "7772ca18-bfa4-43a1-91e6-35fbb83fa87e",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Comment - update",
+            "url": "{{ip_url}}/api/task/comment/f98227a8-6a88-4870-b5bf-425f11cb834f",
+            "method": "PUT",
+            "sortNum": 200000,
+            "created": "2023-11-20T06:31:59.094Z",
+            "modified": "2023-11-23T09:28:50.572Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"commentText\": \"updated stop\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "c86b1893-523b-4989-a1c5-2691f6215173",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Comment - delete",
+            "url": "{{ip_url}}/api/task/comment/f98227a8-6a88-4870-b5bf-425f11cb834f",
+            "method": "DELETE",
+            "sortNum": 210000,
+            "created": "2023-11-20T06:32:22.003Z",
+            "modified": "2023-11-23T09:29:11.488Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "94e5c49f-cf18-4e6a-8df8-0a2ffe5da2ed",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - status change",
+            "url": "{{ip_url}}/api/task/status/71f08c48-604b-4539-8c12-27c9980d3053",
+            "method": "PUT",
+            "sortNum": 230000,
+            "created": "2023-11-21T07:17:16.435Z",
+            "modified": "2023-11-24T08:37:00.256Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"status\": \"NOT_STARTED\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "c0394778-12c6-4dab-b8f9-21408857a831",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - update",
+            "url": "{{ip_url}}/api/task/71f08c48-604b-4539-8c12-27c9980d3053",
+            "method": "PUT",
+            "sortNum": 240000,
+            "created": "2023-11-21T09:43:22.189Z",
+            "modified": "2023-11-24T08:36:50.943Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"taskName\": \"UPDATED TASK\",\n  \"taskDescription\": \"TASK's Description\",\n  \"duration\": 10,\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"endDate\": \"2024-01-28T00:00:00.000Z\",\n  \"milestoneIndicator\": true,\n  \"dependencies\": \"BLOCKING\",\n  \"flag\": \"flag\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "ab5ad6ee-b870-4c12-b330-25ff0e9081c6",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - Attachment add or update",
+            "url": "{{ip_url}}/api/task/attachment/c5e9343b-ad1a-47db-8645-0a9a7209b733",
+            "method": "PUT",
+            "sortNum": 250000,
+            "created": "2023-11-22T05:36:02.260Z",
+            "modified": "2023-11-23T09:27:50.784Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "[\n  {\n    \"name\": \"33 create\",\n    \"url\": \"create.com\"\n  }\n]",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "e33683f3-dc5e-4668-b822-e3c215366ad3",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - Attachment delete",
+            "url": "{{ip_url}}/api/task/attachment/fedb0309-2be9-405d-b93d-7decc21a6d72",
+            "method": "DELETE",
+            "sortNum": 260000,
+            "created": "2023-11-22T05:36:17.877Z",
+            "modified": "2023-11-23T09:28:25.588Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "066d25c9-fbd2-4a1f-880a-67793df555c8",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Project - update",
+            "url": "{{ip_url}}/api/project/bf2870e9-3467-4985-bab4-21047122efb2",
+            "method": "PUT",
+            "sortNum": 265000,
+            "created": "2023-11-20T12:09:08.467Z",
+            "modified": "2023-11-27T13:08:33.758Z",
+            "headers": [
+                {
+                    "name": "organisation-id",
+                    "value": "{{organisation_id}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"projectName\": \"OP Updated\",\n  \"projectDescription\": \"HRMS description\",\n  \"defaultView\": \"LIST\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "f5e6230b-9416-4dd4-b7bd-1a489bf05041",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - All task completed",
+            "url": "{{ip_url}}/api/task/status/completed/60d05784-82ea-4f3a-966b-8c88ad017f94",
+            "method": "PUT",
+            "sortNum": 270000,
+            "created": "2023-11-22T06:07:47.927Z",
+            "modified": "2023-11-23T09:18:49.436Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "2988ee34-da51-4184-82b9-fecc5fabadb6",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Project - Update",
+            "url": "{{ip_url}}/api/project/fb0e0684-0cf8-4e4b-b790-83a102803fb0",
+            "method": "PUT",
+            "sortNum": 280000,
+            "created": "2023-11-23T06:38:51.009Z",
+            "modified": "2023-11-24T08:32:57.129Z",
+            "headers": [
+                {
+                    "name": "organisation-id",
+                    "value": "{{organisation_id}}"
+                }
+            ],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"projectName\": \"UPDATED MANAGEMENT\",\n  \"projectDescription\": \"description\",\n  \"startDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedEndDate\": \"2023-12-09T00:00:00.000Z\",\n  \"estimatedBudget\": \"50000\",\n  \"defaultView\": \"KANBAN\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "4642e9dd-178b-4c35-bac6-70b5599323a3",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Organisation - update",
+            "url": "{{ip_url}}/api/organisation/faf07511-be64-4802-a216-43c5eee84070",
+            "method": "PUT",
+            "sortNum": 290000,
+            "created": "2023-11-27T11:47:48.619Z",
+            "modified": "2023-11-27T12:22:11.031Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"organisationName\": \"My's updated Org\",\n  \"industry\": \"IT\",\n  \"status\": \"Active\",\n  \"country\": \"US\",\n  \"nonWorkingDays\": [\"WED\",\"MON\"]\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "33928bbb-d876-4656-8ba9-64dcda65a422",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Email",
+            "url": "{{ip_url}}/email",
+            "method": "GET",
+            "sortNum": 300000,
+            "created": "2023-11-29T10:29:22.032Z",
+            "modified": "2023-11-29T10:29:39.708Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "2247b4e4-3773-490e-a0c5-57df0b68d6b6",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "OTP",
+            "url": "{{ip_url}}/verify/661155",
+            "method": "GET",
+            "sortNum": 310000,
+            "created": "2023-11-29T10:58:56.401Z",
+            "modified": "2023-11-29T11:00:28.752Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "ac1a503b-fcc9-41d5-a3f4-a84ae9c7b903",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "User - update",
+            "url": "",
+            "method": "GET",
+            "sortNum": 320000,
+            "created": "2023-11-29T13:26:09.643Z",
+            "modified": "2023-11-29T13:26:09.644Z",
+            "headers": []
+        },
+        {
+            "_id": "28c4e1b7-3679-480b-acd9-ed361a2160c0",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "OTP - verify otp",
+            "url": "{{ip_url}}/api/auth/verify-email",
+            "method": "POST",
+            "sortNum": 330000,
+            "created": "2023-11-29T13:27:34.377Z",
+            "modified": "2023-11-29T13:30:17.355Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"otp\": \"211090\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "1c838440-4747-47c6-b471-3547865e13ed",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "OTP - Resend OTP",
+            "url": "{{ip_url}}/api/auth/resend-otp",
+            "method": "POST",
+            "sortNum": 340000,
+            "created": "2023-11-29T13:30:42.182Z",
+            "modified": "2023-11-29T13:31:05.360Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "7ba150db-40f4-42e3-805e-7ba36694bf14",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "User - Update Profile data",
+            "url": "{{ip_url}}/api/user/",
+            "method": "PUT",
+            "sortNum": 350000,
+            "created": "2023-11-30T05:34:32.223Z",
+            "modified": "2023-11-30T05:39:44.357Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\r\n  \"firstName\": \"\",\r\n  \"lastName\": \"\",\r\n  \"country\": \"\"\r\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "c72f02e1-c678-4216-9d80-99104c6bcb37",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "User Organisation - Update By Id",
+            "url": "{{ip_url}}/api/user/organisation/fd1a8c9b-0655-492e-9550-d94765ce591d",
+            "method": "PUT",
+            "sortNum": 360000,
+            "created": "2023-11-30T05:47:46.738Z",
+            "modified": "2023-11-30T06:18:19.478Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"jobTitle\": \"software developer\",\n  \"taskColour\": \"#000000 #FFFFFF\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "74b3ac8d-a256-4e50-95a4-332278ddc25f",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Organisation - Add member",
+            "url": "{{ip_url}}/api/organisation/fd1a8c9b-0655-492e-9550-d94765ce591d/user",
+            "method": "POST",
+            "sortNum": 370000,
+            "created": "2023-11-30T06:02:32.170Z",
+            "modified": "2023-11-30T06:38:02.165Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"email\": \"test@yopmail.com\",\n  \"role\": \"TEAM_MEMBER\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "ad821733-b64d-4de8-9976-e06cd34d9680",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "User- Forgot password",
+            "url": "{{ip_url}}/api/auth/forgot-password",
+            "method": "POST",
+            "sortNum": 380000,
+            "created": "2023-11-30T13:30:51.228Z",
+            "modified": "2023-12-01T07:38:56.695Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n    \"email\":\"test@yopmail.com\",\n    \"password\":\"Test@123\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "250b6aba-9018-4d14-872b-2c888ae3f3e0",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "User - Reset password",
+            "url": "{{ip_url}}/api/auth/reset-password/56b9b6e8f01bb8efe32cf98eee270eefee7e50e7",
+            "method": "PUT",
+            "sortNum": 390000,
+            "created": "2023-11-30T13:31:01.212Z",
+            "modified": "2023-12-01T09:23:24.780Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"password\":\"Test@3121\",\n  \"confirmPassword\":\"Test@3121\"\n}",
+                "form": []
             },
             "tests": []
         }

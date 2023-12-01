@@ -1,46 +1,204 @@
 import { useFormik } from "formik";
 import closeImage from "../../../assets/png/close.png";
 import { toFormikValidationSchema } from "zod-formik-adapter";
-import { createOrganisationSchema } from "../../../../../backend/src/schemas/organisationSchema";
+import {
+  createOrganisationSchema,
+  updateOrganisationSchema,
+} from "../../../../../backend/src/schemas/organisationSchema";
+import useOrganisationMutation, {
+  OrganisationType,
+} from "@/api/mutation/useOrganisationMutation";
+import { isAxiosError } from "axios";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
+import { useEffect, useState } from "react";
+import Select, { SingleValue, MultiValue } from "react-select";
+import { useNavigate } from "react-router-dom";
+import countries from "../../../assets/json/countries.json";
+import ErrorMessage from "@/components/common/ErrorMessage";
+import useOrganisationUpdateMutation from "@/api/mutation/useOrganisationUpdateMutation";
 
 interface Props {
   close: () => void;
+  editData?: OrganisationType;
 }
+type Options = { label: string; value: string };
 
 function OrganisationForm(props: Props) {
-  const { close } = props;
-  const errorStyle = "text-red-400 mt text-sm mb-3 ml-2.5";
+  const { close, editData } = props;
   const labelStyle = "block text-gray-500 text-sm font-bold mb-1";
   const inputStyle =
-    "block w-full p-2.5 border-gray-300 text-gray-500 text-sm rounded-md shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50  placeholder:text-gray-400";
+    "block w-full p-2.5 border border-gray-100 text-gray-500 text-sm rounded-md shadow-sm placeholder:text-gray-400";
+  const organisationMutation = useOrganisationMutation();
 
-  // const toggleInputStyle =
-  //   "appearance-none w-9 focus:outline-none checked:bg-orange-200 h-5 bg-gray-300 rounded-full before:inline-block before:rounded-full before:bg-warning before:h-4 before:w-4 checked:before:translate-x-full shadow-inner transition-all duration-300 before:ml-0.5";
+  const organisationUpdateMutation = useOrganisationUpdateMutation(
+    editData && editData.organisationId ? editData.organisationId : ""
+  );
+  const { refetch } = useCurrentUserQuery();
+  const navigate = useNavigate();
 
-  const formik = useFormik({
+  const [countryValue, setContryValue] = useState<SingleValue<Options>>();
+  const [nonWorkingDaysValue, setNonWorkingDaysValue] =
+    useState<MultiValue<Options>>();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const formik = useFormik<z.infer<typeof createOrganisationSchema>>({
     initialValues: {
       organisationName: "",
       industry: "",
       status: "ACTIVE",
-      listOfNonWorkingDays: "",
+      nonWorkingDays: [],
       country: "",
     },
-    validationSchema: toFormikValidationSchema(createOrganisationSchema),
-    onSubmit: () => {},
+    validationSchema: editData
+      ? toFormikValidationSchema(updateOrganisationSchema)
+      : toFormikValidationSchema(createOrganisationSchema),
+    onSubmit: (values, helper) => {
+      setIsSubmitting(true);
+      if (editData && editData.organisationId) {
+        organisationUpdateMutation.mutate(values, {
+          onSuccess() {
+            close();
+            refetch();
+            setIsSubmitting(false);
+          },
+          onError(error) {
+            if (isAxiosError(error)) {
+              if (
+                error.response?.status === 400 &&
+                error.response.data?.errors &&
+                Array.isArray(error.response?.data.errors)
+              ) {
+                error.response.data.errors.map(
+                  (item: { message: string; path: [string] }) => {
+                    helper.setFieldError(item.path[0], item.message);
+                  }
+                );
+              }
+              setIsSubmitting(false);
+            }
+          },
+        });
+      }else{
+        organisationMutation.mutate(values, {
+          onSuccess(data) {
+            localStorage.setItem(
+              "organisation-id",
+              data.data.data.organisationId
+            );
+            close();
+            refetch().then(() => {
+              navigate("/projects");
+            });
+            setIsSubmitting(false);
+          },
+          onError(error) {
+            if (isAxiosError(error)) {
+              if (
+                error.response?.status === 400 &&
+                error.response.data?.errors &&
+                Array.isArray(error.response?.data.errors)
+              ) {
+                error.response.data.errors.map(
+                  (item: { message: string; path: [string] }) => {
+                    helper.setFieldError(item.path[0], item.message);
+                  }
+                );
+              }
+            }
+            setIsSubmitting(false);
+          },
+        });
+      }
+    },
   });
+  useEffect(() => {
+    if (editData) {
+      formik.setValues({
+        country: editData.country,
+        industry: editData.industry,
+        nonWorkingDays: editData.nonWorkingDays,
+        organisationName: editData.organisationName,
+        status: editData?.status,
+      });
+      const country = countries.find((item) => {
+        if (editData.country === item.isoCode) {
+          return { label: item.name, value: item.isoCode };
+        }
+      });
+      const setNonWorkingDays = editData.nonWorkingDays.map((item) => {
+        return nonWorkingDays.find((i) => item == i.value);
+      });
+      if (country && setNonWorkingDays) {
+        setContryValue({ label: country?.name, value: country?.isoCode });
+        setNonWorkingDaysValue(setNonWorkingDays as MultiValue<Options>);
+      }
+    }
+  }, []);
+
+  const reactSelectStyle = {
+    control: (
+      provided: Record<string, unknown>,
+      state: { isFocused: boolean }
+    ) => ({
+      ...provided,
+      border: state.isFocused ? "2px solid #943B0C" : "0px solid #943B0C",
+      boxShadow: state.isFocused ? "2px #943B0C" : "none",
+      "&:hover": {
+        border: state.isFocused ? "2px solid #943B0C" : "0px solid #943B0C",
+        boxShadow: "1px 0px 0px #943B0C",
+      },
+    }),
+  };
+  const nonWorkingDays: Options[] = [
+    { label: "Sunday", value: "SUN" },
+    { label: "Monday", value: "MON" },
+    { label: "Tuesday", value: "TUE" },
+    { label: "Wednesday", value: "WED" },
+    { label: "Thursday", value: "THU" },
+    { label: "Friday", value: "FRI" },
+    { label: "Saturday", value: "SAT" },
+  ];
+
+  const contrysFn = () => {
+    const value = countries.map((item) => {
+      return { label: item.name, value: item.isoCode };
+    });
+    return value;
+  };
+  const handleCountry = (val: SingleValue<Options>) => {
+    if (val) {
+      setContryValue(val);
+      formik.setFieldValue("country", val.value);
+    }
+  };
+  const handleNonWorkingDays = (val: MultiValue<Options>) => {
+    if (val) {
+      setNonWorkingDaysValue(val);
+      formik.setFieldValue(
+        "nonWorkingDays",
+        val.map((item) => {
+          return item.value;
+        })
+      );
+    }
+  };
   return (
-    <div className="absolute w-full h-full top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-primary-900 bg-opacity-50 ">
+    <div className="absolute w-full h-full z-50 top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-gray-900 bg-opacity-50 ">
       <div className="bg-white rounded-lg shadow-md px-2.5 md:px-6 lg:px-8 pt-6 pb-8 mb-4 md:w-3/4 w-11/12 lg:w-[40rem]">
         <div className="flex justify-between my-1 mb-5">
           <h1 className="text-2xl lg:text-3xl font-bold text-gray-500">
-            Create new organisation
+            {editData && editData.organisationId
+              ? "Update Organisation"
+              : "Create Organisation"}
           </h1>
-          <button onClick={close}>
+          <button onClick={close} className="cursor-pointer">
             <img src={closeImage} alt="close" className="w-5" />
           </button>
         </div>
         <form onSubmit={formik.handleSubmit}>
-          <div className="">
+          <div>
             <label className={labelStyle}>Organisation Name</label>
             <input
               className={inputStyle}
@@ -51,12 +209,12 @@ function OrganisationForm(props: Props) {
               type="text"
               placeholder="Organisation Name"
             />
-            <span className={errorStyle}>
+            <ErrorMessage>
               {formik.touched.organisationName &&
                 formik.errors.organisationName}
-            </span>
+            </ErrorMessage>
           </div>
-          <div className="">
+          <div>
             <label className={labelStyle}>Industry</label>
             <input
               className={inputStyle}
@@ -67,61 +225,57 @@ function OrganisationForm(props: Props) {
               type="text"
               placeholder="Industry"
             />
-            <span className={errorStyle}>
+            <ErrorMessage>
               {formik.touched.industry && formik.errors.industry}
-            </span>
-          </div>
-          <div className="">
-            <label className={labelStyle}>Working Days</label>
-            <input
-              className={inputStyle}
-              name="listOfNonWorkingDays"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.listOfNonWorkingDays}
-              type="number"
-              min={0}
-              max={7}
-              placeholder="Working Days"
-            />
-            <span className={errorStyle}>
-              {formik.touched.listOfNonWorkingDays &&
-                formik.errors.listOfNonWorkingDays}
-            </span>
-          </div>
-          <div className="">
-            <label className={labelStyle}>Country</label>
-            <select
-              className={inputStyle}
-              name="country"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.country}
-              placeholder="Country"
-            >
-              <option value="">Select Country</option>
-              <option value="India">India</option>
-              <option value="Pakistan">Pakistan</option>
-              <option value="Khalistan">Khalistan</option>
-              <option value="Afghanistan">Afghanistan</option>
-              <option value="China">China</option>
-            </select>
-            <span className={errorStyle}>
-              {formik.touched.country && formik.errors.country}
-            </span>
+            </ErrorMessage>
           </div>
           <div>
-            <button
+            <label className={labelStyle}>Non Working Days</label>
+            <Select
+              className={`${inputStyle} select !p-0`}
+              onChange={handleNonWorkingDays}
+              onBlur={() => formik.setTouched({ nonWorkingDays: true })}
+              options={nonWorkingDays}
+              value={nonWorkingDaysValue}
+              name="nonWorkingDays"
+              placeholder="Select nonworkingdays"
+              isMulti
+              styles={reactSelectStyle}
+            />
+            <ErrorMessage>
+              {formik.touched.nonWorkingDays && formik.errors.nonWorkingDays}
+            </ErrorMessage>
+          </div>
+          <div>
+            <label className={labelStyle}>Country</label>
+            <Select
+              className={`${inputStyle} select !p-0`}
+              onChange={handleCountry}
+              onBlur={() => formik.setTouched({ country: true })}
+              options={contrysFn()}
+              value={countryValue}
+              placeholder="Select country"
+              name="country"
+              styles={reactSelectStyle}
+            />
+            <ErrorMessage>
+              {formik.touched.country && formik.errors.country}
+            </ErrorMessage>
+          </div>
+          <div>
+            <Button
               type="submit"
-              className="w-full bg-warning py-2.5 mt-5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
+              variant={"primary"}
+              isLoading={isSubmitting}
+              disabled={isSubmitting}
+              className="w-full py-2.5 mt-5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
             >
               Submit
-            </button>
+            </Button>
           </div>
         </form>
       </div>
     </div>
   );
 }
-
 export default OrganisationForm;

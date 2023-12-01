@@ -45,3 +45,29 @@ img {
 #root {
   min-height: 100vh;
 }
+
+:focus {
+  outline-color: #943b0c;
+}
+
+/* Scrollbar css */
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  @apply bg-primary-50;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  @apply bg-primary-400;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary-500;
+}
