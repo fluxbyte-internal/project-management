@@ -6,13 +6,15 @@ import { createJwtToken, verifyJwtToken } from '../utils/jwtHelper.js';
 import { compareEncryption, encrypt } from '../utils/encryption.js';
 import { BadRequestError, InternalServerError, NotFoundError, SuccessResponse, UnAuthorizedError } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
-import { authLoginSchema, authRefreshTokenSchema, authSignUpSchema, verifyEmailOtpSchema } from '../schemas/authSchema.js';
+import { authLoginSchema, authRefreshTokenSchema, authSignUpSchema, forgotPasswordSchema, resetPasswordTokenSchema, resetTokenSchema, verifyEmailOtpSchema } from '../schemas/authSchema.js';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library.js';
 import { PRISMA_ERROR_CODE } from '../constants/prismaErrorCodes.js';
-import { ZodError, date } from 'zod';
+import { ZodError } from 'zod';
 import { generateOTP } from '../utils/otpHelper.js';
 import { EmailService } from '../services/email.services.js';
 import { OtpService } from '../services/userOtp.services.js';
+import { ResetPassword } from '../services/resetPassword.services.js';
+import { generateRandomResetToken } from '../utils/generateRandomPassword.js';
 
 
 export const signUp = async (req: express.Request, res: express.Response) => {
@@ -139,8 +141,52 @@ export const verifyRoot = (req: express.Request, res: express.Response) => {
     username == settings.user.username &&
     password == settings.user.password
   ) {
-      return new SuccessResponse(StatusCodes.OK, null, 'Ok').send(res);
+    return new SuccessResponse(StatusCodes.OK, null, 'Ok').send(res);
   } else {
     throw new BadRequestError();
   };
+};
+
+export const forgotPassword = async (req: express.Request, res: express.Response) => {
+  const { email } = forgotPasswordSchema.parse(req.body);
+  const token = generateRandomResetToken();
+
+  const prisma = await getClientByTenantId(req.tenantId);
+  const findUser = await prisma.user.findFirst({ where: { email: email } });
+  if (!findUser) throw new NotFoundError("User not found");
+
+  const expiryTimeInMinutes = 10;
+  const expirationTime = new Date(Date.now() + expiryTimeInMinutes * 60 * 1000);
+
+  await ResetPassword.saveUserResetToken(
+    req.tenantId,
+    token,
+    findUser.userId,
+    expirationTime
+  );
+  const subjectMessage = `Forgot password`;
+  const bodyMessage = `
+    We received a request to reset the password for this account : ${email}. To proceed with the password reset, 
+    please click on the following link:
+    URL: ${settings.appURL}/reset-password/?token=${token}`
+  try {
+    await EmailService.sendEmail(email, subjectMessage, bodyMessage);
+  } catch (error) {
+    console.error('Failed to send email', error);
+  };
+
+  return new SuccessResponse(StatusCodes.OK, null, 'Sent email successfully').send(res);
+};
+
+export const resetPassword = async (req: express.Request, res: express.Response) => {
+  const token = resetTokenSchema.parse(req.params.token);
+  const { password } = resetPasswordTokenSchema.parse(req.body);
+
+  const isTokenVerified = await ResetPassword.verifyUserResetToken(
+    req.tenantId,
+    token,
+    password
+  );
+  if (!isTokenVerified) throw new BadRequestError("Invalid token");
+  return new SuccessResponse(StatusCodes.OK, null, 'Reset password successfully').send(res);
 };

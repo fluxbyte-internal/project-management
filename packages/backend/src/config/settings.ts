@@ -28,6 +28,7 @@ export type Settings = {
     username: string;
     password: string;
   };
+  noReplyEmailId: string
 };
 
 const { PORT, PRIVATE_KEY_FOR_JWT, EMAIL_ACCESS_KEY_ID, EMAIL_SECRET_ACCESS_KEY, EMAIL_REGION, APP_URL, ROOT_USER_USERNAME, ROOT_USER_PASSWORD } = process.env;
@@ -76,4 +77,5 @@ export const settings: Settings = {
     username: ROOT_USER_USERNAME ?? "",
     password: ROOT_USER_PASSWORD ?? "",
   },
+  noReplyEmailId: "support@projectchef.io"
 };
