@@ -13,8 +13,7 @@ import { ZodError } from 'zod';
 import { generateOTP } from '../utils/otpHelper.js';
 import { EmailService } from '../services/email.services.js';
 import { OtpService } from '../services/userOtp.services.js';
-import { ResetPassword } from '../services/resetPassword.services.js';
-import { generateRandomResetToken } from '../utils/generateRandomPassword.js';
+import { generateRandomToken } from '../utils/generateRandomToken.js';
 
 
 export const signUp = async (req: express.Request, res: express.Response) => {
@@ -149,7 +148,7 @@ export const verifyRoot = (req: express.Request, res: express.Response) => {
 
 export const forgotPassword = async (req: express.Request, res: express.Response) => {
   const { email } = forgotPasswordSchema.parse(req.body);
-  const token = generateRandomResetToken();
+  const token = generateRandomToken();
 
   const prisma = await getClientByTenantId(req.tenantId);
   const findUser = await prisma.user.findFirst({ where: { email: email } });
@@ -158,12 +157,6 @@ export const forgotPassword = async (req: express.Request, res: express.Response
   const expiryTimeInMinutes = 10;
   const expirationTime = new Date(Date.now() + expiryTimeInMinutes * 60 * 1000);
 
-  await ResetPassword.saveUserResetToken(
-    req.tenantId,
-    token,
-    findUser.userId,
-    expirationTime
-  );
   const subjectMessage = `Forgot password`;
   const bodyMessage = `
     We received a request to reset the password for this account : ${email}. To proceed with the password reset, 
@@ -171,8 +164,16 @@ export const forgotPassword = async (req: express.Request, res: express.Response
     URL: ${settings.appURL}/reset-password/?token=${token}`
   try {
     await EmailService.sendEmail(email, subjectMessage, bodyMessage);
+    await prisma.resetPassword.create({
+      data: {
+        isUsed: false,
+        token: token,
+        userId: findUser.userId,
+        expiryTime: expirationTime
+      }
+    });
   } catch (error) {
-    console.error('Failed to send email', error);
+    throw new InternalServerError();
   };
 
   return new SuccessResponse(StatusCodes.OK, null, 'Sent email successfully').send(res);
@@ -182,11 +183,29 @@ export const resetPassword = async (req: express.Request, res: express.Response)
   const token = resetTokenSchema.parse(req.params.token);
   const { password } = resetPasswordTokenSchema.parse(req.body);
 
-  const isTokenVerified = await ResetPassword.verifyUserResetToken(
-    req.tenantId,
-    token,
-    password
-  );
-  if (!isTokenVerified) throw new BadRequestError("Invalid token");
+  const prisma = await getClientByTenantId(req.tenantId);
+  let resetPasswordRecord = await prisma.resetPassword.findFirst({
+    where: {
+      token: token,
+      expiryTime: {
+        gt: new Date()
+      }
+    }
+  });
+  if (!resetPasswordRecord) throw new BadRequestError("Invalid token");
+  const hashedPassword = await encrypt(password);
+  await prisma.resetPassword.update({
+    where: {
+      resetPasswordId: resetPasswordRecord.resetPasswordId, userId: resetPasswordRecord.userId
+    },
+    data: {
+      isUsed: true,
+      user: {
+        update: {
+          password: hashedPassword
+        }
+      }
+    }
+  });
   return new SuccessResponse(StatusCodes.OK, null, 'Reset password successfully').send(res);
 };

@@ -21,7 +21,3 @@ export function generateRandomPassword(length = 8): string {
   }
   return password;
 };
-
-export function generateRandomResetToken(length: number = 20) {
-  return crypto.randomBytes(length).toString('hex');
-};
