@@ -135,7 +135,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
   });
   useEffect(() => {
     if (editData) {
-      const formateDate = (inputDate: string) => {
+      const formatDate = (inputDate: string) => {
         const date = new Date(inputDate);
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
@@ -146,8 +146,8 @@ function CreateUpdateProjectForm(props: AddProjectType) {
           .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
       };
       formik.setValues({
-        startDate: formateDate(editData.startDate) as unknown as Date,
-        estimatedEndDate: formateDate(editData.estimatedEndDate)as unknown as Date,
+        startDate: formatDate(editData.startDate) as unknown as Date,
+        estimatedEndDate: formatDate(editData.estimatedEndDate)as unknown as Date,
         estimatedBudget: editData.estimatedBudget,
         projectDescription: editData.projectDescription,
         projectName: editData.projectName,
