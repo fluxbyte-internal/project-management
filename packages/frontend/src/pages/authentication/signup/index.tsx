@@ -89,25 +89,23 @@ function Signup() {
           </div>
           <hr />
           <form onSubmit={formik.handleSubmit} className="px-4">
-            <div className="mt-1">
-              <div className="w-full">
-                <label htmlFor="email" className={labelStyle}>
-                  Email
-                </label>
-                <InputEmail
-                  name="email"
-                  placeholder="Enter email"
-                  value={formik.values.email}
-                  onChange={formik.handleChange}
-                />
-                <div>
-                  <ErrorMessage>
-                    {formik.touched.email && formik.errors.email}
-                  </ErrorMessage>
-                </div>
+            <div className="w-full mt-1">
+              <label htmlFor="email" className={labelStyle}>
+                Email
+              </label>
+              <InputEmail
+                name="email"
+                placeholder="Enter email"
+                value={formik.values.email}
+                onChange={formik.handleChange}
+              />
+              <div>
+                <ErrorMessage>
+                  {formik.touched.email && formik.errors.email}
+                </ErrorMessage>
               </div>
             </div>
-            <div className="w-full mt-2">
+            <div className="w-full mt-1">
               <label htmlFor="password" className={labelStyle}>
                 Password
               </label>
@@ -124,7 +122,7 @@ function Signup() {
                   variant={"ghost"}
                   size={"icon"}
                   onClick={handleShowPassword}
-                  className="absolute top-1/2 right-0 -translate-y-1/2 mt-[1px]"
+                  className="absolute top-1/2 right-1 -translate-y-1/2 mt-[1px]"
                 >
                   <img
                     src={showPassword ? show : hide}
@@ -134,12 +132,12 @@ function Signup() {
                 </Button>
               </div>
               <div>
-                <ErrorMessage className="block">
+                <ErrorMessage>
                   {formik.touched.password && formik.errors.password}
                 </ErrorMessage>
               </div>
             </div>
-            <div className="relative w-full mt-1">
+            <div className="mt-1">
               <label htmlFor="showConfirmationPassword" className={labelStyle}>
                 Confirm Password
               </label>
@@ -155,7 +153,7 @@ function Signup() {
                 <Button
                   variant={"ghost"}
                   size={"icon"}
-                  className="absolute top-1/2 right-0 -translate-y-1/2 mt-[1px]"
+                  className="absolute top-1/2 right-1 -translate-y-1/2 mt-[1px]"
                   onClick={handleShowConfirmationPassword}
                 >
                   <img
@@ -178,7 +176,7 @@ function Signup() {
                 variant={"primary"}
                 isLoading={isLoading}
                 disabled={isLoading}
-                className="w-full py-2.5 mt-4 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
+                className="w-full py-2.5 mt-1.5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
               >
                 Submit
               </Button>
