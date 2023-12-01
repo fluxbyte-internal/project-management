@@ -71,7 +71,7 @@ function Login() {
           </div>
           <hr />
           <form onSubmit={formik.handleSubmit} className="px-4">
-            <div className="mt-2">
+            <div className="mt-1">
               <label htmlFor="email" className={labelStyle}>
                 Email
               </label>
@@ -90,7 +90,7 @@ function Login() {
                 </ErrorMessage>
               </div>
             </div>
-            <div className="relative w-full mt-2">
+            <div className="relative w-full mt-1">
               <label htmlFor="password" className={labelStyle}>
                 Password
               </label>
@@ -116,7 +116,7 @@ function Login() {
                 </ErrorMessage>
               </div>
             </div>
-            <div className="flex items-center mt-2">
+            <div className="flex items-center mt-1.5">
               <Button
                 type="submit"
                 variant={"primary"}
