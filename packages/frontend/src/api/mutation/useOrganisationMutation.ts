@@ -7,12 +7,13 @@ import {
   ResponseType,
 } from "@/api/types/axiosResponseType";
 import ApiRequest from "../ApiRequest";
+import { OrgStatusEnumValue } from "@backend/src/schemas/enums";
 
 export type OrganisationType = {
   organisationId: string;
   organisationName: string;
   industry: string;
-  status: string;
+  status: keyof typeof OrgStatusEnumValue;
   country: string;
   nonWorkingDays: OrgListOfNonWorkingDaysEnum[];
   createdAt: Date;

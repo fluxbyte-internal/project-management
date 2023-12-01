@@ -7,7 +7,7 @@ function ErrorMessage({
 }: React.ComponentProps<"span">) {
   return (
     <span
-      className={cn("text-sm text-red-400 mt-2.5 ml-2.5", className)}
+      className={cn("text-sm text-red-400 mt-2.5 pl-1.5", className)}
       {...otherProps}
     >
       {children}

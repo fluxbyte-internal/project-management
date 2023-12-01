@@ -10,12 +10,13 @@ import ErrorMessage from "@/components/common/ErrorMessage";
 import { authSignUpSchema } from "@backend/src/schemas/authSchema";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import InputEmail from "@/components/common/InputEmail";
 
 function Signup() {
   const { login } = useAuth();
   const labelStyle = "font-medium text-base text-gray-8 ";
   const inputStyle =
-    "py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[46px] focus:outline-[#943B0C]";
+    "py-1.5 px-3 rounded-md border border-gray-100 w-full h-[46px] focus:outline-[#943B0C]";
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmationPassword, setShowConfirmationPassword] =
     useState(false);
@@ -88,15 +89,13 @@ function Signup() {
           </div>
           <hr />
           <form onSubmit={formik.handleSubmit} className="px-4">
-            <div className="mt-4">
+            <div className="mt-1">
               <div className="w-full">
                 <label htmlFor="email" className={labelStyle}>
                   Email
                 </label>
-                <input
-                  type="email"
+                <InputEmail
                   name="email"
-                  className={inputStyle}
                   placeholder="Enter email"
                   value={formik.values.email}
                   onChange={formik.handleChange}
@@ -108,51 +107,63 @@ function Signup() {
                 </div>
               </div>
             </div>
-            <div className="relative w-full mt-4">
+            <div className="w-full mt-2">
               <label htmlFor="password" className={labelStyle}>
                 Password
               </label>
-              <input
-                type={`${showPassword ? "text" : "password"}`}
-                name="password"
-                className={inputStyle}
-                placeholder="Enter password"
-                value={formik.values.password}
-                onChange={formik.handleChange}
-              />
-              <div className="p-2.5 absolute top-[35%] right-[5%]">
-                <img
-                  src={showPassword ? show : hide}
-                  onClick={handleShowPassword}
-                  width={16}
-                  height={16}
+              <div className="relative mt-1">
+                <input
+                  type={`${showPassword ? "text" : "password"}`}
+                  name="password"
+                  className={inputStyle}
+                  placeholder="Enter password"
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
                 />
+                <Button
+                  variant={"ghost"}
+                  size={"icon"}
+                  onClick={handleShowPassword}
+                  className="absolute top-1/2 right-0 -translate-y-1/2 mt-[1px]"
+                >
+                  <img
+                    src={showPassword ? show : hide}
+                    width={16}
+                    height={16}
+                  />
+                </Button>
               </div>
               <div>
-                <ErrorMessage>
+                <ErrorMessage className="block">
                   {formik.touched.password && formik.errors.password}
                 </ErrorMessage>
               </div>
             </div>
-            <div className="relative w-full mt-4">
+            <div className="relative w-full mt-1">
               <label htmlFor="showConfirmationPassword" className={labelStyle}>
                 Confirm Password
               </label>
-              <input
-                type={`${showConfirmationPassword ? "text" : "password"}`}
-                name="confirmPassword"
-                className={inputStyle}
-                placeholder="Enter password again"
-                value={formik.values.confirmPassword}
-                onChange={formik.handleChange}
-              />
-              <div className="p-2.5 absolute top-[35%] right-[5%]">
-                <img
-                  src={showConfirmationPassword ? show : hide}
-                  onClick={handleShowConfirmationPassword}
-                  width={16}
-                  height={16}
+              <div className="relative mt-1">
+                <input
+                  type={`${showConfirmationPassword ? "text" : "password"}`}
+                  name="confirmPassword"
+                  className={inputStyle}
+                  placeholder="Enter password again"
+                  value={formik.values.confirmPassword}
+                  onChange={formik.handleChange}
                 />
+                <Button
+                  variant={"ghost"}
+                  size={"icon"}
+                  className="absolute top-1/2 right-0 -translate-y-1/2 mt-[1px]"
+                  onClick={handleShowConfirmationPassword}
+                >
+                  <img
+                    src={showConfirmationPassword ? show : hide}
+                    width={16}
+                    height={16}
+                  />
+                </Button>
               </div>
               <div>
                 <ErrorMessage>

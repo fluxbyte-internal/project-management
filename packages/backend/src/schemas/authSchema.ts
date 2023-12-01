@@ -3,8 +3,8 @@ import { z } from "zod";
 export const authSignUpSchema = z
   .object({
     email: z.string().email({ message: "Email is not valid" }),
-    password: z.string().regex(/^(?=.*[!@#$%^&*(),.?":{}|<>])(?=.*[A-Z])(?=.*[0-9]).{8,}$/,"Must have Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character").min(1, "Password is a required field"),
-    confirmPassword: z.string().regex(/^(?=.*[!@#$%^&*(),.?":{}|<>])(?=.*[A-Z])(?=.*[0-9]).{8,}$/),
+    password: z.string().regex(/^(?=.*[!@#$%^&*(),.?":{}|<>])(?=.*[A-Z])(?=.*[0-9]).{8,}$/,"Must contain 8+ chars, 1 uppercase, 1 lowercase, 1 number and 1 special chars.").min(1, "Password is a required field"),
+    confirmPassword: z.string(),
   })
   .refine(
     (values) => {

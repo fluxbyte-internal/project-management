@@ -1,10 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import { requestURLs } from "../../Environment";
-import axios from "axios";
 import {
   AxiosResponseAndError,
   ResponseType,
 } from "@/api/types/axiosResponseType";
+import ApiRequest from "../ApiRequest";
 
 export type VerifyEmailResponse = ResponseType<null>;
 
@@ -14,8 +14,8 @@ function useResendVerifyEmailOtpMutation() {
     AxiosResponseAndError<VerifyEmailResponse>["error"],
     null
   >({
-    mutationFn: (data) =>
-      axios.post<VerifyEmailResponse>(requestURLs.resendVerifyEmailOtp, data),
+    mutationFn: () =>
+      ApiRequest.post<VerifyEmailResponse>(requestURLs.resendVerifyEmailOtp),
   });
 
   return mutation;
