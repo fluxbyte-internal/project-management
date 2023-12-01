@@ -4,7 +4,7 @@ export const authSignUpSchema = z
   .object({
     email: z.string().email({ message: "Email is not valid" }),
     password: z.string().regex(/^(?=.*[!@#$%^&*(),.?":{}|<>])(?=.*[A-Z])(?=.*[0-9]).{8,}$/, "Must have Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character").min(1, "Password is a required field"),
-    confirmPassword: z.string().regex(/^(?=.*[!@#$%^&*(),.?":{}|<>])(?=.*[A-Z])(?=.*[0-9]).{8,}$/),
+    confirmPassword: z.string(),
   })
   .refine(
     (values) => {
@@ -37,7 +37,7 @@ export const resetTokenSchema = z.string().min(1, 'Token is required field');
 export const resetPasswordTokenSchema = z
   .object({
     password: z.string().regex(/^(?=.*[!@#$%^&*(),.?":{}|<>])(?=.*[A-Z])(?=.*[0-9]).{8,}$/, "Must have Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character").min(1, "Password is a required field"),
-    confirmPassword: z.string().regex(/^(?=.*[!@#$%^&*(),.?":{}|<>])(?=.*[A-Z])(?=.*[0-9]).{8,}$/)
+    confirmPassword: z.string()
   }).refine(
     (values) => {
       if (!values.password) return true;
