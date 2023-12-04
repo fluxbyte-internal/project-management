@@ -127,12 +127,12 @@ function Login() {
                 Submit
               </Button>
             </div>
-            <a
-              href="#"
+            <NavLink
               className="mt-4 text-xs text-right text-danger hover:underline"
+              to="/forgot-password"
             >
               Forget Password?
-            </a>
+            </NavLink>
             <div className="mt-4 text-grey-600">
               New user?{" "}
               <NavLink className="text-warning hover:underline" to="/signup">
