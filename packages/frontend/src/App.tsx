@@ -7,6 +7,7 @@ import { useState } from "react";
 import RootAuth from "./rootAuth";
 import Page404 from "./rootAuth/404page";
 import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const queryClient = new QueryClient({
