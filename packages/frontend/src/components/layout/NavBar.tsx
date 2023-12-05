@@ -42,7 +42,7 @@ function NavBar() {
   };
 
   return (
-    <div className="w-full h-14 z-10 fixed border-b-2 border-[#E2E8F0] flex items-center flex-col ">
+    <div className="w-full h-14 z-10 fixed border-b-2 border-[#E2E8F0] flex items-center flex-col bg-white">
       <div className="flex items-center w-full h-full justify-between sm:px-3 px-2">
         <div className="flex gap-5 items-center ">
           <div className="text-primary-800 text-sm font-bold flex justify-center items-center w-auto h-auto">
