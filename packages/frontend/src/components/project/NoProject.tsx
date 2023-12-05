@@ -11,9 +11,9 @@ function NoProject() {
     <>
       <div
         style={{backgroundSize:"102% 106%",backgroundPosition:"-2rem"}}
-        className={`w-full px-5 h-full flex  justify-center  items-center bg-[url(/src/assets/png/background2.png)]  bg-no-repeat`}
+        className={`w-full px-5 h-full flex overflow-auto justify-center  items-center bg-[url(/src/assets/png/background2.png)]  bg-no-repeat`}
       >
-        <div className="flex flex-col justify-center items-center gap-24">
+        <div className="flex flex-col m-auto justify-center items-center gap-24">
           <div className="p-6">
             <img src={organisationImage} className="w-96" />
           </div>
