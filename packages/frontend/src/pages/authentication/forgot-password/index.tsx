@@ -10,10 +10,11 @@ import { toFormikValidationSchema } from "zod-formik-adapter";
 import ErrorMessage from "@/components/common/ErrorMessage";
 import EmailSend from "../../../assets/svg/EmailSendSuccess.svg";
 import { z } from "zod";
+import { toast } from "react-toastify";
 
 function ForgotPassword() {
   const labelStyle = "font-medium text-base text-gray-8 ";
-  const useForgotePassword = useForgotPassword();
+  const forgotPasswordMutation = useForgotPassword();
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const navigate = useNavigate();
@@ -25,8 +26,9 @@ function ForgotPassword() {
     validationSchema: toFormikValidationSchema(forgotPasswordSchema),
     onSubmit: (values, helper) => {
       setIsLoading(true);
-      useForgotePassword.mutate(values, {
-        onSuccess() {
+      forgotPasswordMutation.mutate(values, {
+        onSuccess(data) {
+          toast.success(data.data.message);
           setIsLoading(false);
           setIsSubmitted(true);
         },
@@ -41,6 +43,11 @@ function ForgotPassword() {
               error.response.data.errors.forEach((item) => {
                 helper.setFieldError(item.path[0], item.message);
               });
+            }
+            if (!Array.isArray(error.response?.data.errors)) {
+              toast.error(
+                error.response?.data?.message ?? "An unexpected error occurred."
+              );
             }
           }
         },
@@ -75,7 +82,7 @@ function ForgotPassword() {
                 type="submit"
                 variant={"primary"}
                 className="w-full"
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/login")}
               >
                 back
               </Button>

@@ -10,6 +10,7 @@ import PasswordReset from "../../../assets/svg/PasswordReset.svg";
 import { z } from "zod";
 import useResetPasswordMutation from "@/api/mutation/useResetPasswordMutation";
 import InputPassword from "@/components/common/inputPassword";
+import { toast } from "react-toastify";
 function ResetPassword() {
   const [searchParams] = useSearchParams();
 
@@ -32,9 +33,10 @@ function ResetPassword() {
     onSubmit: (values, helper) => {
       setIsLoading(true);
       resetPasswordMutation.mutate(values, {
-        onSuccess() {
+        onSuccess(data) {
           setIsLoading(false);
           setIsSubmited(true);
+          toast.success(data.data.message);
         },
         onError(error) {
           if (isAxiosError(error)) {
@@ -48,6 +50,11 @@ function ResetPassword() {
               error.response.data.errors.forEach((item) => {
                 helper.setFieldError(item.path[0], item.message);
               });
+            }
+            if (!Array.isArray(error.response?.data.errors)) {
+              toast.error(
+                error.response?.data?.message ?? "An unexpected error occurred."
+              );
             }
           }
         },

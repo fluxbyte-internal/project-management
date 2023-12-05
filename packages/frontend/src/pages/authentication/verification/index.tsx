@@ -15,6 +15,7 @@ import useTimer from "@/hooks/useTimer";
 import useResendVerifyEmailOtpMutation from "@/api/mutation/useResendVerifyEmailOtpMutation";
 import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
 import UserVerifiedIcon from "../../../assets/svg/UserVerified.svg";
+import { toast } from "react-toastify";
 
 export type LoginValues = {
   email: string;
@@ -58,8 +59,8 @@ function Verification() {
     onSubmit: (values, helper) => {
       setIsVerifying(true);
       verifyEmailMutation.mutate(values, {
-        onSuccess() {
-          // redirect and refetch user
+        onSuccess(data) {
+          toast.success(data.data.message);
           refetch();
           setOtpVerified(true);
         },
@@ -75,6 +76,11 @@ function Verification() {
                 helper.setFieldError(item.path[0], item.message);
               });
             }
+            if (!Array.isArray(error.response?.data.errors)) {
+              toast.error(
+                error.response?.data?.message ?? "An unexpected error occurred."
+              );
+            }
           }
         },
       });
@@ -87,7 +93,7 @@ function Verification() {
         <div className="w-[min(400px,100%)] space-y-4 py-4 overflow-hidden bg-white shadow-md sm:max-w-lg sm:rounded-lg">
           <div className="px-4">
             <h3 className="text-2xl text-center font-bold text-primary-900">
-              {!otpVerified ? "Verify Email": "Email Verified "}
+              {!otpVerified ? "Verify Email" : "Email Verified "}
             </h3>
           </div>
           <hr />
@@ -119,17 +125,22 @@ function Verification() {
                   onClick={() => {
                     setIsResending(true);
                     resendVerifyEmailOtpMutation.mutate(null, {
-                      onSuccess: () => {
+                      onSuccess: (data) => {
                         const t = Date.now();
                         localStorage.setItem("lastSent", `${t}`);
                         resetTimer(60);
                         setLastSentTime(t);
                         setIsResending(false);
                         setResendError("");
+                        toast.success(data.data.message);
                       },
-                      onError: () => {
+                      onError: (error) => {
                         setResendError("Failed to resend OTP");
                         setIsResending(false);
+                        toast.error(
+                          error.response?.data?.message ??
+                            "An unexpected error occurred."
+                        );
                       },
                     });
                   }}

@@ -23,6 +23,7 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "../ui/tooltip";
+import { toast } from "react-toastify";
 
 type AddProjectType = {
   handleClosePopUp: () => void;
@@ -87,11 +88,12 @@ function CreateUpdateProjectForm(props: AddProjectType) {
     onSubmit: (values, helper) => {
       if (editData && editData.projectId) {
         projectUpdateMutation.mutate(values, {
-          onSuccess() {
+          onSuccess(data) {
             projectQuery.refetch();
             formik.resetForm();
             handleClosePopUp();
             setIsSubmitting(false);
+            toast.success(data.data.message);
           },
           onError(error) {
             setIsSubmitting(false);
@@ -105,15 +107,19 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                   helper.setFieldError(item.path[0], item.message);
                 });
               }
+              if (!Array.isArray(error.response?.data.errors)) {
+                toast.error(error.response?.data?.message?? "An unexpected error occurred.");
+              }
             }
           },
         });
       } else {
         projectMutation.mutate(values, {
-          onSuccess() {
+          onSuccess(data) {
             projectQuery.refetch();
             formik.resetForm();
             handleClosePopUp();
+            toast.success(data.data.message);
           },
           onError(error) {
             setIsSubmitting(false);
@@ -126,6 +132,9 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                 error.response.data.errors.forEach((item) => {
                   helper.setFieldError(item.path[0], item.message);
                 });
+              }
+              if (!Array.isArray(error.response?.data.errors)) {
+                toast.error(error.response?.data?.message?? "An unexpected error occurred.");
               }
             }
           },

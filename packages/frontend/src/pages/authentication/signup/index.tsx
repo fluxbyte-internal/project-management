@@ -11,6 +11,7 @@ import { authSignUpSchema } from "@backend/src/schemas/authSchema";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import InputEmail from "@/components/common/InputEmail";
+import { toast } from "react-toastify";
 
 function Signup() {
   const { login } = useAuth();
@@ -50,6 +51,7 @@ function Signup() {
       signupMutation.mutate(values, {
         onSuccess(data) {
           login(data);
+          toast.success(data.data.message);
         },
         onError(error) {
           if (isAxiosError(error)) {
@@ -63,6 +65,11 @@ function Signup() {
                 (item: { message: string; path: string[] }) => {
                   helper.setFieldError(item.path[0], item.message);
                 }
+              );
+            }
+            if (!Array.isArray(error.response?.data.errors)) {
+              toast.error(
+                error.response?.data?.message ?? "An unexpected error occurred."
               );
             }
           }

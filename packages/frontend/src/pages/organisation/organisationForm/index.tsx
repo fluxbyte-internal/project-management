@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import countries from "../../../assets/json/countries.json";
 import ErrorMessage from "@/components/common/ErrorMessage";
 import useOrganisationUpdateMutation from "@/api/mutation/useOrganisationUpdateMutation";
+import { toast } from "react-toastify";
 
 interface Props {
   close: () => void;
@@ -58,7 +59,8 @@ function OrganisationForm(props: Props) {
       setIsSubmitting(true);
       if (editData && editData.organisationId) {
         organisationUpdateMutation.mutate(values, {
-          onSuccess() {
+          onSuccess(data) {
+            toast.success(data.data.message);
             close();
             refetch();
             setIsSubmitting(false);
@@ -76,6 +78,12 @@ function OrganisationForm(props: Props) {
                   }
                 );
               }
+              if (!Array.isArray(error.response?.data.errors)) {
+                toast.error(
+                  error.response?.data?.message ??
+                    "An unexpected error occurred."
+                );
+              }
               setIsSubmitting(false);
             }
           },
@@ -83,6 +91,7 @@ function OrganisationForm(props: Props) {
       }else{
         organisationMutation.mutate(values, {
           onSuccess(data) {
+            toast.success(data.data.message);
             localStorage.setItem(
               "organisation-id",
               data.data.data.organisationId
@@ -104,6 +113,12 @@ function OrganisationForm(props: Props) {
                   (item: { message: string; path: [string] }) => {
                     helper.setFieldError(item.path[0], item.message);
                   }
+                );
+              }
+              if (!Array.isArray(error.response?.data.errors)) {
+                toast.error(
+                  error.response?.data?.message ??
+                    "An unexpected error occurred."
                 );
               }
             }

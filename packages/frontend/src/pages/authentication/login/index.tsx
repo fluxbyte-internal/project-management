@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { isAxiosError } from "axios";
 import InputEmail from "@/components/common/InputEmail";
+import { toast } from "react-toastify";
 
 export type LoginValues = {
   email: string;
@@ -37,6 +38,7 @@ function Login() {
       loginMutation.mutate(values, {
         onSuccess(data) {
           login(data);
+          toast.success(data.data.message);
         },
         onError(error) {
           if (isAxiosError(error)) {
@@ -49,6 +51,11 @@ function Login() {
               error.response.data.errors.forEach((item) => {
                 helper.setFieldError(item.path[0], item.message);
               });
+            }
+            if (!Array.isArray(error.response?.data.errors)) {
+              toast.error(
+                error.response?.data?.message ?? "An unexpected error occurred."
+              );
             }
           }
         },
