@@ -76,8 +76,8 @@ function Login() {
       <div className="lg:flex flex-col items-center justify-center lg:w-1/2 bg-gradient-to-t from-[#FFF8DF] to-[#FFD6AB] hidden">
         <img src={SignUp} />
       </div>
-      <div className="flex flex-col items-center w-full lg:w-1/2 justify-center overflow-hidden bg-white">
-        <div className="w-full sm:px-14 max-w-xl">
+      <div className="flex flex-col items-center w-full lg:w-1/2 lg:justify-center overflow-hidden bg-white">
+        <div className="w-full max-sm:py-4 py-6 sm:px-14 max-w-xl">
           <div className="px-4">
             <h3 className="text-2xl text-center font-bold text-primary-900">
               Login
@@ -118,7 +118,7 @@ function Login() {
                   variant={"ghost"}
                   size={"icon"}
                   onClick={handleShowPassword}
-                  className="absolute top-1/2 right-1 -translate-y-1/2 mt-[1px]"
+                  className="absolute top-[30px] right-1 -translate-y-1/2 mt-[1px]"
                 >
                   <img
                     src={showPassword ? show : hide}
@@ -172,7 +172,7 @@ function Login() {
             >
               <img src={Google} />
               <span>
-                Sign in with Google
+                Google
               </span>
             </Button>
             <Button
@@ -184,7 +184,7 @@ function Login() {
             >
               <img src={Facebook} />
               <span>
-                Sign in with Facebook
+                Facebook
               </span>
             </Button>
           </div>

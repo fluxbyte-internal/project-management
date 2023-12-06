@@ -257,7 +257,7 @@ function Signup() {
             >
               <img src={Google} />
               <span>
-                Sign in with Google
+                Google
               </span>
             </Button>
             <Button
@@ -269,7 +269,7 @@ function Signup() {
             >
               <img src={Facebook} />
               <span>
-                Sign in with Facebook
+                Facebook
               </span>
             </Button>
           </div>
