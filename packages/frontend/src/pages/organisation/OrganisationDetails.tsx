@@ -24,6 +24,7 @@ import useDebounce from "@/hooks/useDebounce";
 import Setting from "../../assets/svg/Setting.svg";
 import OrganisationForm from "./organisationForm";
 import { OrganisationType } from "@/api/mutation/useOrganisationMutation";
+import { toast } from "react-toastify";
 const memberRoleOptions = [
   {
     value: UserRoleEnumValue.PROJECT_MANAGER,
@@ -52,7 +53,8 @@ function OrganisationDetails() {
     onSubmit: (values, helper) => {
       setIsAddOrgMemberSubmitting(true);
       addOrganisationMemberMutation.mutate(values, {
-        onSuccess() {
+        onSuccess(data) {
+          toast.success(data.data.message);
           setIsAddOrgMemberSubmitting(false);
           closeAddMember();
           refetch();
@@ -67,6 +69,11 @@ function OrganisationDetails() {
               error.response.data.errors.forEach((item) => {
                 helper.setFieldError(item.path[0], item.message);
               });
+            }
+            if (!Array.isArray(error.response?.data.errors)) {
+              toast.error(
+                error.response?.data?.message ?? "An unexpected error occurred."
+              );
             }
           }
           setIsAddOrgMemberSubmitting(false);

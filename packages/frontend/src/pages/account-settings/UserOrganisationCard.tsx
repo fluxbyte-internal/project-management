@@ -1,5 +1,6 @@
 import useOrgSettingsUpdateMutation from "@/api/mutation/useOrgSettingsUpdateMutation";
-import useCurrentUserQuery, { UserOrganisationType,
+import useCurrentUserQuery, {
+  UserOrganisationType,
 } from "@/api/query/useCurrentUserQuery";
 import ErrorMessage from "@/components/common/ErrorMessage";
 import FormLabel from "@/components/common/FormLabel";
@@ -15,6 +16,7 @@ import { useFormik } from "formik";
 import { useState } from "react";
 import { z } from "zod";
 import { toFormikValidationSchema } from "zod-formik-adapter";
+import { toast } from "react-toastify";
 
 const taskColors = Object.keys(TaskColorPaletteEnum).map((colorPalette) => {
   const color =
@@ -48,7 +50,8 @@ function UserOrganisationCard(props: { userOrganisation: UserOrganisationType })
     onSubmit: (values, helper) => {
       setIsUserOrgSettingsSubmitting(true);
       orgSettingsUpdateMutation.mutate(values, {
-        onSuccess() {
+        onSuccess(data) {
+          toast.success(data.data.message);
           setIsUserOrgSettingsSubmitting(false);
           refetchUser();
         },
@@ -62,6 +65,11 @@ function UserOrganisationCard(props: { userOrganisation: UserOrganisationType })
               error.response.data.errors.forEach((item) => {
                 helper.setFieldError(item.path[0], item.message);
               });
+            }
+            if (!Array.isArray(error.response?.data.errors)) {
+              toast.error(
+                error.response?.data?.message ?? "An unexpected error occurred."
+              );
             }
           }
           setIsUserOrgSettingsSubmitting(false);

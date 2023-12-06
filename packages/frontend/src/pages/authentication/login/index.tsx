@@ -11,9 +11,11 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { isAxiosError } from "axios";
 import InputEmail from "@/components/common/InputEmail";
+import { toast } from "react-toastify";
 import SignUp from "../../../assets/svg/signup.svg";
 import Google from "../../../assets/svg/google.svg";
 import Facebook from "../../../assets/svg/facebook.svg";
+
 
 export type LoginValues = {
   email: string;
@@ -40,6 +42,7 @@ function Login() {
       loginMutation.mutate(values, {
         onSuccess(data) {
           login(data);
+          toast.success(data.data.message);
         },
         onError(error) {
           if (isAxiosError(error)) {
@@ -52,6 +55,11 @@ function Login() {
               error.response.data.errors.forEach((item) => {
                 helper.setFieldError(item.path[0], item.message);
               });
+            }
+            if (!Array.isArray(error.response?.data.errors)) {
+              toast.error(
+                error.response?.data?.message ?? "An unexpected error occurred."
+              );
             }
           }
         },
@@ -136,6 +144,12 @@ function Login() {
                 Submit
               </Button>
             </div>
+            <NavLink
+              className="mt-4 text-xs text-right text-danger hover:underline"
+              to="/forgot-password"
+            >
+              Forget Password?
+            </NavLink>
             <div className="mt-4 text-grey-600">
               New user?{" "}
               <NavLink className="text-warning hover:underline" to="/signup">
