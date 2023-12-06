@@ -16,25 +16,25 @@ export interface ProjectDetailType {
   estimatedEndDate: string;
   status: string;
   defaultView: string;
-  timeTrack: null;
-  budgetTrack: null;
+  timeTrack: string | null;
+  budgetTrack: string | null;
   estimatedBudget: string;
-  actualCost: null;
-  progressionPercentage: null;
+  actualCost: string | null;
+  progressionPercentage: string | null ;
   createdByUserId: string;
   updatedByUserId: string;
   createdAt: string;
   updatedAt: string;
   tasks: [];
   createdByUser: CreatedByUser;
-  projectProgression: null;
+  projectProgression: string | null;
 }
 
 export interface CreatedByUser {
   firstName: string;
   lastName: string;
   email: string;
-  avatarImg: null;
+  avatarImg: string | null ;
 }
 type ProjectDetailsApiResponse = ResponseType<ProjectDetailType>;
 
@@ -45,7 +45,7 @@ function useProjectDetail(id: string | undefined) {
   >({
     queryKey: [QUERY_KEYS.getProjectDetails, id],
     queryFn: async () =>
-      await ApiRequest.get(`${requestURLs.getProject}/${id}`),
+      await ApiRequest.get(`${requestURLs.project}/${id}`),
     enabled: !!id,
   });
 }

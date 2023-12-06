@@ -1,4 +1,3 @@
-import { UserResponseType } from "@/hooks/useUser";
 import { AxiosResponseAndError, ResponseType } from "../types/axiosResponseType";
 import { QUERY_KEYS } from "./querykeys";
 import ApiRequest from "../ApiRequest";
@@ -42,18 +41,7 @@ function useCurrentUserQuery() {
     AxiosResponseAndError<UserResponseType>["error"]
   >({
     queryKey: [QUERY_KEYS.currentUser],
-    queryFn: async () => {
-      const response = await ApiRequest.get(requestURLs.me);
-
-      if (response.data) {
-        localStorage.setItem(
-          "organisation-id",
-          response.data.data.userOrganisation[0].organisation.organisationId
-        );
-      }
-
-      return response;
-    },
+    queryFn: async () => await ApiRequest.get(requestURLs.me),
     enabled: false,
   });
 }

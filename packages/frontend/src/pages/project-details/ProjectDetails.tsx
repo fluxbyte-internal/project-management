@@ -325,7 +325,7 @@ function ProjectDetails() {
                     <div className={labelstyle}>Time Track</div>
                     <div>
                       <Progress
-                        value={projectDetailQuery.data?.data.data.timeTrack}
+                        value={Number(projectDetailQuery.data?.data.data.timeTrack)}
                         className="w-[80%] mt-3"
                       />
                     </div>
@@ -334,7 +334,7 @@ function ProjectDetails() {
                     <div className={labelstyle}>Budget Track</div>
                     <div>
                       <Progress
-                        value={projectDetailQuery.data?.data.data.budgetTrack}
+                        value={Number(projectDetailQuery.data?.data.data.budgetTrack)}
                         className="w-[80%] mt-3"
                       />
                     </div>
@@ -344,8 +344,8 @@ function ProjectDetails() {
                     <div>
                       <Progress
                         value={
-                          projectDetailQuery.data?.data.data
-                            .progressionPercentage
+                          Number(projectDetailQuery.data?.data.data
+                            .progressionPercentage)
                         }
                         className="w-[80%] mt-3"
                       />
