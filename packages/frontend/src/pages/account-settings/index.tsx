@@ -14,8 +14,9 @@ import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
 import FormLabel from "@/components/common/FormLabel";
 import InputText from "@/components/common/InputText";
 import InputSelect from "@/components/common/InputSelect";
-import UserOrganizationCard from "./UserOrganizationCard";
+import UserOrganisationCard from "./UserOrganisationCard";
 import { NavLink } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const countryOptions = countries.map((item) => {
   return { label: item.name, value: item.isoCode };
@@ -40,7 +41,8 @@ function AccountSettings() {
     onSubmit: (values, helper) => {
       setIsUserProfileSubmitting(true);
       userProfileUpdateMutation.mutate(values, {
-        onSuccess() {
+        onSuccess(data) {
+          toast.success(data.data.message);
           setIsUserProfileSubmitting(false);
           refetchUser();
         },
@@ -54,6 +56,11 @@ function AccountSettings() {
               error.response.data.errors.forEach((item) => {
                 helper.setFieldError(item.path[0], item.message);
               });
+            }
+            if (!Array.isArray(error.response?.data.errors)) {
+              toast.error(
+                error.response?.data?.message ?? "An unexpected error occurred."
+              );
             }
           }
           setIsUserProfileSubmitting(false);
@@ -199,7 +206,10 @@ function AccountSettings() {
                 Your Organisations
               </div>
               {user.userOrganisation.map((userOrg) => (
-                <UserOrganizationCard userOrganisation={userOrg} />
+                <UserOrganisationCard
+                  key={userOrg.userOrganisationId}
+                  userOrganisation={userOrg}
+                />
               ))}
 
               {user.userOrganisation.length === 0 && (

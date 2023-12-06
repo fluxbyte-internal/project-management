@@ -15,8 +15,37 @@ import { Link, useNavigate } from "react-router-dom";
 import CreateProjectForm from "../project/CreateProjectForm";
 import { useAuth } from "@/hooks/useAuth";
 import { useUser } from "@/hooks/useUser";
+import UserAvatar from "../ui/userAvatar";
 
-const navbarData = [
+type NavItemType =
+  | {
+      id: number;
+      name: string;
+      link: string;
+    }
+  | {
+      id: number;
+      name: string;
+      dropDown: Array<{
+        id: number;
+        contentName: string;
+        contentLink: string;
+      }>;
+    };
+
+function hasSubItem(item: NavItemType): item is {
+  id: number;
+  name: string;
+  dropDown: Array<{
+    id: number;
+    contentName: string;
+    contentLink: string;
+  }>;
+} {
+  return !!(item as { dropDown: unknown }).dropDown;
+}
+
+const navbarData: NavItemType[] = [
   {
     id: 1,
     name: "Dashboard",
@@ -27,7 +56,7 @@ const navbarData = [
     name: "Project",
     link: "/projects",
   },
-];
+] as NavItemType[];
 
 function NavBar() {
   const navigate = useNavigate();
@@ -59,12 +88,46 @@ function NavBar() {
                         item.id === 2 && "lg:flex"
                       } ${item.id === 1 && "md:flex"}`}
                     >
-                      <Link
-                        to={item.link}
-                        className="text-sm font-medium text-gray-500 relative cursor-pointer"
-                      >
-                        {item.name}
-                      </Link>
+                      {hasSubItem(item) ? (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <div className="flex items-center gap-2">
+                              <div className="text-sm font-medium text-gray-500 relative cursor-pointer">
+                                {item.name}
+                              </div>
+                              <div className="w-full h-full flex items-center aspect-square">
+                                <img src={DownArrow} alt="Dropdown Arrow" />
+                              </div>
+                            </div>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="w-auto">
+                            {item.dropDown.map(
+                              ({ contentName, contentLink }, contentIndex) => (
+                                <DropdownMenuItem key={contentIndex}>
+                                  <div className="flex justify-between items-center">
+                                    <div className="flex break-all">
+                                      {contentLink ? (
+                                        <Link to={contentLink}>
+                                          {contentName}
+                                        </Link>
+                                      ) : (
+                                        contentName
+                                      )}
+                                    </div>
+                                  </div>
+                                </DropdownMenuItem>
+                              )
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      ) : (
+                        <Link
+                          to={item.link}
+                          className="text-sm font-medium text-gray-500 relative cursor-pointer"
+                        >
+                          {item.name}
+                        </Link>
+                      )}
                     </div>
                   );
                 })}
@@ -90,12 +153,23 @@ function NavBar() {
                               item.id === 2 ? "lg:hidden" : ""
                             } ${item.id === 1 ? "md:hidden" : ""}`}
                           >
-                            <Link
-                              to={item.link}
-                              className="text-sm font-medium text-gray-500 relative cursor-pointer"
-                            >
-                              {item.name}
-                            </Link>
+                            {hasSubItem(item) ? (
+                              <div className="flex items-center justify-between w-full gap-2">
+                                <div className="text-sm font-medium text-gray-500 relative cursor-pointer">
+                                  {item.name}
+                                </div>
+                                <div className="h-full flex items-center aspect-square">
+                                  <img src={DownArrow} alt="Dropdown Arrow" />
+                                </div>
+                              </div>
+                            ) : (
+                              <Link
+                                to={item.link}
+                                className="text-sm font-medium text-gray-500 relative cursor-pointer"
+                              >
+                                {item.name}
+                              </Link>
+                            )}
                           </div>
                         </DropdownMenuItem>
                       );
@@ -131,8 +205,8 @@ function NavBar() {
             </div>
           )}
         </div>
-        <div className="flex md:gap-5 gap-2 items-center relative cursor-pointer">
-          <div className="w-8 h-8 aspect-square rounded-full bg-primary-100 md:block hidden">
+        <div className="flex md:gap-5 gap-2 items-center relative">
+          <div className="w-8 h-8 aspect-square rounded-full bg-primary-100 md:block hidden cursor-pointer">
             <img
               src={Notification}
               className="w-full h-full justify-center flex p-1"
@@ -143,15 +217,8 @@ function NavBar() {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <div className="w-8 h-8 aspect-square rounded-full bg-primary-200 outline-none cursor-pointer">
-                <span className="text-primary-800 text-sm font-bold flex justify-center items-center w-full h-full">
-                  {user?.firstName ? user.firstName.charAt(0) : "A"}
-                  {user?.lastName
-                    ? user?.lastName.charAt(0)
-                    : user?.firstName
-                      ? user.firstName.charAt(1)
-                      : "B"}
-                </span>
+              <div className="rounded-full cursor-pointer">
+                <UserAvatar user={user} />
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56 flex flex-col gap-1">

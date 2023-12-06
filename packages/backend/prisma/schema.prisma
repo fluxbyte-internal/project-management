@@ -50,21 +50,24 @@ enum TaskDependenciesEnum {
 }
 
 model User {
-  userId    String         @id @default(uuid()) @map("user_id")
-  email     String         @unique @map("email")
-  password  String         @map("password")
-  status    UserStatusEnum @map("status")
-  firstName String?        @map("first_name")
-  lastName  String?        @map("last_name")
-  timezone  String?        @map("time_zone")
-  country   String?        @map("country")
-  avatarImg String?        @map("avatar_img")
-  createdAt DateTime       @default(now()) @map("created_at")
-  updatedAt DateTime       @updatedAt @map("updated_at")
+  userId     String         @id @default(uuid()) @map("user_id")
+  email      String         @unique @map("email")
+  password   String         @map("password")
+  status     UserStatusEnum @map("status")
+  firstName  String?        @map("first_name")
+  lastName   String?        @map("last_name")
+  timezone   String?        @map("time_zone")
+  country    String?        @map("country")
+  avatarImg  String?        @map("avatar_img")
+  isVerified Boolean        @default(false) @map("is_verified")
+  createdAt  DateTime       @default(now()) @map("created_at")
+  updatedAt  DateTime       @updatedAt @map("updated_at")
 
-  comment          Comments[]
-  task             Task[]
-  userOrganisation UserOrganisation[]
+  comment           Comments[]
+  task              Task[]
+  userOrganisation  UserOrganisation[]
+  userOtp           UserOTP[]
+  userResetPassword ResetPassword[]
 
   createdOrganisations Organisation[] @relation("createdByUser")
   updatedOrganisations Organisation[] @relation("updatedByUser")
@@ -77,6 +80,29 @@ model User {
 
   @@unique([email, password])
   @@index([userId, email])
+}
+
+model UserOTP {
+  otpId      String   @id @default(uuid()) @map("otp_id")
+  userId     String   @map("user_id")
+  otp        String   @map("otp")
+  expiryTime DateTime @map("expiry_time")
+  isUsed     Boolean  @map("is_used")
+  meta       Json?    @map("meta")
+  createdAt  DateTime @default(now()) @map("created_at")
+  user       User?    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([userId, otp])
+}
+
+model ResetPassword {
+  resetPasswordId String   @id @default(uuid()) @map("reset_password_id")
+  userId          String   @map("user_id")
+  token           String   @map("token")
+  isUsed          Boolean  @map("is_used")
+  expiryTime      DateTime @map("expiry_time")
+  createdAt       DateTime @default(now()) @map("created_at")
+  user            User?    @relation(fields: [userId], references: [userId], onDelete: Cascade)
 }
 
 model Organisation {

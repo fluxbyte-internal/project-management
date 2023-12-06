@@ -6,6 +6,7 @@ import {
   ResponseType,
 } from "../types/axiosResponseType";
 import ApiRequest from "../ApiRequest";
+import { ProjectDefaultViewEnumValue } from "@backend/src/schemas/enums";
 
 export type Project = {
   projectId: string;
@@ -13,12 +14,10 @@ export type Project = {
   projectName: string;
   projectDescription: string;
   startDate: string;
-  projectManager: string;
-  profile: string;
   estimatedEndDate: string;
   actualEndDate: string | null;
   status: string;
-  defaultView: string;
+  defaultView: keyof typeof ProjectDefaultViewEnumValue;
   timeTrack: string | null;
   budgetTrack: string | null;
   estimatedBudget: string;
@@ -26,7 +25,16 @@ export type Project = {
   progressionPercentage: number | string | null;
   createdAt: string;
   updatedAt: string;
+  createdByUser: CreatedByUser;
 };
+
+export interface CreatedByUser {
+  firstName: string;
+  lastName: string;
+  email: string;
+  avatarImg: null;
+}
+
 type ProjectApiResponse = ResponseType<Project[]>;
 
 function useProjectQuery() {
@@ -35,8 +43,11 @@ function useProjectQuery() {
     AxiosResponseAndError<ProjectApiResponse>["error"]
   >({
     queryKey: [QUERY_KEYS.getProjects],
-    queryFn: async () => await ApiRequest.get(requestURLs.organisation),
-    enabled: false,
+    queryFn: async () =>
+      await ApiRequest.get(requestURLs.project, {
+        headers: { "organisation-id": localStorage.getItem("organisation-id") },
+      }),
+    enabled: true,
   });
 }
 

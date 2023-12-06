@@ -8,6 +8,10 @@ import OrganisationGuard from "./guards/OrganisationGuard";
 import ProjectsList from "./pages/projectsList";
 import AccountSettings from "./pages/account-settings";
 import ProjectDetails from "./pages/project-details/ProjectDetails";
+import OrganisationDetails from "./pages/organisation/OrganisationDetails";
+import Verification from "./pages/authentication/verification";
+import ForgotPassword from "./pages/authentication/forgot-password";
+import ResetPassword from "./pages/authentication/forgot-password/reset-password";
 
 export const router = createBrowserRouter([
   {
@@ -17,6 +21,22 @@ export const router = createBrowserRouter([
   {
     path: "/signup",
     element: <Signup />,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPassword />,
+  },
+  {
+    path: "/reset-password",
+    element: <ResetPassword />,
+  },
+  {
+    path: "/verify-email",
+    element: (
+      <AuthGuard>
+        <Verification />
+      </AuthGuard>
+    ),
   },
   {
     path: "/",
@@ -41,6 +61,10 @@ export const router = createBrowserRouter([
       {
         path: "/project-details/:id",
         element: <ProjectDetails />,
+      },
+      {
+        path: "/organisation/:organisationId",
+        element: <OrganisationDetails />,
       },
       {
         path: "/",

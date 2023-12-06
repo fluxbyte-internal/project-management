@@ -1,31 +1,44 @@
-import {  useFormik } from "formik";
+import { useFormik } from "formik";
 import closeImage from "../../../assets/png/close.png";
 import { toFormikValidationSchema } from "zod-formik-adapter";
-import { createOrganisationSchema } from "../../../../../backend/src/schemas/organisationSchema";
-import useOrganisationMutation from "@/api/mutation/useOrganisationMutation";
+import {
+  createOrganisationSchema,
+  updateOrganisationSchema,
+} from "../../../../../backend/src/schemas/organisationSchema";
+import useOrganisationMutation, {
+  OrganisationType,
+} from "@/api/mutation/useOrganisationMutation";
 import { isAxiosError } from "axios";
-import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Select, { SingleValue, MultiValue } from "react-select";
+import { useNavigate } from "react-router-dom";
 import countries from "../../../assets/json/countries.json";
 import ErrorMessage from "@/components/common/ErrorMessage";
+import useOrganisationUpdateMutation from "@/api/mutation/useOrganisationUpdateMutation";
+import { toast } from "react-toastify";
+
 interface Props {
   close: () => void;
+  editData?: OrganisationType;
 }
 type Options = { label: string; value: string };
 
 function OrganisationForm(props: Props) {
-  const { close } = props;
+  const { close, editData } = props;
   const labelStyle = "block text-gray-500 text-sm font-bold mb-1";
   const inputStyle =
     "block w-full p-2.5 border border-gray-100 text-gray-500 text-sm rounded-md shadow-sm placeholder:text-gray-400";
-  const navigate = useNavigate();
   const organisationMutation = useOrganisationMutation();
-  const { refetch, isFetched } = useCurrentUserQuery();
-  
+
+  const organisationUpdateMutation = useOrganisationUpdateMutation(
+    editData && editData.organisationId ? editData.organisationId : ""
+  );
+  const { refetch } = useCurrentUserQuery();
+  const navigate = useNavigate();
+
   const [countryValue, setContryValue] = useState<SingleValue<Options>>();
   const [nonWorkingDaysValue, setNonWorkingDaysValue] =
     useState<MultiValue<Options>>();
@@ -39,43 +52,111 @@ function OrganisationForm(props: Props) {
       nonWorkingDays: [],
       country: "",
     },
-    validationSchema: toFormikValidationSchema(createOrganisationSchema),
+    validationSchema: editData
+      ? toFormikValidationSchema(updateOrganisationSchema)
+      : toFormikValidationSchema(createOrganisationSchema),
     onSubmit: (values, helper) => {
       setIsSubmitting(true);
-      organisationMutation.mutate(values, {
-        onSuccess(data) {
-          localStorage.setItem(
-            "organisation-id",
-            data.data.data.organisationId
-          );
-          close();
-          refetch();
-          if (isFetched) {
-            navigate("/projects");
-          }
-          setIsSubmitting(false);
-        },
-        onError(error) {
-          if (isAxiosError(error)) {
-            if (
-              error.response?.status === 400 &&
-              error.response.data?.errors &&
-              Array.isArray(error.response?.data.errors)
-            ) {
-              error.response.data.errors.map(
-                (item: { message: string; path: [string] }) => {
-                  helper.setFieldError(item.path[0], item.message);
-                }
-              );
+      if (editData && editData.organisationId) {
+        organisationUpdateMutation.mutate(values, {
+          onSuccess(data) {
+            toast.success(data.data.message);
+            close();
+            refetch();
+            setIsSubmitting(false);
+          },
+          onError(error) {
+            if (isAxiosError(error)) {
+              if (
+                error.response?.status === 400 &&
+                error.response.data?.errors &&
+                Array.isArray(error.response?.data.errors)
+              ) {
+                error.response.data.errors.map(
+                  (item: { message: string; path: [string] }) => {
+                    helper.setFieldError(item.path[0], item.message);
+                  }
+                );
+              }
+              if (!Array.isArray(error.response?.data.errors)) {
+                toast.error(
+                  error.response?.data?.message ??
+                    "An unexpected error occurred."
+                );
+              }
+              setIsSubmitting(false);
             }
-          }
-          setIsSubmitting(false);
-        },
-      });
+          },
+        });
+      }else{
+        organisationMutation.mutate(values, {
+          onSuccess(data) {
+            toast.success(data.data.message);
+            localStorage.setItem(
+              "organisation-id",
+              data.data.data.organisationId
+            );
+            close();
+            refetch().then(() => {
+              navigate("/projects");
+            });
+            setIsSubmitting(false);
+          },
+          onError(error) {
+            if (isAxiosError(error)) {
+              if (
+                error.response?.status === 400 &&
+                error.response.data?.errors &&
+                Array.isArray(error.response?.data.errors)
+              ) {
+                error.response.data.errors.map(
+                  (item: { message: string; path: [string] }) => {
+                    helper.setFieldError(item.path[0], item.message);
+                  }
+                );
+              }
+              if (!Array.isArray(error.response?.data.errors)) {
+                toast.error(
+                  error.response?.data?.message ??
+                    "An unexpected error occurred."
+                );
+              }
+            }
+            setIsSubmitting(false);
+          },
+        });
+      }
     },
   });
-  const reactSelectStyle={
-    control: (provided: Record<string, unknown>, state: { isFocused: boolean; }) => ({
+  useEffect(() => {
+    if (editData) {
+      formik.setValues({
+        country: editData.country,
+        industry: editData.industry,
+        nonWorkingDays: editData.nonWorkingDays,
+        organisationName: editData.organisationName,
+        status: editData?.status,
+      });
+      const country = countries.find((item) => {
+        if (editData.country === item.isoCode) {
+          return { label: item.name, value: item.isoCode };
+        }
+      });
+      const setNonWorkingDays = editData.nonWorkingDays.map((item) => {
+        return nonWorkingDays.find((i) => item == i.value);
+      });
+      if (country && setNonWorkingDays) {
+        setContryValue({ label: country?.name, value: country?.isoCode });
+        setNonWorkingDaysValue(setNonWorkingDays as MultiValue<Options>);
+      }
+    }
+  }, []);
+
+  const reactSelectStyle = {
+    control: (
+      provided: Record<string, unknown>,
+      state: { isFocused: boolean }
+    ) => ({
       ...provided,
       border: state.isFocused ? "2px solid #943B0C" : "0px solid #943B0C",
       boxShadow: state.isFocused ? "2px #943B0C" : "none",
@@ -123,7 +204,9 @@ function OrganisationForm(props: Props) {
       <div className="bg-white rounded-lg shadow-md px-2.5 md:px-6 lg:px-8 pt-6 pb-8 mb-4 md:w-3/4 w-11/12 lg:w-[40rem]">
         <div className="flex justify-between my-1 mb-5">
           <h1 className="text-2xl lg:text-3xl font-bold text-gray-500">
-            Create Organisation
+            {editData && editData.organisationId
+              ? "Update Organisation"
+              : "Create Organisation"}
           </h1>
           <button onClick={close} className="cursor-pointer">
             <img src={closeImage} alt="close" className="w-5" />
@@ -146,7 +229,7 @@ function OrganisationForm(props: Props) {
                 formik.errors.organisationName}
             </ErrorMessage>
           </div>
-          <div >
+          <div>
             <label className={labelStyle}>Industry</label>
             <input
               className={inputStyle}
@@ -162,11 +245,11 @@ function OrganisationForm(props: Props) {
             </ErrorMessage>
           </div>
           <div>
-            <label className={labelStyle}>Working Days</label>
+            <label className={labelStyle}>Non Working Days</label>
             <Select
               className={`${inputStyle} select !p-0`}
               onChange={handleNonWorkingDays}
-              onBlur={()=>formik.setTouched({nonWorkingDays:true})}
+              onBlur={() => formik.setTouched({ nonWorkingDays: true })}
               options={nonWorkingDays}
               value={nonWorkingDaysValue}
               name="nonWorkingDays"
@@ -183,13 +266,12 @@ function OrganisationForm(props: Props) {
             <Select
               className={`${inputStyle} select !p-0`}
               onChange={handleCountry}
-              onBlur={()=>formik.setTouched({country:true})}
+              onBlur={() => formik.setTouched({ country: true })}
               options={contrysFn()}
               value={countryValue}
               placeholder="Select country"
               name="country"
               styles={reactSelectStyle}
-             
             />
             <ErrorMessage>
               {formik.touched.country && formik.errors.country}

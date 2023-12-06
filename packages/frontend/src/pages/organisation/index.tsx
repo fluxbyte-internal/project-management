@@ -5,15 +5,15 @@ import { useUser } from "@/hooks/useUser";
 import { useNavigate } from "react-router-dom";
 function Organisation() {
   const [organisationForm, setOrganisationForm] = useState<boolean>(false);
-  const { user } = useUser();
   const navigate = useNavigate();
+  const { user } = useUser();
   return (
     <>
       <div
         style={{ backgroundSize: "102% 106%", backgroundPosition: "-2rem" }}
-        className={`w-full px-5 h-full  flex justify-center items-center bg-[url(/src/assets/png/background2.png)] bg-no-repeat`}
+        className={`w-full h-full overflow-auto flex justify-center items-center bg-[url(/src/assets/png/background2.png)] bg-no-repeat`}
       >
-        <div className="flex flex-col justify-center items-center gap-24">
+        <div className="flex flex-col px-5 justify-center m-auto items-center gap-24">
           <div className="p-6">
             <img src={organisationImage} className="w-96" />
           </div>
@@ -64,9 +64,7 @@ function Organisation() {
           </div>
         </div>
       </div>
-      {organisationForm && (
-        <OrganisationForm close={() => setOrganisationForm(false)} />
-      )}
+      {organisationForm && <OrganisationForm close={()=>setOrganisationForm(false)} />}
     </>
   );
 }

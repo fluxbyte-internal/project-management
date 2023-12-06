@@ -1,0 +1,38 @@
+name: Validation (Lint | Build)
+on:
+  push:
+    branches:
+      - '*'
+  # pull_request:
+  #   branches:
+  #     - development
+  #     - master
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-lint-build:
+    name: Validate Lint And Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔄 Checkout Code
+        uses: actions/checkout@v2
+
+      - name: 🛠 Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.20.0
+
+      - name: 📦 Install Dependencies
+        run: yarn
+
+      - name: 🧹 Lint Frontend
+        run: yarn workspace frontend lint
+
+      - name: 🏗 Build Frontend
+        run: yarn workspace frontend build
+
+      - name: 🛠 Build Backend
+        run: yarn workspace backend build-ts
