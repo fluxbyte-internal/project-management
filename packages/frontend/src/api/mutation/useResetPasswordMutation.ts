@@ -16,7 +16,7 @@ function useResetPasswordMutation(token:string) {
     z.infer<typeof resetPasswordTokenSchema>
   >({
     mutationFn: (data) =>
-      axios.put<ForgotEmailSend>(`${requestURLs.ResetPassword}/${token}`, data),
+      axios.put<ForgotEmailSend>(`${requestURLs.resetPassword}/${token}`, data),
   });
 
   return mutation;

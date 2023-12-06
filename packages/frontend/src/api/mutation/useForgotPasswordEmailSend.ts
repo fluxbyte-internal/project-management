@@ -16,7 +16,7 @@ function useForgotPassword() {
     z.infer<typeof forgotPasswordSchema>
   >({
     mutationFn: (data) =>
-      axios.post<ForgotEmailSend>(requestURLs.ForgotPassword, data),
+      axios.post<ForgotEmailSend>(requestURLs.forgotPassword, data),
   });
 
   return mutation;
