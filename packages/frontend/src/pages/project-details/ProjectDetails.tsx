@@ -12,7 +12,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import useProjectDetail from "../../api/query/useProjectDetailQuery";
 import { useParams } from "react-router-dom";
-import ClockProjectDetail from "../../assets/svg/clockProjectDetail.svg";
+import ClockProjectDetail from "../../assets/svg/ClockProjectDetail.svg";
 
 import InfoCircle from "../../assets/svg/Info circle.svg";
 import {
