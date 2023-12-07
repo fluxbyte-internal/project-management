@@ -8,7 +8,8 @@ export const createProjectSchema = z.object({
   startDate: z.coerce.date(),
   estimatedEndDate: z.coerce.date(),
   estimatedBudget: z.string(),
-  defaultView: z.nativeEnum(ProjectDefaultViewEnumValue)
+  defaultView: z.nativeEnum(ProjectDefaultViewEnumValue),
+  currency: z.string(),
 });
 
 export const updateProjectSchema = z.object({
@@ -21,11 +22,12 @@ export const updateProjectSchema = z.object({
   progressionPercentage: z.string().min(1).optional(),
   actualCost: z.string().min(1).optional(),
   budgetTrack: z.string().min(1).optional(),
-  timeTrack: z.string().min(1).optional()
+  timeTrack: z.string().min(1).optional(),
+  currency: z.string().min(1).optional(),
 });
 
 export const projectIdSchema = z.string().uuid();
 
 export const projectStatusSchema = z.object({
-  status: z.nativeEnum(ProjectStatusEnumValue)
+  status: z.nativeEnum(ProjectStatusEnumValue),
 });

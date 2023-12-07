@@ -18,7 +18,7 @@ export const createOrganisationSchema = z.object({
   industry: z.string().min(1),
   status: z.nativeEnum(OrgStatusEnumValue),
   country: z.string().min(1),
-  nonWorkingDays: z.nativeEnum(OrgListOfNonWorkingDaysEnum).array(),
+  nonWorkingDays: z.nativeEnum(OrgListOfNonWorkingDaysEnum).array().length(1,{message:"Required*"}),
 });
 
 export const updateOrganisationSchema = z.object({
