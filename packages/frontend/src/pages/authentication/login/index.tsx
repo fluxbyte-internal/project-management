@@ -71,6 +71,13 @@ function Login() {
     setShowPassword((old) => !old);
   };
 
+  const google = () => {
+    window.open("http://localhost:8000/api/auth/google", "_self");
+  };
+  const facebook = () => {
+    window.open("http://localhost:8000/api/auth/facebook", "_self");
+  };
+
   return (
     <div className="flex justify-center min-h-screen">
       <div className="lg:flex flex-col items-center justify-center lg:w-1/2 bg-gradient-to-t from-[#FFF8DF] to-[#FFD6AB] hidden">
@@ -168,18 +175,18 @@ function Login() {
               variant={"outline"}
               isLoading={isLoading}
               disabled={isLoading}
+              onClick={google}
               className="w-full flex py-2.5 mt-1.5 rounded-md gap-2.5 hover:bg-opacity-80 disabled:bg-opacity-50"
             >
               <img src={Google} />
-              <span>
-                Sign in with Google
-              </span>
+              <span>Sign in with Google</span>
             </Button>
             <Button
               type="button"
               variant={"secondary"}
               isLoading={isLoading}
               disabled={isLoading}
+              onClick={facebook}
               className="w-full flex py-2.5 mt-1.5 rounded-md gap-2.5 hover:bg-[#1876f2d8] bg-[#1877F2] text-white"
             >
               <img src={Facebook} />
@@ -195,3 +202,5 @@ function Login() {
 }
 
 export default Login;
+
+

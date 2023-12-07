@@ -7,7 +7,8 @@ import { useState } from "react";
 import RootAuth from "./rootAuth";
 import Page404 from "./rootAuth/404page";
 import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 function App() {
   const queryClient = new QueryClient({
@@ -17,33 +18,35 @@ function App() {
       },
     },
   });
-  const [Show, setShow] = useState(false);
+  const [Show, setShow] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
   const allowRoute = (value: boolean) => {
     setShow(value);
   };
   return (
-    <QueryClientProvider client={queryClient}>
-      {!Show && !notFound && (
-        <RootAuth allow={allowRoute} notfound={setNotFound} />
-      )}
-      {Show && (
-        <AuthProvider>
-          <RouterProvider router={router} />
-          <ToastContainer
-            position="top-center"
-            autoClose={2000}
-            hideProgressBar={false}
-            closeOnClick={true}
-            pauseOnHover={false}
-            draggable={true}
-            theme="light"
-          />
-        </AuthProvider>
-      )}
-      {notFound && !Show && <Page404 />}
-    </QueryClientProvider>
+    <GoogleOAuthProvider clientId="">
+      <QueryClientProvider client={queryClient}>
+        {!Show && !notFound && (
+          <RootAuth allow={allowRoute} notfound={setNotFound} />
+        )}
+        {Show && (
+          <AuthProvider>
+            <RouterProvider router={router} />
+            <ToastContainer
+              position="top-center"
+              autoClose={2000}
+              hideProgressBar={false}
+              closeOnClick={true}
+              pauseOnHover={false}
+              draggable={true}
+              theme="light"
+            />
+          </AuthProvider>
+        )}
+        {notFound && !Show && <Page404 />}
+      </QueryClientProvider>
+    </GoogleOAuthProvider>
   );
 }
 

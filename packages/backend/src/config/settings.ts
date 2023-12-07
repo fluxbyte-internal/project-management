@@ -16,19 +16,29 @@ export type Settings = {
     privateKey: string;
   };
   encryption: {
-    saltRound: number
-  },
+    saltRound: number;
+  };
   emailCredentials: {
-    accessKeyId: string,
-    secretAccessKey: string,
-    region: string,
-  },
-  appURL: string,
+    accessKeyId: string;
+    secretAccessKey: string;
+    region: string;
+  };
+  appURL: string;
   user: {
     username: string;
     password: string;
   };
-  noReplyEmailId: string
+  noReplyEmailId: string;
+  googleCredentials: {
+    clientId: string;
+    clientSecret: string;
+    callbackUrl: string;
+  };
+  facebookCredentials: {
+    appId: string;
+    appSecret: string;
+    callbackUrl: string;
+  };
 };
 
 const {
@@ -40,7 +50,14 @@ const {
   APP_URL,
   ROOT_USER_USERNAME,
   ROOT_USER_PASSWORD,
-  NO_REPLY_EMAIL } = process.env;
+  NO_REPLY_EMAIL,
+  GOOGLE_CLIENT_ID,
+  GOOGLE_SECRET,
+  GOOGLE_CALLBACK_URL,
+  FACEBOOK_APP_ID,
+  FACEBOOK_SECRET,
+  FACEBOOK_CALLBACK_URL,
+} = process.env;
 
 if (!PRIVATE_KEY_FOR_JWT) {
   throw Error('Missing jwt private key in .env')
@@ -67,7 +84,19 @@ if (!ROOT_USER_USERNAME || !ROOT_USER_PASSWORD) {
 
 if (!NO_REPLY_EMAIL) {
   throw Error("Missing NO_REPLY_EMAIL in .env");
-};
+}
+
+if (!GOOGLE_CLIENT_ID || !GOOGLE_SECRET || !GOOGLE_CALLBACK_URL) {
+  throw Error(
+    "Missing GOOGLE_CLIENT_ID, GOOGLE_SECRET and GOOGLE_CALLBACK_URL in .env"
+  );
+}
+
+if (!FACEBOOK_APP_ID || !FACEBOOK_SECRET || !FACEBOOK_CALLBACK_URL) {
+  throw Error(
+    "Missing FACEBOOK_APP_ID, FACEBOOK_SECRET and FACEBOOK_CALLBACK_URL in .env"
+  );
+}
 
 export const settings: Settings = {
   port: PORT! ?? 8000,
@@ -90,5 +119,15 @@ export const settings: Settings = {
     username: ROOT_USER_USERNAME ?? "",
     password: ROOT_USER_PASSWORD ?? "",
   },
-  noReplyEmailId: NO_REPLY_EMAIL
+  noReplyEmailId: NO_REPLY_EMAIL,
+  googleCredentials: {
+    clientId: GOOGLE_CLIENT_ID,
+    clientSecret: GOOGLE_SECRET,
+    callbackUrl: GOOGLE_CALLBACK_URL,
+  },
+  facebookCredentials: {
+    appId: FACEBOOK_APP_ID,
+    appSecret: FACEBOOK_SECRET,
+    callbackUrl: FACEBOOK_CALLBACK_URL,
+  },
 };

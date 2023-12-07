@@ -14,6 +14,9 @@ import { authMiddleware } from "./middleware/auth.middleware.js";
 import { defualtHeaderMiddleware } from "./middleware/header.middleware.js";
 import { ErrorHandlerMiddleware } from "./middleware/error.middleware.js";
 import morgan from 'morgan';
+import passport from "passport";
+import "./services/passport.services.js";
+// import session from "express-session";
 // import compression from 'compression';
 
 const app: Application = express();
@@ -29,6 +32,8 @@ app.use(cors({
   origin: true,
   credentials: true,
 }));
+
+app.use(passport.initialize());
 
 //Cookie
 app.use(cookieParser());
