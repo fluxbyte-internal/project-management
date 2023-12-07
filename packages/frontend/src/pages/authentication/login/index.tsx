@@ -115,6 +115,7 @@ function Login() {
                   onChange={formik.handleChange}
                 />
                 <Button
+                  type="button"
                   variant={"ghost"}
                   size={"icon"}
                   onClick={handleShowPassword}

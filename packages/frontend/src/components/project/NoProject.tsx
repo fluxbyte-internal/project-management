@@ -1,6 +1,7 @@
 import organisationImage from "../../assets/png/organisation.png";
 import CreateProjectForm from "@/components/project/CreateProjectForm";
 import { useState } from "react";
+import BackgroundImage from "../layout/Background";
 
 function NoProject() {
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
@@ -9,9 +10,9 @@ function NoProject() {
   };
   return (
     <>
+      <BackgroundImage bgImage={"WEB_FRONT"} />
       <div
-        style={{backgroundSize:"102% 106%",backgroundPosition:"-2rem"}}
-        className={`w-full px-5 h-full flex overflow-auto justify-center  items-center bg-[url(/src/assets/png/background2.png)]  bg-no-repeat`}
+        className={`w-full px-5 h-full flex overflow-auto justify-center items-center`}
       >
         <div className="flex flex-col m-auto justify-center items-center gap-24">
           <div className="p-6">

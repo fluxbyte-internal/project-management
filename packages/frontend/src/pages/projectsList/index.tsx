@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import ProfileName from "@/components/shared/Profile";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 import NoProject from "../../components/project/NoProject";
+import BackgroundImage from "@/components/layout/Background";
 function ProjectsList() {
   const [data, setData] = useState<Project[]>();
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
@@ -28,7 +29,7 @@ function ProjectsList() {
       header: "Manager",
       onCellRender: (item: Project) => (
         <>
-          <ProfileName user={item.createdByUser}/>
+          <ProfileName user={item.createdByUser} />
         </>
       ),
     },
@@ -88,15 +89,16 @@ function ProjectsList() {
     },
   ];
 
-  const handleEdit = (item:Project) => {
+  const handleEdit = (item: Project) => {
     setIsOpenPopUp(true);
     setEditData(item);
   };
 
   return (
     <>
+      <BackgroundImage bgImage={"WEB_FRONT"} />
       {data && data.length > 0 ? (
-        <div className="h-full py-5 p-4 lg:p-14 w-full bg-[url(/src/assets/png/background2.png)] bg-cover bg-no-repeat">
+        <div className="h-full py-5 p-4 lg:p-14 w-full">
           <div className="flex justify-between items-center">
             <h2 className="font-medium text-3xl leading-normal text-gray-600">
               Projects

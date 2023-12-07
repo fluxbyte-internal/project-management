@@ -106,7 +106,7 @@ function Signup() {
             <div className="flex flex-col sm:flex-row sm:gap-4 justify-between items-center">
               <div className="w-full mt-1">
                 <label htmlFor="firstName" className={labelStyle}>
-                  Firstname
+                  First name
                 </label>
                 <div className="mt-1">
                   <input
@@ -125,14 +125,14 @@ function Signup() {
               </div>
               <div className="w-full mt-1">
                 <label htmlFor="lastName" className={labelStyle}>
-                  Lastname
+                  Last name
                 </label>
                 <div className="mt-1">
                   <input
                     type="text"
                     name="lastName"
                     className={inputStyle}
-                    placeholder="Enter first name"
+                    placeholder="Enter last name"
                     value={formik.values.lastName}
                     onChange={formik.handleChange} />
                 </div>
@@ -173,6 +173,7 @@ function Signup() {
                   onChange={formik.handleChange}
                 />
                 <Button
+                  type="button"
                   variant={"ghost"}
                   size={"icon"}
                   onClick={handleShowPassword}
@@ -205,6 +206,7 @@ function Signup() {
                   onChange={formik.handleChange}
                 />
                 <Button
+                  type="button"
                   variant={"ghost"}
                   size={"icon"}
                   className="absolute top-1/2 right-1 -translate-y-1/2 mt-[1px]"
