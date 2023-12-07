@@ -3,12 +3,13 @@ import { ProjectDefaultViewEnumValue, ProjectStatusEnumValue } from "./enums.js"
 
 
 export const createProjectSchema = z.object({
-  projectName: z.string(),
-  projectDescription: z.string(),
-  startDate: z.coerce.date(),
-  estimatedEndDate: z.coerce.date(),
-  estimatedBudget: z.string(),
-  defaultView: z.nativeEnum(ProjectDefaultViewEnumValue)
+  projectName: z.string({required_error:"Required*"}),
+  projectDescription: z.string({required_error:"Required*"}),
+  startDate: z.coerce.date({required_error:"Required*"}),
+  estimatedEndDate: z.coerce.date({required_error:"Required*"}),
+  currency:z.string({required_error:"Required*"}),
+  estimatedBudget: z.string({required_error:"Required*"}),
+  defaultView: z.nativeEnum(ProjectDefaultViewEnumValue,{required_error:"Required*"})
 });
 
 export const updateProjectSchema = z.object({

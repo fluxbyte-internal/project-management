@@ -5,7 +5,7 @@ import { userUpdateSchema } from "@backend/src/schemas/userSchema";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { z } from "zod";
 import ErrorMessage from "@/components/common/ErrorMessage";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SingleValue } from "react-select";
 import countries from "@/assets/json/countries.json";
 import useUserProfileUpdateMutation from "@/api/mutation/useUserProfileUpdateMutation";
@@ -17,7 +17,7 @@ import InputSelect from "@/components/common/InputSelect";
 import UserOrganisationCard from "./UserOrganisationCard";
 import { NavLink } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import AvatarPng from "../../assets/png/avatar.png";
 const countryOptions = countries.map((item) => {
   return { label: item.name, value: item.isoCode };
 });
@@ -26,8 +26,9 @@ function AccountSettings() {
   const { user } = useUser();
   const { refetch: refetchUser } = useCurrentUserQuery();
   const userProfileUpdateMutation = useUserProfileUpdateMutation();
-
+  const avatarImg = useRef<HTMLInputElement>(null);
   const [isUserProfileSubmitting, setIsUserProfileSubmitting] = useState(false);
+  const [avatarImgState, setAvatarImg] = useState<File | string | null>(user?.avatarImg ?? null);
   const [countryValue, setCountryValue] =
     useState<SingleValue<(typeof countryOptions)[number]>>();
 
@@ -40,10 +41,18 @@ function AccountSettings() {
     validationSchema: toFormikValidationSchema(userUpdateSchema),
     onSubmit: (values, helper) => {
       setIsUserProfileSubmitting(true);
-      userProfileUpdateMutation.mutate(values, {
+      const formdata = new FormData();
+      formdata.append("firstName", values.firstName);
+      formdata.append("lastName", values.lastName);
+      formdata.append("country", values.country);
+      if (avatarImgState !== null) {
+        formdata.append("avatarImg", avatarImgState);
+      }
+      userProfileUpdateMutation.mutate(formdata, {
         onSuccess(data) {
           toast.success(data.data.message);
           setIsUserProfileSubmitting(false);
+          setAvatarImg(null);
           refetchUser();
         },
         onError(error) {
@@ -81,7 +90,7 @@ function AccountSettings() {
     !user.lastName ||
     user.lastName !== userProfileForm.values.lastName ||
     !user.country ||
-    user.country !== userProfileForm.values.country;
+    user.country !== userProfileForm.values.country || !avatarImgState ==false;
 
   return (
     <div className="overflow-auto w-full">
@@ -91,19 +100,31 @@ function AccountSettings() {
         </div>
         <div className="grid lg:grid-cols-4 gap-2">
           <div className="text-center text-gray-700 text-sm space-y-2">
-            <div>
-              {user.avatarImg ? (
-                <img
-                  src="https://image-svg.vercel.app/100"
-                  className="w-40 h-40 m-auto rounded-full shadow"
-                />
-              ) : (
-                <span className="block w-40 h-40 rounded-full m-auto shadow bg-primary-50"></span>
-              )}
-            </div>
+            {user.avatarImg ? (
+              <img
+                src={user.avatarImg}
+                className="w-40 h-40 m-auto rounded-full shadow"
+              />
+            ) : (
+              <div className="w-40 h-40 flex m-auto rounded-full shadow">
+                <img src={AvatarPng} className="w-28 h-28 m-auto" />
+              </div>
+            )}
+            <input
+              ref={avatarImg}
+              accept="image/*"
+              onChange={(e) => {
+                setAvatarImg(e.target.files ? e.target.files[0] : null);
+              }}
+              type="file"
+              name="avatarImg"
+              id=""
+              style={{ display: "none" }}
+            />
             <Button
               variant="primary_outline"
               className="transition ease-in-out duration-150 h-auto px-2 py-1"
+              onClick={() => avatarImg.current?.click()}
             >
               {user.avatarImg ? "Change Profile Photo" : "Add Profile Photo"}
             </Button>
@@ -118,7 +139,7 @@ function AccountSettings() {
               </div>
               <div className="grid @xl:grid-cols-2 gap-2">
                 <div>
-                  <FormLabel htmlFor="firstName">First Name</FormLabel>
+                  <FormLabel htmlFor="firstName">First name</FormLabel>
                   <InputText
                     name="firstName"
                     id="firstName"
@@ -134,11 +155,11 @@ function AccountSettings() {
                   </div>
                 </div>
                 <div>
-                  <FormLabel htmlFor="lastName">Last Name</FormLabel>
+                  <FormLabel htmlFor="lastName">Last name</FormLabel>
                   <InputText
                     name="lastName"
                     id="lastName"
-                    placeholder="Enter first name"
+                    placeholder="Enter last name"
                     value={userProfileForm.values.lastName}
                     onChange={userProfileForm.handleChange}
                   />
