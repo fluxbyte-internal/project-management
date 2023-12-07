@@ -40,6 +40,7 @@ function OrganisationForm(props: Props) {
   const navigate = useNavigate();
 
   const [countryValue, setContryValue] = useState<SingleValue<Options>>();
+  const [industryValue, setIndustryValue] = useState<SingleValue<Options>>();
   const [nonWorkingDaysValue, setNonWorkingDaysValue] =
     useState<MultiValue<Options>>();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -175,6 +176,13 @@ function OrganisationForm(props: Props) {
     { label: "Friday", value: "FRI" },
     { label: "Saturday", value: "SAT" },
   ];
+  const industriesData: Options[] = [
+    { label: "IT", value: "IT" },
+    { label: "Banking", value: "Banking" },
+    { label: "Insurance", value: "Insurance" },
+    { label: "Education", value: "Education" },
+    { label: "Chemicals", value: "Chemicals" },
+  ];
 
   const contrysFn = () => {
     const value = countries.map((item) => {
@@ -199,6 +207,12 @@ function OrganisationForm(props: Props) {
       );
     }
   };
+  const handleIndustries = (val: SingleValue<Options>) => {
+    if (val) {
+      setIndustryValue(val);
+      formik.setFieldValue("industry", val.value);
+    }
+  };
   return (
     <div className="absolute w-full h-full z-50 top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-gray-900 bg-opacity-50 ">
       <div className="bg-white rounded-lg shadow-md px-2.5 md:px-6 lg:px-8 pt-6 pb-8 mb-4 md:w-3/4 w-11/12 lg:w-[40rem]">
@@ -214,7 +228,10 @@ function OrganisationForm(props: Props) {
         </div>
         <form onSubmit={formik.handleSubmit}>
           <div>
-            <label className={labelStyle}>Organisation Name</label>
+            <div className="flex gap-1">
+              <label className={labelStyle}>Organisation Name</label>
+              <label className=" text-red-500">*</label>
+            </div>
             <input
               className={inputStyle}
               name="organisationName"
@@ -222,7 +239,7 @@ function OrganisationForm(props: Props) {
               onBlur={formik.handleBlur}
               value={formik.values.organisationName}
               type="text"
-              placeholder="Organisation Name"
+              placeholder="Organisation name"
             />
             <ErrorMessage>
               {formik.touched.organisationName &&
@@ -230,22 +247,29 @@ function OrganisationForm(props: Props) {
             </ErrorMessage>
           </div>
           <div>
-            <label className={labelStyle}>Industry</label>
-            <input
-              className={inputStyle}
+            <div className="flex gap-1">
+              <label className={labelStyle}>Industry</label>
+              <label className=" text-red-500">*</label>
+            </div>
+            <Select
+              className={`${inputStyle} select !p-0`}
+              onChange={handleIndustries}
+              onBlur={() => formik.setTouched({ industry: true })}
+              options={industriesData}
+              value={industryValue}
               name="industry"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.industry}
-              type="text"
               placeholder="Industry"
+              styles={reactSelectStyle}
             />
             <ErrorMessage>
               {formik.touched.industry && formik.errors.industry}
             </ErrorMessage>
           </div>
           <div>
-            <label className={labelStyle}>Non Working Days</label>
+            <div className="flex gap-1">
+              <label className={labelStyle}>Non Working Days</label>
+              <label className=" text-red-500">*</label>
+            </div>
             <Select
               className={`${inputStyle} select !p-0`}
               onChange={handleNonWorkingDays}
@@ -253,7 +277,7 @@ function OrganisationForm(props: Props) {
               options={nonWorkingDays}
               value={nonWorkingDaysValue}
               name="nonWorkingDays"
-              placeholder="Select nonworkingdays"
+              placeholder="Select non-working days"
               isMulti
               styles={reactSelectStyle}
             />
@@ -262,7 +286,10 @@ function OrganisationForm(props: Props) {
             </ErrorMessage>
           </div>
           <div>
-            <label className={labelStyle}>Country</label>
+            <div className="flex gap-1">
+              <label className={labelStyle}>Country</label>
+              <label className=" text-red-500">*</label>
+            </div>
             <Select
               className={`${inputStyle} select !p-0`}
               onChange={handleCountry}

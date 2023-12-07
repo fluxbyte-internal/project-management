@@ -86,9 +86,12 @@ function Login() {
           <hr className="m-4" />
           <form onSubmit={formik.handleSubmit} className="px-4">
             <div className="w-full mt-1">
-              <label htmlFor="email" className={labelStyle}>
-                Email
-              </label>
+              <div className="flex gap-1">
+                <label htmlFor="email" className={labelStyle}>
+                  Email
+                </label>
+                <label className=" text-red-500">*</label>
+              </div>
               <InputEmail
                 name="email"
                 placeholder="Enter email"
@@ -102,9 +105,12 @@ function Login() {
               </div>
             </div>
             <div className="w-full mt-1">
-              <label htmlFor="password" className={labelStyle}>
-                Password
-              </label>
+              <div className="flex gap-1">
+                <label htmlFor="password" className={labelStyle}>
+                  Password
+                </label>
+                <label className=" text-red-500">*</label>
+              </div>
               <div className="relative mt-1">
                 <input
                   type={`${showPassword ? "text" : "password"}`}

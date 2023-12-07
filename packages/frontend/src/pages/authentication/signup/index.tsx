@@ -105,9 +105,12 @@ function Signup() {
           <form onSubmit={formik.handleSubmit} className="px-4">
             <div className="flex flex-col sm:flex-row sm:gap-4 justify-between items-center">
               <div className="w-full mt-1">
-                <label htmlFor="firstName" className={labelStyle}>
-                  Firstname
-                </label>
+                <div className="flex gap-1">
+                  <label htmlFor="firstName" className={labelStyle}>
+                    Firstname
+                  </label>
+                  <label className=" text-red-500">*</label>
+                </div>
                 <div className="mt-1">
                   <input
                     type="text"
@@ -124,9 +127,12 @@ function Signup() {
                 </div>
               </div>
               <div className="w-full mt-1">
-                <label htmlFor="lastName" className={labelStyle}>
-                  Lastname
-                </label>
+                <div className="flex gap-1">
+                  <label htmlFor="lastName" className={labelStyle}>
+                    Lastname
+                  </label>
+                  <label className=" text-red-500">*</label>
+                </div>
                 <div className="mt-1">
                   <input
                     type="text"
@@ -144,9 +150,12 @@ function Signup() {
               </div>
             </div>
             <div className="w-full mt-1">
-              <label htmlFor="email" className={labelStyle}>
-                Email
-              </label>
+              <div className="flex gap-1">
+                <label htmlFor="email" className={labelStyle}>
+                  Email
+                </label>
+                <label className=" text-red-500">*</label>
+              </div>
               <InputEmail
                 name="email"
                 placeholder="Enter email"
@@ -160,9 +169,12 @@ function Signup() {
               </div>
             </div>
             <div className="w-full mt-1">
-              <label htmlFor="password" className={labelStyle}>
-                Password
-              </label>
+              <div className="flex gap-1">
+                <label htmlFor="password" className={labelStyle}>
+                  Password
+                </label>
+                <label className=" text-red-500">*</label>
+              </div>
               <div className="relative mt-1">
                 <input
                   type={`${showPassword ? "text" : "password"}`}
@@ -192,9 +204,15 @@ function Signup() {
               </div>
             </div>
             <div className="mt-1">
-              <label htmlFor="showConfirmationPassword" className={labelStyle}>
-                Confirm Password
-              </label>
+              <div className="flex gap-1">
+                <label
+                  htmlFor="showConfirmationPassword"
+                  className={labelStyle}
+                >
+                  Confirm Password
+                </label>
+                <label className=" text-red-500">*</label>
+              </div>
               <div className="relative mt-1">
                 <input
                   type={`${showConfirmationPassword ? "text" : "password"}`}
