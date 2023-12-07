@@ -11,6 +11,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Tooltip } from "@radix-ui/react-tooltip";
+import Spinner from "../ui/spinner";
 
 export type SideBarProps = {
   toggleSidebar: () => void;
@@ -56,6 +57,11 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
       } overflow-hidden `}
       onClick={handleSidebarClick}
     >
+      {ProjectQueryData.isLoading && (
+        <div className="absolute w-full h-full grid place-content-center backdrop-blur-[0.5px] bg-[#7b797936] z-50">
+          <Spinner color="#F99807" className="h-20 w-20" />
+        </div>
+      )}
       <button
         onClick={toggleSidebar}
         className={`fixed top-16 w-6 h-6 z-10 text-black ${
