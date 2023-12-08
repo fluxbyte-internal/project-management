@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import ProfileName from "@/components/shared/Profile";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 import NoProject from "../../components/project/NoProject";
-import BackgroundImage from "@/components/layout/Background";
+import BackgroundImage from "@/components/layout/BackgroundImage";
 function ProjectsList() {
   const [data, setData] = useState<Project[]>();
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
@@ -96,7 +96,7 @@ function ProjectsList() {
 
   return (
     <>
-      <BackgroundImage bgImage={"WEB_FRONT"} />
+      <BackgroundImage />
       {data && data.length > 0 ? (
         <div className="h-full py-5 p-4 lg:p-14 w-full">
           <div className="flex justify-between items-center">

@@ -1,7 +1,7 @@
 import organisationImage from "../../assets/png/organisation.png";
 import CreateProjectForm from "@/components/project/CreateProjectForm";
 import { useState } from "react";
-import BackgroundImage from "../layout/Background";
+import BackgroundImage from "../layout/BackgroundImage";
 
 function NoProject() {
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
@@ -10,7 +10,7 @@ function NoProject() {
   };
   return (
     <>
-      <BackgroundImage bgImage={"WEB_FRONT"} />
+      <BackgroundImage />
       <div
         className={`w-full px-5 h-full flex overflow-auto justify-center items-center`}
       >

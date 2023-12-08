@@ -3,14 +3,14 @@ import organisationImage from "../../assets/png/organisation.png";
 import OrganisationForm from "./organisationForm";
 import { useUser } from "@/hooks/useUser";
 import { useNavigate } from "react-router-dom";
-import BackgroundImage from "@/components/layout/Background";
+import BackgroundImage from "@/components/layout/BackgroundImage";
 function Organisation() {
   const [organisationForm, setOrganisationForm] = useState<boolean>(false);
   const navigate = useNavigate();
   const { user } = useUser();
   return (
     <>
-      <BackgroundImage bgImage={"WEB_FRONT"} />
+      <BackgroundImage />
       <div
         className={`w-full h-full overflow-auto flex justify-center items-center`}
       >
