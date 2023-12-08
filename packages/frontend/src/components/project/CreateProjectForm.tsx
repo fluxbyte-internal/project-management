@@ -71,6 +71,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
     editData ? editData.projectId : ""
   );
   const projectQuery = useProjectQuery();
+  
   const formik = useFormik<z.infer<typeof createProjectSchema>>({
     initialValues: {
       projectName: "",
@@ -163,6 +164,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
       });
     }
   }, []);
+  
   return (
     <div className="fixed bg-[#00000066] w-full top-0 h-full items-center flex justify-center z-50">
       <div className="lg:rounded-lg border border-white bg-[#fff] md:max-w-5xl w-full flex flex-col h-full lg:max-h-[690px] max-h-screen lg:overflow-y-auto ">
