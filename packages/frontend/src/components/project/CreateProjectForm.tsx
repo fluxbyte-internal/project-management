@@ -24,15 +24,11 @@ import {
   TooltipContent,
 } from "../ui/tooltip";
 import { toast } from "react-toastify";
-import countries from "../../assets/json/countries.json";
-import Select, { SingleValue } from "react-select";
-import ErrorMessage from "../common/ErrorMessage";
 
 type AddProjectType = {
   handleClosePopUp: () => void;
   editData?: Project;
 };
-type Options = { label: string; value: string };
 
 const RADIO_BUTTON_OPTIONS = [
   {
@@ -75,13 +71,6 @@ function CreateUpdateProjectForm(props: AddProjectType) {
     editData ? editData.projectId : ""
   );
   const projectQuery = useProjectQuery();
-  const [countryValue, setContryValue] = useState<SingleValue<Options>>();
-  const currencyFn = () => {
-    const value = countries.map((item) => {
-      return { label: item.currency, value: item.currency };
-    });
-    return value;
-  };
   const formik = useFormik<z.infer<typeof createProjectSchema>>({
     initialValues: {
       projectName: "",
@@ -90,7 +79,6 @@ function CreateUpdateProjectForm(props: AddProjectType) {
       estimatedEndDate: '' as unknown as Date,
       estimatedBudget: "",
       defaultView: "KANBAN",
-      currency: "USD",
     },
     validationSchema:
       editData && editData.projectId
@@ -171,34 +159,10 @@ function CreateUpdateProjectForm(props: AddProjectType) {
         estimatedBudget: editData.estimatedBudget,
         projectDescription: editData.projectDescription,
         projectName: editData.projectName,
-        currency: editData.projectName,
         defaultView: editData.defaultView,
       });
     }
   }, []);
-  const reactSelectStyle = {
-    control: (
-      provided: Record<string, unknown>,
-      state: { isFocused: boolean }
-    ) => ({
-      ...provided,
-      border: "1px solid #E7E7E7",
-      paddingTop: "0.2rem",
-      paddingBottom: "0.2rem",
-      outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
-      boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
-      "&:hover": {
-        outline: state.isFocused ? "1px solid #943B0C" : "1px solid #E7E7E7",
-        boxShadow: "0px 0px 0px #943B0C",
-      },
-    }),
-  };
-  const handleCurrency = (val: SingleValue<Options>) => {
-    if (val) {
-      setContryValue(val);
-      formik.setFieldValue("country", val.value);
-    }
-  };
   return (
     <div className="fixed bg-[#00000066] w-full top-0 h-full items-center flex justify-center z-50">
       <div className="lg:rounded-lg border border-white bg-[#fff] md:max-w-5xl w-full flex flex-col h-full lg:max-h-[690px] max-h-screen lg:overflow-y-auto ">
@@ -213,7 +177,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
             <img src={CrossIcon}></img>
           </div>
         </div>
-        <div className="lg:px-16 px-4 overflow-y-auto lg:overflow-hidden max-h-screen">
+        <div className="lg:px-16 px-4 overflow-y-auto max-h-screen">
           <div className="lg:flex rounded-lg border border-gray-100 lg:justfy-center mt-4">
             <div className="p-5 ">
               <form onSubmit={formik.handleSubmit}>
@@ -322,41 +286,21 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                       </div>
                     </div>
 
-                    <div className="text-left flex gap-2 lg:relative">
-                      <div className="w-36 lg:w-[30%] lg:absolute ">
-                        <label className={labelStyle}>Currency</label>
-                        <Select
-                          className="mt-2"
-                          onChange={handleCurrency}
-                          onBlur={() => formik.setTouched({ currency: true })}
-                          options={currencyFn()}
-                          value={countryValue}
-                          defaultValue={{ label: "USD", value: "USD" }}
-                          placeholder="Currency"
-                          name="currency"
-                          defaultMenuIsOpen
-                          styles={reactSelectStyle}
-                        />
-                        <ErrorMessage>
-                          {formik.touched.currency && formik.errors.currency}
-                        </ErrorMessage>
-                      </div>
-                      <div className="lg:w-4/6 w-full lg:absolute lg:right-0">
-                        <label className={labelStyle}>Estimated Budget</label>
-                        <input
-                          type="text"
-                          name="estimatedBudget"
-                          placeholder="Estimated budget"
-                          className={inputStyle}
-                          value={formik.values.estimatedBudget ?? ""}
-                          onChange={formik.handleChange}
-                          onBlur={formik.handleBlur}
-                        />
-                        <span className={errorStyle}>
-                          {formik.touched.estimatedBudget &&
-                            formik.errors.estimatedBudget}
-                        </span>
-                      </div>
+                    <div className="text-left">
+                      <label className={labelStyle}>Estimated Budget</label>
+                      <input
+                        type="text"
+                        name="estimatedBudget"
+                        placeholder="2,00,000 USD"
+                        className={inputStyle}
+                        value={formik.values.estimatedBudget ?? ""}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                      />
+                      <span className={errorStyle}>
+                        {formik.touched.estimatedBudget &&
+                          formik.errors.estimatedBudget}
+                      </span>
                     </div>
                   </div>
                   <div className="lg:w-[50%]">

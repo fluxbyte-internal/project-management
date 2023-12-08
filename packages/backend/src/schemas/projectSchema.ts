@@ -7,7 +7,6 @@ export const createProjectSchema = z.object({
   projectDescription: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}),
   startDate: z.coerce.date({required_error:ZodErrorMessageEnumValue.REQUIRED}),
   estimatedEndDate: z.coerce.date({required_error:ZodErrorMessageEnumValue.REQUIRED}),
-  currency:z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}),
   estimatedBudget: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}),
   defaultView: z.nativeEnum(ProjectDefaultViewEnumValue,{required_error:ZodErrorMessageEnumValue.REQUIRED})
 });
