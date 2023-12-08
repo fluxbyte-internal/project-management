@@ -25,7 +25,7 @@ function useUserProfileUpdateMutation() {
   const mutation = useMutation<
     AxiosResponseAndError<UserProfileUpdateResponse>["response"],
     AxiosResponseAndError<UserProfileUpdateResponse>["error"],
-    z.infer<typeof userUpdateSchema>|FormData
+    z.infer<typeof userUpdateSchema>
   >({
     
     mutationFn: (data) =>
