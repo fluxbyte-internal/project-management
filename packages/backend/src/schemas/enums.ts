@@ -44,3 +44,7 @@ export const UserRoleEnumValue: EnumStringValueObj<UserRoleEnum> = {
   SUPER_ADMIN: 'SUPER_ADMIN',
   TEAM_MEMBER: 'TEAM_MEMBER',
 }
+
+export const ZodErrorMessageEnumValue= {
+  REQUIRED : 'Required*'
+};

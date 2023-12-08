@@ -16,7 +16,11 @@ const AuthGuard = (props: PropsWithChildren) => {
       logout();
       return "Invalid session";
     }
-    return <Spinner className="mx-auto" />;
+    return (
+      <div className="absolute w-full h-full grid z-20 place-content-center backdrop-blur-[0.5px] bg-[#7b797936]">
+        <Spinner color="#F99807" className="h-20 w-20" />
+      </div>
+    );
   }
   return children;
 };

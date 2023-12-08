@@ -26,7 +26,6 @@ function AccountSettings() {
   const { user } = useUser();
   const { refetch: refetchUser } = useCurrentUserQuery();
   const userProfileUpdateMutation = useUserProfileUpdateMutation();
-
   const [isUserProfileSubmitting, setIsUserProfileSubmitting] = useState(false);
   const [countryValue, setCountryValue] =
     useState<SingleValue<(typeof countryOptions)[number]>>();
@@ -91,16 +90,15 @@ function AccountSettings() {
         </div>
         <div className="grid lg:grid-cols-4 gap-2">
           <div className="text-center text-gray-700 text-sm space-y-2">
-            <div>
-              {user.avatarImg ? (
-                <img
-                  src="https://image-svg.vercel.app/100"
-                  className="w-40 h-40 m-auto rounded-full shadow"
-                />
-              ) : (
-                <span className="block w-40 h-40 rounded-full m-auto shadow bg-primary-50"></span>
-              )}
-            </div>
+            {user.avatarImg ? (
+              <img
+                src={user.avatarImg}
+                className="w-40 h-40 m-auto rounded-full shadow"
+              />
+            ) : (
+              <span className="block w-40 h-40 rounded-full m-auto shadow bg-primary-50"></span>
+            )}
+
             <Button
               variant="primary_outline"
               className="transition ease-in-out duration-150 h-auto px-2 py-1"
@@ -118,7 +116,7 @@ function AccountSettings() {
               </div>
               <div className="grid @xl:grid-cols-2 gap-2">
                 <div>
-                  <FormLabel htmlFor="firstName">First Name</FormLabel>
+                  <FormLabel htmlFor="firstName">First name</FormLabel>
                   <InputText
                     name="firstName"
                     id="firstName"
@@ -134,11 +132,11 @@ function AccountSettings() {
                   </div>
                 </div>
                 <div>
-                  <FormLabel htmlFor="lastName">Last Name</FormLabel>
+                  <FormLabel htmlFor="lastName">Last name</FormLabel>
                   <InputText
                     name="lastName"
                     id="lastName"
-                    placeholder="Enter first name"
+                    placeholder="Enter last name"
                     value={userProfileForm.values.lastName}
                     onChange={userProfileForm.handleChange}
                   />

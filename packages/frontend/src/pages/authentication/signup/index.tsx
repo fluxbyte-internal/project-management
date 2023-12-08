@@ -16,7 +16,6 @@ import SignUp from "../../../assets/svg/signup.svg";
 import Google from "../../../assets/svg/google.svg";
 import Facebook from "../../../assets/svg/facebook.svg";
 
-
 function Signup() {
   const { login } = useAuth();
   const labelStyle = "font-medium text-base text-gray-8 ";
@@ -106,7 +105,8 @@ function Signup() {
             <div className="flex flex-col sm:flex-row sm:gap-4 justify-between items-center">
               <div className="w-full mt-1">
                 <label htmlFor="firstName" className={labelStyle}>
-                  First name
+                  Firstname
+                  <span className="ml-0.5 text-red-500">*</span>
                 </label>
                 <div className="mt-1">
                   <input
@@ -115,7 +115,8 @@ function Signup() {
                     className={inputStyle}
                     placeholder="Enter first name"
                     value={formik.values.firstName}
-                    onChange={formik.handleChange} />
+                    onChange={formik.handleChange}
+                  />
                 </div>
                 <div>
                   <ErrorMessage>
@@ -125,7 +126,8 @@ function Signup() {
               </div>
               <div className="w-full mt-1">
                 <label htmlFor="lastName" className={labelStyle}>
-                  Last name
+                  Lastname
+                  <span className="ml-0.5 text-red-500">*</span>
                 </label>
                 <div className="mt-1">
                   <input
@@ -134,7 +136,8 @@ function Signup() {
                     className={inputStyle}
                     placeholder="Enter last name"
                     value={formik.values.lastName}
-                    onChange={formik.handleChange} />
+                    onChange={formik.handleChange}
+                  />
                 </div>
                 <div>
                   <ErrorMessage>
@@ -146,7 +149,9 @@ function Signup() {
             <div className="w-full mt-1">
               <label htmlFor="email" className={labelStyle}>
                 Email
+                <span className="ml-0.5 text-red-500">*</span>
               </label>
+
               <InputEmail
                 name="email"
                 placeholder="Enter email"
@@ -162,7 +167,9 @@ function Signup() {
             <div className="w-full mt-1">
               <label htmlFor="password" className={labelStyle}>
                 Password
+                <span className="ml-0.5 text-red-500">*</span>
               </label>
+
               <div className="relative mt-1">
                 <input
                   type={`${showPassword ? "text" : "password"}`}
@@ -195,7 +202,9 @@ function Signup() {
             <div className="mt-1">
               <label htmlFor="showConfirmationPassword" className={labelStyle}>
                 Confirm Password
+                <span className="ml-0.5 text-red-500">*</span>
               </label>
+
               <div className="relative mt-1">
                 <input
                   type={`${showConfirmationPassword ? "text" : "password"}`}

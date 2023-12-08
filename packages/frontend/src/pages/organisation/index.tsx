@@ -45,7 +45,7 @@ function Organisation() {
               <>
                 <div>
                   <span className="text-gray-400 text-2xl lg:text-3xl  font-medium font-['Poppins']">
-                    Don’t have any organisation?
+                    Don't have any organisation yet?
                     <br />
                   </span>
                   <span className="text-neutral-600  text-3xl lg:text-5xl font-bold">
