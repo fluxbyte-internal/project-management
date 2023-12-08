@@ -13,7 +13,7 @@ export class AwsUploadService {
 
     const bucketName = settings.awsBucketCredentials.bucketName;
     const params = {
-      Bucket: `${bucketName}/${settings.environment}/user-profiles/${fileName}`,
+      Bucket: `${bucketName}/${settings.environment}/user-profiles`,
       Key: fileName,
       Body: fileContent,
       contentType: "text/plain",

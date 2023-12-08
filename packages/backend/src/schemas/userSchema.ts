@@ -23,3 +23,14 @@ export const userOrgSettingsUpdateSchema = z.object({
   jobTitle: z.string().optional(),
   taskColour: z.nativeEnum(TaskColorPaletteEnum).default(TaskColorPaletteEnum.BLACK),
 });
+
+export const avatarImgSchema = z
+  .any()
+  .refine((files) => files?.avatarImg?.size <= 500000, `Max file size is 5MB.`)
+  .refine(
+    (files) =>
+      ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
+        files?.avatarImg?.mimetype
+      ),
+    ".jpg, .jpeg, .png and .webp files are accepted."
+  );
