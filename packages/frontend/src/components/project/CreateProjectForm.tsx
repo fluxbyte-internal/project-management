@@ -206,7 +206,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                     </div>
                     <div className="text-left">
                       <label className={labelStyle}>
-                        Descrption
+                        Description
                         <span className="ml-0.5 text-red-500">*</span>
                       </label>
                       <textarea
