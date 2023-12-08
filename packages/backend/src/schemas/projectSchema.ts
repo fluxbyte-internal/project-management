@@ -1,15 +1,15 @@
 import { z } from "zod";
-import { ProjectDefaultViewEnumValue, ProjectStatusEnumValue } from "./enums.js";
+import { ProjectDefaultViewEnumValue, ProjectStatusEnumValue, ZodErrorMessageEnumValue } from "./enums.js";
 
 
 export const createProjectSchema = z.object({
-  projectName: z.string({required_error:"Required*"}),
-  projectDescription: z.string({required_error:"Required*"}),
-  startDate: z.coerce.date({required_error:"Required*"}),
-  estimatedEndDate: z.coerce.date({required_error:"Required*"}),
-  currency:z.string({required_error:"Required*"}),
-  estimatedBudget: z.string({required_error:"Required*"}),
-  defaultView: z.nativeEnum(ProjectDefaultViewEnumValue,{required_error:"Required*"})
+  projectName: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}),
+  projectDescription: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}),
+  startDate: z.coerce.date({required_error:ZodErrorMessageEnumValue.REQUIRED}),
+  estimatedEndDate: z.coerce.date({required_error:ZodErrorMessageEnumValue.REQUIRED}),
+  currency:z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}),
+  estimatedBudget: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}),
+  defaultView: z.nativeEnum(ProjectDefaultViewEnumValue,{required_error:ZodErrorMessageEnumValue.REQUIRED})
 });
 
 export const updateProjectSchema = z.object({
