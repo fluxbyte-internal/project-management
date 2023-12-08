@@ -14,11 +14,11 @@ export enum OrgListOfNonWorkingDaysEnum {
 export const organisationIdSchema = z.string().uuid();
 
 export const createOrganisationSchema = z.object({
-  organisationName: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}).min(1),
-  industry: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}).min(1),
-  status: z.nativeEnum(OrgStatusEnumValue,{required_error:ZodErrorMessageEnumValue.REQUIRED}),
-  country: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}).min(1),
-  nonWorkingDays: z.nativeEnum(OrgListOfNonWorkingDaysEnum,{required_error:ZodErrorMessageEnumValue.REQUIRED}).array(),
+  organisationName: z.string().min(1),
+  industry: z.string().min(1),
+  status: z.nativeEnum(OrgStatusEnumValue),
+  country: z.string().min(1),
+  nonWorkingDays: z.nativeEnum(OrgListOfNonWorkingDaysEnum).array().min(1,{message:ZodErrorMessageEnumValue.REQUIRED})
 });
 
 export const updateOrganisationSchema = z.object({

@@ -12,7 +12,7 @@ ApiRequest.interceptors.request.use((config) => {
   const token = localStorage.getItem("Token");
   config.headers["Authorization"] = `Bearer ${token}`;
   config.headers["organisation-id"] = localStorage.getItem("organisation-id");
-  config.headers["Content-Type"] = "application/json";
+  // config.headers["Content-Type"] = "application/json";
   return config;
 });
 

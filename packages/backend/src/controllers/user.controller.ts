@@ -5,12 +5,14 @@ import { StatusCodes } from "http-status-codes";
 import {
   userUpdateSchema,
   userOrgSettingsUpdateSchema,
+  avatarImgSchema,
 } from "../schemas/userSchema.js";
 import { uuidSchema } from "../schemas/commonSchema.js";
 import { verifyEmailOtpSchema } from "../schemas/authSchema.js";
 import { EmailService } from "../services/email.services.js";
 import { OtpService } from "../services/userOtp.services.js";
 import { generateOTP } from "../utils/otpHelper.js";
+import { AwsUploadService } from "../services/aws.services.js";
 
 export const me = async (req: express.Request, res: express.Response) => {
   const prisma = await getClientByTenantId(req.tenantId);
@@ -34,6 +36,7 @@ export const updateUserProfile = async (
 ) => {
   const userDataToUpdate = userUpdateSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
+
   const user = await prisma.user.update({
     data: {
       ...userDataToUpdate,
@@ -46,6 +49,31 @@ export const updateUserProfile = async (
     userInfoWithoutPassword,
     "User profile updated"
   ).send(res);
+};
+
+export const updateUserAvtarImg = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const files = avatarImgSchema.parse(req.files);
+  const prisma = await getClientByTenantId(req.tenantId);
+  const findUser = await prisma.user.findFirst({
+    where: { userId: req.userId },
+  });
+  if (!findUser) throw new NotFoundError("User not found");
+  const avatarImgURL = await AwsUploadService.uploadFileWithContent(
+    `${findUser.userId}-${files?.avatarImg?.name}`,
+    files?.avatarImg?.data
+  );
+  const user = await prisma.user.update({
+    data: {
+      avatarImg: avatarImgURL,
+    },
+    where: { userId: req.userId },
+  });
+  return new SuccessResponse(StatusCodes.OK, user, "User profile updated").send(
+    res
+  );
 };
 
 export const updateUserOrganisationSettings = async (

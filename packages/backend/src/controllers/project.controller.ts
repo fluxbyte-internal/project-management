@@ -59,7 +59,8 @@ export const createProject = async (req: express.Request, res: express.Response)
     startDate,
     estimatedEndDate,
     estimatedBudget,
-    defaultView
+    defaultView,
+    currency
   } = createProjectSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
   const project = await prisma.project.create({
@@ -73,7 +74,8 @@ export const createProject = async (req: express.Request, res: express.Response)
       estimatedBudget: estimatedBudget,
       defaultView: defaultView,
       createdByUserId: req.userId,
-      updatedByUserId: req.userId
+      updatedByUserId: req.userId,
+      currency: currency
     }
   });
   return new SuccessResponse(StatusCodes.CREATED, project, 'project created successfully').send(res);
