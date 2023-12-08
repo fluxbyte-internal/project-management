@@ -25,11 +25,11 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
   const [Projectdata, setProjectdata] = useState<Project[]>();
 
   const navigate = useNavigate();
-  const ProjectQueryData = useProjectQuery();
+  const projectQuery = useProjectQuery();
 
   useEffect(() => {
-    setProjectdata(ProjectQueryData.data?.data.data);
-  }, [ProjectQueryData.data?.data.data]);
+    setProjectdata(projectQuery.data?.data.data);
+  }, [projectQuery.data?.data.data]);
 
   const handleDropdownClick = (id: string) => {
     if (isOpen && isSelected === id) {
@@ -57,7 +57,7 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
       } overflow-hidden `}
       onClick={handleSidebarClick}
     >
-      {ProjectQueryData.isLoading && (
+      {projectQuery.isLoading && (
         <div className="absolute w-full h-full grid place-content-center backdrop-blur-[0.5px] bg-[#7b797936] z-50">
           <Spinner color="#F99807" className="h-20 w-20" />
         </div>
