@@ -88,6 +88,7 @@ function Login() {
             <div className="w-full mt-1">
               <label htmlFor="email" className={labelStyle}>
                 Email
+                <span className="ml-0.5 text-red-500">*</span>
               </label>
               <InputEmail
                 name="email"
@@ -104,6 +105,7 @@ function Login() {
             <div className="w-full mt-1">
               <label htmlFor="password" className={labelStyle}>
                 Password
+                <span className="ml-0.5 text-red-500">*</span>
               </label>
               <div className="relative mt-1">
                 <input
