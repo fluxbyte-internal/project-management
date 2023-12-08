@@ -17,9 +17,9 @@ import InputSelect from "@/components/common/InputSelect";
 import UserOrganisationCard from "./UserOrganisationCard";
 import { NavLink } from "react-router-dom";
 import { toast } from "react-toastify";
-import AvatarPng from "../../assets/png/avatar.png";
 import useFileUploadMutation from "@/api/mutation/useFileUploadMutation";
 import Spinner from "@/components/ui/spinner";
+import UserAvatar from "@/components/ui/userAvatar";
 
 const countryOptions = countries.map((item) => {
   return { label: item.name, value: item.isoCode };
@@ -145,7 +145,7 @@ function AccountSettings() {
                       <Spinner className="h-10 w-36" color="#F99807"></Spinner>
                     </div>
                   ) : (
-                    <img src={AvatarPng} className="h-full w-full object-fill m-auto" />
+                    <UserAvatar className="w-full h-full" fontClass="text-8xl" user={user}></UserAvatar>
                   )}
                 </div>
               )}
