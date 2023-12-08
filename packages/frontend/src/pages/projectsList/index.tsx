@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 import NoProject from "../../components/project/NoProject";
 import UserAvatar from "@/components/ui/userAvatar";
+import BackgroundImage from "@/components/layout/BackgroundImage";
+import Spinner from "@/components/ui/spinner";
+
 function ProjectsList() {
   const [data, setData] = useState<Project[]>();
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
@@ -88,15 +91,21 @@ function ProjectsList() {
     },
   ];
 
-  const handleEdit = (item:Project) => {
+  const handleEdit = (item: Project) => {
     setIsOpenPopUp(true);
     setEditData(item);
   };
 
   return (
     <>
+      <BackgroundImage />
+      {projectQuery.isLoading && (
+        <div className="absolute w-full h-[calc(100vh-3.5rem)] grid z-20 place-content-center backdrop-blur-[0.5px] bg-[#7b797936]">
+          <Spinner color="#F99807" className="h-20 w-20" />
+        </div>
+      )}
       {data && data.length > 0 ? (
-        <div className="h-full py-5 p-4 lg:p-14 w-full bg-[url(/src/assets/png/background2.png)] bg-cover bg-no-repeat">
+        <div className="h-full py-5 p-4 lg:p-14 w-full">
           <div className="flex justify-between items-center">
             <h2 className="font-medium text-3xl leading-normal text-gray-600">
               Projects

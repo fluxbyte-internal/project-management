@@ -183,7 +183,7 @@ function Verification() {
                   onClick={() => navigate("/")}
                   className="w-full"
                 >
-                 Back
+                 Access my space
                 </Button>
               </div>
             </div>

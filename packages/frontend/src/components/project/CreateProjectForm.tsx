@@ -227,12 +227,14 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                 <div className="w-full lg:flex lg:gap-[100px]">
                   <div className="flex gap-4 flex-col lg:w-[50%]">
                     <div className="text-left">
-                      <label className={labelStyle}>Name</label>
-
+                      <label className={labelStyle}>
+                        Name
+                        <span className="ml-0.5 text-red-500">*</span>
+                      </label>
                       <input
                         type="text"
                         name="projectName"
-                        placeholder="Project One"
+                        placeholder="Project one"
                         className={inputStyle}
                         value={formik.values.projectName}
                         onChange={formik.handleChange}
@@ -244,8 +246,10 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                       </span>
                     </div>
                     <div className="text-left">
-                      <label className={labelStyle}>Descrption</label>
-
+                      <label className={labelStyle}>
+                        Description
+                        <span className="ml-0.5 text-red-500">*</span>
+                      </label>
                       <textarea
                         rows={5}
                         cols={30}
@@ -253,27 +257,21 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                         placeholder="Placeholder"
                         className="py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full"
                         value={formik.values.projectDescription}
-                        onChange={(e) => {
-                          if (e.target.value.length <= 50) {
-                            formik.handleChange(e);
-                          }
-                        }}
+                        onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                       />
-                      <span className="flex justify-between">
-                        <span className={errorStyle}>
-                          {formik.touched.projectDescription &&
-                            formik.errors.projectDescription}
-                        </span>
-                        <span className="text-sm text-gray-500 font-normal block text-right ">
-                          {formik.values.projectDescription.length}/50
-                        </span>
+                      <span className={errorStyle}>
+                        {formik.touched.projectDescription &&
+                          (formik.errors.projectDescription as string)}
                       </span>
                     </div>
 
                     <div className="sm:flex sm:gap-[10px] w-full">
                       <div className="text-left sm:w-1/2">
-                        <label className={labelStyle}>Start Date</label>
+                        <label className={labelStyle}>
+                          Start Date
+                          <span className="ml-0.5 text-red-500">*</span>
+                        </label>
                         <input
                           type="date"
                           name="startDate"
@@ -289,11 +287,10 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                         </span>
                       </div>
                       <div className="text-left sm:w-1/2">
-                        <label className="font-medium text-base text-gray-700 flex gap-3 mt-4 sm:mt-0">
+                        <label className="font-medium text-base text-gray-700 flex gap-1 mt-4 sm:mt-0">
                           Estimated End date
-                          <div
-                            className="flex items-center justify-center relative"
-                          >
+                          <span className="ml-0.5 text-red-500">*</span>
+                          <div className="flex items-center justify-center relative">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -328,7 +325,6 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                         </span>
                       </div>
                     </div>
-
                     <div
                       className="text-left flex gap-2 "
                     >

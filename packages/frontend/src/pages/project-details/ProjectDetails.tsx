@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Tooltip } from "@radix-ui/react-tooltip";
 import dateFormater from "@/helperFuntions/dateFormater";
+import Spinner from "@/components/ui/spinner";
 
 function ProjectDetails() {
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
@@ -65,6 +66,11 @@ function ProjectDetails() {
         toggleSidebar={toggleSidebar}
         isSidebarExpanded={isSidebarExpanded}
       />
+      {projectDetailQuery.isLoading && (
+        <div className="absolute w-full h-[calc(100vh-3.5rem)] grid place-content-center backdrop-blur-[0.5px] bg-[#7b797936] z-10">
+          <Spinner color="#F99807" className="h-20 w-20" />
+        </div>
+      )}
       <div
         className={`mt-14 overflow-auto ${
           isSidebarExpanded ? "ml-64" : "ml-4"
