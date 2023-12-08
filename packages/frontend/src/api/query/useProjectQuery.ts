@@ -27,14 +27,12 @@ export type Project = {
   updatedAt: string;
   createdByUser: CreatedByUser;
 };
-
 export interface CreatedByUser {
   firstName: string;
   lastName: string;
   email: string;
   avatarImg: null;
 }
-
 type ProjectApiResponse = ResponseType<Project[]>;
 
 function useProjectQuery() {
