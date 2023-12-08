@@ -80,6 +80,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
       estimatedEndDate: '' as unknown as Date,
       estimatedBudget: "",
       defaultView: "KANBAN",
+      currency:"USD",
     },
     validationSchema:
       editData && editData.projectId
@@ -161,6 +162,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
         projectDescription: editData.projectDescription,
         projectName: editData.projectName,
         defaultView: editData.defaultView,
+        currency: editData.currency,
       });
     }
   }, []);

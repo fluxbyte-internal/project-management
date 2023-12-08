@@ -47,7 +47,7 @@ export const updateUserProfile = async (
     if (!findUser) throw new NotFoundError("User not found");
 
     avatarImgURL = await AwsUploadService.uploadFileWithContent(
-      `${findUser.email}-${files?.avatarImg?.name}`,
+      `${findUser.userId}-${files?.avatarImg?.name}`,
       files?.avatarImg?.data
     );
   }
