@@ -134,7 +134,7 @@ function Signup() {
                     type="text"
                     name="lastName"
                     className={inputStyle}
-                    placeholder="Enter first name"
+                    placeholder="Enter last name"
                     value={formik.values.lastName}
                     onChange={formik.handleChange}
                   />
@@ -180,6 +180,7 @@ function Signup() {
                   onChange={formik.handleChange}
                 />
                 <Button
+                  type="button"
                   variant={"ghost"}
                   size={"icon"}
                   onClick={handleShowPassword}
@@ -214,6 +215,7 @@ function Signup() {
                   onChange={formik.handleChange}
                 />
                 <Button
+                  type="button"
                   variant={"ghost"}
                   size={"icon"}
                   className="absolute top-1/2 right-1 -translate-y-1/2 mt-[1px]"
@@ -266,7 +268,7 @@ function Signup() {
             >
               <img src={Google} />
               <span>
-                Sign in with Google
+                Google
               </span>
             </Button>
             <Button
@@ -278,7 +280,7 @@ function Signup() {
             >
               <img src={Facebook} />
               <span>
-                Sign in with Facebook
+                Facebook
               </span>
             </Button>
           </div>
