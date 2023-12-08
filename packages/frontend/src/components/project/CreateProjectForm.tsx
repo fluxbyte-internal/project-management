@@ -71,7 +71,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
     editData ? editData.projectId : ""
   );
   const projectQuery = useProjectQuery();
-  
+
   const formik = useFormik<z.infer<typeof createProjectSchema>>({
     initialValues: {
       projectName: "",
