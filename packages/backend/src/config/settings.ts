@@ -50,7 +50,7 @@ const {
   AWS_ACCESS_KEY_ID,
   AWS_SECRET_ACCESS_KEY,
   AWS_BUCKET_NAME,
-  NODE_ENV } = process.env;
+  ENV_NAME } = process.env;
 
 if (!PRIVATE_KEY_FOR_JWT) {
   throw Error('Missing jwt private key in .env')
@@ -82,8 +82,8 @@ if (!NO_REPLY_EMAIL) {
 if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET_NAME) {
   throw Error("Missing AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_BUCKET_NAME in .env");
 };
-if (!NODE_ENV) {
-  throw Error('Missing NODE_ENV in .env');
+if (!ENV_NAME) {
+  throw Error('Missing ENV_NAME in .env');
 };
 
 export const settings: Settings = {
@@ -113,5 +113,5 @@ export const settings: Settings = {
     secretAccessKey: AWS_SECRET_ACCESS_KEY,
     bucketName: AWS_BUCKET_NAME
   },
-  environment: NODE_ENV
+  environment: ENV_NAME
 };
