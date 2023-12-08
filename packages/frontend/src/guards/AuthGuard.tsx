@@ -1,5 +1,5 @@
 import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
-import Spinner from "@/components/ui/spinner";
+import Loader from "@/components/common/Loader";
 import { useAuth } from "@/hooks/useAuth";
 import { useUser } from "@/hooks/useUser";
 import { PropsWithChildren } from "react";
@@ -16,11 +16,7 @@ const AuthGuard = (props: PropsWithChildren) => {
       logout();
       return "Invalid session";
     }
-    return (
-      <div className="absolute w-full h-full grid z-20 place-content-center backdrop-blur-[0.5px] bg-[#7b797936]">
-        <Spinner color="#F99807" className="h-20 w-20" />
-      </div>
-    );
+    return Loader();
   }
   return children;
 };
