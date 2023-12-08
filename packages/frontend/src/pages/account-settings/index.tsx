@@ -33,13 +33,10 @@ function AccountSettings() {
   const [isUserProfileSubmitting, setIsUserProfileSubmitting] = useState(false);
   const [countryValue, setCountryValue] =
     useState<SingleValue<(typeof countryOptions)[number]>>();
-  const [avatarImgState, setAvatarImgState] = useState<File | string | null>(
-    null
-  );
   const [fileUploading, setFileUploading] = useState(false);
   const avatarImg = useRef<HTMLInputElement>(null);
   const useFileUpload = useFileUploadMutation();
-  
+
   const userProfileForm = useFormik<z.infer<typeof userUpdateSchema>>({
     initialValues: {
       firstName: user?.firstName ?? "",
@@ -92,16 +89,20 @@ function AccountSettings() {
     !user.country ||
     user.country !== userProfileForm.values.country;
 
-  function fileUpload() {
-    if (avatarImgState) {
+  function fileUpload(image: File | null) {
+    if (image) {
       setFileUploading(true);
       const formdata = new FormData();
-      formdata.append("avatarImg", avatarImgState);
+      formdata.append("avatarImg", image);
       useFileUpload.mutate(formdata, {
         onSuccess() {
-          setFileUploading(false);
-          setAvatarImgState(null);
-          refetchUser();
+          refetchUser()
+            .then(() => {
+              setFileUploading(false);
+            })
+            .catch(() => {
+              setFileUploading(false);
+            });
         },
         onError(error) {
           if (Array.isArray(error.response?.data.errors)) {
@@ -135,7 +136,7 @@ function AccountSettings() {
                       <Spinner className="h-10 w-36" color="#F99807"></Spinner>
                     </div>
                   ) : (
-                    <img src={user.avatarImg} className="w-28 h-28 m-auto" />
+                    <img src={user.avatarImg} className="rounded-full m-auto h-full w-full object-fill" />
                   )}
                 </div>
               ) : (
@@ -145,7 +146,7 @@ function AccountSettings() {
                       <Spinner className="h-10 w-36" color="#F99807"></Spinner>
                     </div>
                   ) : (
-                    <img src={AvatarPng} className="w-28 h-28 m-auto" />
+                    <img src={AvatarPng} className="h-full w-full object-fill m-auto" />
                   )}
                 </div>
               )}
@@ -154,7 +155,7 @@ function AccountSettings() {
               ref={avatarImg}
               accept="image/jpeg, image/jpg, image/png, image/webp"
               onChange={(e) => {
-                setAvatarImgState(e.target.files ? e.target.files[0] : null);
+                fileUpload(e.target.files ? e.target.files[0] : null);
               }}
               type="file"
               name="avatarImg"
@@ -168,24 +169,6 @@ function AccountSettings() {
             >
               {user.avatarImg ? "Change Profile Photo" : "Add Profile Photo"}
             </Button>
-            {avatarImgState && (
-              <div className="mt-2">
-                <Button
-                  variant={"primary_outline"}
-                  className="h-auto px-2 py-1 w-14 mx-2"
-                  onClick={() => fileUpload()}
-                >
-                  Save
-                </Button>
-                <Button
-                  variant={"primary_outline"}
-                  className="h-auto px-2 py-1 w-14 mx-2"
-                  onClick={() => setAvatarImgState(null)}
-                >
-                  Cancle
-                </Button>
-              </div>
-            )}
           </div>
           <div className="lg:col-span-3">
             <form

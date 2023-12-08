@@ -4,9 +4,9 @@ import dateFormatter from "@/helperFuntions/dateFormater";
 import useProjectQuery, { Project } from "../../api/query/useProjectQuery";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import ProfileName from "@/components/shared/Profile";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 import NoProject from "../../components/project/NoProject";
+import UserAvatar from "@/components/ui/userAvatar";
 function ProjectsList() {
   const [data, setData] = useState<Project[]>();
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
@@ -28,7 +28,7 @@ function ProjectsList() {
       header: "Manager",
       onCellRender: (item: Project) => (
         <>
-          <ProfileName user={item.createdByUser}/>
+          <UserAvatar user={item.createdByUser}/>
         </>
       ),
     },

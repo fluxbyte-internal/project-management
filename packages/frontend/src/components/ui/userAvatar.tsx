@@ -31,7 +31,7 @@ const UserAvatar = forwardRef<
         <img
           src={user.avatarImg}
           alt={`${user.firstName} ${user.lastName}`}
-          className="w-full h-full"
+          className="w-full h-full rounded-full"
           onError={handleImageError}
         />
       </div>
