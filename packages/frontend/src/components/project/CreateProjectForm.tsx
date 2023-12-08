@@ -186,10 +186,10 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                 <div className="w-full lg:flex lg:gap-[100px]">
                   <div className="flex gap-4 flex-col lg:w-[50%]">
                     <div className="text-left">
-                      <div className="flex gap-1">
-                        <label className={labelStyle}>Name</label>
-                        <label className=" text-red-500">*</label>
-                      </div>
+                      <label className={labelStyle}>
+                        Name
+                        <span className="ml-0.5 text-red-500">*</span>
+                      </label>
                       <input
                         type="text"
                         name="projectName"
@@ -205,10 +205,10 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                       </span>
                     </div>
                     <div className="text-left">
-                      <div className="flex gap-1">
-                        <label className={labelStyle}>Descrption</label>
-                        <label className=" text-red-500">*</label>
-                      </div>
+                      <label className={labelStyle}>
+                        Descrption
+                        <span className="ml-0.5 text-red-500">*</span>
+                      </label>
                       <textarea
                         rows={5}
                         cols={30}
@@ -227,10 +227,10 @@ function CreateUpdateProjectForm(props: AddProjectType) {
 
                     <div className="sm:flex sm:gap-[10px] w-full">
                       <div className="text-left sm:w-1/2">
-                        <div className="flex gap-1">
-                          <label className={labelStyle}>Start Date</label>
-                          <label className=" text-red-500">*</label>
-                        </div>
+                        <label className={labelStyle}>
+                          Start Date
+                          <span className="ml-0.5 text-red-500">*</span>
+                        </label>
                         <input
                           type="date"
                           name="startDate"
@@ -248,7 +248,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                       <div className="text-left sm:w-1/2">
                         <label className="font-medium text-base text-gray-700 flex gap-1 mt-4 sm:mt-0">
                           Estimated End date
-                          <label className=" text-red-500">*</label>
+                          <span className="ml-0.5 text-red-500">*</span>
                           <div className="flex items-center justify-center relative">
                             <TooltipProvider>
                               <Tooltip>
@@ -286,10 +286,10 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                     </div>
 
                     <div className="text-left">
-                      <div className="flex gap-1">
-                        <label className={labelStyle}>Estimated Budget</label>
-                        <label className=" text-red-500">*</label>
-                      </div>
+                      <label className={labelStyle}>
+                        Estimated Budget
+                        <span className="ml-0.5 text-red-500">*</span>
+                      </label>
                       <input
                         type="text"
                         name="estimatedBudget"

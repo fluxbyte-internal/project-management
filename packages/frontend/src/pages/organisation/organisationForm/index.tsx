@@ -89,7 +89,7 @@ function OrganisationForm(props: Props) {
             }
           },
         });
-      }else{
+      } else {
         organisationMutation.mutate(values, {
           onSuccess(data) {
             toast.success(data.data.message);
@@ -228,10 +228,10 @@ function OrganisationForm(props: Props) {
         </div>
         <form onSubmit={formik.handleSubmit}>
           <div>
-            <div className="flex gap-1">
-              <label className={labelStyle}>Organisation Name</label>
-              <label className=" text-red-500">*</label>
-            </div>
+            <label className={labelStyle}>
+              Organisation Name
+              <span className="ml-0.5 text-red-500">*</span>
+            </label>
             <input
               className={inputStyle}
               name="organisationName"
@@ -247,10 +247,10 @@ function OrganisationForm(props: Props) {
             </ErrorMessage>
           </div>
           <div>
-            <div className="flex gap-1">
-              <label className={labelStyle}>Industry</label>
-              <label className=" text-red-500">*</label>
-            </div>
+            <label className={labelStyle}>
+              Industry
+              <span className="ml-0.5 text-red-500">*</span>
+            </label>
             <Select
               className={`${inputStyle} select !p-0`}
               onChange={handleIndustries}
@@ -266,10 +266,10 @@ function OrganisationForm(props: Props) {
             </ErrorMessage>
           </div>
           <div>
-            <div className="flex gap-1">
-              <label className={labelStyle}>Non Working Days</label>
-              <label className=" text-red-500">*</label>
-            </div>
+            <label className={labelStyle}>
+              Non Working Days
+              <span className="ml-0.5 text-red-500">*</span>
+            </label>
             <Select
               className={`${inputStyle} select !p-0`}
               onChange={handleNonWorkingDays}
@@ -286,10 +286,10 @@ function OrganisationForm(props: Props) {
             </ErrorMessage>
           </div>
           <div>
-            <div className="flex gap-1">
-              <label className={labelStyle}>Country</label>
-              <label className=" text-red-500">*</label>
-            </div>
+            <label className={labelStyle}>
+              Country
+              <span className="ml-0.5 text-red-500">*</span>
+            </label>
             <Select
               className={`${inputStyle} select !p-0`}
               onChange={handleCountry}
