@@ -5,7 +5,7 @@ import { userUpdateSchema } from "@backend/src/schemas/userSchema";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { z } from "zod";
 import ErrorMessage from "@/components/common/ErrorMessage";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SingleValue } from "react-select";
 import countries from "@/assets/json/countries.json";
 import useUserProfileUpdateMutation from "@/api/mutation/useUserProfileUpdateMutation";
@@ -17,6 +17,9 @@ import InputSelect from "@/components/common/InputSelect";
 import UserOrganisationCard from "./UserOrganisationCard";
 import { NavLink } from "react-router-dom";
 import { toast } from "react-toastify";
+import AvatarPng from "../../assets/png/avatar.png";
+import useFileUploadMutation from "@/api/mutation/useFileUploadMutation";
+import Spinner from "@/components/ui/spinner";
 
 const countryOptions = countries.map((item) => {
   return { label: item.name, value: item.isoCode };
@@ -30,7 +33,13 @@ function AccountSettings() {
   const [isUserProfileSubmitting, setIsUserProfileSubmitting] = useState(false);
   const [countryValue, setCountryValue] =
     useState<SingleValue<(typeof countryOptions)[number]>>();
-
+  const [avatarImgState, setAvatarImgState] = useState<File | string | null>(
+    null
+  );
+  const [fileUploading, setFileUploading] = useState(false);
+  const avatarImg = useRef<HTMLInputElement>(null);
+  const useFileUpload = useFileUploadMutation();
+  
   const userProfileForm = useFormik<z.infer<typeof userUpdateSchema>>({
     initialValues: {
       firstName: user?.firstName ?? "",
@@ -83,6 +92,33 @@ function AccountSettings() {
     !user.country ||
     user.country !== userProfileForm.values.country;
 
+  function fileUpload() {
+    if (avatarImgState) {
+      setFileUploading(true);
+      const formdata = new FormData();
+      formdata.append("avatarImg", avatarImgState);
+      useFileUpload.mutate(formdata, {
+        onSuccess() {
+          setFileUploading(false);
+          setAvatarImgState(null);
+          refetchUser();
+        },
+        onError(error) {
+          if (Array.isArray(error.response?.data.errors)) {
+            toast.error(
+              error.response?.data.errors[0].message ??
+                "An unexpected error occurred."
+            );
+          } else {
+            toast.error(
+              error.response?.data?.message ?? "An unexpected error occurred."
+            );
+          }
+          setFileUploading(false);
+        },
+      });
+    }
+  }
   return (
     <div className="overflow-auto w-full">
       <div className="max-w-5xl mx-auto p-4 pb-5">
@@ -93,20 +129,63 @@ function AccountSettings() {
           <div className="text-center text-gray-700 text-sm space-y-2">
             <div>
               {user.avatarImg ? (
-                <img
-                  src="https://image-svg.vercel.app/100"
-                  className="w-40 h-40 m-auto rounded-full shadow"
-                />
+                <div className="w-40 h-40 flex justify-center items-center m-auto rounded-full shadow">
+                  {fileUploading ? (
+                    <div>
+                      <Spinner className="h-10 w-36" color="#F99807"></Spinner>
+                    </div>
+                  ) : (
+                    <img src={user.avatarImg} className="w-28 h-28 m-auto" />
+                  )}
+                </div>
               ) : (
-                <span className="block w-40 h-40 rounded-full m-auto shadow bg-primary-50"></span>
+                <div className="w-40 h-40 flex justify-center items-center m-auto rounded-full shadow">
+                  {fileUploading ? (
+                    <div>
+                      <Spinner className="h-10 w-36" color="#F99807"></Spinner>
+                    </div>
+                  ) : (
+                    <img src={AvatarPng} className="w-28 h-28 m-auto" />
+                  )}
+                </div>
               )}
             </div>
+            <input
+              ref={avatarImg}
+              accept="image/jpeg, image/jpg, image/png, image/webp"
+              onChange={(e) => {
+                setAvatarImgState(e.target.files ? e.target.files[0] : null);
+              }}
+              type="file"
+              name="avatarImg"
+              id=""
+              style={{ display: "none" }}
+            />
             <Button
               variant="primary_outline"
               className="transition ease-in-out duration-150 h-auto px-2 py-1"
+              onClick={() => avatarImg.current?.click()}
             >
               {user.avatarImg ? "Change Profile Photo" : "Add Profile Photo"}
             </Button>
+            {avatarImgState && (
+              <div className="mt-2">
+                <Button
+                  variant={"primary_outline"}
+                  className="h-auto px-2 py-1 w-14 mx-2"
+                  onClick={() => fileUpload()}
+                >
+                  Save
+                </Button>
+                <Button
+                  variant={"primary_outline"}
+                  className="h-auto px-2 py-1 w-14 mx-2"
+                  onClick={() => setAvatarImgState(null)}
+                >
+                  Cancle
+                </Button>
+              </div>
+            )}
           </div>
           <div className="lg:col-span-3">
             <form
