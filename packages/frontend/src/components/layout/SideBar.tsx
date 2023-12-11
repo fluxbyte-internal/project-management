@@ -58,7 +58,7 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
       onClick={handleSidebarClick}
     >
       {projectQuery.isLoading ? (
-        Loader()
+        <Loader/>
       ) : (
         <>
           <button

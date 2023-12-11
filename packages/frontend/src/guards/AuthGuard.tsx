@@ -16,7 +16,7 @@ const AuthGuard = (props: PropsWithChildren) => {
       logout();
       return "Invalid session";
     }
-    return Loader();
+    return  <Loader/>;
   }
   return children;
 };

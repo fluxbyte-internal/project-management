@@ -136,7 +136,7 @@ function OrganisationDetails() {
     }
   }, [filterString, organisation?.userOrganisation]);
 
-  if (isLoading) return Loader();
+  if (isLoading) return <Loader/>;
   if (status === "error" || !organisation)
     return (
       <div className="text-red-500 text-lg text-center">

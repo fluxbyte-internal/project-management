@@ -96,7 +96,7 @@ function ProjectsList() {
   return (
     <div className="w-full relative">
       {projectQuery.isLoading ? (
-        Loader()
+        <Loader/>
       ) : (
         <>
           {data && data.length > 0 ? (

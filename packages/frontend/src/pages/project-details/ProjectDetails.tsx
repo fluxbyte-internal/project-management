@@ -67,7 +67,7 @@ function ProjectDetails() {
         isSidebarExpanded={isSidebarExpanded}
       />
       {projectDetailQuery.isLoading ? (
-        Loader()
+        <Loader/>
       ) : (
         <div
           className={`mt-14 overflow-auto ${
