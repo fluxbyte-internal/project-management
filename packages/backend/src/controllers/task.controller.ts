@@ -3,9 +3,10 @@ import { getClientByTenantId } from '../config/db.js';
 import { BadRequestError, NotFoundError, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
 import { projectIdSchema } from '../schemas/projectSchema.js';
-import { attachmentIdSchma, attachmentTaskSchema, commentIdSchma, createCommentTaskSchema, createTaskSchema, taskIdSchema, taskStatusSchema, updateTaskSchema } from '../schemas/taskSchema.js';
+import { attachmentIdSchma, commentIdSchma, createCommentTaskSchema, createTaskSchema, attachmentTaskSchema, taskIdSchema, taskStatusSchema, updateTaskSchema } from '../schemas/taskSchema.js';
 import { TaskService } from '../services/task.services.js';
 import { TaskStatusEnum } from '@prisma/client';
+import { AwsUploadService } from '../services/aws.services.js';
 
 export const getTasks = async (req: express.Request, res: express.Response) => {
   const projectId = projectIdSchema.parse(req.params.projectId);
@@ -25,7 +26,7 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
     include: {
       comments: {
         orderBy: { createdAt: 'desc' },
-        include: { commentByUser: { select: { firstName: true, lastName: true, email: true } } }
+        include: { commentByUser: { select: { firstName: true, lastName: true, email: true, avatarImg: true } } }
       },
       documentAttachments: true,
       subtasks: true
@@ -41,7 +42,6 @@ export const createTask = async (req: express.Request, res: express.Response) =>
     taskDescription,
     startDate,
     duration,
-    documentAttachments,
     assginedToUserId,
     dependencies,
     flag,
@@ -78,12 +78,6 @@ export const createTask = async (req: express.Request, res: express.Response) =>
       parentTaskId: parentTaskId ? parentTaskId : null,
       createdByUserId: req.userId,
       updatedByUserId: req.userId,
-      documentAttachments: {
-        create: documentAttachments?.map((attachment) => ({
-          name: attachment.name,
-          url: attachment.url,
-        })),
-      },
     },
     include: {
       documentAttachments: true,
@@ -107,7 +101,7 @@ export const updateTask = async (req: express.Request, res: express.Response) =>
   const newUpdateObj = { ...taskUpdateValue, updatedByUserId: req.userId };
   const taskUpdateDB = await prisma.task.update({
     where: { taskId: tasktId },
-    data: { ...newUpdateObj, documentAttachments: {} },
+    data: { ...newUpdateObj },
   });
 
   // Calculate Task endDate
@@ -204,31 +198,68 @@ export const deleteComment = async (req: express.Request, res: express.Response)
   };
 };
 
-export const updateAttachment = async (req: express.Request, res: express.Response) => {
-  const attachemtnBody = attachmentTaskSchema.parse(req.body);
+export const addAttachment = async (
+  req: express.Request,
+  res: express.Response
+) => {
+
   const taskId = taskIdSchema.parse(req.params.taskId);
-  // Todo: Need to do with blob and AWS S3
+
+  let files = [];
+  const taskAttachmentFiles = attachmentTaskSchema.parse(
+    req.files?.taskAttachment
+  );
+  if (Array.isArray(taskAttachmentFiles)) {
+    files = taskAttachmentFiles;
+  } else {
+    files.push(taskAttachmentFiles);
+  };
   const prisma = await getClientByTenantId(req.tenantId);
-  attachemtnBody.map(async (data) => {
-    if (data.attachmentId && await prisma.taskAttachment.findFirstOrThrow({ where: { attachmentId: data.attachmentId } })) {
-      await prisma.taskAttachment.update({
-        where: { attachmentId: data.attachmentId },
-        data: { name: data.name, url: data.url },
-      });
-    } else {
-      await prisma.taskAttachment.create({
-        data: { name: data.name, url: data.url, taskId: taskId }
-      });
-    }
+
+  for (const singleFile of files) {
+    const taskAttachmentURL = await AwsUploadService.uploadFileWithContent(
+      `${req.userId}-${singleFile?.name}`,
+      singleFile?.data,
+      "task-attachment"
+    );
+    await prisma.taskAttachment.create({
+      data: {
+        taskId: taskId,
+        url: taskAttachmentURL,
+        name: singleFile.name,
+      },
+    });
+  };
+
+  const findTask = await prisma.task.findFirst({
+    where: { taskId: taskId },
+    include: { documentAttachments: true },
   });
-  return new SuccessResponse(StatusCodes.OK, {}, 'Attachment updated successfully').send(res);
+
+  return new SuccessResponse(
+    StatusCodes.OK,
+    findTask,
+    "Add attachment successfully"
+  ).send(res);
 };
 
-export const deleteAttachment = async (req: express.Request, res: express.Response) => {
+export const deleteAttachment = async (
+  req: express.Request,
+  res: express.Response
+) => {
   const attachmentId = attachmentIdSchma.parse(req.params.attachmentId);
   const prisma = await getClientByTenantId(req.tenantId);
-  if (attachmentId && await prisma.taskAttachment.findFirstOrThrow({ where: { attachmentId: attachmentId } })) {
-    await prisma.taskAttachment.delete({ where: { attachmentId } });
-    return new SuccessResponse(StatusCodes.OK, {}, 'Attachment deleted successfully').send(res);
-  };
+  const attachment = await prisma.taskAttachment.findFirstOrThrow({
+    where: { attachmentId: attachmentId },
+  });
+
+  //TODO: If Delete require on S3
+  // await AwsUploadService.deleteFile(attachment.name, 'task-attachment');
+  await prisma.taskAttachment.delete({ where: { attachmentId } });
+  
+  return new SuccessResponse(
+    StatusCodes.OK,
+    null,
+    "Attachment deleted successfully"
+  ).send(res);
 };
