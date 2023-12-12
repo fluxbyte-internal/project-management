@@ -18,7 +18,7 @@ const loginWithGoogle = new GoogleStrategy(
       let user = await prisma.user.findUnique({
         where: { email: email },
       });
-      if (user !== null) {
+      if (user) {
         return done(null, { ...user, googleToken: token, provider: "google" });
       } else {
         const newUser = await prisma.user.create({
