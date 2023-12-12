@@ -1,60 +1,60 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import { Strategy as FacebookStrategy } from "passport-facebook";
 import { settings } from "../config/settings.js";
+import { getClientByTenantId } from "../config/db.js";
+import { UserProviderTypeEnum, UserStatusEnum } from "@prisma/client";
 
-// Signup with Google
-const googleLogin = new GoogleStrategy(
+const loginWithGoogle = new GoogleStrategy(
   {
     clientID: settings.googleCredentials.clientId,
     clientSecret: settings.googleCredentials.clientSecret,
     callbackURL: settings.googleCredentials.callbackUrl,
   },
   async (token, tokenSecret, profile, done) => {
-    console.log({
-      token,
-      tokenSecret,
-      profile,
-    });
-    return done(null, profile);
+    try {
+      const prisma = await getClientByTenantId("root");
+      const email =
+        profile.emails && profile.emails[0] ? profile.emails[0].value : "";
+      let user = await prisma.user.findUnique({
+        where: { email: email },
+      });
+      if (user !== null) {
+        return done(null, { ...user, googleToken: token, provider: "google" });
+      } else {
+        const newUser = await prisma.user.create({
+          data: {
+            email: profile.emails?.[0]?.value!,
+            status: UserStatusEnum.ACTIVE,
+            avatarImg: profile.photos?.[0]?.value,
+            firstName: profile.name?.givenName,
+            lastName: profile.name?.familyName,
+            isVerified: profile.emails?.[0]?.verified ? true : false,
+            provider: {
+              create: {
+                idOrPassword: profile.id,
+                providerType: UserProviderTypeEnum.GOOGLE,
+              },
+            },
+          },
+        });
+        return done(null, {
+          ...newUser,
+          googleToken: token,
+          provider: "google",
+        });
+      };
+    } catch (error) {
+      return done(error as Error);
+    };
   }
 );
 
-// Signup with Facebook
-const facebookLogin = new FacebookStrategy(
-  {
-    clientID: settings.facebookCredentials.appId,
-    clientSecret: settings.facebookCredentials.appSecret,
-    callbackURL: settings.facebookCredentials.callbackUrl,
-    profileFields: [
-      "id",
-      "email",
-      "gender",
-      "profileUrl",
-      "displayName",
-      "locale",
-      "name",
-      "timezone",
-      "updated_time",
-      "verified",
-      "picture.type(large)",
-    ],
-  },
-  function (accessToken, refreshToken, profile, done) {
-    done(null, profile);
-  }
-);
+passport.serializeUser(function (user, done) {
+  return done(null, user);
+});
 
-// Serialize user into the session
-// passport.serializeUser((user, done) => {
-//   return done(null, user);
-// });
+passport.deserializeUser(function (obj, done) {
+  return done(null, obj ?? null);
+});
 
-// // Deserialize user from the session
-// passport.deserializeUser((user, done) => {
-//   if (!user) return false;
-//   return done(null, user);
-// });
-
-passport.use(googleLogin);
-// passport.use(facebookLogin);
+passport.use(loginWithGoogle);

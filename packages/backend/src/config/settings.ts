@@ -10,6 +10,7 @@ type TokenExpiryTime =
 export type Settings = {
   port: string;
   jwt: {
+    tokenCookieKey: string;
     refreshTokenCookieKey: string;
     tokenExipryTime: TokenExpiryTime;
     refreshTokenExipryTime: TokenExpiryTime;
@@ -33,12 +34,7 @@ export type Settings = {
     clientId: string;
     clientSecret: string;
     callbackUrl: string;
-  };
-  facebookCredentials: {
-    appId: string;
-    appSecret: string;
-    callbackUrl: string;
-  };
+  }
 };
 
 const {
@@ -53,10 +49,7 @@ const {
   NO_REPLY_EMAIL,
   GOOGLE_CLIENT_ID,
   GOOGLE_SECRET,
-  GOOGLE_CALLBACK_URL,
-  FACEBOOK_APP_ID,
-  FACEBOOK_SECRET,
-  FACEBOOK_CALLBACK_URL,
+  GOOGLE_CALLBACK_URL
 } = process.env;
 
 if (!PRIVATE_KEY_FOR_JWT) {
@@ -92,15 +85,10 @@ if (!GOOGLE_CLIENT_ID || !GOOGLE_SECRET || !GOOGLE_CALLBACK_URL) {
   );
 }
 
-if (!FACEBOOK_APP_ID || !FACEBOOK_SECRET || !FACEBOOK_CALLBACK_URL) {
-  throw Error(
-    "Missing FACEBOOK_APP_ID, FACEBOOK_SECRET and FACEBOOK_CALLBACK_URL in .env"
-  );
-}
-
 export const settings: Settings = {
   port: PORT! ?? 8000,
   jwt: {
+    tokenCookieKey: "token",
     refreshTokenCookieKey: "refresh-token",
     tokenExipryTime: `1 days`,
     refreshTokenExipryTime: `7 days`,
@@ -124,10 +112,5 @@ export const settings: Settings = {
     clientId: GOOGLE_CLIENT_ID,
     clientSecret: GOOGLE_SECRET,
     callbackUrl: GOOGLE_CALLBACK_URL,
-  },
-  facebookCredentials: {
-    appId: FACEBOOK_APP_ID,
-    appSecret: FACEBOOK_SECRET,
-    callbackUrl: FACEBOOK_CALLBACK_URL,
   },
 };

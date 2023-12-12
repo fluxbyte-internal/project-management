@@ -20,10 +20,9 @@ export const me = async (req: express.Request, res: express.Response) => {
       userOrganisation: { include: { organisation: true } },
     },
   });
-  const { password, ...userInfoWithoutPassword } = user;
   return new SuccessResponse(
     StatusCodes.OK,
-    userInfoWithoutPassword,
+    user,
     "Login user details"
   ).send(res);
 };
@@ -40,10 +39,9 @@ export const updateUserProfile = async (
     },
     where: { userId: req.userId },
   });
-  const { password, ...userInfoWithoutPassword } = user;
   return new SuccessResponse(
     StatusCodes.OK,
-    userInfoWithoutPassword,
+    user,
     "User profile updated"
   ).send(res);
 };

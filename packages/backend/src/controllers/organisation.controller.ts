@@ -13,7 +13,7 @@ import {
   updateOrganisationSchema,
   addOrganisationMemberSchema,
 } from "../schemas/organisationSchema.js";
-import { UserRoleEnum, UserStatusEnum } from "@prisma/client";
+import { UserProviderTypeEnum, UserRoleEnum, UserStatusEnum } from "@prisma/client";
 import { encrypt } from "../utils/encryption.js";
 import { uuidSchema } from "../schemas/commonSchema.js";
 import { ZodError } from "zod";
@@ -181,8 +181,13 @@ export const addOrganisationMember = async (
     const newUser = await prisma.user.create({
       data: {
         email: member.email,
-        password: hashedPassword,
         status: UserStatusEnum.ACTIVE,
+        provider: {
+          create: {
+            idOrPassword: hashedPassword, 
+            providerType: UserProviderTypeEnum.EMAIL
+          }
+        },
         userOrganisation: {
           create: {
             role: member.role,
