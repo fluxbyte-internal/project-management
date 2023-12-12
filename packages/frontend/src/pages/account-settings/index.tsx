@@ -5,7 +5,7 @@ import { userUpdateSchema } from "@backend/src/schemas/userSchema";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { z } from "zod";
 import ErrorMessage from "@/components/common/ErrorMessage";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SingleValue } from "react-select";
 import countries from "@/assets/json/countries.json";
 import useUserProfileUpdateMutation from "@/api/mutation/useUserProfileUpdateMutation";
@@ -17,6 +17,9 @@ import InputSelect from "@/components/common/InputSelect";
 import UserOrganisationCard from "./UserOrganisationCard";
 import { NavLink } from "react-router-dom";
 import { toast } from "react-toastify";
+import useFileUploadMutation from "@/api/mutation/useFileUploadMutation";
+import Spinner from "@/components/ui/spinner";
+import UserAvatar from "@/components/ui/userAvatar";
 
 const countryOptions = countries.map((item) => {
   return { label: item.name, value: item.isoCode };
@@ -29,6 +32,9 @@ function AccountSettings() {
   const [isUserProfileSubmitting, setIsUserProfileSubmitting] = useState(false);
   const [countryValue, setCountryValue] =
     useState<SingleValue<(typeof countryOptions)[number]>>();
+  const [fileUploading, setFileUploading] = useState(false);
+  const avatarImg = useRef<HTMLInputElement>(null);
+  const useFileUpload = useFileUploadMutation();
 
   const userProfileForm = useFormik<z.infer<typeof userUpdateSchema>>({
     initialValues: {
@@ -82,6 +88,37 @@ function AccountSettings() {
     !user.country ||
     user.country !== userProfileForm.values.country;
 
+  function fileUpload(image: File | null) {
+    if (image) {
+      setFileUploading(true);
+      const formdata = new FormData();
+      formdata.append("avatarImg", image);
+      useFileUpload.mutate(formdata, {
+        onSuccess() {
+          refetchUser()
+            .then(() => {
+              setFileUploading(false);
+            })
+            .catch(() => {
+              setFileUploading(false);
+            });
+        },
+        onError(error) {
+          if (Array.isArray(error.response?.data.errors)) {
+            toast.error(
+              error.response?.data.errors[0].message ??
+                "An unexpected error occurred."
+            );
+          } else {
+            toast.error(
+              error.response?.data?.message ?? "An unexpected error occurred."
+            );
+          }
+          setFileUploading(false);
+        },
+      });
+    }
+  }
   return (
     <div className="overflow-auto w-full">
       <div className="max-w-5xl mx-auto p-4 pb-5">
@@ -90,18 +127,44 @@ function AccountSettings() {
         </div>
         <div className="grid lg:grid-cols-4 gap-2">
           <div className="text-center text-gray-700 text-sm space-y-2">
-            {user.avatarImg ? (
-              <img
-                src={user.avatarImg}
-                className="w-40 h-40 m-auto rounded-full shadow"
-              />
-            ) : (
-              <span className="block w-40 h-40 rounded-full m-auto shadow bg-primary-50"></span>
-            )}
-
+            <div>
+              {user.avatarImg ? (
+                <div className="w-40 h-40 flex justify-center items-center m-auto rounded-full shadow">
+                  {fileUploading ? (
+                    <div>
+                      <Spinner className="h-10 w-36" color="#F99807"></Spinner>
+                    </div>
+                  ) : (
+                    <img src={user.avatarImg} className="rounded-full m-auto h-full w-full object-fill" />
+                  )}
+                </div>
+              ) : (
+                <div className="w-40 h-40 flex justify-center items-center m-auto rounded-full shadow">
+                  {fileUploading ? (
+                    <div>
+                      <Spinner className="h-10 w-36" color="#F99807"></Spinner>
+                    </div>
+                  ) : (
+                    <UserAvatar className="w-full h-full" fontClass="text-8xl" user={user}></UserAvatar>
+                  )}
+                </div>
+              )}
+            </div>
+            <input
+              ref={avatarImg}
+              accept="image/jpeg, image/jpg, image/png, image/webp"
+              onChange={(e) => {
+                fileUpload(e.target.files ? e.target.files[0] : null);
+              }}
+              type="file"
+              name="avatarImg"
+              id=""
+              style={{ display: "none" }}
+            />
             <Button
               variant="primary_outline"
               className="transition ease-in-out duration-150 h-auto px-2 py-1"
+              onClick={() => avatarImg.current?.click()}
             >
               {user.avatarImg ? "Change Profile Photo" : "Add Profile Photo"}
             </Button>

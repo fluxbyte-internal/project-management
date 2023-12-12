@@ -24,6 +24,11 @@ import {
   TooltipContent,
 } from "../ui/tooltip";
 import { toast } from "react-toastify";
+import countries from "../../assets/json/countries.json";
+import Select, { SingleValue } from "react-select";
+import ErrorMessage from "../common/ErrorMessage";
+
+type Options = { label: string; value: string };
 
 type AddProjectType = {
   handleClosePopUp: () => void;
@@ -70,6 +75,8 @@ function CreateUpdateProjectForm(props: AddProjectType) {
   const projectUpdateMutation = useProjectUpdateMutation(
     editData ? editData.projectId : ""
   );
+  const [countryValue, setContryValue] = useState<SingleValue<Options>>();
+
   const projectQuery = useProjectQuery();
 
   const formik = useFormik<z.infer<typeof createProjectSchema>>({
@@ -80,6 +87,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
       estimatedEndDate: '' as unknown as Date,
       estimatedBudget: "",
       defaultView: "KANBAN",
+      currency:"USD",
     },
     validationSchema:
       editData && editData.projectId
@@ -161,10 +169,43 @@ function CreateUpdateProjectForm(props: AddProjectType) {
         projectDescription: editData.projectDescription,
         projectName: editData.projectName,
         defaultView: editData.defaultView,
+        currency: editData.currency,
       });
     }
   }, []);
 
+  const currencyFn = () => {
+    const value = countries.map((item) => {
+      return { label: item.currency, value: item.currency };
+    });
+    return value;
+  };
+
+  const reactSelectStyle = {
+    control: (
+      provided: Record<string, unknown>,
+      state: { isFocused: boolean }
+    ) => ({
+      ...provided,
+      border: "1px solid #E7E7E7",
+      paddingTop: "0.2rem",
+      paddingBottom: "0.2rem",
+      zIndex: 1000,
+      outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
+      boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
+      "&:hover": {
+        outline: state.isFocused ? "1px solid #943B0C" : "1px solid #E7E7E7",
+        boxShadow: "0px 0px 0px #943B0C",
+      },
+    }),
+  };
+  
+  const handleCurrency = (val: SingleValue<Options>) => {
+    if (val) {
+      setContryValue(val);
+      formik.setFieldValue("country", val.value);
+    }
+  };
   return (
     <div className="fixed bg-[#00000066] w-full top-0 h-full items-center flex justify-center z-50">
       <div className="lg:rounded-lg border border-white bg-[#fff] md:max-w-5xl w-full flex flex-col h-full lg:max-h-[690px] max-h-screen lg:overflow-y-auto ">
@@ -179,19 +220,21 @@ function CreateUpdateProjectForm(props: AddProjectType) {
             <img src={CrossIcon}></img>
           </div>
         </div>
-        <div className="lg:px-16 px-4 overflow-y-auto max-h-screen">
+        <div className="lg:px-16 px-4 overflow-y-auto lg:overflow-hidden max-h-screen">
           <div className="lg:flex rounded-lg border border-gray-100 lg:justfy-center mt-4">
             <div className="p-5 ">
               <form onSubmit={formik.handleSubmit}>
                 <div className="w-full lg:flex lg:gap-[100px]">
                   <div className="flex gap-4 flex-col lg:w-[50%]">
                     <div className="text-left">
-                      <label className={labelStyle}>Name</label>
-
+                      <label className={labelStyle}>
+                        Name
+                        <span className="ml-0.5 text-red-500">*</span>
+                      </label>
                       <input
                         type="text"
                         name="projectName"
-                        placeholder="Project One"
+                        placeholder="Project one"
                         className={inputStyle}
                         value={formik.values.projectName}
                         onChange={formik.handleChange}
@@ -203,8 +246,10 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                       </span>
                     </div>
                     <div className="text-left">
-                      <label className={labelStyle}>Descrption</label>
-
+                      <label className={labelStyle}>
+                        Description
+                        <span className="ml-0.5 text-red-500">*</span>
+                      </label>
                       <textarea
                         rows={5}
                         cols={30}
@@ -212,27 +257,21 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                         placeholder="Placeholder"
                         className="py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full"
                         value={formik.values.projectDescription}
-                        onChange={(e) => {
-                          if (e.target.value.length <= 50) {
-                            formik.handleChange(e);
-                          }
-                        }}
+                        onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                       />
-                      <span className="flex justify-between">
-                        <span className={errorStyle}>
-                          {formik.touched.projectDescription &&
-                            formik.errors.projectDescription}
-                        </span>
-                        <span className="text-sm text-gray-500 font-normal block text-right ">
-                          {formik.values.projectDescription.length}/50
-                        </span>
+                      <span className={errorStyle}>
+                        {formik.touched.projectDescription &&
+                          (formik.errors.projectDescription as string)}
                       </span>
                     </div>
 
                     <div className="sm:flex sm:gap-[10px] w-full">
                       <div className="text-left sm:w-1/2">
-                        <label className={labelStyle}>Start Date</label>
+                        <label className={labelStyle}>
+                          Start Date
+                          <span className="ml-0.5 text-red-500">*</span>
+                        </label>
                         <input
                           type="date"
                           name="startDate"
@@ -248,11 +287,10 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                         </span>
                       </div>
                       <div className="text-left sm:w-1/2">
-                        <label className="font-medium text-base text-gray-700 flex gap-3 mt-4 sm:mt-0">
+                        <label className="font-medium text-base text-gray-700 flex gap-1 mt-4 sm:mt-0">
                           Estimated End date
-                          <div
-                            className="flex items-center justify-center relative"
-                          >
+                          <span className="ml-0.5 text-red-500">*</span>
+                          <div className="flex items-center justify-center relative">
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -287,22 +325,43 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                         </span>
                       </div>
                     </div>
-
-                    <div className="text-left">
-                      <label className={labelStyle}>Estimated Budget</label>
-                      <input
-                        type="text"
-                        name="estimatedBudget"
-                        placeholder="2,00,000 USD"
-                        className={inputStyle}
-                        value={formik.values.estimatedBudget ?? ""}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                      />
-                      <span className={errorStyle}>
-                        {formik.touched.estimatedBudget &&
-                          formik.errors.estimatedBudget}
-                      </span>
+                    <div
+                      className="text-left flex gap-2 "
+                    >
+                      <div className="w-36">
+                        <label className={labelStyle}>Currency</label>
+                        <Select
+                          className="mt-2"
+                          onChange={handleCurrency}
+                          onBlur={() => formik.setTouched({ currency: true })}
+                          options={currencyFn()}
+                          value={countryValue}
+                          defaultValue={{ label: "USD", value: "USD" }}
+                          placeholder="Currency"
+                          name="currency"
+                          menuPlacement="auto"
+                          styles={reactSelectStyle}
+                        />
+                        <ErrorMessage>
+                          {formik.touched.currency && formik.errors.currency}
+                        </ErrorMessage>
+                      </div>
+                      <div className=" w-full">
+                        <label className={labelStyle}>Estimated Budget</label>
+                        <input
+                          type="text"
+                          name="estimatedBudget"
+                          placeholder="Estimated budget"
+                          className={inputStyle}
+                          value={formik.values.estimatedBudget ?? ""}
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                        />
+                        <span className={errorStyle}>
+                          {formik.touched.estimatedBudget &&
+                            formik.errors.estimatedBudget}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div className="lg:w-[50%]">

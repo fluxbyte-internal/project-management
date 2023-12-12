@@ -8,7 +8,8 @@ export const createProjectSchema = z.object({
   startDate: z.coerce.date({required_error:ZodErrorMessageEnumValue.REQUIRED}),
   estimatedEndDate: z.coerce.date({required_error:ZodErrorMessageEnumValue.REQUIRED}),
   estimatedBudget: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}),
-  defaultView: z.nativeEnum(ProjectDefaultViewEnumValue,{required_error:ZodErrorMessageEnumValue.REQUIRED})
+  defaultView: z.nativeEnum(ProjectDefaultViewEnumValue,{required_error:ZodErrorMessageEnumValue.REQUIRED}),
+  currency: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}),
 });
 
 export const updateProjectSchema = z.object({
@@ -21,11 +22,12 @@ export const updateProjectSchema = z.object({
   progressionPercentage: z.string().min(1).optional(),
   actualCost: z.string().min(1).optional(),
   budgetTrack: z.string().min(1).optional(),
-  timeTrack: z.string().min(1).optional()
+  timeTrack: z.string().min(1).optional(),
+  currency: z.string().min(1).optional(),
 });
 
 export const projectIdSchema = z.string().uuid();
 
 export const projectStatusSchema = z.object({
-  status: z.nativeEnum(ProjectStatusEnumValue)
+  status: z.nativeEnum(ProjectStatusEnumValue),
 });
