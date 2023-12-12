@@ -38,16 +38,16 @@ router.get(
     const token = createJwtToken(tokenPayload);
     res.cookie(settings.jwt.tokenCookieKey, token, {
       maxAge: 1 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      secure: true,
+      httpOnly: false,
+      secure: false,
     });
 
     // Refresh-Token
     const refreshToken = createJwtToken(tokenPayload, true);
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      secure: true,
+      httpOnly: false,
+      secure: false,
     });
 
     res.redirect(`${settings.appURL}`);

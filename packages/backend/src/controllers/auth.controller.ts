@@ -75,14 +75,14 @@ export const signUp = async (req: express.Request, res: express.Response) => {
 
     res.cookie(settings.jwt.tokenCookieKey, token, {
       maxAge: 1 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      secure: true,
+      httpOnly: false,
+      secure: false,
     });
 
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      secure: true,
+      httpOnly: false,
+      secure: false,
     });
     return new SuccessResponse(
       StatusCodes.CREATED,
@@ -126,28 +126,30 @@ export const login = async (req: express.Request, res: express.Response) => {
     const token = createJwtToken(tokenPayload);
     res.cookie(settings.jwt.tokenCookieKey, token, {
       maxAge: 1 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      secure: true,
+      httpOnly: false,
+      secure: false,
     });
-    
+
     const refreshToken = createJwtToken(tokenPayload, true);
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      secure: true,
+      httpOnly: false,
+      secure: false,
     });
 
     const { provider, ...userWithoutProvider } = user;
-    return new SuccessResponse(StatusCodes.OK, { user: userWithoutProvider }, "Login successfully").send(
-      res
-    );
-  };
+    return new SuccessResponse(
+      StatusCodes.OK,
+      { user: userWithoutProvider },
+      "Login successfully"
+    ).send(res);
+  }
   throw new UnAuthorizedError();
 };
 
 export const getAccessToken = (req: express.Request, res: express.Response) => {
   const refreshTokenCookie = authRefreshTokenSchema.parse(
-    req.cookies["refresh-token"]
+    req.cookies[settings.jwt.refreshTokenCookieKey]
   );
 
   const decoded = verifyJwtToken(refreshTokenCookie);
@@ -159,15 +161,15 @@ export const getAccessToken = (req: express.Request, res: express.Response) => {
   const token = createJwtToken(tokenPayload);
   res.cookie(settings.jwt.tokenCookieKey, token, {
     maxAge: 1 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
-    secure: true,
+    httpOnly: false,
+    secure: false,
   });
-  
+
   const refreshToken = createJwtToken(tokenPayload, true);
   res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
     maxAge: 7 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
-    secure: true,
+    httpOnly: false,
+    secure: false,
   });
   return new SuccessResponse(
     StatusCodes.OK,
