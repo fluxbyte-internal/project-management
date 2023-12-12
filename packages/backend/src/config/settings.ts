@@ -34,7 +34,14 @@ export type Settings = {
     clientId: string;
     clientSecret: string;
     callbackUrl: string;
-  }
+  };
+  noReplyEmailId: string;
+  awsBucketCredentials: {
+    accessKeyId: string,
+    secretAccessKey: string,
+    bucketName: string
+  };
+  environment: string
 };
 
 const {
@@ -49,7 +56,11 @@ const {
   NO_REPLY_EMAIL,
   GOOGLE_CLIENT_ID,
   GOOGLE_SECRET,
-  GOOGLE_CALLBACK_URL
+  GOOGLE_CALLBACK_URL,
+  AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY,
+  AWS_BUCKET_NAME,
+  ENV_NAME
 } = process.env;
 
 if (!PRIVATE_KEY_FOR_JWT) {
@@ -85,6 +96,13 @@ if (!GOOGLE_CLIENT_ID || !GOOGLE_SECRET || !GOOGLE_CALLBACK_URL) {
   );
 }
 
+if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY || !AWS_BUCKET_NAME) {
+  throw Error("Missing AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_BUCKET_NAME in .env");
+};
+if (!ENV_NAME) {
+  throw Error('Missing ENV_NAME in .env');
+};
+
 export const settings: Settings = {
   port: PORT! ?? 8000,
   jwt: {
@@ -113,4 +131,10 @@ export const settings: Settings = {
     clientSecret: GOOGLE_SECRET,
     callbackUrl: GOOGLE_CALLBACK_URL,
   },
+  awsBucketCredentials: {
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+    bucketName: AWS_BUCKET_NAME
+  },
+  environment: ENV_NAME
 };

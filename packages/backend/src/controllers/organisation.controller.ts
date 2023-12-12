@@ -100,6 +100,17 @@ export const createOrganisation = async (
       nonWorkingDays: nonWorkingDays,
     },
   });
+  const findUser = await prisma.user.findFirst({
+    where: { userId: req.userId },
+  });
+  if (findUser?.country === null) {
+    await prisma.user.update({
+      where: { userId: req.userId },
+      data: {
+        country: country,
+      },
+    });
+  };
   return new SuccessResponse(
     StatusCodes.CREATED,
     organisation,

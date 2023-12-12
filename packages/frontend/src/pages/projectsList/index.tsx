@@ -4,9 +4,12 @@ import dateFormatter from "@/helperFuntions/dateFormater";
 import useProjectQuery, { Project } from "../../api/query/useProjectQuery";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import ProfileName from "@/components/shared/Profile";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 import NoProject from "../../components/project/NoProject";
+import Loader from "@/components/common/Loader";
+import UserAvatar from "@/components/ui/userAvatar";
+import BackgroundImage from "@/components/layout/BackgroundImage";
+
 function ProjectsList() {
   const [data, setData] = useState<Project[]>();
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
@@ -28,7 +31,7 @@ function ProjectsList() {
       header: "Manager",
       onCellRender: (item: Project) => (
         <>
-          <ProfileName user={item.createdByUser}/>
+          <UserAvatar user={item.createdByUser}/>
         </>
       ),
     },
@@ -88,43 +91,55 @@ function ProjectsList() {
     },
   ];
 
-  const handleEdit = (item:Project) => {
+  const handleEdit = (item: Project) => {
     setIsOpenPopUp(true);
     setEditData(item);
   };
-
   return (
-    <>
-      {data && data.length > 0 ? (
-        <div className="h-full py-5 p-4 lg:p-14 w-full bg-[url(/src/assets/png/background2.png)] bg-cover bg-no-repeat">
-          <div className="flex justify-between items-center">
-            <h2 className="font-medium text-3xl leading-normal text-gray-600">
-              Projects
-            </h2>
-            <div>
-              <Button variant={"primary"} onClick={() => setIsOpenPopUp(true)}>
-                Add Project
-              </Button>
-            </div>
-          </div>
-          <div className="my-8 h-full">
-            {data && (
-              <Table key="Project view" columnDef={columnDef} data={data} />
-            )}
-            {!data && (
-              <div className="flex justify-center p-3 w-full">
-                No projects available
-              </div>
-            )}
-          </div>
-        </div>
+    <div className="w-full h-full relative">
+      <BackgroundImage />
+      {projectQuery.isLoading ? (
+        <Loader/>
       ) : (
-        <NoProject />
+        <>
+          {data && data.length > 0 ? (
+            <div className="h-full py-5 p-4 lg:p-14 w-full">
+              <div className="flex justify-between items-center">
+                <h2 className="font-medium text-3xl leading-normal text-gray-600">
+                  Projects
+                </h2>
+                <div>
+                  <Button
+                    variant={"primary"}
+                    onClick={() => setIsOpenPopUp(true)}
+                  >
+                    Add Project
+                  </Button>
+                </div>
+              </div>
+              <div className="my-8 h-full">
+                {data && (
+                  <Table key="Project view" columnDef={columnDef} data={data} />
+                )}
+                {!data && (
+                  <div className="flex justify-center p-3 w-full">
+                    No projects available
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <NoProject />
+          )}
+          {isOpenPopUp && (
+            <CreateUpdateProjectForm
+              handleClosePopUp={close}
+              editData={editData}
+            />
+          )}
+        </>
       )}
-      {isOpenPopUp && (
-        <CreateUpdateProjectForm handleClosePopUp={close} editData={editData} />
-      )}
-    </>
+    </div>
   );
 }
 
