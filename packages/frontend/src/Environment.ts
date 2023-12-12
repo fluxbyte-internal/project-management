@@ -13,4 +13,5 @@ export const requestURLs = {
   resendVerifyEmailOtp: `${baseURL}/user/resend-otp`,
   forgotPassword:`${baseURL}/auth/forgot-password`,
   resetPassword:`${baseURL}/auth/reset-password`,
+  task:`${baseURL}/task/`,
 };
