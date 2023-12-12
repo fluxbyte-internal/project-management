@@ -96,15 +96,15 @@ function ProjectsList() {
     setEditData(item);
   };
   return (
-    <div className="w-full relative">
+    <div className="w-full h-full relative">
       <BackgroundImage />
       {projectQuery.isLoading ? (
         <Loader/>
       ) : (
         <>
           {data && data.length > 0 ? (
-            <div className="h-full py-5 p-4 lg:p-14 w-full bg-[url(/src/assets/png/background2.png)] bg-cover bg-no-repeat ">
-              <div className="flex justify-between items-center ">
+            <div className="h-full py-5 p-4 lg:p-14 w-full">
+              <div className="flex justify-between items-center">
                 <h2 className="font-medium text-3xl leading-normal text-gray-600">
                   Projects
                 </h2>
