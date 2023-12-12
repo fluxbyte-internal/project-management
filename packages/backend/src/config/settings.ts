@@ -35,7 +35,6 @@ export type Settings = {
     clientSecret: string;
     callbackUrl: string;
   };
-  noReplyEmailId: string;
   awsBucketCredentials: {
     accessKeyId: string,
     secretAccessKey: string,
