@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 import SignUp from "../../../assets/svg/signup.svg";
 import Google from "../../../assets/svg/google.svg";
 import Facebook from "../../../assets/svg/facebook.svg";
-
+import { baseURL } from "../../../Environment";
 
 export type LoginValues = {
   email: string;
@@ -41,7 +41,7 @@ function Login() {
       setIsLoading(true);
       loginMutation.mutate(values, {
         onSuccess(data) {
-          login(data);
+          login();
           toast.success(data.data.message);
         },
         onError(error) {
@@ -72,10 +72,7 @@ function Login() {
   };
 
   const google = () => {
-    window.open("http://localhost:8000/api/auth/google", "_self");
-  };
-  const facebook = () => {
-    window.open("http://localhost:8000/api/auth/facebook", "_self");
+    window.open(`${baseURL}/auth/google`, "_self");
   };
 
   return (
@@ -186,7 +183,6 @@ function Login() {
               variant={"secondary"}
               isLoading={isLoading}
               disabled={isLoading}
-              onClick={facebook}
               className="w-full flex py-2.5 mt-1.5 rounded-md gap-2.5 hover:bg-[#1876f2d8] bg-[#1877F2] text-white"
             >
               <img src={Facebook} />
@@ -202,5 +198,3 @@ function Login() {
 }
 
 export default Login;
-
-
