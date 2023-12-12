@@ -75,7 +75,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
   const projectUpdateMutation = useProjectUpdateMutation(
     editData ? editData.projectId : ""
   );
-  const [countryValue, setContryValue] = useState<SingleValue<Options>>();
+  const [currencyValue, setCurrencyValue] = useState<SingleValue<Options>>();
 
   const projectQuery = useProjectQuery();
 
@@ -171,6 +171,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
         defaultView: editData.defaultView,
         currency: editData.currency,
       });
+      setCurrencyValue({label:editData.currency,value:editData.currency})
     }
   }, []);
 
@@ -202,8 +203,8 @@ function CreateUpdateProjectForm(props: AddProjectType) {
   
   const handleCurrency = (val: SingleValue<Options>) => {
     if (val) {
-      setContryValue(val);
-      formik.setFieldValue("country", val.value);
+      setCurrencyValue(val);
+      formik.setFieldValue("currency", val.value);
     }
   };
   return (
@@ -335,7 +336,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                           onChange={handleCurrency}
                           onBlur={() => formik.setTouched({ currency: true })}
                           options={currencyFn()}
-                          value={countryValue}
+                          value={currencyValue}
                           defaultValue={{ label: "USD", value: "USD" }}
                           placeholder="Currency"
                           name="currency"
