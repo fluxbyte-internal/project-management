@@ -263,3 +263,35 @@ export const deleteAttachment = async (
     "Attachment deleted successfully"
   ).send(res);
 };
+
+export const taskAssignToUser = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.organisationId) {
+    throw new BadRequestError("organisationId not found!");
+  }
+  const prisma = await getClientByTenantId(req.tenantId);
+  const usersOfOrganisation = await prisma.userOrganisation.findMany({
+    where: { organisationId: req.organisationId },
+    select: {
+      jobTitle: true,
+      organisationId: true,
+      role: true,
+      userId: true,
+      user: {
+        select: {
+          avatarImg: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
+  });
+  return new SuccessResponse(
+    StatusCodes.CREATED,
+    usersOfOrganisation,
+    "Get organisation's users successfully"
+  ).send(res);
+};

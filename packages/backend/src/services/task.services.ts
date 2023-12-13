@@ -1,7 +1,7 @@
 import { getClientByTenantId } from "../config/db.js";
 
 export class TaskService {
-  static taskFlagTPICalculation(actualProgress: number, taskDuration: number, durationSpentToDate: number): string {
+  static taskFlagTPICalculation(actualProgress: number, taskDuration: number, durationSpentToDate: number): "Red" | "Orange" | "Green" {
     const plannedProgress = durationSpentToDate / taskDuration;
     const tpi = actualProgress / plannedProgress;
 
@@ -24,13 +24,16 @@ export class TaskService {
     let currentTaskId: string | null = startingTaskId;
     let count = 0;
     const prisma = await getClientByTenantId(tanentId);
-    const parentTasks = await prisma.task.findMany();
     while (currentTaskId) {
-      const currentTask = parentTasks.find(task => task.taskId === currentTaskId);
+      const currentTask = (await prisma.task.findFirst({
+        where: { taskId: currentTaskId },
+      })) as { taskId: string; parentTaskId: string | null };
       if (currentTask) {
         count += 1;
         currentTaskId = currentTask.parentTaskId;
-      } else { break }
+      } else {
+        break;
+      }
     }
     return count;
   };
