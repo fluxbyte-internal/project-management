@@ -222,11 +222,13 @@ model Task {
 }
 
 model TaskAttachment {
-  attachmentId String @id @default(uuid()) @map("attachment_id")
-  name         String @map("name")
-  url          String @map("url")
-  taskId       String @map("task_id")
-  task         Task   @relation(fields: [taskId], references: [taskId], onDelete: Cascade)
+  attachmentId String   @id @default(uuid()) @map("attachment_id")
+  name         String   @map("name")
+  url          String   @map("url")
+  taskId       String   @map("task_id")
+  task         Task     @relation(fields: [taskId], references: [taskId], onDelete: Cascade)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@index([taskId])
 }
