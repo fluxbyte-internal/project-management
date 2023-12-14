@@ -3,6 +3,8 @@ import * as TaskController from '../controllers/task.controller.js';
 
 let router = express.Router();
 
+router.get('/taskAssignUsers', TaskController.taskAssignToUser);
+
 router.put('/status/completed/:projectId', TaskController.statusCompletedAllTAsk);
 router.put('/status/:taskId', TaskController.statusChangeTask);
 

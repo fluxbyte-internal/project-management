@@ -25,14 +25,43 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
     where: { taskId: taskId },
     include: {
       comments: {
-        orderBy: { createdAt: 'desc' },
-        include: { commentByUser: { select: { firstName: true, lastName: true, email: true, avatarImg: true } } }
+        orderBy: { createdAt: "desc" },
+        include: {
+          commentByUser: {
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true,
+              avatarImg: true,
+            },
+          },
+        },
+      },
+      assginedToUser: {
+        select: {
+          avatarImg: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+        }
       },
       documentAttachments: true,
-      subtasks: true
-    }
+      subtasks: true,
+    },
   });
-  return new SuccessResponse(StatusCodes.OK, task, 'task selected').send(res);
+
+  // Calculate Task endDate
+  const endDate = TaskService.calculateTaskEndDate(
+    task.startDate,
+    task.duration
+  );
+
+  const finalResponse = { ...task, endDate };
+  return new SuccessResponse(
+    StatusCodes.OK,
+    finalResponse,
+    "task selected"
+  ).send(res);
 };
 
 export const createTask = async (req: express.Request, res: express.Response) => {
@@ -44,7 +73,6 @@ export const createTask = async (req: express.Request, res: express.Response) =>
     duration,
     assginedToUserId,
     dependencies,
-    flag,
     milestoneIndicator
   } = createTaskSchema.parse(req.body);
   const projectId = projectIdSchema.parse(req.params.projectId);
@@ -62,7 +90,6 @@ export const createTask = async (req: express.Request, res: express.Response) =>
     if (countOfSubTasks > 3) { throw new BadRequestError("Maximum limit of sub tasks reached") };
 
   };
-  const endDate = TaskService.calculateTaskEndDate(startDate, duration);
   const task = await prisma.task.create({
     data: {
       projectId: projectId,
@@ -72,7 +99,6 @@ export const createTask = async (req: express.Request, res: express.Response) =>
       startDate: startDate,
       milestoneIndicator: milestoneIndicator,
       dependencies: dependencies,
-      flag: flag,
       assginedToUserId: assginedToUserId,
       status: TaskStatusEnum.NOT_STARTED,
       parentTaskId: parentTaskId ? parentTaskId : null,
@@ -83,7 +109,15 @@ export const createTask = async (req: express.Request, res: express.Response) =>
       documentAttachments: true,
     },
   });
-  return new SuccessResponse(StatusCodes.CREATED, { ...task, endDate }, 'task created successfully').send(res);
+
+  // Calculate Task endDate
+  const endDate = TaskService.calculateTaskEndDate(
+    startDate, 
+    duration
+  );
+
+  const finalResponse = { ...task, endDate };
+  return new SuccessResponse(StatusCodes.CREATED, finalResponse, 'task created successfully').send(res);
 };
 
 export const updateTask = async (req: express.Request, res: express.Response) => {
@@ -105,9 +139,13 @@ export const updateTask = async (req: express.Request, res: express.Response) =>
   });
 
   // Calculate Task endDate
-  const endDate = TaskService.calculateTaskEndDate(taskUpdateDB.startDate, taskUpdateDB.duration);
+  const endDate = TaskService.calculateTaskEndDate(
+    taskUpdateDB.startDate, 
+    taskUpdateDB.duration
+  );
 
-  return new SuccessResponse(StatusCodes.OK, { ...taskUpdateDB, endDate }, 'task updated successfully').send(res);
+  const finalResponse = { ...taskUpdateDB, endDate };
+  return new SuccessResponse(StatusCodes.OK, finalResponse, 'task updated successfully').send(res);
 };
 
 export const deleteTask = async (req: express.Request, res: express.Response) => {
@@ -119,7 +157,7 @@ export const deleteTask = async (req: express.Request, res: express.Response) =>
       where: { taskId },
       include: { comments: true, documentAttachments: true, subtasks: true }
     });
-    return new SuccessResponse(StatusCodes.OK, {}, 'task deleted successfully').send(res);
+    return new SuccessResponse(StatusCodes.OK, null, 'task deleted successfully').send(res);
   };
 };
 
@@ -155,7 +193,7 @@ export const statusCompletedAllTAsk = async (req: express.Request, res: express.
       where: { projectId: projectId },
       data: { status: TaskStatusEnum.COMPLETED, completionPecentage: '100', updatedByUserId: req.userId }
     })
-    return new SuccessResponse(StatusCodes.OK, {}, 'all task status change to completed successfully').send(res);
+    return new SuccessResponse(StatusCodes.OK, null, 'all task status change to completed successfully').send(res);
   };
   throw new NotFoundError('Tasks not found!');
 };
@@ -194,7 +232,7 @@ export const deleteComment = async (req: express.Request, res: express.Response)
   const prisma = await getClientByTenantId(req.tenantId);
   if (commentId && await prisma.comments.findFirstOrThrow({ where: { commentId: commentId } })) {
     await prisma.comments.delete({ where: { commentId } });
-    return new SuccessResponse(StatusCodes.OK, {}, 'comment deleted successfully').send(res);
+    return new SuccessResponse(StatusCodes.OK, null, 'comment deleted successfully').send(res);
   };
 };
 
@@ -278,9 +316,9 @@ export const taskAssignToUser = async (
       jobTitle: true,
       organisationId: true,
       role: true,
-      userId: true,
       user: {
         select: {
+          userId: true,
           avatarImg: true,
           email: true,
           firstName: true,

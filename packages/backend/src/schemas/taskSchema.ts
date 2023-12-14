@@ -12,7 +12,6 @@ export const createTaskSchema = z.object({
   assginedToUserId: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}).uuid(),
   dependencies: z.nativeEnum(TaskDependenciesEnumValue),
   milestoneIndicator: z.boolean({required_error:ZodErrorMessageEnumValue.REQUIRED}),
-  flag: z.string().optional(),
 });
 
 export const updateTaskSchema = z.object({
@@ -25,7 +24,6 @@ export const updateTaskSchema = z.object({
   assginedToUserId: z.string().uuid().optional(),
   dependencies: z.nativeEnum(TaskDependenciesEnumValue).optional(),
   milestoneIndicator: z.boolean().optional(),
-  flag: z.string().min(1).optional(),
 });
 
 

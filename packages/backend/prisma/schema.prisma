@@ -203,7 +203,6 @@ model Task {
   assginedToUser      User                 @relation(fields: [assginedToUserId], references: [userId])
   dependencies        TaskDependenciesEnum @map("dependecies")
   milestoneIndicator  Boolean              @map("milestone_indicator")
-  flag                String?              @map("flag")
   createdByUserId     String               @map("created_by_user_id")
   createdByUser       User                 @relation("createdByUser", fields: [createdByUserId], references: [userId])
   updatedByUserId     String?              @map("updated_by_user_id")
