@@ -104,16 +104,16 @@ function ProjectsList() {
             <DropdownMenuContent className="w-11 flex flex-col gap-1">
               <DropdownMenuItem onClick={() => handleEdit(item)}>
                 <Edit className="mr-2 h-4 w-4 text-[#44546F]" />
-                <Button className="p-0 font-normal h-auto" variant={"ghost"}>
+                <span className="p-0 font-normal h-auto" >
                   Edit
-                </Button>
+                </span>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="mx-1"/>
               <DropdownMenuItem onClick={() => handleView(item.projectId)}>
                 <ScrollText className="mr-2 h-4 w-4 text-[#44546F]" />
-                <Button className="p-0 font-normal h-auto" variant={"ghost"}>
+                <span className="p-0 font-normal h-auto" >
                    View Detail
-                </Button>
+                </span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
