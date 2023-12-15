@@ -9,8 +9,8 @@ export const createTaskSchema = z.object({
   taskDescription: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}).optional(),
   startDate: z.coerce.date({required_error:ZodErrorMessageEnumValue.REQUIRED}),
   duration: z.number({required_error:ZodErrorMessageEnumValue.REQUIRED}),
-  assginedToUserId: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}).uuid(),
-  dependencies: z.nativeEnum(TaskDependenciesEnumValue),
+  assginedToUserId: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}).uuid().array(),
+  dependencies: z.nativeEnum(TaskDependenciesEnumValue).optional(),
   milestoneIndicator: z.boolean({required_error:ZodErrorMessageEnumValue.REQUIRED}),
 });
 
@@ -21,7 +21,7 @@ export const updateTaskSchema = z.object({
   duration: z.number().nonnegative().optional(),
   completionPecentage: z.string().optional(),
   status: z.nativeEnum(TaskStatusEnumValue).optional(),
-  assginedToUserId: z.string().uuid().optional(),
+  assginedToUserId: z.string().uuid().array().optional(),
   dependencies: z.nativeEnum(TaskDependenciesEnumValue).optional(),
   milestoneIndicator: z.boolean().optional(),
 });

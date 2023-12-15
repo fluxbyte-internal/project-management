@@ -37,12 +37,17 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
           },
         },
       },
-      assginedToUser: {
+      assignedUsers: {
         select: {
-          avatarImg: true,
-          email: true,
-          firstName: true,
-          lastName: true,
+          taskId: true,
+          user:{
+            select: {
+              avatarImg: true, 
+              email: true,
+              firstName: true,
+              lastName: true
+            }
+          }
         }
       },
       documentAttachments: true,
@@ -93,14 +98,19 @@ export const createTask = async (req: express.Request, res: express.Response) =>
       startDate: startDate,
       milestoneIndicator: milestoneIndicator,
       dependencies: dependencies,
-      assginedToUserId: assginedToUserId,
       status: TaskStatusEnum.NOT_STARTED,
       parentTaskId: parentTaskId ? parentTaskId : null,
       createdByUserId: req.userId,
       updatedByUserId: req.userId,
+      assignedUsers: {
+        create: assginedToUserId.map(userId => ({
+          assginedToUserId: userId
+        }))
+      }
     },
     include: {
       documentAttachments: true,
+      assignedUsers: true
     },
   });
 
@@ -108,26 +118,44 @@ export const createTask = async (req: express.Request, res: express.Response) =>
   return new SuccessResponse(StatusCodes.CREATED, finalResponse, 'task created successfully').send(res);
 };
 
-export const updateTask = async (req: express.Request, res: express.Response) => {
-  if (!req.userId) { throw new BadRequestError('userId not found!!') };
-  const tasktId = taskIdSchema.parse(req.params.taskId);
-  const taskUpdateValue = updateTaskSchema.parse(req.body)
+export const updateTask = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
+  const taskId = taskIdSchema.parse(req.params.taskId);
+  const taskUpdateValue = updateTaskSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
   const findtask = await prisma.task.findFirstOrThrow({
-    where: { taskId: tasktId },
+    where: { taskId: taskId },
     include: {
-      documentAttachments: true
-    }
+      documentAttachments: true,
+      assignedUsers: true,
+    },
   });
-  if (!findtask) { throw new NotFoundError('Task not found') }
-  const newUpdateObj = { ...taskUpdateValue, updatedByUserId: req.userId };
+  if (!findtask) {
+    throw new NotFoundError("Task not found");
+  }
+  //TODO: Need to handle assginedToUserId CREATE and DELETE
+  const { assginedToUserId, ...updatedObjWithoutAssginedUser } =
+    taskUpdateValue;
   const taskUpdateDB = await prisma.task.update({
-    where: { taskId: tasktId },
-    data: { ...newUpdateObj },
+    where: { taskId: taskId },
+    data: {
+      ...updatedObjWithoutAssginedUser,
+      updatedByUserId: req.userId,
+    },
+    include: { documentAttachments: true, assignedUsers: true },
   });
 
   const finalResponse = { ...taskUpdateDB };
-  return new SuccessResponse(StatusCodes.OK, finalResponse, 'task updated successfully').send(res);
+  return new SuccessResponse(
+    StatusCodes.OK,
+    finalResponse,
+    "task updated successfully"
+  ).send(res);
 };
 
 export const deleteTask = async (req: express.Request, res: express.Response) => {
