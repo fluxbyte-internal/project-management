@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Task } from "@prisma/client";
 const rootPrismaClient = generatePrismaClient();
 const prismaClients: Record<
   "root" | (Omit<string, "root"> & string),
@@ -16,49 +16,16 @@ function generatePrismaClient(datasourceUrl?: string) {
     ];
   }
   const client = new PrismaClient(...prismaClientParams).$extends({
-    model: {
+    result: {
       task: {
-        endDate(startDate: Date | string, durationDays: number): Date {
-          const endDate = new Date(startDate);
-          endDate.setDate(endDate.getDate() + durationDays);
-          return endDate;
-        },
-        taskFlagTPICalculation(
-          actualProgress: number,
-          taskDuration: number,
-          durationSpentToDate: number,
-          isMilestone: boolean
-        ): "Red" | "Orange" | "Green" {
-          const plannedProgress = durationSpentToDate / taskDuration;
-          const tpi = actualProgress / plannedProgress;
-          if (isMilestone) {
-            return tpi < 1 ? "Red" : "Green";
-          } else {
-            if (tpi < 0.8) {
-              return "Red";
-            } else if (tpi >= 0.8 && tpi < 0.95) {
-              return "Orange";
-            } else {
-              return "Green";
-            }
-          }
-        },
-        async calculateSubTask(startingTaskId: string, tanentId: string) {
-          let currentTaskId: string | null = startingTaskId;
-          let count = 0;
-          const prisma = await getClientByTenantId(tanentId);
-          while (currentTaskId) {
-            const currentTask = (await prisma.task.findFirst({
-              where: { taskId: currentTaskId },
-            })) as { taskId: string; parentTaskId: string | null };
-            if (currentTask) {
-              count += 1;
-              currentTaskId = currentTask.parentTaskId;
-            } else {
-              break;
-            }
-          }
-          return count;
+        endDate: {
+          needs: { startDate: true, duration: true },
+          compute(task) {
+            const { startDate, duration } = task;
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + duration);
+            return endDate;
+          },
         },
       },
     },
