@@ -51,10 +51,7 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
   });
 
   // Calculate Task endDate
-  const endDate = TaskService.calculateTaskEndDate(
-    task.startDate,
-    task.duration
-  );
+  const endDate = prisma.task.endDate(task.startDate, task.duration);
 
   const finalResponse = { ...task, endDate };
   return new SuccessResponse(
@@ -111,10 +108,8 @@ export const createTask = async (req: express.Request, res: express.Response) =>
   });
 
   // Calculate Task endDate
-  const endDate = TaskService.calculateTaskEndDate(
-    startDate, 
-    duration
-  );
+  const endDate = prisma.task.endDate(startDate, duration);
+
 
   const finalResponse = { ...task, endDate };
   return new SuccessResponse(StatusCodes.CREATED, finalResponse, 'task created successfully').send(res);
@@ -139,10 +134,7 @@ export const updateTask = async (req: express.Request, res: express.Response) =>
   });
 
   // Calculate Task endDate
-  const endDate = TaskService.calculateTaskEndDate(
-    taskUpdateDB.startDate, 
-    taskUpdateDB.duration
-  );
+  const endDate = prisma.task.endDate(taskUpdateDB.startDate, taskUpdateDB.duration);
 
   const finalResponse = { ...taskUpdateDB, endDate };
   return new SuccessResponse(StatusCodes.OK, finalResponse, 'task updated successfully').send(res);
