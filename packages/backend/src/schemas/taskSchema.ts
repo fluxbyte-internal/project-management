@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { array, z } from "zod";
 import { TaskDependenciesEnumValue, TaskStatusEnumValue, ZodErrorMessageEnumValue } from "./enums.js";
 
 
@@ -10,13 +10,8 @@ export const createTaskSchema = z.object({
   startDate: z.coerce.date({required_error:ZodErrorMessageEnumValue.REQUIRED}),
   duration: z.number({required_error:ZodErrorMessageEnumValue.REQUIRED}),
   assginedToUserId: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}).uuid(),
-  documentAttachments: z.object({
-    name: z.string(),
-    url: z.string()
-  }).array().optional(),
   dependencies: z.nativeEnum(TaskDependenciesEnumValue),
   milestoneIndicator: z.boolean({required_error:ZodErrorMessageEnumValue.REQUIRED}),
-  flag: z.string().optional(),
 });
 
 export const updateTaskSchema = z.object({
@@ -29,7 +24,6 @@ export const updateTaskSchema = z.object({
   assginedToUserId: z.string().uuid().optional(),
   dependencies: z.nativeEnum(TaskDependenciesEnumValue).optional(),
   milestoneIndicator: z.boolean().optional(),
-  flag: z.string().min(1).optional(),
 });
 
 
@@ -44,8 +38,4 @@ export const createCommentTaskSchema = z.object({
 
 export const attachmentIdSchma = z.string().uuid();
 
-export const attachmentTaskSchema = z.object({
-  attachmentId: z.string().uuid().optional(),
-  name: z.string(),
-  url: z.string()
-}).array();
+export const attachmentTaskSchema = z.any();

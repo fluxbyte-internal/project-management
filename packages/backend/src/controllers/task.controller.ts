@@ -3,9 +3,10 @@ import { getClientByTenantId } from '../config/db.js';
 import { BadRequestError, NotFoundError, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
 import { projectIdSchema } from '../schemas/projectSchema.js';
-import { attachmentIdSchma, attachmentTaskSchema, commentIdSchma, createCommentTaskSchema, createTaskSchema, taskIdSchema, taskStatusSchema, updateTaskSchema } from '../schemas/taskSchema.js';
+import { attachmentIdSchma, commentIdSchma, createCommentTaskSchema, createTaskSchema, attachmentTaskSchema, taskIdSchema, taskStatusSchema, updateTaskSchema } from '../schemas/taskSchema.js';
 import { TaskService } from '../services/task.services.js';
 import { TaskStatusEnum } from '@prisma/client';
+import { AwsUploadService } from '../services/aws.services.js';
 
 export const getTasks = async (req: express.Request, res: express.Response) => {
   const projectId = projectIdSchema.parse(req.params.projectId);
@@ -24,14 +25,37 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
     where: { taskId: taskId },
     include: {
       comments: {
-        orderBy: { createdAt: 'desc' },
-        include: { commentByUser: { select: { firstName: true, lastName: true, email: true } } }
+        orderBy: { createdAt: "desc" },
+        include: {
+          commentByUser: {
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true,
+              avatarImg: true,
+            },
+          },
+        },
+      },
+      assginedToUser: {
+        select: {
+          avatarImg: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+        }
       },
       documentAttachments: true,
-      subtasks: true
-    }
+      subtasks: true,
+    },
   });
-  return new SuccessResponse(StatusCodes.OK, task, 'task selected').send(res);
+
+  const finalResponse = { ...task };
+  return new SuccessResponse(
+    StatusCodes.OK,
+    finalResponse,
+    "task selected"
+  ).send(res);
 };
 
 export const createTask = async (req: express.Request, res: express.Response) => {
@@ -41,10 +65,8 @@ export const createTask = async (req: express.Request, res: express.Response) =>
     taskDescription,
     startDate,
     duration,
-    documentAttachments,
     assginedToUserId,
     dependencies,
-    flag,
     milestoneIndicator
   } = createTaskSchema.parse(req.body);
   const projectId = projectIdSchema.parse(req.params.projectId);
@@ -62,7 +84,6 @@ export const createTask = async (req: express.Request, res: express.Response) =>
     if (countOfSubTasks > 3) { throw new BadRequestError("Maximum limit of sub tasks reached") };
 
   };
-  const endDate = TaskService.calculateTaskEndDate(startDate, duration);
   const task = await prisma.task.create({
     data: {
       projectId: projectId,
@@ -72,24 +93,19 @@ export const createTask = async (req: express.Request, res: express.Response) =>
       startDate: startDate,
       milestoneIndicator: milestoneIndicator,
       dependencies: dependencies,
-      flag: flag,
       assginedToUserId: assginedToUserId,
       status: TaskStatusEnum.NOT_STARTED,
       parentTaskId: parentTaskId ? parentTaskId : null,
       createdByUserId: req.userId,
       updatedByUserId: req.userId,
-      documentAttachments: {
-        create: documentAttachments?.map((attachment) => ({
-          name: attachment.name,
-          url: attachment.url,
-        })),
-      },
     },
     include: {
       documentAttachments: true,
     },
   });
-  return new SuccessResponse(StatusCodes.CREATED, { ...task, endDate }, 'task created successfully').send(res);
+
+  const finalResponse = { ...task };
+  return new SuccessResponse(StatusCodes.CREATED, finalResponse, 'task created successfully').send(res);
 };
 
 export const updateTask = async (req: express.Request, res: express.Response) => {
@@ -107,13 +123,11 @@ export const updateTask = async (req: express.Request, res: express.Response) =>
   const newUpdateObj = { ...taskUpdateValue, updatedByUserId: req.userId };
   const taskUpdateDB = await prisma.task.update({
     where: { taskId: tasktId },
-    data: { ...newUpdateObj, documentAttachments: {} },
+    data: { ...newUpdateObj },
   });
 
-  // Calculate Task endDate
-  const endDate = TaskService.calculateTaskEndDate(taskUpdateDB.startDate, taskUpdateDB.duration);
-
-  return new SuccessResponse(StatusCodes.OK, { ...taskUpdateDB, endDate }, 'task updated successfully').send(res);
+  const finalResponse = { ...taskUpdateDB };
+  return new SuccessResponse(StatusCodes.OK, finalResponse, 'task updated successfully').send(res);
 };
 
 export const deleteTask = async (req: express.Request, res: express.Response) => {
@@ -125,7 +139,7 @@ export const deleteTask = async (req: express.Request, res: express.Response) =>
       where: { taskId },
       include: { comments: true, documentAttachments: true, subtasks: true }
     });
-    return new SuccessResponse(StatusCodes.OK, {}, 'task deleted successfully').send(res);
+    return new SuccessResponse(StatusCodes.OK, null, 'task deleted successfully').send(res);
   };
 };
 
@@ -161,7 +175,7 @@ export const statusCompletedAllTAsk = async (req: express.Request, res: express.
       where: { projectId: projectId },
       data: { status: TaskStatusEnum.COMPLETED, completionPecentage: '100', updatedByUserId: req.userId }
     })
-    return new SuccessResponse(StatusCodes.OK, {}, 'all task status change to completed successfully').send(res);
+    return new SuccessResponse(StatusCodes.OK, null, 'all task status change to completed successfully').send(res);
   };
   throw new NotFoundError('Tasks not found!');
 };
@@ -200,35 +214,104 @@ export const deleteComment = async (req: express.Request, res: express.Response)
   const prisma = await getClientByTenantId(req.tenantId);
   if (commentId && await prisma.comments.findFirstOrThrow({ where: { commentId: commentId } })) {
     await prisma.comments.delete({ where: { commentId } });
-    return new SuccessResponse(StatusCodes.OK, {}, 'comment deleted successfully').send(res);
+    return new SuccessResponse(StatusCodes.OK, null, 'comment deleted successfully').send(res);
   };
 };
 
-export const updateAttachment = async (req: express.Request, res: express.Response) => {
-  const attachemtnBody = attachmentTaskSchema.parse(req.body);
+export const addAttachment = async (
+  req: express.Request,
+  res: express.Response
+) => {
+
   const taskId = taskIdSchema.parse(req.params.taskId);
-  // Todo: Need to do with blob and AWS S3
+
+  let files = [];
+  const taskAttachmentFiles = attachmentTaskSchema.parse(
+    req.files?.taskAttachment
+  );
+  if (Array.isArray(taskAttachmentFiles)) {
+    files = taskAttachmentFiles;
+  } else {
+    files.push(taskAttachmentFiles);
+  };
   const prisma = await getClientByTenantId(req.tenantId);
-  attachemtnBody.map(async (data) => {
-    if (data.attachmentId && await prisma.taskAttachment.findFirstOrThrow({ where: { attachmentId: data.attachmentId } })) {
-      await prisma.taskAttachment.update({
-        where: { attachmentId: data.attachmentId },
-        data: { name: data.name, url: data.url },
-      });
-    } else {
-      await prisma.taskAttachment.create({
-        data: { name: data.name, url: data.url, taskId: taskId }
-      });
-    }
+
+  for (const singleFile of files) {
+    const taskAttachmentURL = await AwsUploadService.uploadFileWithContent(
+      `${req.userId}-${singleFile?.name}`,
+      singleFile?.data,
+      "task-attachment"
+    );
+    await prisma.taskAttachment.create({
+      data: {
+        taskId: taskId,
+        url: taskAttachmentURL,
+        name: singleFile.name,
+      },
+    });
+  };
+
+  const findTask = await prisma.task.findFirst({
+    where: { taskId: taskId },
+    include: { documentAttachments: true },
   });
-  return new SuccessResponse(StatusCodes.OK, {}, 'Attachment updated successfully').send(res);
+
+  return new SuccessResponse(
+    StatusCodes.OK,
+    findTask,
+    "Add attachment successfully"
+  ).send(res);
 };
 
-export const deleteAttachment = async (req: express.Request, res: express.Response) => {
+export const deleteAttachment = async (
+  req: express.Request,
+  res: express.Response
+) => {
   const attachmentId = attachmentIdSchma.parse(req.params.attachmentId);
   const prisma = await getClientByTenantId(req.tenantId);
-  if (attachmentId && await prisma.taskAttachment.findFirstOrThrow({ where: { attachmentId: attachmentId } })) {
-    await prisma.taskAttachment.delete({ where: { attachmentId } });
-    return new SuccessResponse(StatusCodes.OK, {}, 'Attachment deleted successfully').send(res);
-  };
+  const attachment = await prisma.taskAttachment.findFirstOrThrow({
+    where: { attachmentId: attachmentId },
+  });
+
+  //TODO: If Delete require on S3
+  // await AwsUploadService.deleteFile(attachment.name, 'task-attachment');
+  await prisma.taskAttachment.delete({ where: { attachmentId } });
+  
+  return new SuccessResponse(
+    StatusCodes.OK,
+    null,
+    "Attachment deleted successfully"
+  ).send(res);
+};
+
+export const taskAssignToUser = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.organisationId) {
+    throw new BadRequestError("organisationId not found!");
+  }
+  const prisma = await getClientByTenantId(req.tenantId);
+  const usersOfOrganisation = await prisma.userOrganisation.findMany({
+    where: { organisationId: req.organisationId },
+    select: {
+      jobTitle: true,
+      organisationId: true,
+      role: true,
+      user: {
+        select: {
+          userId: true,
+          avatarImg: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
+  });
+  return new SuccessResponse(
+    StatusCodes.CREATED,
+    usersOfOrganisation,
+    "Get organisation's users successfully"
+  ).send(res);
 };
