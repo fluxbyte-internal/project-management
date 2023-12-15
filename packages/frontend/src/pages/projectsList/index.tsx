@@ -6,9 +6,10 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 import NoProject from "../../components/project/NoProject";
+import Loader from "@/components/common/Loader";
 import UserAvatar from "@/components/ui/userAvatar";
 import BackgroundImage from "@/components/layout/BackgroundImage";
-import Spinner from "@/components/ui/spinner";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Edit, ScrollText, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+
 
 function ProjectsList() {
   const [data, setData] = useState<Project[]>();
@@ -126,45 +128,51 @@ function ProjectsList() {
     setIsOpenPopUp(true);
     setEditData(item);
   };
-
   return (
-    <>
+    <div className="w-full h-full relative">
       <BackgroundImage />
-      {projectQuery.isLoading && (
-        <div className="absolute w-full h-[calc(100vh-3.5rem)] grid z-20 place-content-center backdrop-blur-[0.5px] bg-[#7b797936]">
-          <Spinner color="#F99807" className="h-20 w-20" />
-        </div>
-      )}
-      {data && data.length > 0 ? (
-        <div className="h-full py-5 p-4 lg:p-14 w-full">
-          <div className="flex justify-between items-center">
-            <h2 className="font-medium text-3xl leading-normal text-gray-600">
-              Projects
-            </h2>
-            <div>
-              <Button variant={"primary"} onClick={() => setIsOpenPopUp(true)}>
-                Add Project
-              </Button>
-            </div>
-          </div>
-          <div className="my-8 h-full">
-            {data && (
-              <Table key="Project view" columnDef={columnDef} data={data} />
-            )}
-            {!data && (
-              <div className="flex justify-center p-3 w-full">
-                No projects available
-              </div>
-            )}
-          </div>
-        </div>
+      {projectQuery.isLoading ? (
+        <Loader/>
       ) : (
-        <NoProject />
+        <>
+          {data && data.length > 0 ? (
+            <div className="h-full py-5 p-4 lg:p-14 w-full">
+              <div className="flex justify-between items-center">
+                <h2 className="font-medium text-3xl leading-normal text-gray-600">
+                  Projects
+                </h2>
+                <div>
+                  <Button
+                    variant={"primary"}
+                    onClick={() => setIsOpenPopUp(true)}
+                  >
+                    Add Project
+                  </Button>
+                </div>
+              </div>
+              <div className="my-8 h-full">
+                {data && (
+                  <Table key="Project view" columnDef={columnDef} data={data} />
+                )}
+                {!data && (
+                  <div className="flex justify-center p-3 w-full">
+                    No projects available
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <NoProject />
+          )}
+          {isOpenPopUp && (
+            <CreateUpdateProjectForm
+              handleClosePopUp={close}
+              editData={editData}
+            />
+          )}
+        </>
       )}
-      {isOpenPopUp && (
-        <CreateUpdateProjectForm handleClosePopUp={close} editData={editData} />
-      )}
-    </>
+    </div>
   );
 }
 

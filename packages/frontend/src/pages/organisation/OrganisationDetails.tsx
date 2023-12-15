@@ -10,7 +10,7 @@ import FormLabel from "@/components/common/FormLabel";
 import InputEmail from "@/components/common/InputEmail";
 import InputSelect from "@/components/common/InputSelect";
 import useOrganisationDetailsQuery from "@/api/query/useOrganisationDetailsQuery";
-import Spinner from "@/components/ui/spinner";
+import Loader from "@/components/common/Loader";
 import CrossIcon from "../../assets/svg/CrossIcon.svg";
 import { useFormik } from "formik";
 import { z } from "zod";
@@ -136,7 +136,7 @@ function OrganisationDetails() {
     }
   }, [filterString, organisation?.userOrganisation]);
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <Loader/>;
   if (status === "error" || !organisation)
     return (
       <div className="text-red-500 text-lg text-center">
