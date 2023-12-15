@@ -203,7 +203,6 @@ model Task {
   assginedToUser      User                 @relation(fields: [assginedToUserId], references: [userId])
   dependencies        TaskDependenciesEnum @map("dependecies")
   milestoneIndicator  Boolean              @map("milestone_indicator")
-  flag                String?              @map("flag")
   createdByUserId     String               @map("created_by_user_id")
   createdByUser       User                 @relation("createdByUser", fields: [createdByUserId], references: [userId])
   updatedByUserId     String?              @map("updated_by_user_id")
@@ -222,11 +221,13 @@ model Task {
 }
 
 model TaskAttachment {
-  attachmentId String @id @default(uuid()) @map("attachment_id")
-  name         String @map("name")
-  url          String @map("url")
-  taskId       String @map("task_id")
-  task         Task   @relation(fields: [taskId], references: [taskId], onDelete: Cascade)
+  attachmentId String   @id @default(uuid()) @map("attachment_id")
+  name         String   @map("name")
+  url          String   @map("url")
+  taskId       String   @map("task_id")
+  task         Task     @relation(fields: [taskId], references: [taskId], onDelete: Cascade)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@index([taskId])
 }

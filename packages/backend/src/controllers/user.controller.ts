@@ -63,7 +63,8 @@ export const updateUserAvtarImg = async (
   if (!findUser) throw new NotFoundError("User not found");
   const avatarImgURL = await AwsUploadService.uploadFileWithContent(
     `${findUser.userId}-${files?.avatarImg?.name}`,
-    files?.avatarImg?.data
+    files?.avatarImg?.data,
+    'user-profiles'
   );
   const user = await prisma.user.update({
     data: {
