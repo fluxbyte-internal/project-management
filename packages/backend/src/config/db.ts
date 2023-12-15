@@ -27,6 +27,30 @@ function generatePrismaClient(datasourceUrl?: string) {
             return endDate;
           },
         },
+        flag: {
+          needs: { milestoneIndicator: true },
+          compute(task: Task): "Red" | "Orange" | "Green" {
+            let { milestoneIndicator, duration, completionPecentage } = task;
+
+            //TODO: Need to change logic here
+            const plannedProgress = duration / duration;
+            if (!completionPecentage) {
+              completionPecentage = "100";
+            }
+            const tpi = parseInt(completionPecentage) / plannedProgress;
+            if (milestoneIndicator) {
+              return tpi < 1 ? "Red" : "Green";
+            } else {
+              if (tpi < 0.8) {
+                return "Red";
+              } else if (tpi >= 0.8 && tpi < 0.95) {
+                return "Orange";
+              } else {
+                return "Green";
+              }
+            }
+          },
+        },
       },
     },
   });
