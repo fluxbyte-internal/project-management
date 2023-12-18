@@ -4,7 +4,8 @@ import { settings } from "../config/settings.js";
 export class AwsUploadService {
   static async uploadFileWithContent(
     fileName: string,
-    fileContent: string | any
+    fileContent: string | any,
+    fileType: string
   ) {
     AWS.config.update({
       accessKeyId: settings.awsBucketCredentials.accessKeyId,
@@ -13,7 +14,7 @@ export class AwsUploadService {
 
     const bucketName = settings.awsBucketCredentials.bucketName;
     const params = {
-      Bucket: `${bucketName}/${settings.environment}/user-profiles`,
+      Bucket: `${bucketName}/${settings.environment}/${fileType}`,
       Key: fileName,
       Body: fileContent,
       contentType: "text/plain",
@@ -27,4 +28,26 @@ export class AwsUploadService {
       });
     });
   }
+
+  // TODO: If Delete require on S3
+  // static async deleteFile(fileName: string, fileType: string) {
+  //   AWS.config.update({
+  //     accessKeyId: settings.awsBucketCredentials.accessKeyId,
+  //     secretAccessKey: settings.awsBucketCredentials.secretAccessKey,
+  //   });
+
+  //   const bucketName = settings.awsBucketCredentials.bucketName;
+  //   const params = {
+  //     Bucket: `${bucketName}/${settings.environment}/${fileType}`,
+  //     Key: fileName,
+  //   };
+
+  //   const s3 = new AWS.S3();
+  //   return new Promise<void>((resolve, reject) => {
+  //     s3.deleteObject(params, (err: unknown) => {
+  //       if (err) reject(err);
+  //       resolve();
+  //     });
+  //   });
+  // };
 }

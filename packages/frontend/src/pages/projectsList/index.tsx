@@ -10,10 +10,22 @@ import Loader from "@/components/common/Loader";
 import UserAvatar from "@/components/ui/userAvatar";
 import BackgroundImage from "@/components/layout/BackgroundImage";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Edit, ScrollText, Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+
 function ProjectsList() {
   const [data, setData] = useState<Project[]>();
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
   const [editData, setEditData] = useState<Project | undefined>();
+  const navigate = useNavigate();
 
   const projectQuery = useProjectQuery();
   useEffect(() => {
@@ -24,6 +36,11 @@ function ProjectsList() {
     setIsOpenPopUp(false);
     setEditData(undefined);
   };
+
+  const handleView = (id:string) => {
+    navigate("/project-details/" + id);
+  };
+
   const columnDef: ColumeDef[] = [
     { key: "projectName", header: "Project Name", sorting: true },
     {
@@ -78,14 +95,30 @@ function ProjectsList() {
     {
       key: "Action",
       header: "Action",
-      onCellRender: (item) => (
+      onCellRender: (item:Project) => (
         <>
-          <button
-            onClick={() => handleEdit(item)}
-            className="w-32 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex"
-          >
-            Edit
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div className=" cursor-pointer w-24 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex">
+                <Settings className="mr-2 h-4 w-4" />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-11 flex flex-col gap-1">
+              <DropdownMenuItem onClick={() => handleEdit(item)}>
+                <Edit className="mr-2 h-4 w-4 text-[#44546F]" />
+                <span className="p-0 font-normal h-auto" >
+                  Edit
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="mx-1"/>
+              <DropdownMenuItem onClick={() => handleView(item.projectId)}>
+                <ScrollText className="mr-2 h-4 w-4 text-[#44546F]" />
+                <span className="p-0 font-normal h-auto" >
+                   View Detail
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </>
       ),
     },

@@ -1,20 +1,73 @@
-import { PrismaClient } from "@prisma/client"
-const prismaClients: Record<'root' | Omit<string, 'root'> & string, PrismaClient> = {
-  root: new PrismaClient(),
+import { PrismaClient, Task } from "@prisma/client";
+const rootPrismaClient = generatePrismaClient();
+const prismaClients: Record<
+  "root" | (Omit<string, "root"> & string),
+  typeof rootPrismaClient
+> = {
+  root: rootPrismaClient,
 };
+function generatePrismaClient(datasourceUrl?: string) {
+  let prismaClientParams: ConstructorParameters<typeof PrismaClient> = [];
+  if (typeof datasourceUrl === "string") {
+    prismaClientParams = [
+      {
+        datasourceUrl,
+      },
+    ];
+  }
+  const client = new PrismaClient(...prismaClientParams).$extends({
+    result: {
+      task: {
+        endDate: {
+          needs: { startDate: true, duration: true },
+          compute(task) {
+            const { startDate, duration } = task;
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + duration);
+            return endDate;
+          },
+        },
+        flag: {
+          needs: { milestoneIndicator: true },
+          compute(task: Task): "Red" | "Orange" | "Green" {
+            let { milestoneIndicator, duration, completionPecentage } = task;
 
-export async function getClientByTenantId(tenantId: string): Promise<PrismaClient> {
-  if (!tenantId) { return prismaClients.root };
-
+            //TODO: Need to change logic here
+            const plannedProgress = duration / duration;
+            if (!completionPecentage) {
+              completionPecentage = "100";
+            }
+            const tpi = parseInt(completionPecentage) / plannedProgress;
+            if (milestoneIndicator) {
+              return tpi < 1 ? "Red" : "Green";
+            } else {
+              if (tpi < 0.8) {
+                return "Red";
+              } else if (tpi >= 0.8 && tpi < 0.95) {
+                return "Orange";
+              } else {
+                return "Green";
+              }
+            }
+          },
+        },
+      },
+    },
+  });
+  return client;
+}
+export async function getClientByTenantId(
+  tenantId: string
+): Promise<ReturnType<typeof generatePrismaClient>> {
+  if (!tenantId) {
+    return prismaClients.root;
+  }
   const findTenant = await prismaClients.root?.tenant.findUnique({
     where: { tenantId: tenantId },
   });
-
-  if (!findTenant) { return prismaClients.root };
-
-  prismaClients[tenantId] = new PrismaClient({
-    datasourceUrl: findTenant.connectionString!
-  });
-
-  return prismaClients[tenantId] as PrismaClient;
-};
+  if (!findTenant) {
+    return prismaClients.root;
+  }
+  prismaClients[tenantId] = generatePrismaClient(findTenant.connectionString!);
+  return prismaClients[tenantId] as ReturnType<typeof generatePrismaClient>;
+}
