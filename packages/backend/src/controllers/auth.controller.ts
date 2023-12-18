@@ -76,13 +76,13 @@ export const signUp = async (req: express.Request, res: express.Response) => {
     res.cookie(settings.jwt.tokenCookieKey, token, {
       maxAge: 1 * 24 * 60 * 60 * 1000,
       httpOnly: false,
-      secure: false,
+      secure: true
     });
 
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
       httpOnly: false,
-      secure: false,
+      secure: true
     });
     return new SuccessResponse(
       StatusCodes.CREATED,
@@ -127,14 +127,14 @@ export const login = async (req: express.Request, res: express.Response) => {
     res.cookie(settings.jwt.tokenCookieKey, token, {
       maxAge: 1 * 24 * 60 * 60 * 1000,
       httpOnly: false,
-      secure: false,
+      secure: true
     });
 
     const refreshToken = createJwtToken(tokenPayload, true);
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
       httpOnly: false,
-      secure: false,
+      secure: true
     });
 
     const { provider, ...userWithoutProvider } = user;
@@ -162,14 +162,14 @@ export const getAccessToken = (req: express.Request, res: express.Response) => {
   res.cookie(settings.jwt.tokenCookieKey, token, {
     maxAge: 1 * 24 * 60 * 60 * 1000,
     httpOnly: false,
-    secure: false,
+    secure: true
   });
 
   const refreshToken = createJwtToken(tokenPayload, true);
   res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: false,
-    secure: false,
+    secure: true
   });
   return new SuccessResponse(
     StatusCodes.OK,

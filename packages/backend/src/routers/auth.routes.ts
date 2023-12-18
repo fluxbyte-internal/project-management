@@ -39,7 +39,7 @@ router.get(
     res.cookie(settings.jwt.tokenCookieKey, token, {
       maxAge: 1 * 24 * 60 * 60 * 1000,
       httpOnly: false,
-      secure: false,
+      secure: true
     });
 
     // Refresh-Token
@@ -47,7 +47,7 @@ router.get(
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
       httpOnly: false,
-      secure: false,
+      secure: true
     });
 
     res.redirect(`${settings.appURL}`);
