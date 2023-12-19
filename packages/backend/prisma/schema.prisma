@@ -54,6 +54,7 @@ enum TaskStatusEnum {
 enum TaskDependenciesEnum {
   BLOCKING
   WAITING_ON
+  NO_DEPENDENCIES
 }
 
 model User {
