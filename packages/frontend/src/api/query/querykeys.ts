@@ -3,4 +3,6 @@ export const QUERY_KEYS = {
   getProjects:"getProjects",
   organisation:"organisation",
   taskById:"taskById",
+  taskMamber:"taskMamber",
+  allTask:"allTask",
 } as const;

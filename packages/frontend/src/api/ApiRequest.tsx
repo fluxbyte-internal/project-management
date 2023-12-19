@@ -11,7 +11,7 @@ const ApiRequest = axios.create({
 ApiRequest.interceptors.request.use((config) => {
   const token = localStorage.getItem("Token");
   config.headers["Authorization"] = `Bearer ${token}`;
-  config.headers["Content-Type"] = "application/json";
+  // config.headers["Content-Type"] = "application/json";
   return config;
 });
 

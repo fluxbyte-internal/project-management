@@ -5,10 +5,10 @@ import {
   ResponseType,
 } from "@/api/types/axiosResponseType";
 import ApiRequest from "../ApiRequest";
-import { Comment } from "./useTaskAddCommentMutation";
+import { Task } from "./useTaskCreateMutation";
 
 
-type TaskRemoveCommentResponseType = ResponseType<Comment>;
+type TaskRemoveCommentResponseType = ResponseType<Task>;
 
 function useRemoveTaskCommentMutation() {
   const mutation = useMutation<
@@ -18,7 +18,7 @@ function useRemoveTaskCommentMutation() {
   >({
     mutationFn: (data) =>
       ApiRequest.delete<TaskRemoveCommentResponseType>(
-        `${requestURLs.task}comment/${data}`
+        `${requestURLs.task}attechment/${data}`
       ),
   });
 

@@ -9,6 +9,7 @@ import { createTaskSchema } from "@backend/src/schemas/taskSchema";
 import ApiRequest from "../ApiRequest";
 import { TaskDependenciesEnumValue } from "@backend/src/schemas/enums";
 import { UserType } from "../query/useCurrentUserQuery";
+import { UserOrganisationType } from "../query/useOrganisationDetailsQuery";
 
 export type Task = {
   taskId: string;
@@ -19,19 +20,22 @@ export type Task = {
   duration: number;
   completionPecentage: null;
   status: string;
-  assginedToUserId: string;
   dependencies: keyof typeof TaskDependenciesEnumValue;
   milestoneIndicator: boolean;
-  flag: string;
   createdByUserId: string;
   updatedByUserId: string;
   createdAt: Date;
   updatedAt: Date;
-  parentTaskId: null;
-  documentAttachments: any[];
-  endDate: Date;
+  parentTaskId: null | string;
+  dependantTaskId: null | string;
   comments: comments[];
-  subtasks:Task[]
+  documentAttachments: DocumentAttachment[];
+  endDate: Date;
+  flag: string;
+  subtasks: Task[];
+  assignedUsers: [
+    { taskAssignUsersId: string; user: UserOrganisationType["user"] }
+  ];
 };
 
 export interface comments {
@@ -43,10 +47,17 @@ export interface comments {
   updatedAt: Date;
   commentByUser: UserType;
 }
-
+export interface DocumentAttachment {
+  attachmentId: string;
+  name: string;
+  url: string;
+  taskId: string;
+  createdAt: Date;
+  updateAt: Date;
+}
 type CreateTaskResponseType = ResponseType<Task>;
 
-function useCreateTaskMutation(projectId?: string,taskId?: string) {
+function useCreateTaskMutation(projectId?: string, taskId?: string) {
   const mutation = useMutation<
     AxiosResponseAndError<CreateTaskResponseType>["response"],
     AxiosResponseAndError<CreateTaskResponseType>["error"],

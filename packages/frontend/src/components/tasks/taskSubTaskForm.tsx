@@ -1,50 +1,44 @@
-import TaskSvg from "../../assets/svg/Task.svg";
-import Edit from "../../assets/svg/EditPen.svg";
-import Close from "../../assets/svg/CrossIcon.svg";
-import SubTask from "../../assets/svg/SubTask.svg";
-import PlusSvg from "../../assets/svg/Plus.svg";
-import PapperClip from "../../assets/svg/Paperclip.svg";
-import TopRightArrow from "../../assets/svg/TopRightArrow.svg";
-import MultiLine from "../../assets/svg/MultiLine.svg";
-import Clock from "../../assets/svg/Clock.svg";
-import Link from "../../assets/svg/Link.svg";
-import Users from "../../assets/svg/Users.svg";
-import Tag from "../../assets/svg/Tag.svg";
-import Route from "../../assets/svg/Route.svg";
-import Folder from "../../assets/svg/Folders.svg";
-import DownArrow from "../../assets/svg/DownArrow.svg";
+import z from "zod";
+import { cn } from "@/lib/utils";
+import { useFormik } from "formik";
+import { toast } from "react-toastify";
+import { CheckIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { toFormikValidationSchema } from "zod-formik-adapter";
 
 import { Button } from "../ui/button";
-import UserAvatar from "../ui/userAvatar";
-import { useEffect, useRef, useState } from "react";
-import InputText from "../common/InputText";
-import { createTaskSchema } from "../../../../backend/src/schemas/taskSchema";
-import { useFormik } from "formik";
-import z from "zod";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@radix-ui/react-dropdown-menu";
-import { TaskDependenciesEnumValue } from "@backend/src/schemas/enums";
-import { CheckIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import Select, {
-  ControlProps,
-  StylesConfig,
-  CSSObjectWithLabel,
-} from "react-select";
-import useCreateTaskMutation, {
-  Task,
-} from "@/api/mutation/useTaskCreateMutation";
-import { toast } from "react-toastify";
-import useTaskQuery from "@/api/query/useTaskQuery";
-import useUpdateTaskMutation from "@/api/mutation/useTaskUpdateMutation";
-import calculateTimeDifference from "../shared/TimeDifferenceCalculate";
 import TaskComment from "./taskComment";
+import UserAvatar from "../ui/userAvatar";
+import InputText from "../common/InputText";
+import TaskAttachment from "./taskAttachment";
+import TaskDependencies from "./taskDependencies";
+import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover";
+import { createTaskSchema } from "../../../../backend/src/schemas/taskSchema";
+
 import { useUser } from "@/hooks/useUser";
+import useTaskQuery from "@/api/query/useTaskQuery";
+import useTaskAddMembersMutation from "@/api/mutation/useTaskAddMember";
+import useTaskMemberListQuery from "@/api/query/useTaskMemberListQuary";
+import useCreateTaskMutation from "@/api/mutation/useTaskCreateMutation";
+import useUpdateTaskMutation from "@/api/mutation/useTaskUpdateMutation";
+import useRemoveTaskMemberMutation from "@/api/mutation/useTaskRemoveMember";
+import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
+import useTaskAttechmentAddMutation from "@/api/mutation/useTaskAttechmentAddMutation";
+
+import Tag from "../../assets/svg/Tag.svg";
+import Users from "../../assets/svg/Users.svg";
+import Route from "../../assets/svg/Route.svg";
+import TaskSvg from "../../assets/svg/Task.svg";
+import PlusSvg from "../../assets/svg/Plus.svg";
+import Edit from "../../assets/svg/EditPen.svg";
+// import Clock from "../../assets/svg/Clock.svg";
+import Folder from "../../assets/svg/Folders.svg";
+import Close from "../../assets/svg/CrossIcon.svg";
+import SubTask from "../../assets/svg/SubTask.svg";
+import PapperClip from "../../assets/svg/Paperclip.svg";
+import MultiLine from "../../assets/svg/MultiLine.svg";
+import TopRightArrow from "../../assets/svg/TopRightArrow.svg";
+
 type Props = {
   projectId: string | undefined;
   taskId: string | undefined;
@@ -52,42 +46,60 @@ type Props = {
 };
 
 function TaskSubTaskForm(props: Props) {
-  const [taskNameField, setTaskNameField] = useState(false);
-  const [subTaskFieldShow, setSubTaskFieldShow] = useState<boolean>(false);
-  const [dependenciesShow, setDependenciesShow] = useState<boolean>(false);
-  const [showAllAttachment, setShowAllAttachment] = useState<boolean>(false);
-  const [taskId, setTaskId] = useState<string | undefined>(props.taskId);
   const currantUser = useUser();
+  const [subTask, setSubtask] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
-  const dependencies: typeof TaskDependenciesEnumValue = {
-    BLOCKING: "BLOCKING",
-    WAITING_ON: "WAITING_ON",
-  };
+  const [taskNameField, setTaskNameField] = useState(false);
+  const [taskId, setTaskId] = useState<string | undefined>(props.taskId);
+  const [subTaskFieldShow, setSubTaskFieldShow] = useState<boolean>(false);
+  const [member, setMambers] = useState<UserOrganisationType["user"][]>([]);
+  const [attachmentUploading, setAttachmentUploading] =useState<boolean>(false);
+
+
   const taskQuery = useTaskQuery(taskId);
-  const tasks = taskQuery.data ? taskQuery.data.data.data : undefined;
-  const taskCreateMutation = useCreateTaskMutation(
-    props.projectId,
-    taskId ?? undefined
-  );
+  const taskMemberList = useTaskMemberListQuery();
   const taskUpdateMutation = useUpdateTaskMutation(taskId);
+  const taskRemoveMembersMutation = useRemoveTaskMemberMutation();
+  const taskAddMembersMutation = useTaskAddMembersMutation(taskId);
+  const tasks = taskQuery.data ? taskQuery.data.data.data : undefined;
+  const taskAttachmentAddMutation = useTaskAttechmentAddMutation(taskId);
+  const taskCreateMutation = useCreateTaskMutation(props.projectId, taskId ?? undefined);
+
+  useEffect(() => {
+    refetch();
+  }, [taskId]);
+
+  useEffect(() => {
+    if (taskId && tasks) {
+      taskFormik.setValues({
+        taskName: tasks.taskName,
+        taskDescription: tasks.taskDescription,
+        startDate: tasks.startDate,
+        duration: tasks.duration,
+        milestoneIndicator: tasks.milestoneIndicator,
+      });
+      setMambers(
+        tasks.assignedUsers.map((u) => {
+          return u.user;
+        })
+      );
+    }
+  }, [taskId, taskQuery.data]);
+
   const taskFormik = useFormik<z.infer<typeof createTaskSchema>>({
     initialValues: {
       taskName: "",
       taskDescription: "",
       startDate: new Date(),
       duration: 0,
-      assginedToUserId: currantUser.user?.userId ?? "",
-      documentAttachments: [],
-      dependencies: "BLOCKING",
       milestoneIndicator: false,
-      flag: "flag",
     },
     validationSchema: toFormikValidationSchema(createTaskSchema),
     onSubmit: (values) => {
       if (taskId) {
         taskUpdateMutation.mutate(values, {
-          onSuccess() {
-            toast.success("Task Update Successfully!");
+          onSuccess(data) {
+            toast.success(data.data.message);
           },
           onError(error) {
             toast.error(error.response?.data.message);
@@ -97,7 +109,7 @@ function TaskSubTaskForm(props: Props) {
         taskCreateMutation.mutate(values, {
           onSuccess(data) {
             setTaskId(data.data.data.taskId);
-            toast.success("Task create Successfully!");
+            toast.success(data.data.message);
           },
           onError(error) {
             toast.error(error.response?.data.message);
@@ -106,174 +118,82 @@ function TaskSubTaskForm(props: Props) {
       }
     },
   });
-  const subTaskFormik = useFormik<z.infer<typeof createTaskSchema>>({
-    initialValues: {
-      taskName: "",
+
+  const createSubTask = () => {
+    const value = {
+      taskName: subTask,
       taskDescription: "",
       startDate: new Date(),
       duration: 0,
-      assginedToUserId: currantUser.user?.userId ?? "",
-      documentAttachments: [],
-      dependencies: "BLOCKING",
+      assginedToUserId: [currantUser.user?.userId ?? ""],
       milestoneIndicator: false,
-      flag: "",
-    },
-    validationSchema: toFormikValidationSchema(createTaskSchema),
-    onSubmit: (values, helper) => {
-      taskCreateMutation.mutate(values, {
-        onSuccess() {
-          refetch();
-          toast.success("Task create Successfully!");
-          helper.resetForm();
-        },
-        onError(error) {
-          toast.error(error.response?.data.message);
-        },
-      });
-    },
-  });
+    };
+    taskCreateMutation.mutate(value, {
+      onSuccess(data) {
+        refetch();
+        toast.success(data.data.message);
+      },
+      onError(error) {
+        toast.error(error.response?.data.message);
+      },
+    });
+  };
+
   const refetch = () => {
     taskQuery.refetch();
   };
-  useEffect(() => {
-    refetch();
-  }, [taskId]);
-  useEffect(() => {
-    if (taskId && tasks) {
-      taskFormik.setValues({
-        taskName: tasks.taskName,
-        taskDescription: tasks.taskDescription,
-        startDate: tasks.startDate,
-        duration: tasks.duration,
-        assginedToUserId: tasks.assginedToUserId,
-        dependencies: tasks.dependencies,
-        milestoneIndicator: tasks.milestoneIndicator,
-        flag: tasks.flag || "flag",
-        documentAttachments: tasks.documentAttachments,
+
+  const submitMembers = (user: UserOrganisationType) => {
+    if (user) {
+      taskAddMembersMutation.mutate(
+        { assginedToUserId: user.user.userId },
+        {
+          onSuccess(data) {
+            refetch();
+            toast.success(data.data.message);
+            setMambers((prev) => [...prev, user.user]);
+          },
+          onError(error) {
+            toast.error(error.response?.data.message);
+          },
+        }
+      );
+    }
+  };
+
+  const removeMembers = (id: string) => {
+    taskRemoveMembersMutation.mutate(id, {
+      onSuccess(data) {
+        refetch();
+        toast.success(data.data.message);
+      },
+      onError(error) {
+        toast.error(error.response?.data.message);
+      },
+    });
+  };
+
+  const fileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (taskId && e.target.files?.length) {
+      setAttachmentUploading(true);
+      const formData = new FormData();
+      for (let i = 0; i < e.target.files.length; ++i) {
+        formData.append("taskAttachment", e.target.files[i]);
+      }
+      taskAttachmentAddMutation.mutate(formData, {
+        onSuccess(data) {
+          refetch();
+          toast.success(data.data.message);
+          setAttachmentUploading(false);
+        },
+        onError(error) {
+          toast.error(error.response?.data.message);
+          setAttachmentUploading(false);
+        },
       });
     }
-  }, [taskId, taskQuery.data]);
-
-  const task = {
-    taskId: "9c268287-5adc-4d59-97f2-2b9dcf622958",
-    projectId: "b7019fbd-ccee-45bb-bcc7-63682cd59bb0",
-    taskName: "sumit perent task",
-    taskDescription: "Task's Description",
-    startDate: "2023-12-09T00:00:00.000Z",
-    duration: 90,
-    completionPecentage: null,
-    status: "NOT_STARTED",
-    assginedToUserId: "0a01704a-4786-46b0-af38-5191ef9dd73b",
-    dependencies: "BLOCKING",
-    milestoneIndicator: true,
-    flag: "flag",
-    createdByUserId: "0a01704a-4786-46b0-af38-5191ef9dd73b",
-    updatedByUserId: "0a01704a-4786-46b0-af38-5191ef9dd73b",
-    createdAt: "2023-12-06T06:16:02.504Z",
-    updatedAt: "2023-12-06T06:16:02.504Z",
-    parentTaskId: null,
-    assginedUser: {
-      userId: "0a01704a-4786-46b0-af38-5191ef9dd73b",
-      firstName: "test",
-      lastName: "yopmail",
-      email: "test@yopmail.com",
-      avatarImg: null,
-    },
-    Attachments: [
-      {
-        link: "https://images.pexels.com/photos/45201/kitty-cat-kitten-pet-45201.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-        type: "image",
-        name: "attachment-1",
-        date: new Date("2023-12-08"),
-      },
-      {
-        link: "https://images.pexels.com/photos/45201/kitty-cat-kitten-pet-45201.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-        type: "image",
-        name: "attachment-3",
-        date: new Date(),
-      },
-      {
-        link: "https://images.pexels.com/photos/45201/kitty-cat-kitten-pet-45201.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-        type: "image",
-        name: "attachment-2",
-        date: new Date("2023-04-20"),
-      },
-    ],
-    mamberUsers: [
-      {
-        userId: "0a01704a-4786-46b0-af38-5191ef9dd731",
-        firstName: null,
-        lastName: null,
-        email: "spst@yopmail.com",
-        avatarImg: null,
-      },
-      {
-        userId: "0a01704a-4786-46b0-af38-5191ef9dd732",
-        firstName: null,
-        lastName: null,
-        email: "hzst@yopmail.com",
-        avatarImg: null,
-      },
-      {
-        userId: "0a01704a-4786-46b0-af38-5191ef9dd731",
-        firstName: null,
-        lastName: null,
-        email: "spst@yopmail.com",
-        avatarImg: null,
-      },
-      {
-        userId: "0a01704a-4786-46b0-af38-5191ef9dd732",
-        firstName: null,
-        lastName: null,
-        email: "hzst@yopmail.com",
-        avatarImg: null,
-      },
-      {
-        userId: "0a01704a-4786-46b0-af38-5191ef9dd731",
-        firstName: null,
-        lastName: null,
-        email: "spst@yopmail.com",
-        avatarImg: null,
-      },
-      {
-        userId: "0a01704a-4786-46b0-af38-5191ef9dd732",
-        firstName: null,
-        lastName: null,
-        email: "hzst@yopmail.com",
-        avatarImg: null,
-      },
-      {
-        userId: "0a01704a-4786-46b0-af38-5191ef9dd731",
-        firstName: null,
-        lastName: null,
-        email: "spst@yopmail.com",
-        avatarImg: null,
-      },
-      {
-        userId: "0a01704a-4786-46b0-af38-5191ef9dd732",
-        firstName: null,
-        lastName: null,
-        email: "hzst@yopmail.com",
-        avatarImg: null,
-      },
-    ],
   };
 
-  const reactSelectStyle: StylesConfig = {
-    control: (provided: CSSObjectWithLabel, state: ControlProps) => ({
-      ...provided,
-      border: "1px solid #E7E7E7",
-      outline: state.isFocused ? "2px solid #943B0C" : "1px solid #E7E7E7",
-      boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
-      "&:hover": {
-        outline: state.isFocused ? "2px solid #943B0C" : "1px solid #E7E7E7",
-        boxShadow: "0px 0px 0px #943B0C",
-      },
-    }),
-  };
-  const handleSubTaskOpen = (task: Task) => {
-    setTaskId(task.taskId);
-  };
   return (
     <div className="absolute w-full h-full z-50 top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-gray-900 bg-opacity-50">
       <div className="bg-white rounded-lg text-gray-700 p-6 lg:p-12 w-full md:max-w-[95%] lg:max-w-[80%] h-full md:max-h-[80%] overflow-auto ">
@@ -307,7 +227,7 @@ function TaskSubTaskForm(props: Props) {
                 <img src={Edit} width={10} height={10} />
               </Button>
             </div>
-            <div className="text-sm font-normal">in list {task.status}</div>
+            <div className="text-sm font-normal">in list {tasks?.status}</div>
           </div>
           <div>
             <Button variant={"ghost"} onClick={() => props.close}>
@@ -319,16 +239,10 @@ function TaskSubTaskForm(props: Props) {
           <div className="w-full md:w-3/4">
             <div className="mt-4 flex gap-4">
               <div>
-                <p className="text-sm font-semibold">Assignee</p>
-                <div>
-                  <UserAvatar user={task.assginedUser}></UserAvatar>
-                </div>
-              </div>
-              <div>
                 <p className="text-sm font-semibold">Members</p>
                 <div className="flex gap-4 justify-between items-center">
                   <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))]">
-                    {task.mamberUsers.slice(0, 4).map((item, index) => {
+                    {member.slice(0, 4).map((item, index) => {
                       const zIndex = Math.abs(index - 3);
                       return (
                         <div key={index} style={{ zIndex: zIndex }}>
@@ -341,10 +255,9 @@ function TaskSubTaskForm(props: Props) {
                     })}
                   </div>
                   <div>
-                    {task.mamberUsers.length > 4
-                      ? task.mamberUsers.length - 4
+                    {tasks?.assignedUsers && tasks?.assignedUsers?.length > 4
+                      ? `${tasks?.assignedUsers.length - 4} +`
                       : ""}
-                    +
                   </div>
                 </div>
               </div>
@@ -371,13 +284,13 @@ function TaskSubTaskForm(props: Props) {
                 )}
               </div>
               {tasks &&
-                tasks.subtasks.map((task) => {
+                tasks.subtasks.map((task, index) => {
                   return (
-                    <div className="mt-3">
+                    <div className="mt-3" key={index}>
                       <Button
                         variant={"secondary"}
                         className="flex justify-between items-center w-full"
-                        onClick={() => handleSubTaskOpen(task)}
+                        onClick={() =>  setTaskId(task.taskId)}
                       >
                         <div className="flex gap-2">
                           <img src={Folder} />
@@ -398,14 +311,14 @@ function TaskSubTaskForm(props: Props) {
                     <InputText
                       name="taskName"
                       placeholder="What needs to be done?"
-                      onChange={subTaskFormik.handleChange}
-                      value={subTaskFormik.values.taskName}
+                      onChange={(e) => setSubtask(e.target.value)}
+                      value={subTask}
                     ></InputText>
                   </div>
                   <div className="flex gap-3 justify-end mt-3">
                     <Button
                       variant={"primary_outline"}
-                      onClick={subTaskFormik.submitForm}
+                      onClick={createSubTask}
                       className="py-2 px-4"
                     >
                       Create
@@ -423,124 +336,15 @@ function TaskSubTaskForm(props: Props) {
             </div>
 
             {/* Dependencies */}
-            <div>
-              <div className="flex items-center gap-2.5 mt-4">
-                <img src={Link} width={20} height={20} />
-                <div>
-                  <div className="text-xl font-medium">Dependencies</div>
-                </div>
-                <Button
-                  variant={"ghost"}
-                  onClick={() => setDependenciesShow(true)}
-                >
-                  <img src={PlusSvg} width={20} height={20} />
-                </Button>
-              </div>
 
-              {dependenciesShow && (
-                <div className="flex gap-2 items-center my-3 ">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <div className="py-2 px-4 rounded-md text-sm font-medium bg-slate-100 hover:bg-slate-100/80 w-44 h-10">
-                        <div className="flex items-center justify-between gap-4 w-full">
-                          <div>{taskFormik.values.dependencies}</div>
-                          <div className="w-8 flex justify-end">
-                            <img src={DownArrow}></img>
-                          </div>
-                        </div>
-                      </div>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-44 bg-white shadow-md rounded-md">
-                      {Object.keys(dependencies).map((item, index) => {
-                        return (
-                          <DropdownMenuItem
-                            className={`p-2 ${
-                              taskFormik.values.dependencies == item
-                                ? "bg-gray-100"
-                                : ""
-                            }`}
-                            key={index}
-                            onClick={() =>
-                              taskFormik.setFieldValue("dependencies", item)
-                            }
-                          >
-                            <div
-                              className={`flex justify-between text-sm font-medium text-gray-500 relative cursor-pointer p-1 w-full`}
-                            >
-                              <div className="flex items-center justify-between w-full gap-2">
-                                <div className="text-sm font-medium text-gray-500 relative cursor-pointer">
-                                  {item}
-                                </div>
-                                <CheckIcon
-                                  className={cn(
-                                    "ml-auto h-4 w-4",
-                                    item === taskFormik.values.dependencies
-                                      ? "opacity-100"
-                                      : "opacity-0"
-                                  )}
-                                />
-                              </div>
-                            </div>
-                          </DropdownMenuItem>
-                        );
-                      })}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  <div className="w-full">
-                    <Select
-                      placeholder="Select nonworkingdays"
-                      isMulti
-                      styles={reactSelectStyle}
-                      // onChange={}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-
+            {tasks && <TaskDependencies task={tasks} refetch={refetch} />}
             {/* Attachments */}
-
-            <div className="flex items-center gap-2.5 mt-4">
-              <img src={PapperClip} width={20} height={20} />
-              <div>
-                <div className="text-xl font-medium">Attachments</div>
-              </div>
-            </div>
-            {task.Attachments.slice(
-              0,
-              showAllAttachment ? task.Attachments.length : 2
-            ).map((item, index) => {
-              return (
-                <div key={index} className="flex gap-2 mt-2">
-                  <div className="w-12 h-12">
-                    <img className="rounded" src={item.link} />
-                  </div>
-                  <div className="text-sm font-semibold ">
-                    <div className="flex items-center gap-3">
-                      {item.name}
-                      <div>
-                        <img src={TopRightArrow} className="h-2 w-2" />
-                      </div>
-                    </div>
-                    <div className="text-gray-400">
-                      {calculateTimeDifference(item.date)}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            {task.Attachments.length > 2 && (
-              <div>
-                <hr className="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700"></hr>
-                <div
-                  className="text-center cursor-pointer"
-                  onClick={() => setShowAllAttachment((prev) => !prev)}
-                >
-                  {!showAllAttachment ? "Show all" : "Less"}
-                </div>
-              </div>
-            )}
+            {tasks?.documentAttachments &&
+            tasks?.documentAttachments.length > 0 ? (
+                <TaskAttachment refetch={refetch} task={tasks}></TaskAttachment>
+              ) : (
+                ""
+              )}
 
             <div className="flex items-center gap-2.5 mt-4">
               <img src={MultiLine} width={20} height={20} />
@@ -551,7 +355,7 @@ function TaskSubTaskForm(props: Props) {
             <div className="w-full mt-2">
               <textarea
                 name="taskDescription"
-                className="w-full border rounded"
+                className="w-full border rounded px-2"
                 onBlur={taskFormik.handleBlur}
                 onChange={taskFormik.handleChange}
                 value={taskFormik.values.taskDescription}
@@ -559,67 +363,114 @@ function TaskSubTaskForm(props: Props) {
                 rows={3}
               ></textarea>
             </div>
+            {/* Comment  */}
             <TaskComment task={tasks} refetch={refetch}></TaskComment>
-            <div className="flex items-center gap-2.5 mt-4">
-              <img src={Clock} width={20} height={20} />
-              <div>
-                <div className="text-xl font-medium">History</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 my-3">
-              <div>
-                <UserAvatar user={task.assginedUser}></UserAvatar>
-              </div>
-              <div className="text-sm font-semibold">
-                {task.assginedUser.firstName} {task.assginedUser.lastName}
-              </div>
-              <div className="text-xs text-gray-400 font-normal">
-                added one new member to card.
-              </div>
-            </div>
-            <div className="flex items-center gap-2 my-3">
-              <div>
-                <UserAvatar user={task.assginedUser}></UserAvatar>
-              </div>
-              <div className="text-sm font-semibold">
-                {task.assginedUser.firstName} {task.assginedUser.lastName}
-              </div>
-              <div className="text-xs text-gray-400 font-normal">
-                remove one new member to card.
-              </div>
-            </div>
           </div>
           <div className="w-full md:w-1/4">
             <div>
               <div className="text-xs font-medium mb-4">Add to card</div>
               <div className="mt-2">
-                <Button
-                  variant={"secondary"}
-                  className="py-1.5 px-3 flex w-full gap-3 justify-start"
-                >
-                  <img src={Users} />
-                  Members
-                </Button>
+                <Popover>
+                  <PopoverTrigger className="w-full">
+                    <Button
+                      variant={"secondary"}
+                      className="py-1.5 px-3 flex w-full gap-3 justify-start"
+                    >
+                      <img src={Users} />
+                      Members
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 focus:outline-none">
+                    <div className="grid gap-4">
+                      <div className="space-y-2">
+                        <h4 className="font-medium leading-none">Members</h4>
+                      </div>
+                      <div>
+                        {taskMemberList.data?.data.data.map((data, index) => {
+                          return (
+                            <div
+                              key={index}
+                              className={`flex items-center p-1 my-1 gap-4 hover:bg-slate-100 rounded-md ${
+                                tasks?.assignedUsers.some(
+                                  (u) => u.user.userId == data.user.userId
+                                )
+                                  ? "bg-slate-100/80"
+                                  : ""
+                              }`}
+                              onClick={() => {
+                                tasks?.assignedUsers.some(
+                                  (u) => u.user.userId == data.user.userId
+                                )
+                                  ? removeMembers(data.user.userId)
+                                  : submitMembers(data);
+                              }}
+                            >
+                              <UserAvatar
+                                user={data.user}
+                                className="rounded-full"
+                              />
+                              <div>
+                                <div className="">
+                                  {data.user.firstName} {data.user.lastName}
+                                </div>
+                                <div className="text-sm text-gray-400">
+                                  {data.user.email}
+                                </div>
+                              </div>
+                              <CheckIcon
+                                className={cn(
+                                  "ml-auto h-4 w-4",
+                                  member.some(
+                                    (u) => u.userId == data.user.userId
+                                  )
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="mt-2">
-                <input type="file" ref={fileInput} className="hidden" />
+                <input
+                  type="file"
+                  ref={fileInput}
+                  onChange={(e) => fileUpload(e)}
+                  className="hidden"
+                  multiple
+                />
                 <Button
                   variant={"secondary"}
-                  className="py-1.5 px-3 flex w-full gap-3 justify-start"
+                  className="py-1.5 px-3 w-full"
                   onClick={() => fileInput.current?.click()}
+                  isLoading={attachmentUploading}
+                  disabled={attachmentUploading}
                 >
-                  <img src={PapperClip} className="w-3.5" />
-                  Attachment
+                  <div className="flex w-full gap-3 justify-start">
+                    <img src={PapperClip} className="w-3.5" />
+                    Attachment
+                  </div>
                 </Button>
               </div>
               <div className="mt-2">
-                <Button
-                  variant={"secondary"}
-                  className="py-1.5 px-3 flex w-full gap-3 justify-start"
+                <div
+                  className={`py-1.5 px-3 flex w-full gap-3 rounded-md justify-start font-semibold ${
+                    tasks?.flag == "Green"
+                      ? "bg-green-500/60"
+                      : tasks?.flag == "Red"
+                        ? "bg-red-500/60"
+                        : tasks?.flag == "Orange"
+                          ? "bg-primary-500/60"
+                          : ""
+                  }`}
                 >
                   <img src={Tag} className="w-3.5" />
                   Flags
-                </Button>
+                </div>
               </div>
               <div className="mt-2">
                 <Button

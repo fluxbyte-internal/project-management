@@ -25,6 +25,7 @@ function TaskComment(props: Props) {
   const { task, refetch } = props;
   const currantUser = useUser();
   const [commentId, setCommentId] = useState<string | null>();
+  const [showAllShow, setShowAllShow] = useState<boolean>(false);
 
   const createTaskCommentMutation = useCreateTaskCommentMutation(task?.taskId);
   const updateTaskCommentMutation = useUpdateTaskCommentMutation(
@@ -96,7 +97,17 @@ function TaskComment(props: Props) {
       },
     });
   };
-
+  function isDateSevenDaysOld(inputDate: Date): boolean {
+    const currentDate: Date = new Date();
+    const sevenDaysAgo: Date = new Date(currentDate);
+    sevenDaysAgo.setDate(currentDate.getDate() - 7);
+    return new Date(inputDate) <= sevenDaysAgo;
+  }
+  const visibleComments = showAllShow
+    ? props.task?.comments ?? []
+    : (props.task?.comments ?? []).filter(
+        (comment) => !isDateSevenDaysOld(new Date(comment.createdAt))
+      );
   return (
     <>
       <div className="flex items-center gap-2.5 mt-4">
@@ -129,17 +140,23 @@ function TaskComment(props: Props) {
           </div>
         </div>
         <div className="mt-2 flex flex-col gap-2">
-          {task?.comments.map((comment) => {
+          {visibleComments.map((comment, index) => {
             return (
-              <div className="flex gap-2 items-start">
+              <div className="flex gap-2 items-start" key={index}>
                 <div>
                   <UserAvatar user={comment.commentByUser}></UserAvatar>
                 </div>
                 <div className="flex flex-col gap-1 w-full">
                   <div className="flex items-center gap-2">
                     <div className="text-sm font-semibold">
-                      {comment.commentByUser.firstName}
-                      {comment.commentByUser.lastName}
+                      {comment.commentByUser.firstName &&
+                      comment.commentByUser.lastName
+                        ? comment.commentByUser.firstName +
+                          " " +
+                          comment.commentByUser.lastName
+                        : comment.commentByUser.email}
+
+                      {}
                     </div>
                     <div className="text-xs text-gray-400">
                       {calculateTimeDifference(new Date(comment.createdAt))}
@@ -159,7 +176,11 @@ function TaskComment(props: Props) {
                     <div className="text-xs text-gray-400 font-normal">
                       {comment.commentText}
                       {comment.createdAt !== comment.updatedAt && (
-                        <span> (edited {calculateTimeDifference(new Date(comment.updatedAt))})</span>
+                        <span>
+                          (edited&nbsp;
+                          {calculateTimeDifference(new Date(comment.updatedAt))}
+                          )
+                        </span>
                       )}
                     </div>
                   )}
@@ -191,6 +212,17 @@ function TaskComment(props: Props) {
               </div>
             );
           })}
+          {props.task?.comments.length !== visibleComments.length && (
+            <div>
+              <hr className="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700"></hr>
+              <div
+                className="text-center cursor-pointer"
+                onClick={() => setShowAllShow((prev) => !prev)}
+              >
+                {!showAllShow ? "Show all" : "Less"}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>

@@ -1,6 +1,6 @@
 export default function calculateTimeDifference(previousDate: Date) {
   const currentDate = new Date();
-  const timeDifference = currentDate.valueOf() - previousDate.valueOf();
+  const timeDifference = currentDate.valueOf() - new Date(previousDate).valueOf();
   const seconds = Math.floor(timeDifference / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
