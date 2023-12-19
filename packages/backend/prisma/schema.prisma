@@ -54,6 +54,7 @@ enum TaskStatusEnum {
 enum TaskDependenciesEnum {
   BLOCKING
   WAITING_ON
+  NO_DEPENDENCIES
 }
 
 model User {
@@ -199,7 +200,7 @@ model Task {
   duration            Int                   @map("duration")
   completionPecentage String?               @map("completion_percentage")
   status              TaskStatusEnum        @map("status")
-  dependencies        TaskDependenciesEnum? @map("dependecies")
+  dependencies        TaskDependenciesEnum  @default(NO_DEPENDENCIES) @map("dependecies")
   milestoneIndicator  Boolean               @map("milestone_indicator")
   createdByUserId     String                @map("created_by_user_id")
   createdByUser       User                  @relation("createdByUser", fields: [createdByUserId], references: [userId])

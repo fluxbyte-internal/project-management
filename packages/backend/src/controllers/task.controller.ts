@@ -3,7 +3,7 @@ import { getClientByTenantId } from '../config/db.js';
 import { BadRequestError, NotFoundError, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
 import { projectIdSchema } from '../schemas/projectSchema.js';
-import { createCommentTaskSchema, createTaskSchema, attachmentTaskSchema, taskStatusSchema, updateTaskSchema, addMemberToTaskSchema } from '../schemas/taskSchema.js';
+import { createCommentTaskSchema, createTaskSchema, attachmentTaskSchema, taskStatusSchema, updateTaskSchema, assginedToUserIdSchema, dependenciesTaskSchema } from '../schemas/taskSchema.js';
 import { TaskService } from '../services/task.services.js';
 import { TaskStatusEnum } from '@prisma/client';
 import { AwsUploadService } from '../services/aws.services.js';
@@ -43,6 +43,7 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
           taskAssignUsersId: true,
           user:{
             select: {
+              userId: true,
               avatarImg: true, 
               email: true,
               firstName: true,
@@ -71,8 +72,6 @@ export const createTask = async (req: express.Request, res: express.Response) =>
     taskDescription,
     startDate,
     duration,
-    dependantTaskId,
-    dependencies,
     milestoneIndicator
   } = createTaskSchema.parse(req.body);
   const projectId = projectIdSchema.parse(req.params.projectId);
@@ -98,8 +97,6 @@ export const createTask = async (req: express.Request, res: express.Response) =>
       duration: duration,
       startDate: startDate,
       milestoneIndicator: milestoneIndicator,
-      dependencies: dependencies,
-      dependantTaskId: dependantTaskId,
       status: TaskStatusEnum.NOT_STARTED,
       parentTaskId: parentTaskId ? parentTaskId : null,
       createdByUserId: req.userId,
@@ -279,7 +276,7 @@ export const addAttachment = async (
   });
 
   return new SuccessResponse(
-    StatusCodes.OK,
+    StatusCodes.CREATED,
     findTask,
     "Add attachment successfully"
   ).send(res);
@@ -332,7 +329,7 @@ export const taskAssignToUser = async (
     },
   });
   return new SuccessResponse(
-    StatusCodes.CREATED,
+    StatusCodes.OK,
     usersOfOrganisation,
     "Get organisation's users successfully"
   ).send(res);
@@ -342,14 +339,20 @@ export const addMemberToTask = async (
   req: express.Request,
   res: express.Response
 ) => {
-  const { assginedToUserId, taskId } = addMemberToTaskSchema.parse(req.body);
+  const taskId = uuidSchema.parse(req.params.taskId);
+  const { assginedToUserId } = assginedToUserIdSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
-  const member = await prisma.taskAssignUsers.create({
-    data: {
-      assginedToUserId: assginedToUserId,
-      taskId: taskId,
-    },
+  const member = await prisma.taskAssignUsers.findFirst({
+    where: { taskId: taskId, assginedToUserId: assginedToUserId },
   });
+  if (!member) {
+    await prisma.taskAssignUsers.create({
+      data: {
+        assginedToUserId: assginedToUserId,
+        taskId: taskId,
+      },
+    });
+  }
   return new SuccessResponse(
     StatusCodes.CREATED,
     member,
@@ -369,8 +372,34 @@ export const deleteMemberFromTask = async (
     },
   });
   return new SuccessResponse(
-    StatusCodes.CREATED,
+    StatusCodes.OK,
     null,
     "Member deleted successfully"
+  ).send(res);
+};
+
+export const addOrRemoveDependencies = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) { throw new BadRequestError('userId not found!!') };
+  const taskId = uuidSchema.parse(req.params.taskId);
+  const { dependencies, dependantTaskId } = dependenciesTaskSchema.parse(
+    req.body
+  );
+  const prisma = await getClientByTenantId(req.tenantId);
+  const addDependencies = await prisma.task.update({
+    data: {
+      dependencies: dependencies,
+      dependantTaskId: dependantTaskId
+    },
+    where: {
+      taskId: taskId,
+    },
+  });
+  return new SuccessResponse(
+    StatusCodes.OK,
+    addDependencies,
+    "Dependencies updated successfully"
   ).send(res);
 };
