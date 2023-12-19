@@ -1,5 +1,5 @@
 import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
-import Spinner from "@/components/ui/spinner";
+import Loader from "@/components/common/Loader";
 import { useAuth } from "@/hooks/useAuth";
 import { useUser } from "@/hooks/useUser";
 import { PropsWithChildren } from "react";
@@ -16,7 +16,7 @@ const AuthGuard = (props: PropsWithChildren) => {
       logout();
       return "Invalid session";
     }
-    return <Spinner className="mx-auto" />;
+    return  <Loader/>;
   }
   return children;
 };

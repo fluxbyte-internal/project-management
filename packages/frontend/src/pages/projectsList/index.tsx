@@ -4,13 +4,28 @@ import dateFormatter from "@/helperFuntions/dateFormater";
 import useProjectQuery, { Project } from "../../api/query/useProjectQuery";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import ProfileName from "@/components/shared/Profile";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 import NoProject from "../../components/project/NoProject";
+import Loader from "@/components/common/Loader";
+import UserAvatar from "@/components/ui/userAvatar";
+import BackgroundImage from "@/components/layout/BackgroundImage";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Edit, ScrollText, Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+
 function ProjectsList() {
   const [data, setData] = useState<Project[]>();
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
   const [editData, setEditData] = useState<Project | undefined>();
+  const navigate = useNavigate();
 
   const projectQuery = useProjectQuery();
   useEffect(() => {
@@ -21,6 +36,11 @@ function ProjectsList() {
     setIsOpenPopUp(false);
     setEditData(undefined);
   };
+
+  const handleView = (id:string) => {
+    navigate("/project-details/" + id);
+  };
+
   const columnDef: ColumeDef[] = [
     { key: "projectName", header: "Project Name", sorting: true },
     {
@@ -28,7 +48,7 @@ function ProjectsList() {
       header: "Manager",
       onCellRender: (item: Project) => (
         <>
-          <ProfileName user={item.createdByUser}/>
+          <UserAvatar user={item.createdByUser}/>
         </>
       ),
     },
@@ -75,56 +95,84 @@ function ProjectsList() {
     {
       key: "Action",
       header: "Action",
-      onCellRender: (item) => (
+      onCellRender: (item:Project) => (
         <>
-          <button
-            onClick={() => handleEdit(item)}
-            className="w-32 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex"
-          >
-            Edit
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div className=" cursor-pointer w-24 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex">
+                <Settings className="mr-2 h-4 w-4" />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-11 flex flex-col gap-1">
+              <DropdownMenuItem onClick={() => handleEdit(item)}>
+                <Edit className="mr-2 h-4 w-4 text-[#44546F]" />
+                <span className="p-0 font-normal h-auto" >
+                  Edit
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="mx-1"/>
+              <DropdownMenuItem onClick={() => handleView(item.projectId)}>
+                <ScrollText className="mr-2 h-4 w-4 text-[#44546F]" />
+                <span className="p-0 font-normal h-auto" >
+                   View Detail
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </>
       ),
     },
   ];
 
-  const handleEdit = (item:Project) => {
+  const handleEdit = (item: Project) => {
     setIsOpenPopUp(true);
     setEditData(item);
   };
-
   return (
-    <>
-      {data && data.length > 0 ? (
-        <div className="h-full py-5 p-4 lg:p-14 w-full bg-[url(/src/assets/png/background2.png)] bg-cover bg-no-repeat">
-          <div className="flex justify-between items-center">
-            <h2 className="font-medium text-3xl leading-normal text-gray-600">
-              Projects
-            </h2>
-            <div>
-              <Button variant={"primary"} onClick={() => setIsOpenPopUp(true)}>
-                Add Project
-              </Button>
-            </div>
-          </div>
-          <div className="my-8 h-full">
-            {data && (
-              <Table key="Project view" columnDef={columnDef} data={data} />
-            )}
-            {!data && (
-              <div className="flex justify-center p-3 w-full">
-                No projects available
-              </div>
-            )}
-          </div>
-        </div>
+    <div className="w-full h-full relative">
+      <BackgroundImage />
+      {projectQuery.isLoading ? (
+        <Loader/>
       ) : (
-        <NoProject />
+        <>
+          {data && data.length > 0 ? (
+            <div className="h-full py-5 p-4 lg:p-14 w-full">
+              <div className="flex justify-between items-center">
+                <h2 className="font-medium text-3xl leading-normal text-gray-600">
+                  Projects
+                </h2>
+                <div>
+                  <Button
+                    variant={"primary"}
+                    onClick={() => setIsOpenPopUp(true)}
+                  >
+                    Add Project
+                  </Button>
+                </div>
+              </div>
+              <div className="my-8 h-full">
+                {data && (
+                  <Table key="Project view" columnDef={columnDef} data={data} />
+                )}
+                {!data && (
+                  <div className="flex justify-center p-3 w-full">
+                    No projects available
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <NoProject />
+          )}
+          {isOpenPopUp && (
+            <CreateUpdateProjectForm
+              handleClosePopUp={close}
+              editData={editData}
+            />
+          )}
+        </>
       )}
-      {isOpenPopUp && (
-        <CreateUpdateProjectForm handleClosePopUp={close} editData={editData} />
-      )}
-    </>
+    </div>
   );
 }
 

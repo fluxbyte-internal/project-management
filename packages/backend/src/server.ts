@@ -14,6 +14,7 @@ import { authMiddleware } from "./middleware/auth.middleware.js";
 import { defualtHeaderMiddleware } from "./middleware/header.middleware.js";
 import { ErrorHandlerMiddleware } from "./middleware/error.middleware.js";
 import morgan from 'morgan';
+import fileUpload from "express-fileupload";
 // import compression from 'compression';
 
 const app: Application = express();
@@ -35,6 +36,9 @@ app.use(cookieParser());
 
 // Helmet configuration
 app.use(helmet());
+
+//File upload
+app.use(fileUpload());
 
 // JSON data handling
 app.use(express.json());

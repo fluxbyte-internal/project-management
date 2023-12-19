@@ -7,6 +7,7 @@ import Signup from "./pages/authentication/signup";
 import OrganisationGuard from "./guards/OrganisationGuard";
 import ProjectsList from "./pages/projectsList";
 import AccountSettings from "./pages/account-settings";
+import ProjectDetails from "./pages/project-details/ProjectDetails";
 import OrganisationDetails from "./pages/organisation/OrganisationDetails";
 import Verification from "./pages/authentication/verification";
 import ForgotPassword from "./pages/authentication/forgot-password";
@@ -57,6 +58,10 @@ export const router = createBrowserRouter([
       {
         path: "/account-settings",
         element: <AccountSettings />,
+      },
+      {
+        path: "/project-details/:id",
+        element: <ProjectDetails />,
       },
       {
         path: "/organisation/:organisationId",

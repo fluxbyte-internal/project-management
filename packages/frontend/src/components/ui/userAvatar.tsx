@@ -11,9 +11,10 @@ const UserAvatar = forwardRef<
       email: string;
     } | null;
     className?: string;
+    fontClass?:string
   }
 >((props, ref) => {
-  const { className, user, ...otherProps } = props;
+  const { className, user, fontClass, ...otherProps} = props;
   const [imageError, setImageError] = useState(false);
 
   const handleImageError = () => {
@@ -31,7 +32,7 @@ const UserAvatar = forwardRef<
         <img
           src={user.avatarImg}
           alt={`${user.firstName} ${user.lastName}`}
-          className="w-full h-full"
+          className="w-full h-full rounded-full"
           onError={handleImageError}
         />
       </div>
@@ -44,7 +45,7 @@ const UserAvatar = forwardRef<
       : `${user?.email.charAt(0)}${user?.email.charAt(1)}`.toUpperCase();
     return (
       <div className={avatarClass} ref={ref} {...otherProps}>
-        <span className="text-primary-800 text-sm font-bold flex justify-center items-center w-full h-full">
+        <span className={`text-primary-800 text-sm font-bold flex justify-center items-center w-full h-full ${fontClass}`}>
           {initials}
         </span>
       </div>

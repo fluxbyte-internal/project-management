@@ -39,6 +39,13 @@ enum ProjectDefaultViewEnum {
   LIST
 }
 
+enum ProjectOverAllTrackEnum {
+  SUNNY
+  CLOUDY
+  RAINY
+  STORMY
+}
+
 enum TaskStatusEnum {
   NOT_STARTED
   COMPLETED
@@ -154,26 +161,28 @@ model UserOrganisation {
 }
 
 model Project {
-  projectId             String                 @id @unique @default(uuid()) @map("project_id")
-  organisationId        String                 @map("organisation_id")
-  organisation          Organisation           @relation(fields: [organisationId], references: [organisationId])
-  projectName           String                 @map("project_name")
-  projectDescription    String                 @map("project_description")
-  startDate             DateTime               @map("start_date")
-  estimatedEndDate      DateTime               @map("estimated_end_date")
-  status                ProjectStatusEnum      @default(NOT_STARTED) @map("status")
-  defaultView           ProjectDefaultViewEnum @default(LIST) @map("default_view")
-  timeTrack             String?                @map("time_track")
-  budgetTrack           String?                @map("budget_track")
-  estimatedBudget       String                 @map("estimated_budget")
-  actualCost            String?                @map("actual_cost")
-  progressionPercentage String?                @map("progression_percentage")
-  createdByUserId       String                 @map("created_by_user_id")
-  createdByUser         User                   @relation("createdByUser", fields: [createdByUserId], references: [userId])
-  updatedByUserId       String?                @map("updated_by_user_id")
-  updatedByUser         User?                  @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
-  createdAt             DateTime               @default(now()) @map("created_at")
-  updatedAt             DateTime               @updatedAt @map("updated_at")
+  projectId             String                  @id @unique @default(uuid()) @map("project_id")
+  organisationId        String                  @map("organisation_id")
+  organisation          Organisation            @relation(fields: [organisationId], references: [organisationId])
+  projectName           String                  @map("project_name")
+  projectDescription    String                  @map("project_description") @db.VarChar(500)
+  startDate             DateTime                @map("start_date")
+  estimatedEndDate      DateTime                @map("estimated_end_date")
+  status                ProjectStatusEnum       @default(NOT_STARTED) @map("status")
+  defaultView           ProjectDefaultViewEnum  @default(LIST) @map("default_view")
+  timeTrack             String?                 @map("time_track")
+  budgetTrack           String?                 @map("budget_track")
+  currency              String                  @map("currency")
+  overallTrack          ProjectOverAllTrackEnum @default(SUNNY) @map("overall_track")
+  estimatedBudget       String                  @map("estimated_budget")
+  actualCost            String?                 @map("actual_cost")
+  progressionPercentage String?                 @map("progression_percentage")
+  createdByUserId       String                  @map("created_by_user_id")
+  createdByUser         User                    @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  updatedByUserId       String?                 @map("updated_by_user_id")
+  updatedByUser         User?                   @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  createdAt             DateTime                @default(now()) @map("created_at")
+  updatedAt             DateTime                @updatedAt @map("updated_at")
 
   tasks Task[]
 
@@ -194,7 +203,6 @@ model Task {
   assginedToUser      User                 @relation(fields: [assginedToUserId], references: [userId])
   dependencies        TaskDependenciesEnum @map("dependecies")
   milestoneIndicator  Boolean              @map("milestone_indicator")
-  flag                String?              @map("flag")
   createdByUserId     String               @map("created_by_user_id")
   createdByUser       User                 @relation("createdByUser", fields: [createdByUserId], references: [userId])
   updatedByUserId     String?              @map("updated_by_user_id")
@@ -213,11 +221,13 @@ model Task {
 }
 
 model TaskAttachment {
-  attachmentId String @id @default(uuid()) @map("attachment_id")
-  name         String @map("name")
-  url          String @map("url")
-  taskId       String @map("task_id")
-  task         Task   @relation(fields: [taskId], references: [taskId], onDelete: Cascade)
+  attachmentId String   @id @default(uuid()) @map("attachment_id")
+  name         String   @map("name")
+  url          String   @map("url")
+  taskId       String   @map("task_id")
+  task         Task     @relation(fields: [taskId], references: [taskId], onDelete: Cascade)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@index([taskId])
 }

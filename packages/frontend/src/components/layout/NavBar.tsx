@@ -71,7 +71,7 @@ function NavBar() {
   };
 
   return (
-    <div className="w-full h-14 z-10 fixed border-b-2 border-[#E2E8F0] flex items-center flex-col ">
+    <div className="w-full h-14 z-10 fixed border-b-2 border-[#E2E8F0] flex items-center flex-col bg-white">
       <div className="flex items-center w-full h-full justify-between sm:px-3 px-2">
         <div className="flex gap-5 items-center ">
           <div className="text-primary-800 text-sm font-bold flex justify-center items-center w-auto h-auto">
@@ -206,15 +206,12 @@ function NavBar() {
           )}
         </div>
         <div className="flex md:gap-5 gap-2 items-center relative">
-          <div className="w-8 h-8 aspect-square rounded-full bg-primary-100 md:block hidden cursor-pointer">
-            <img
-              src={Notification}
-              className="w-full h-full justify-center flex p-1"
-            ></img>
-          </div>
-          <div className="w-8 h-8 aspect-square cursor-pointer md:block hidden">
-            <img src={Information} className="w-full h-full"></img>
-          </div>
+          <Button className="relative w-8 h-8 aspect-square rounded-full bg-transparent active:bg-primary-100 hover:bg-primary-100 md:block hidden cursor-pointer">
+            <img src={Notification} className="absolute top-1 left-1" />
+          </Button>
+          <Button className="relative w-8 h-8 aspect-square rounded-full bg-transparent active:bg-primary-100 hover:bg-primary-100 md:block hidden cursor-pointer">
+            <img src={Information} className="absolute top-0 left-0" />
+          </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div className="rounded-full cursor-pointer">
@@ -227,21 +224,29 @@ function NavBar() {
                 <div className="mr-2 h-5 w-5">
                   <img src={Notification} className="mr-2 h-full w-full" />
                 </div>
-                <button className="button">Notification</button>
+                <Button className="p-0 font-normal h-auto" variant={"ghost"}>
+                  Notification
+                </Button>
               </DropdownMenuItem>
               <DropdownMenuItem className="flex md:hidden">
                 <div className="mr-2 h-5 w-5">
                   <img src={Information} className="mr-2 h-full w-full" />
                 </div>
-                <button className="button">Information</button>
+                <Button className="p-0 font-normal h-auto" variant={"ghost"}>
+                  Information
+                </Button>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={openAccountSettings}>
-                <Settings className="mr-2 h-4 w-4" />
-                <button className="button">Account Settings</button>
+                <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
+                <Button className="p-0 font-normal h-auto" variant={"ghost"}>
+                  Account Settings
+                </Button>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={logout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <button className="button">Log out</button>
+                <LogOut className="mr-2 h-4 w-4 text-[#44546F]" />
+                <Button className="p-0 font-normal h-auto" variant={"ghost"}>
+                  Log out
+                </Button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

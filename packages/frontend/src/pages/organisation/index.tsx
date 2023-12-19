@@ -3,15 +3,16 @@ import organisationImage from "../../assets/png/organisation.png";
 import OrganisationForm from "./organisationForm";
 import { useUser } from "@/hooks/useUser";
 import { useNavigate } from "react-router-dom";
+import BackgroundImage from "@/components/layout/BackgroundImage";
 function Organisation() {
   const [organisationForm, setOrganisationForm] = useState<boolean>(false);
   const navigate = useNavigate();
   const { user } = useUser();
   return (
     <>
+      <BackgroundImage />
       <div
-        style={{ backgroundSize: "102% 106%", backgroundPosition: "-2rem" }}
-        className={`w-full h-full overflow-auto flex justify-center items-center bg-[url(/src/assets/png/background2.png)] bg-no-repeat`}
+        className={`w-full h-full overflow-auto flex justify-center items-center`}
       >
         <div className="flex flex-col px-5 justify-center m-auto items-center gap-24">
           <div className="p-6">
@@ -44,7 +45,7 @@ function Organisation() {
               <>
                 <div>
                   <span className="text-gray-400 text-2xl lg:text-3xl  font-medium font-['Poppins']">
-                    Don’t have any organisation?
+                    Don't have any organisation yet?
                     <br />
                   </span>
                   <span className="text-neutral-600  text-3xl lg:text-5xl font-bold">
@@ -64,7 +65,9 @@ function Organisation() {
           </div>
         </div>
       </div>
-      {organisationForm && <OrganisationForm close={()=>setOrganisationForm(false)} />}
+      {organisationForm && (
+        <OrganisationForm close={() => setOrganisationForm(false)} />
+      )}
     </>
   );
 }
