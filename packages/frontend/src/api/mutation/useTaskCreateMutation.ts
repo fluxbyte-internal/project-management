@@ -24,6 +24,7 @@ export type Task = {
   milestoneIndicator: boolean;
   createdByUserId: string;
   updatedByUserId: string;
+  dueDate:Date|null
   createdAt: Date;
   updatedAt: Date;
   parentTaskId: null | string;

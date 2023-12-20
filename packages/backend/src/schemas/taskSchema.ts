@@ -5,7 +5,6 @@ export const createTaskSchema = z.object({
   taskDescription: z.string().optional(),
   startDate: z.coerce.date(),
   duration: z.number(),
-  milestoneIndicator: z.boolean(),
 });
 export const updateTaskSchema = z.object({
   taskName: z.string().min(1).optional(),
@@ -14,19 +13,22 @@ export const updateTaskSchema = z.object({
   duration: z.number().nonnegative().optional(),
   completionPecentage: z.string().optional(),
   status: z.nativeEnum(TaskStatusEnumValue).optional(),
-  assginedToUserId: z.string().uuid().array().optional(),
-  milestoneIndicator: z.boolean().optional(),
 });
+
 export const assginedToUserIdSchema = z.object({
-  assginedToUserId: z.string().uuid()
+  assginedToUserId: z.string().uuid(),
 });
+
 export const taskStatusSchema = z.object({
   status: z.nativeEnum(TaskStatusEnumValue),
 });
+
 export const createCommentTaskSchema = z.object({
   commentText: z.string(),
 });
+
 export const attachmentTaskSchema = z.any();
+
 export const dependenciesTaskSchema = z
   .object({
     dependencies: z.nativeEnum(TaskDependenciesEnumValue),
@@ -46,20 +48,20 @@ export const dependenciesTaskSchema = z
         {
           code: "invalid_string",
           message:
-            "Dependant Task should not be NO_DEPENDENCIES when dependencies provided",
+            "Dependant Task should not be null when dependencies provided",
           path: ["dependantTaskId"],
           validation: "uuid",
         },
       ]);
     } else if (
       dependantTaskId &&
-      dependencies != "WAITING_ON" &&
-      dependencies != "BLOCKING"
+      dependencies != TaskDependenciesEnumValue.WAITING_ON &&
+      dependencies != TaskDependenciesEnumValue.BLOCKING
     ) {
       throw new ZodError([
         {
           code: "invalid_string",
-          message: `Dependant Task should be NO_DEPENDENCIES when dependencies provided`,
+          message: `Dependant Task should be null when dependencies provided`,
           path: ["dependencies"],
           validation: "uuid",
         },
@@ -71,9 +73,36 @@ export const dependenciesTaskSchema = z
       throw new ZodError([
         {
           code: "invalid_string",
-          message: `Dependant Task should be NO_DEPENDENCIES when dependencies is ${dependencies}`,
+          message: `Dependant Task should be null when dependencies is ${dependencies}`,
           path: ["dependencies"],
           validation: "uuid",
+        },
+      ]);
+    }
+    return true;
+  });
+
+export const milestoneTaskSchema = z
+  .object({
+    milestoneIndicator: z.boolean(),
+    dueDate: z.coerce.date().optional(),
+  })
+  .refine((data) => {
+    const { milestoneIndicator, dueDate } = data;
+    if (milestoneIndicator && !dueDate) {
+      throw new ZodError([
+        {
+          code: "invalid_date",
+          message: "Due Date should not be null when milestone provided",
+          path: ["dueDate"],
+        },
+      ]);
+    } else if (milestoneIndicator && dueDate && dueDate <= new Date()) {
+      throw new ZodError([
+        {
+          code: "invalid_date",
+          message: `Due date should be in the future when milestone provided`,
+          path: ["dueDate"],
         },
       ]);
     }

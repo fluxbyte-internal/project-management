@@ -13,7 +13,11 @@ import InputText from "../common/InputText";
 import TaskAttachment from "./taskAttachment";
 import TaskDependencies from "./taskDependencies";
 import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover";
-import { createTaskSchema } from "../../../../backend/src/schemas/taskSchema";
+import {
+  createTaskSchema,
+  milestoneTaskSchema,
+} from "../../../../backend/src/schemas/taskSchema";
+import { Calendar } from "@/components/ui/calendar";
 
 import { useUser } from "@/hooks/useUser";
 import useTaskQuery from "@/api/query/useTaskQuery";
@@ -38,6 +42,9 @@ import SubTask from "../../assets/svg/SubTask.svg";
 import PapperClip from "../../assets/svg/Paperclip.svg";
 import MultiLine from "../../assets/svg/MultiLine.svg";
 import TopRightArrow from "../../assets/svg/TopRightArrow.svg";
+import ErrorMessage from "../common/ErrorMessage";
+import dateFormater from "@/helperFuntions/dateFormater";
+import useTaskAddUpdateMilestoneMutation from "@/api/mutation/useTaskAddUpdateMilestone";
 
 type Props = {
   projectId: string | undefined;
@@ -53,8 +60,8 @@ function TaskSubTaskForm(props: Props) {
   const [taskId, setTaskId] = useState<string | undefined>(props.taskId);
   const [subTaskFieldShow, setSubTaskFieldShow] = useState<boolean>(false);
   const [member, setMambers] = useState<UserOrganisationType["user"][]>([]);
-  const [attachmentUploading, setAttachmentUploading] =useState<boolean>(false);
-
+  const [attachmentUploading, setAttachmentUploading] =
+    useState<boolean>(false);
 
   const taskQuery = useTaskQuery(taskId);
   const taskMemberList = useTaskMemberListQuery();
@@ -63,8 +70,12 @@ function TaskSubTaskForm(props: Props) {
   const taskAddMembersMutation = useTaskAddMembersMutation(taskId);
   const tasks = taskQuery.data ? taskQuery.data.data.data : undefined;
   const taskAttachmentAddMutation = useTaskAttechmentAddMutation(taskId);
-  const taskCreateMutation = useCreateTaskMutation(props.projectId, taskId ?? undefined);
-
+  const taskCreateMutation = useCreateTaskMutation(
+    props.projectId,
+    taskId ?? undefined
+  );
+  const taskAddUpdateMilestoneMutation =
+    useTaskAddUpdateMilestoneMutation(taskId);
   useEffect(() => {
     refetch();
   }, [taskId]);
@@ -76,7 +87,10 @@ function TaskSubTaskForm(props: Props) {
         taskDescription: tasks.taskDescription,
         startDate: tasks.startDate,
         duration: tasks.duration,
+      });
+      milestoneFormik.setValues({
         milestoneIndicator: tasks.milestoneIndicator,
+        dueDate: tasks.dueDate ?? undefined,
       });
       setMambers(
         tasks.assignedUsers.map((u) => {
@@ -92,7 +106,6 @@ function TaskSubTaskForm(props: Props) {
       taskDescription: "",
       startDate: new Date(),
       duration: 0,
-      milestoneIndicator: false,
     },
     validationSchema: toFormikValidationSchema(createTaskSchema),
     onSubmit: (values) => {
@@ -118,6 +131,33 @@ function TaskSubTaskForm(props: Props) {
       }
     },
   });
+  const milestoneFormik = useFormik<z.infer<typeof milestoneTaskSchema>>({
+    initialValues: {
+      milestoneIndicator: false,
+      dueDate: undefined,
+    },
+    validationSchema: toFormikValidationSchema(milestoneTaskSchema),
+    onSubmit: (values) => {
+      milestoneSubmit(values);
+    },
+  });
+  const milestoneSubmit = (values: z.infer<typeof milestoneTaskSchema>) => {
+    taskAddUpdateMilestoneMutation.mutate(values, {
+      onSuccess(data) {
+        toast.success(data.data.message);
+      },
+      onError(error) {
+        toast.error(error.response?.data.message);
+      },
+    });
+  };
+  const milestoneHandlechange = (e: boolean) => {
+    milestoneFormik.setFieldValue("milestoneIndicator", e);
+    if (!e) {
+      milestoneFormik.setFieldValue("dueDate", null);
+      milestoneSubmit({ milestoneIndicator: false, dueDate: undefined });
+    }
+  };
 
   const createSubTask = () => {
     const value = {
@@ -476,12 +516,11 @@ function TaskSubTaskForm(props: Props) {
                 <Button
                   variant={"secondary"}
                   className="py-1.5 px-3 flex w-full gap-3 justify-between"
-                  onClick={() =>
-                    taskFormik.setFieldValue(
-                      "milestoneIndicator",
-                      !taskFormik.values.milestoneIndicator
-                    )
-                  }
+                  onClick={() => {
+                    milestoneHandlechange(
+                      !milestoneFormik.values.milestoneIndicator
+                    );
+                  }}
                 >
                   <div className="flex gap-2.5 items-center">
                     <img src={Route} />
@@ -491,23 +530,61 @@ function TaskSubTaskForm(props: Props) {
                     <CheckIcon
                       className={cn(
                         "ml-auto h-4 w-4",
-                        taskFormik.values.milestoneIndicator
+                        milestoneFormik.values.milestoneIndicator
                           ? "opacity-100"
                           : "opacity-0"
                       )}
                     />
                   </div>
                 </Button>
+
+                <ErrorMessage className="ml-0 p-0">
+                  {milestoneFormik.errors.milestoneIndicator}
+                </ErrorMessage>
               </div>
             </div>
             <div className="mt-3">
               <div className="flex justify-between">
-                <div className="flex flex-col gap-2">
-                  <div className="text-xs font-medium text-gray-400">
-                    Your milestone:
+                {milestoneFormik.values.milestoneIndicator && (
+                  <div className="flex flex-col gap-2">
+                    <div className="text-xs font-medium text-gray-400">
+                      Your milestone:
+                    </div>
+                    <Popover>
+                      <PopoverTrigger className="w-full">
+                        <div className="text-sm  text-gray-300">
+                          {milestoneFormik.values.dueDate
+                            ? dateFormater(
+                              new Date(milestoneFormik.values.dueDate)
+                            )
+                            : "Select date"}
+                        </div>
+                      </PopoverTrigger>
+                      <PopoverContent className="p-0">
+                        <Calendar
+                          mode="single"
+                          selected={
+                            new Date(milestoneFormik.values.dueDate ?? "")
+                          }
+                          onDayBlur={milestoneFormik.submitForm}
+                          onSelect={(e) => {
+                            milestoneFormik.setFieldValue(
+                              "dueDate",
+                              e ? new Date(e) : undefined
+                            )
+                          }}
+                          className="rounded-md border"
+                        />
+                        {milestoneFormik.errors.dueDate &&
+                          milestoneFormik.values.dueDate && (
+                          <ErrorMessage className="ml-0 p-0">
+                            {milestoneFormik.errors.dueDate}
+                          </ErrorMessage>
+                        )}
+                      </PopoverContent>
+                    </Popover>
                   </div>
-                  <div className="text-sm  text-gray-300">30/12/2023</div>
-                </div>
+                )}
                 <div className="flex flex-col gap-2">
                   <div className="text-xs font-medium text-gray-400">
                     Progress:
