@@ -14,6 +14,11 @@ export const authSignUpSchema = z
       )
       .min(1, "Password is a required field"),
     confirmPassword: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}),
+    privacyPolicy: z.boolean().refine((v) => {
+      if(v == true) {
+        return true;
+      }
+    }),
   })
   .refine(
     (values) => {
