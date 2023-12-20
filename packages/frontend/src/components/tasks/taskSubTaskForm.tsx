@@ -571,7 +571,7 @@ function TaskSubTaskForm(props: Props) {
                             milestoneFormik.setFieldValue(
                               "dueDate",
                               e ? new Date(e) : undefined
-                            )
+                            );
                           }}
                           className="rounded-md border"
                         />

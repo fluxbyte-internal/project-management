@@ -106,8 +106,8 @@ function TaskComment(props: Props) {
   const visibleComments = showAllShow
     ? props.task?.comments ?? []
     : (props.task?.comments ?? []).filter(
-        (comment) => !isDateSevenDaysOld(new Date(comment.createdAt))
-      );
+      (comment) => !isDateSevenDaysOld(new Date(comment.createdAt))
+    );
   return (
     <>
       <div className="flex items-center gap-2.5 mt-4">
