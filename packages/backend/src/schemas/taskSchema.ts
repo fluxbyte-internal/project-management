@@ -6,7 +6,6 @@ export const createTaskSchema = z.object({
   taskDescription: z.string().optional(),
   startDate: z.coerce.date(),
   duration: z.number(),
-  milestoneIndicator: z.boolean(),
 });
 
 export const updateTaskSchema = z.object({
@@ -16,7 +15,6 @@ export const updateTaskSchema = z.object({
   duration: z.number().nonnegative().optional(),
   completionPecentage: z.string().optional(),
   status: z.nativeEnum(TaskStatusEnumValue).optional(),
-  milestoneIndicator: z.boolean().optional(),
 });
 
 export const assginedToUserIdSchema = z.object({
@@ -80,6 +78,42 @@ export const dependenciesTaskSchema = z
           message: `Dependant Task should be null when dependencies is ${dependencies}`,
           path: ["dependencies"],
           validation: "uuid",
+        },
+      ]);
+    }
+    return true;
+  });
+
+export const milestoneTaskSchema = z
+  .object({
+    milestoneIndicator: z.boolean(),
+    dueDate: z.coerce.date().optional(),
+  })
+  .refine((data) => {
+    const { milestoneIndicator, dueDate } = data;
+    if (milestoneIndicator && !dueDate) {
+      throw new ZodError([
+        {
+          code: "invalid_date",
+          message:
+            "Due Date should not be null when milestone provided",
+          path: ["dueDate"],
+        },
+      ]);
+    } else if (dueDate && !milestoneIndicator) {
+      throw new ZodError([
+        {
+          code: "invalid_date",
+          message: `Due date should be null when milestone provided`,
+          path: ["milestoneIndicator"],
+        },
+      ]);
+    } else if (dueDate && dueDate <= new Date()) {
+      throw new ZodError([
+        {
+          code: "invalid_date",
+          message: `Due date should be in the future when milestone provided`,
+          path: ["dueDate"],
         },
       ]);
     }
