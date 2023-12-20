@@ -407,7 +407,7 @@ export const addOrRemoveMilesstone = async (
   const milestone = await prisma.task.update({
     data: {
       milestoneIndicator: milestoneIndicator,
-      dueDate: milestoneIndicator === true ? dueDate : null,
+      dueDate: milestoneIndicator ? dueDate : null,
     },
     where: {
       taskId: taskId,
