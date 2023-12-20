@@ -25,7 +25,7 @@ function useSignupMutation() {
   const mutation = useMutation<
     AxiosResponseAndError<SignupResponseType>["response"],
     AxiosResponseAndError<SignupResponseType>["error"],
-   z.infer<typeof authSignUpSchema>
+    z.infer<typeof authSignUpSchema>
   >({
     mutationFn: (data) =>
       axios.post<SignupResponseType>(requestURLs.signup, data),
