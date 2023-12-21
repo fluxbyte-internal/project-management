@@ -9,7 +9,6 @@ export const authMiddleware = async (req: express.Request, res: express.Response
     if (!token) {
       throw new UnAuthorizedError();
     };
-    console.log({token});
     const decoded = verifyJwtToken(token);
     req.userId = decoded.userId;
     req.tenantId = decoded.tenantId;
