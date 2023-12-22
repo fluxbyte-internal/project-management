@@ -6,12 +6,14 @@ import { CheckIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 
+import Dialog from "../common/Dialog";
 import { Button } from "../ui/button";
 import TaskComment from "./taskComment";
 import UserAvatar from "../ui/userAvatar";
 import InputText from "../common/InputText";
 import TaskAttachment from "./taskAttachment";
 import TaskDependencies from "./taskDependencies";
+import ErrorMessage from "../common/ErrorMessage";
 import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover";
 import {
   createTaskSchema,
@@ -21,6 +23,7 @@ import { Calendar } from "@/components/ui/calendar";
 
 import { useUser } from "@/hooks/useUser";
 import useTaskQuery from "@/api/query/useTaskQuery";
+import dateFormater from "@/helperFuntions/dateFormater";
 import useTaskAddMembersMutation from "@/api/mutation/useTaskAddMember";
 import useTaskMemberListQuery from "@/api/query/useTaskMemberListQuary";
 import useCreateTaskMutation from "@/api/mutation/useTaskCreateMutation";
@@ -28,6 +31,7 @@ import useUpdateTaskMutation from "@/api/mutation/useTaskUpdateMutation";
 import useRemoveTaskMemberMutation from "@/api/mutation/useTaskRemoveMember";
 import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
 import useTaskAttechmentAddMutation from "@/api/mutation/useTaskAttechmentAddMutation";
+import useTaskAddUpdateMilestoneMutation from "@/api/mutation/useTaskAddUpdateMilestone";
 
 import Tag from "../../assets/svg/Tag.svg";
 import Users from "../../assets/svg/Users.svg";
@@ -39,12 +43,12 @@ import Edit from "../../assets/svg/EditPen.svg";
 import Folder from "../../assets/svg/Folders.svg";
 import Close from "../../assets/svg/CrossIcon.svg";
 import SubTask from "../../assets/svg/SubTask.svg";
-import PapperClip from "../../assets/svg/Paperclip.svg";
+import TrashCan from "../../assets/svg/TrashCan.svg";
 import MultiLine from "../../assets/svg/MultiLine.svg";
+import PapperClip from "../../assets/svg/Paperclip.svg";
 import TopRightArrow from "../../assets/svg/TopRightArrow.svg";
-import ErrorMessage from "../common/ErrorMessage";
-import dateFormater from "@/helperFuntions/dateFormater";
-import useTaskAddUpdateMilestoneMutation from "@/api/mutation/useTaskAddUpdateMilestone";
+import useRemoveTaskMutation from "@/api/mutation/useTaskRemove";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   projectId: string | undefined;
@@ -57,12 +61,12 @@ function TaskSubTaskForm(props: Props) {
   const [subTask, setSubtask] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
   const [taskNameField, setTaskNameField] = useState(false);
-  const [taskId, setTaskId] = useState<string | undefined>(props.taskId);
+  const [taskId, setTaskId] = useState<string>(props.taskId ?? "");
   const [subTaskFieldShow, setSubTaskFieldShow] = useState<boolean>(false);
   const [member, setMambers] = useState<UserOrganisationType["user"][]>([]);
   const [attachmentUploading, setAttachmentUploading] =
     useState<boolean>(false);
-
+  const navigate = useNavigate();
   const taskQuery = useTaskQuery(taskId);
   const taskMemberList = useTaskMemberListQuery();
   const taskUpdateMutation = useUpdateTaskMutation(taskId);
@@ -70,6 +74,7 @@ function TaskSubTaskForm(props: Props) {
   const taskAddMembersMutation = useTaskAddMembersMutation(taskId);
   const tasks = taskQuery.data ? taskQuery.data.data.data : undefined;
   const taskAttachmentAddMutation = useTaskAttechmentAddMutation(taskId);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const taskCreateMutation = useCreateTaskMutation(
     props.projectId,
     taskId ?? undefined
@@ -131,6 +136,19 @@ function TaskSubTaskForm(props: Props) {
       }
     },
   });
+  const removeTaskMutation = useRemoveTaskMutation();
+  const removeTask = () => {
+    removeTaskMutation.mutate(taskId, {
+      onSuccess(data) {
+        tasks?.parentTaskId?  setTaskId(tasks?.parentTaskId) : navigate("/projects");
+        toast.success(data.data.message);
+        setShowConfirmDelete(false);
+      },
+      onError(error) {
+        toast.error(error.response?.data.message);
+      },
+    });
+  };
   const milestoneFormik = useFormik<z.infer<typeof milestoneTaskSchema>>({
     initialValues: {
       milestoneIndicator: false,
@@ -171,6 +189,7 @@ function TaskSubTaskForm(props: Props) {
     taskCreateMutation.mutate(value, {
       onSuccess(data) {
         refetch();
+        setSubtask('');
         toast.success(data.data.message);
       },
       onError(error) {
@@ -250,7 +269,7 @@ function TaskSubTaskForm(props: Props) {
                   <div>
                     <InputText
                       onBlur={() => {
-                        setTaskNameField(false);
+                        setTaskNameField(false),taskFormik.submitForm();
                       }}
                       name="taskName"
                       onChange={taskFormik.handleChange}
@@ -441,7 +460,7 @@ function TaskSubTaskForm(props: Props) {
                                 tasks?.assignedUsers.some(
                                   (u) => u.user.userId == data.user.userId
                                 )
-                                  ? removeMembers(data.user.userId)
+                                  ? removeMembers( tasks?.assignedUsers.find(id => id.user.userId == data.user.userId)?.taskAssignUsersId ?? '')
                                   : submitMembers(data);
                               }}
                             >
@@ -595,7 +614,17 @@ function TaskSubTaskForm(props: Props) {
             </div>
           </div>
         </div>
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <div>
+            <Button
+              variant={"destructive"}
+              onClick={() => {
+                setShowConfirmDelete(true);
+              }}
+            >
+              Delete
+            </Button>
+          </div>
           <div>
             <Button variant={"primary"} onClick={taskFormik.submitForm}>
               submit
@@ -603,6 +632,34 @@ function TaskSubTaskForm(props: Props) {
           </div>
         </div>
       </div>
+      <Dialog
+        isOpen={showConfirmDelete}
+        onClose={() => {}}
+        modalClass="rounded-lg"
+      >
+        <div className="flex flex-col gap-2 p-6 ">
+          <img src={TrashCan} className="w-12 m-auto" /> Are you sure you want
+          to delete ?
+          <div className="flex gap-2 ml-auto">
+            <Button
+              variant={"outline"}
+              isLoading={removeTaskMutation.isPending}
+              disabled={removeTaskMutation.isPending}
+              onClick={() => setShowConfirmDelete(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant={"primary"}
+              onClick={removeTask}
+              isLoading={removeTaskMutation.isPending}
+              disabled={removeTaskMutation.isPending}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 }
