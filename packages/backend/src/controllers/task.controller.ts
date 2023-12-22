@@ -54,7 +54,9 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
       },
       documentAttachments: true,
       subtasks: true,
-      taskDependencies: true
+      taskDependencies: {
+        include: { dependantTask: true },
+      },
     },
   });
 
