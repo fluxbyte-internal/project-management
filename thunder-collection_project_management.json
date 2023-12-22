@@ -384,18 +384,24 @@
             "_id": "ab5ad6ee-b870-4c12-b330-25ff0e9081c6",
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
-            "name": "Task - Attachment add or update",
+            "name": "Task - create Attachment ",
             "url": "{{ip_url}}/api/task/attachment/c5e9343b-ad1a-47db-8645-0a9a7209b733",
-            "method": "PUT",
+            "method": "POST",
             "sortNum": 250000,
             "created": "2023-11-22T05:36:02.260Z",
             "modified": "2023-11-23T09:27:50.784Z",
             "headers": [],
             "params": [],
             "body": {
-                "type": "json",
-                "raw": "[\n  {\n    \"name\": \"33 create\",\n    \"url\": \"create.com\"\n  }\n]",
-                "form": []
+                "type": "formdata",
+                "raw": "",
+                "form": [],
+                "files": [
+                    {
+                        "name": "taskAttachment",
+                        "value": "orange.png"
+                    }
+                ]
             },
             "tests": []
         },
@@ -403,7 +409,7 @@
             "_id": "e33683f3-dc5e-4668-b822-e3c215366ad3",
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
-            "name": "Task - Attachment delete",
+            "name": "Task - delete Attachment ",
             "url": "{{ip_url}}/api/task/attachment/fedb0309-2be9-405d-b93d-7decc21a6d72",
             "method": "DELETE",
             "sortNum": 260000,
@@ -441,7 +447,7 @@
             "_id": "f5e6230b-9416-4dd4-b7bd-1a489bf05041",
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
-            "name": "Task - All task completed",
+            "name": "Task - all task completed",
             "url": "{{ip_url}}/api/task/status/completed/60d05784-82ea-4f3a-966b-8c88ad017f94",
             "method": "PUT",
             "sortNum": 270000,
@@ -455,7 +461,7 @@
             "_id": "2988ee34-da51-4184-82b9-fecc5fabadb6",
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
-            "name": "Project - Update",
+            "name": "Project - update",
             "url": "{{ip_url}}/api/project/fb0e0684-0cf8-4e4b-b790-83a102803fb0",
             "method": "PUT",
             "sortNum": 280000,
@@ -492,34 +498,6 @@
                 "raw": "{\n  \"organisationName\": \"My's updated Org\",\n  \"industry\": \"IT\",\n  \"status\": \"Active\",\n  \"country\": \"US\",\n  \"nonWorkingDays\": [\"WED\",\"MON\"]\n}",
                 "form": []
             },
-            "tests": []
-        },
-        {
-            "_id": "33928bbb-d876-4656-8ba9-64dcda65a422",
-            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
-            "containerId": "",
-            "name": "Email",
-            "url": "{{ip_url}}/email",
-            "method": "GET",
-            "sortNum": 300000,
-            "created": "2023-11-29T10:29:22.032Z",
-            "modified": "2023-11-29T10:29:39.708Z",
-            "headers": [],
-            "params": [],
-            "tests": []
-        },
-        {
-            "_id": "2247b4e4-3773-490e-a0c5-57df0b68d6b6",
-            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
-            "containerId": "",
-            "name": "OTP",
-            "url": "{{ip_url}}/verify/661155",
-            "method": "GET",
-            "sortNum": 310000,
-            "created": "2023-11-29T10:58:56.401Z",
-            "modified": "2023-11-29T11:00:28.752Z",
-            "headers": [],
-            "params": [],
             "tests": []
         },
         {
@@ -571,7 +549,7 @@
             "_id": "7ba150db-40f4-42e3-805e-7ba36694bf14",
             "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
             "containerId": "",
-            "name": "User - Update Profile data",
+            "name": "User - update user profile data",
             "url": "{{ip_url}}/api/user/",
             "method": "PUT",
             "sortNum": 350000,
@@ -657,9 +635,138 @@
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"password\":\"Test@3121\",\n  \"confirmPassword\":\"Test@3121\"\n}",
+                "raw": "{\n  \"password\":\"Test@123\",\n  \"confirmPassword\":\"Test@123\"\n}",
                 "form": []
             },
+            "tests": []
+        },
+        {
+            "_id": "994b199d-06c8-490b-9176-9a5468acf336",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "User - update avatar Img",
+            "url": "{{ip_url}}/api/user/avatarImg-update",
+            "method": "PUT",
+            "sortNum": 400000,
+            "created": "2023-12-08T04:38:58.293Z",
+            "modified": "2023-12-08T04:57:17.252Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [],
+                "files": [
+                    {
+                        "name": "avatarImg",
+                        "value": "orange.png"
+                    }
+                ]
+            },
+            "tests": []
+        },
+        {
+            "_id": "b40b7ab2-6e8d-418c-99ae-976723489d33",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - Assign to User list",
+            "url": "{{ip_url}}/api/task/taskAssignUsers",
+            "method": "GET",
+            "sortNum": 410000,
+            "created": "2023-12-13T06:29:14.489Z",
+            "modified": "2023-12-13T06:30:05.768Z",
+            "headers": [
+                {
+                    "name": "organisation-id",
+                    "value": "{{organisation_id}}"
+                }
+            ],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "4be02dde-37b9-4b0d-aab8-1dabed8a0e6b",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - Add Member",
+            "url": "{{ip_url}}/api/task/member/b2e45ebd-2c11-4da7-8d1f-168d511ba7e3",
+            "method": "POST",
+            "sortNum": 420000,
+            "created": "2023-12-18T10:40:55.924Z",
+            "modified": "2023-12-21T05:50:13.673Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"assginedToUserId\": \"aae5982c-6623-47ee-ac75-d92754a73aac\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "87ed6c4a-d0dd-41a9-bb50-652b6758e0fe",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - Delete Member",
+            "url": "{{ip_url}}/api/task/member/a159ca49-7437-4ab9-96ee-3976fb2febc4",
+            "method": "DELETE",
+            "sortNum": 430000,
+            "created": "2023-12-18T10:45:04.237Z",
+            "modified": "2023-12-18T10:50:07.168Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "13e98f2b-3b1b-4470-bf3d-a7a308b10727",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - Add  Dependencies",
+            "url": "{{ip_url}}/api/task/dependencies/b2e45ebd-2c11-4da7-8d1f-168d511ba7e3",
+            "method": "POST",
+            "sortNum": 440000,
+            "created": "2023-12-19T06:16:18.516Z",
+            "modified": "2023-12-21T06:13:26.474Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"dependencies\": \"BLOCKING\",\n  \"dependantTaskId\": \"036ca0b6-d5fd-4ad1-9348-9e3076d8e0d7\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "d405bfd6-27f4-4ec0-94ab-6b60a1e8a2f1",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - Add or Remove Milestone",
+            "url": "{{ip_url}}/api/task/milestone/b2e45ebd-2c11-4da7-8d1f-168d511ba7e3",
+            "method": "POST",
+            "sortNum": 450000,
+            "created": "2023-12-20T06:21:17.962Z",
+            "modified": "2023-12-20T08:58:08.292Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"milestoneIndicator\": true,\n  \"dueDate\": \"2023-12-22T08:57:45.365Z\"\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "610cb963-ea0e-4db7-be27-7cd24c392905",
+            "colId": "14aa671b-92fd-4f79-8c21-64b0a7bc9115",
+            "containerId": "",
+            "name": "Task - Remove Dependencies",
+            "url": "{{ip_url}}/api/task/dependencies/694e676f-fa34-4f47-96f1-920c60b569dc",
+            "method": "DELETE",
+            "sortNum": 460000,
+            "created": "2023-12-20T09:46:00.797Z",
+            "modified": "2023-12-20T11:48:53.007Z",
+            "headers": [],
+            "params": [],
             "tests": []
         }
     ],

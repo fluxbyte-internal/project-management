@@ -68,18 +68,6 @@ export const dependenciesTaskSchema = z
           validation: "uuid",
         },
       ]);
-    } else if (
-      dependencies === TaskDependenciesEnumValue.NO_DEPENDENCIES &&
-      dependantTaskId
-    ) {
-      throw new ZodError([
-        {
-          code: "invalid_string",
-          message: `Dependant Task should be null when dependencies is ${dependencies}`,
-          path: ["dependencies"],
-          validation: "uuid",
-        },
-      ]);
     }
     return true;
   });
@@ -95,20 +83,11 @@ export const milestoneTaskSchema = z
       throw new ZodError([
         {
           code: "invalid_date",
-          message:
-            "Due Date should not be null when milestone provided",
+          message: "Due Date should not be null when milestone provided",
           path: ["dueDate"],
         },
       ]);
-    } else if (dueDate && !milestoneIndicator) {
-      throw new ZodError([
-        {
-          code: "invalid_date",
-          message: `Due date should be null when milestone provided`,
-          path: ["milestoneIndicator"],
-        },
-      ]);
-    } else if (dueDate && dueDate <= new Date()) {
+    } else if (milestoneIndicator && dueDate && dueDate <= new Date()) {
       throw new ZodError([
         {
           code: "invalid_date",
