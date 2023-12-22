@@ -31,6 +31,8 @@ function Table(props: Props) {
       setHeight(table.current.offsetHeight);
       setTableRowHeight(tableRow.current.offsetHeight);
       const length = parseInt((height / tableRowHeight).toFixed()) - 2;
+      console.log(length ,height,tableRowHeight);
+      
       setDataPerPage(length);
       if (!isNaN(length)) {
         setDataSource(data.slice(0, length));
@@ -38,7 +40,6 @@ function Table(props: Props) {
         setPages(count);
       }
     }
-    setDataSource(data);
   }, [data, height, tableRowHeight, ascendingToggle]);
 
   const nextPage = () => {
@@ -130,7 +131,7 @@ function Table(props: Props) {
     <>
       <div
         ref={table}
-        className="py-9 sm:pb-9 bg-white px-6 relative border rounded-md text-sm h-[90%] overflow-y-hidden overflow-x-auto"
+        className="py-9 sm:pb-9 bg-white px-6 relative border rounded-md text-sm h-full overflow-y-hidden overflow-x-auto"
       >
         <table className="w-full">
           <thead>

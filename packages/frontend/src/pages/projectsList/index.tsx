@@ -70,7 +70,7 @@ function ProjectsList() {
       if (!projectManagerData.some(i=> i.value == item.createdByUser.email)) {
         projectManagerData.push({ label: val, value: val });
       }
-    })
+    });
 
     return projectManagerData;
   };
@@ -82,7 +82,7 @@ function ProjectsList() {
       if (!statusData.some(i=> i.value == item.status)) {
         statusData.push({ label: item.status, value: item.status });
       }
-    })
+    });
 
     return statusData;
   };
@@ -230,7 +230,7 @@ function ProjectsList() {
       ) : (
         <>
           {data && data.length > 0 ? (
-            <div className="h-full py-5 p-4 lg:p-14 w-full">
+            <div className="h-full py-5 p-4 lg:p-14 w-full flex flex-col gap-5">
               <div className="flex justify-between items-center">
                 <h2 className="font-medium text-3xl leading-normal text-gray-600">
                   Projects
@@ -245,10 +245,10 @@ function ProjectsList() {
                 </div>
               </div>
               {data && (
-                <div className="flex justify-around items-center mt-6">
+                <div className="flex justify-around items-center">
                   <div className="w-1/4">
                     <Select
-                      className="p-0"
+                      className="p-0 z-40"
                       value={filter.projectManager || { label: "Select manager", value: "" }}
                       options={projectManager()}
                       onChange={(e) =>
@@ -261,7 +261,7 @@ function ProjectsList() {
                   <div className="w-1/4">
                     <Select
                       value={filter.status ||{ label: "Select status", value: "" } }
-                      className="p-0"
+                      className="p-0 z-40"
                       options={status()}
                       onChange={(e) =>
                         setFilter((prev) => ({ ...prev, status: e }))
@@ -305,15 +305,15 @@ function ProjectsList() {
                   <div>
                     <Button
                       variant={"outline"}
-                      className="text-gray-400 font-normal"
+                      className="h-11 py-1 bg-gray-100/50"
                       onClick={reset}
                     >
-                      clear
+                      Clear
                     </Button>
                   </div>
                 </div>
               )}
-              <div className="my-4 h-full">
+              <div className="max-h-[8%]">
                 {filterData && (
                   <Table
                     key="Project view"
