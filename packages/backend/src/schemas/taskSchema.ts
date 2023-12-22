@@ -2,7 +2,7 @@ import { ZodError, z } from "zod";
 import { TaskDependenciesEnumValue, TaskStatusEnumValue } from "./enums.js";
 
 export const createTaskSchema = z.object({
-  taskName: z.string(),
+  taskName: z.string().min(1),
   taskDescription: z.string().optional(),
   startDate: z.coerce.date(),
   duration: z.number(),
