@@ -8,21 +8,21 @@ import ApiRequest from "../ApiRequest";
 import { Task } from "./useTaskCreateMutation";
 
 
-type TaskRemoveCommentResponseType = ResponseType<Task>;
+type TaskRemoveAttachmentResponseType = ResponseType<Task>;
 
-function useRemoveTaskCommentMutation() {
+function useRemoveTaskAttachmentMutation() {
   const mutation = useMutation<
-    AxiosResponseAndError<TaskRemoveCommentResponseType>["response"],
-    AxiosResponseAndError<TaskRemoveCommentResponseType>["error"],
+    AxiosResponseAndError<TaskRemoveAttachmentResponseType>["response"],
+    AxiosResponseAndError<TaskRemoveAttachmentResponseType>["error"],
     string
   >({
     mutationFn: (data) =>
-      ApiRequest.delete<TaskRemoveCommentResponseType>(
-        `${requestURLs.task}attechment/${data}`
+      ApiRequest.delete<TaskRemoveAttachmentResponseType>(
+        `${requestURLs.task}attachment/${data}`
       ),
   });
 
   return mutation;
 }
 
-export default useRemoveTaskCommentMutation;
+export default useRemoveTaskAttachmentMutation;

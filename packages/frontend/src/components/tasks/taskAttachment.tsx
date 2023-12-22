@@ -9,7 +9,7 @@ import PapperClip from "../../assets/svg/Paperclip.svg";
 import TopRightArrow from "../../assets/svg/TopRightArrow.svg";
 import calculateTimeDifference from "../shared/TimeDifferenceCalculate";
 import { Task } from "@/api/mutation/useTaskCreateMutation";
-import useRemoveTaskCommentMutation from "@/api/mutation/useTaskRemoveCommentMutation";
+import useRemoveTaskAttachmentMutation from "@/api/mutation/useTaskAttechmentRemoveMutation";
 
 type Props = {
   task: Task | undefined;
@@ -17,13 +17,13 @@ type Props = {
 };
 
 function TaskAttachment(props: Props) {
-  const removeTaskCommentMutation = useRemoveTaskCommentMutation();
+  const removeTaskAttachmentMutation = useRemoveTaskAttachmentMutation();
   const [showAllAttachment, setShowAllAttachment] = useState<boolean>(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState<string | null>(null);
 
   const removeConfirm = () => {
     if (showConfirmDelete) {
-      removeTaskCommentMutation.mutate(showConfirmDelete, {
+      removeTaskAttachmentMutation.mutate(showConfirmDelete, {
         onSuccess(data) {
           props.refetch();
           toast.success(data.data.message);
@@ -109,8 +109,8 @@ function TaskAttachment(props: Props) {
           <div className="flex gap-2 ml-auto">
             <Button
               variant={"outline"}
-              isLoading={removeTaskCommentMutation.isPending}
-              disabled={removeTaskCommentMutation.isPending}
+              isLoading={removeTaskAttachmentMutation.isPending}
+              disabled={removeTaskAttachmentMutation.isPending}
               onClick={() => setShowConfirmDelete(null)}
             >
               Cancel

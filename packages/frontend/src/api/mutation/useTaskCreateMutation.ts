@@ -20,16 +20,15 @@ export type Task = {
   duration: number;
   completionPecentage: null;
   status: string;
-  dependencies: keyof typeof TaskDependenciesEnumValue;
   milestoneIndicator: boolean;
   createdByUserId: string;
   updatedByUserId: string;
-  dueDate:Date|null
+  dueDate: Date | null;
   createdAt: Date;
   updatedAt: Date;
   parentTaskId: null | string;
-  dependantTaskId: null | string;
-  comments: comments[];
+  taskDependencies: TaskDependencie[];
+  comments: Comments[];
   documentAttachments: DocumentAttachment[];
   endDate: Date;
   flag: string;
@@ -38,8 +37,16 @@ export type Task = {
     { taskAssignUsersId: string; user: UserOrganisationType["user"] }
   ];
 };
-
-export interface comments {
+export interface TaskDependencie {
+  dependencies: keyof typeof TaskDependenciesEnumValue;
+  dependantTask:Task
+  dependenciesId: string;
+  taskId: string;
+  dependantTaskId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface Comments {
   commentId: string;
   taskId: string;
   commentText: string;
