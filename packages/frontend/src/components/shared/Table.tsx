@@ -38,6 +38,7 @@ function Table(props: Props) {
         setPages(count);
       }
     }
+    setDataSource(data);
   }, [data, height, tableRowHeight, ascendingToggle]);
 
   const nextPage = () => {
