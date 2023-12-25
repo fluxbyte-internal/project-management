@@ -213,10 +213,10 @@ model Task {
   documentAttachments TaskAttachment[]
   assignedUsers       TaskAssignUsers[]
 
-  parentTaskId     String?            @map("parent_task_id")
-  parent           Task?              @relation("parentTask", fields: [parentTaskId], references: [taskId])
-  taskDependencies TaskDependencies[] @relation("taskDependencies")
-  dependantTask    TaskDependencies?
+  parentTaskId    String?            @map("parent_task_id")
+  parent          Task?              @relation("parentTask", fields: [parentTaskId], references: [taskId])
+  dependencies    TaskDependencies[] @relation("dependencies")
+  dependentOnTask TaskDependencies[] @relation("dependentOnTask")
 
   @@index([taskId, projectId])
 }
@@ -234,16 +234,17 @@ model TaskAssignUsers {
 }
 
 model TaskDependencies {
-  dependenciesId  String               @id @default(uuid()) @map("dependencies_id")
-  taskId          String               @map("task_id")
-  dependencies    TaskDependenciesEnum @map("dependecies")
-  dependantTaskId String?              @unique @map("dependant_task_id")
-  task            Task?                @relation("taskDependencies", fields: [taskId], references: [taskId], onDelete: Cascade)
-  dependantTask   Task?                @relation(fields: [dependantTaskId], references: [taskId], onDelete: Cascade)
-  createdAt       DateTime             @default(now()) @map("created_at")
-  updatedAt       DateTime             @updatedAt @map("updated_at")
+  taskDependenciesId   String               @id @default(uuid()) @map("dependencies_id")
+  dependentTaskId      String               @map("dependent_task_id")
+  dependentTask        Task                 @relation("dependencies", fields: [dependentTaskId], references: [taskId], onDelete: Cascade)
+  dependentType        TaskDependenciesEnum @map("dependent_type")
+  dependendentOnTaskId String               @map("dependent_on_task_id")
+  dependentOnTask      Task                 @relation("dependentOnTask", fields: [dependendentOnTaskId], references: [taskId], onDelete: Cascade)
+  createdAt            DateTime             @default(now()) @map("created_at")
+  updatedAt            DateTime             @updatedAt @map("updated_at")
 
-  @@index([taskId, dependantTaskId])
+  @@unique([dependentTaskId, dependentType, dependendentOnTaskId])
+  @@index([dependentTaskId, dependentType, dependendentOnTaskId])
 }
 
 model TaskAttachment {

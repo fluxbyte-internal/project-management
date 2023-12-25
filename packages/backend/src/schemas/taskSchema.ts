@@ -33,38 +33,37 @@ export const attachmentTaskSchema = z.any();
 
 export const dependenciesTaskSchema = z
   .object({
-    dependencies: z.nativeEnum(TaskDependenciesEnumValue),
-    dependantTaskId: z
+    dependentType: z.nativeEnum(TaskDependenciesEnumValue),
+    dependendentOnTaskId: z
       .string({ required_error: "Task required*" })
       .uuid()
-      .nullable(),
   })
   .refine((data) => {
-    const { dependencies, dependantTaskId } = data;
+    const { dependentType, dependendentOnTaskId } = data;
     if (
-      (dependencies === TaskDependenciesEnumValue.BLOCKING ||
-        dependencies === TaskDependenciesEnumValue.WAITING_ON) &&
-      !dependantTaskId
+      (dependentType === TaskDependenciesEnumValue.BLOCKING ||
+        dependentType === TaskDependenciesEnumValue.WAITING_ON) &&
+      !dependendentOnTaskId
     ) {
       throw new ZodError([
         {
           code: "invalid_string",
           message:
-            "Dependant Task should not be null when dependencies provided",
-          path: ["dependantTaskId"],
+            "Dependant Task should not be null when dependentType provided",
+          path: ["dependendentOnTaskId"],
           validation: "uuid",
         },
       ]);
     } else if (
-      dependantTaskId &&
-      dependencies != TaskDependenciesEnumValue.WAITING_ON &&
-      dependencies != TaskDependenciesEnumValue.BLOCKING
+      dependendentOnTaskId &&
+      dependentType != TaskDependenciesEnumValue.WAITING_ON &&
+      dependentType != TaskDependenciesEnumValue.BLOCKING
     ) {
       throw new ZodError([
         {
           code: "invalid_string",
-          message: `Dependant Task should be null when dependencies provided`,
-          path: ["dependencies"],
+          message: `Dependant Task should be null when dependentType provided`,
+          path: ["dependentType"],
           validation: "uuid",
         },
       ]);
