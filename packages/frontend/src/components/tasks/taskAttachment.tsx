@@ -2,10 +2,10 @@ import Dialog from "../common/Dialog";
 import { Button } from "../ui/button";
 import { toast } from "react-toastify";
 import { useState } from "react";
-import Folder from "../../assets/svg/Folders.svg";
 import TrashCanSvg from "../../assets/svg/TrashCan.svg";
-import DownloadSvg from "../../assets/svg/DownLoad.svg";
 import PapperClip from "../../assets/svg/Paperclip.svg";
+import FileIcon from "../../assets/svg/FileIcon.svg";
+import DownloadSvg from "../../assets/svg/DownLoad.svg";
 import TopRightArrow from "../../assets/svg/TopRightArrow.svg";
 import calculateTimeDifference from "../shared/TimeDifferenceCalculate";
 import { Task } from "@/api/mutation/useTaskCreateMutation";
@@ -52,7 +52,7 @@ function TaskAttachment(props: Props) {
               <div className="w-10 h-11">
                 <img
                   className="rounded object-fill aspect-square w-full h-full"
-                  src={Folder}
+                  src={FileIcon}
                 />
               </div>
               <div className="text-sm font-semibold w-full">
