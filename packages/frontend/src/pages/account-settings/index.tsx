@@ -145,7 +145,7 @@ function AccountSettings() {
                       <Spinner className="h-10 w-36" color="#F99807"></Spinner>
                     </div>
                   ) : (
-                    <UserAvatar className="w-full h-full" fontClass="text-8xl" user={user}></UserAvatar>
+                    <UserAvatar className="w-full h-full" fontClass="!text-7xl" user={user}></UserAvatar>
                   )}
                 </div>
               )}

@@ -7,7 +7,7 @@ const ApiRequest = axios.create({
 
 ApiRequest.interceptors.request.use((config) => {
   config.headers["organisation-id"] = localStorage.getItem("organisation-id");
-  config.headers["Content-Type"] = "application/json";
+  // config.headers["Content-Type"] = "application/json";
   config.withCredentials=true;
   return config;
 });

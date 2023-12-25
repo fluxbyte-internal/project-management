@@ -41,6 +41,7 @@ export type Settings = {
     bucketName: string
   };
   environment: string
+  domain: string
 };
 
 const {
@@ -135,5 +136,6 @@ export const settings: Settings = {
     secretAccessKey: AWS_SECRET_ACCESS_KEY,
     bucketName: AWS_BUCKET_NAME
   },
-  environment: ENV_NAME
+  environment: ENV_NAME,
+  domain: ".projectchef.io"
 };

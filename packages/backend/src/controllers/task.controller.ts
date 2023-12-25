@@ -3,10 +3,11 @@ import { getClientByTenantId } from '../config/db.js';
 import { BadRequestError, NotFoundError, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
 import { projectIdSchema } from '../schemas/projectSchema.js';
-import { attachmentIdSchma, commentIdSchma, createCommentTaskSchema, createTaskSchema, attachmentTaskSchema, taskIdSchema, taskStatusSchema, updateTaskSchema } from '../schemas/taskSchema.js';
+import { createCommentTaskSchema, createTaskSchema, attachmentTaskSchema, taskStatusSchema, updateTaskSchema, assginedToUserIdSchema, dependenciesTaskSchema, milestoneTaskSchema } from '../schemas/taskSchema.js';
 import { TaskService } from '../services/task.services.js';
 import { TaskStatusEnum } from '@prisma/client';
 import { AwsUploadService } from '../services/aws.services.js';
+import { uuidSchema } from '../schemas/commonSchema.js';
 
 export const getTasks = async (req: express.Request, res: express.Response) => {
   const projectId = projectIdSchema.parse(req.params.projectId);
@@ -19,7 +20,7 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
 };
 
 export const getTaskById = async (req: express.Request, res: express.Response) => {
-  const taskId = taskIdSchema.parse(req.params.taskId);
+  const taskId = uuidSchema.parse(req.params.taskId);
   const prisma = await getClientByTenantId(req.tenantId);
   const task = await prisma.task.findFirstOrThrow({
     where: { taskId: taskId },
@@ -37,12 +38,18 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
           },
         },
       },
-      assginedToUser: {
+      assignedUsers: {
         select: {
-          avatarImg: true,
-          email: true,
-          firstName: true,
-          lastName: true,
+          taskAssignUsersId: true,
+          user:{
+            select: {
+              userId: true,
+              avatarImg: true, 
+              email: true,
+              firstName: true,
+              lastName: true
+            }
+          }
         }
       },
       documentAttachments: true,
@@ -65,9 +72,6 @@ export const createTask = async (req: express.Request, res: express.Response) =>
     taskDescription,
     startDate,
     duration,
-    assginedToUserId,
-    dependencies,
-    milestoneIndicator
   } = createTaskSchema.parse(req.body);
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -91,9 +95,6 @@ export const createTask = async (req: express.Request, res: express.Response) =>
       taskDescription: taskDescription,
       duration: duration,
       startDate: startDate,
-      milestoneIndicator: milestoneIndicator,
-      dependencies: dependencies,
-      assginedToUserId: assginedToUserId,
       status: TaskStatusEnum.NOT_STARTED,
       parentTaskId: parentTaskId ? parentTaskId : null,
       createdByUserId: req.userId,
@@ -101,6 +102,7 @@ export const createTask = async (req: express.Request, res: express.Response) =>
     },
     include: {
       documentAttachments: true,
+      assignedUsers: true
     },
   });
 
@@ -108,31 +110,43 @@ export const createTask = async (req: express.Request, res: express.Response) =>
   return new SuccessResponse(StatusCodes.CREATED, finalResponse, 'task created successfully').send(res);
 };
 
-export const updateTask = async (req: express.Request, res: express.Response) => {
-  if (!req.userId) { throw new BadRequestError('userId not found!!') };
-  const tasktId = taskIdSchema.parse(req.params.taskId);
-  const taskUpdateValue = updateTaskSchema.parse(req.body)
+export const updateTask = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
+  const taskId = uuidSchema.parse(req.params.taskId);
+  const taskUpdateValue = updateTaskSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
   const findtask = await prisma.task.findFirstOrThrow({
-    where: { taskId: tasktId },
+    where: { taskId: taskId },
     include: {
-      documentAttachments: true
-    }
+      documentAttachments: true,
+      assignedUsers: true,
+    },
   });
-  if (!findtask) { throw new NotFoundError('Task not found') }
-  const newUpdateObj = { ...taskUpdateValue, updatedByUserId: req.userId };
   const taskUpdateDB = await prisma.task.update({
-    where: { taskId: tasktId },
-    data: { ...newUpdateObj },
+    where: { taskId: taskId },
+    data: {
+      ...taskUpdateValue,
+      updatedByUserId: req.userId,
+    },
+    include: { documentAttachments: true, assignedUsers: true },
   });
 
   const finalResponse = { ...taskUpdateDB };
-  return new SuccessResponse(StatusCodes.OK, finalResponse, 'task updated successfully').send(res);
+  return new SuccessResponse(
+    StatusCodes.OK,
+    finalResponse,
+    "task updated successfully"
+  ).send(res);
 };
 
 export const deleteTask = async (req: express.Request, res: express.Response) => {
   if (!req.userId) { throw new BadRequestError('userId not found!!') };
-  const taskId = taskIdSchema.parse(req.params.taskId);
+  const taskId = uuidSchema.parse(req.params.taskId);
   const prisma = await getClientByTenantId(req.tenantId);
   if (taskId && await prisma.task.findFirstOrThrow({ where: { taskId: taskId } })) {
     await prisma.task.delete({
@@ -145,7 +159,7 @@ export const deleteTask = async (req: express.Request, res: express.Response) =>
 
 export const statusChangeTask = async (req: express.Request, res: express.Response) => {
   if (!req.userId) { throw new BadRequestError('userId not found!!') };
-  const taskId = taskIdSchema.parse(req.params.taskId);
+  const taskId = uuidSchema.parse(req.params.taskId);
   const statusBody = taskStatusSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
   if (taskId) {
@@ -182,7 +196,7 @@ export const statusCompletedAllTAsk = async (req: express.Request, res: express.
 
 export const addComment = async (req: express.Request, res: express.Response) => {
   if (!req.userId) { throw new BadRequestError('userId not found!!') };
-  const taskId = taskIdSchema.parse(req.params.taskId);
+  const taskId = uuidSchema.parse(req.params.taskId);
   const { commentText } = createCommentTaskSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
   const comment = await prisma.comments.create({
@@ -196,7 +210,7 @@ export const addComment = async (req: express.Request, res: express.Response) =>
 };
 
 export const updateComment = async (req: express.Request, res: express.Response) => {
-  const commentId = commentIdSchma.parse(req.params.commentId);
+  const commentId = uuidSchema.parse(req.params.commentId);
   const { commentText } = createCommentTaskSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
   const findComment = await prisma.comments.findFirstOrThrow({ where: { commentId: commentId } });
@@ -210,7 +224,7 @@ export const updateComment = async (req: express.Request, res: express.Response)
 };
 
 export const deleteComment = async (req: express.Request, res: express.Response) => {
-  const commentId = commentIdSchma.parse(req.params.commentId);
+  const commentId = uuidSchema.parse(req.params.commentId);
   const prisma = await getClientByTenantId(req.tenantId);
   if (commentId && await prisma.comments.findFirstOrThrow({ where: { commentId: commentId } })) {
     await prisma.comments.delete({ where: { commentId } });
@@ -223,7 +237,7 @@ export const addAttachment = async (
   res: express.Response
 ) => {
 
-  const taskId = taskIdSchema.parse(req.params.taskId);
+  const taskId = uuidSchema.parse(req.params.taskId);
 
   let files = [];
   const taskAttachmentFiles = attachmentTaskSchema.parse(
@@ -257,7 +271,7 @@ export const addAttachment = async (
   });
 
   return new SuccessResponse(
-    StatusCodes.OK,
+    StatusCodes.CREATED,
     findTask,
     "Add attachment successfully"
   ).send(res);
@@ -267,7 +281,7 @@ export const deleteAttachment = async (
   req: express.Request,
   res: express.Response
 ) => {
-  const attachmentId = attachmentIdSchma.parse(req.params.attachmentId);
+  const attachmentId = uuidSchema.parse(req.params.attachmentId);
   const prisma = await getClientByTenantId(req.tenantId);
   const attachment = await prisma.taskAttachment.findFirstOrThrow({
     where: { attachmentId: attachmentId },
@@ -310,8 +324,98 @@ export const taskAssignToUser = async (
     },
   });
   return new SuccessResponse(
-    StatusCodes.CREATED,
+    StatusCodes.OK,
     usersOfOrganisation,
     "Get organisation's users successfully"
+  ).send(res);
+};
+
+export const addMemberToTask = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const taskId = uuidSchema.parse(req.params.taskId);
+  const { assginedToUserId } = assginedToUserIdSchema.parse(req.body);
+  const prisma = await getClientByTenantId(req.tenantId);
+  const member = await prisma.taskAssignUsers.create({
+      data: {
+        assginedToUserId: assginedToUserId,
+        taskId: taskId,
+      },
+  });
+  return new SuccessResponse(
+    StatusCodes.CREATED,
+    member,
+    "Member added successfully"
+  ).send(res);
+};
+
+export const deleteMemberFromTask = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const taskAssignUsersId = uuidSchema.parse(req.params.taskAssignUsersId);
+  const prisma = await getClientByTenantId(req.tenantId);
+  await prisma.taskAssignUsers.delete({
+    where: {
+      taskAssignUsersId: taskAssignUsersId,
+    },
+  });
+  return new SuccessResponse(
+    StatusCodes.OK,
+    null,
+    "Member deleted successfully"
+  ).send(res);
+};
+
+export const addOrRemoveDependencies = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) { throw new BadRequestError('userId not found!!') };
+  const taskId = uuidSchema.parse(req.params.taskId);
+  const { dependencies, dependantTaskId } = dependenciesTaskSchema.parse(
+    req.body
+  );
+  const prisma = await getClientByTenantId(req.tenantId);
+  const addDependencies = await prisma.task.update({
+    data: {
+      dependencies: dependencies,
+      dependantTaskId: dependantTaskId
+    },
+    where: {
+      taskId: taskId,
+    },
+  });
+  return new SuccessResponse(
+    StatusCodes.OK,
+    addDependencies,
+    "Dependencies updated successfully"
+  ).send(res);
+};
+
+export const addOrRemoveMilesstone = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
+  const taskId = uuidSchema.parse(req.params.taskId);
+  const { milestoneIndicator, dueDate } = milestoneTaskSchema.parse(req.body);
+  const prisma = await getClientByTenantId(req.tenantId);
+  const milestone = await prisma.task.update({
+    data: {
+      milestoneIndicator: milestoneIndicator,
+      dueDate: milestoneIndicator ? dueDate : null,
+    },
+    where: {
+      taskId: taskId,
+    },
+  });
+  return new SuccessResponse(
+    StatusCodes.OK,
+    milestone,
+    "Milestone updated successfully"
   ).send(res);
 };
