@@ -17,7 +17,7 @@ function App() {
       },
     },
   });
-  const [Show, setShow] = useState(true);
+  const [Show, setShow] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
   const allowRoute = (value: boolean) => {
