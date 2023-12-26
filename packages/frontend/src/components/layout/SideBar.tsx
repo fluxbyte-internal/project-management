@@ -23,7 +23,7 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
   const { id } = useParams();
   const [isSelected, setIsSelected] = useState<string | undefined>(id);
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [isPorjectCreate, setPorjectCreate] = useState(false);
+  const [isProjectCreate, setPorjectCreate] = useState(false);
 
   const navigate = useNavigate();
   const projectQuery = useProjectQuery();
@@ -154,7 +154,7 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
           </div>
         </div>
       </div>
-      {isPorjectCreate && (
+      {isProjectCreate && (
         <CreateUpdateProjectForm
           handleClosePopUp={() => setPorjectCreate(false)}
         ></CreateUpdateProjectForm>
