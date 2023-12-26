@@ -24,7 +24,7 @@ export const ProjectStatusEnumValue: EnumStringValueObj<ProjectStatusEnum> = {
 
 export const TaskDependenciesEnumValue: EnumStringValueObj<TaskDependenciesEnum> = {
   BLOCKING: 'BLOCKING',
-  WAITING_ON: 'WAITING_ON'
+  WAITING_ON: 'WAITING_ON',
 };
 
 export const TaskStatusEnumValue: EnumStringValueObj<TaskStatusEnum> = {

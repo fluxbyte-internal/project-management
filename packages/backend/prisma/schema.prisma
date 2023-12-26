@@ -71,7 +71,6 @@ model User {
   updatedAt  DateTime       @updatedAt @map("updated_at")
 
   comment           Comments[]
-  task              Task[]
   userOrganisation  UserOrganisation[]
   userOtp           UserOTP[]
   userResetPassword ResetPassword[]
@@ -82,8 +81,9 @@ model User {
   createdProject Project[] @relation("createdByUser")
   updatedProject Project[] @relation("updatedByUser")
 
-  createdTask Task[] @relation("createdByUser")
-  updatedTask Task[] @relation("updatedByUser")
+  createdTask     Task[]            @relation("createdByUser")
+  updatedTask     Task[]            @relation("updatedByUser")
+  taskAssignUsers TaskAssignUsers[]
 
   @@unique([email, password])
   @@index([userId, email])
@@ -190,34 +190,61 @@ model Project {
 }
 
 model Task {
-  taskId              String               @id @default(uuid()) @map("task_id")
-  projectId           String               @map("project_id")
-  project             Project              @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
-  taskName            String               @map("task_name")
-  taskDescription     String?              @map("task_description")
-  startDate           DateTime             @map("start_date")
-  duration            Int                  @map("duration")
-  completionPecentage String?              @map("completion_percentage")
-  status              TaskStatusEnum       @map("status")
-  assginedToUserId    String               @map("assgined_to_user_id")
-  assginedToUser      User                 @relation(fields: [assginedToUserId], references: [userId])
-  dependencies        TaskDependenciesEnum @map("dependecies")
-  milestoneIndicator  Boolean              @map("milestone_indicator")
-  createdByUserId     String               @map("created_by_user_id")
-  createdByUser       User                 @relation("createdByUser", fields: [createdByUserId], references: [userId])
-  updatedByUserId     String?              @map("updated_by_user_id")
-  updatedByUser       User?                @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
-  createdAt           DateTime             @default(now()) @map("created_at")
-  updatedAt           DateTime             @updatedAt @map("updated_at")
+  taskId              String         @id @default(uuid()) @map("task_id")
+  projectId           String         @map("project_id")
+  project             Project        @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  taskName            String         @map("task_name")
+  taskDescription     String?        @map("task_description")
+  startDate           DateTime       @map("start_date")
+  duration            Int            @map("duration")
+  completionPecentage String?        @map("completion_percentage")
+  status              TaskStatusEnum @map("status")
+  milestoneIndicator  Boolean        @default(false) @map("milestone_indicator")
+  dueDate             DateTime?      @map("due_date")
+  createdByUserId     String         @map("created_by_user_id")
+  createdByUser       User           @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  updatedByUserId     String?        @map("updated_by_user_id")
+  updatedByUser       User?          @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  createdAt           DateTime       @default(now()) @map("created_at")
+  updatedAt           DateTime       @updatedAt @map("updated_at")
 
-  subtasks            Task[]           @relation("parentTask")
+  subtasks            Task[]            @relation("parentTask")
   comments            Comments[]
   documentAttachments TaskAttachment[]
+  assignedUsers       TaskAssignUsers[]
 
-  parentTaskId String? @map("parent_task_id")
-  parent       Task?   @relation("parentTask", fields: [parentTaskId], references: [taskId])
+  parentTaskId    String?            @map("parent_task_id")
+  parent          Task?              @relation("parentTask", fields: [parentTaskId], references: [taskId])
+  dependencies    TaskDependencies[] @relation("dependencies")
+  dependentOnTask TaskDependencies[] @relation("dependentOnTask")
 
-  @@index([taskId, projectId, assginedToUserId])
+  @@index([taskId, projectId])
+}
+
+model TaskAssignUsers {
+  taskAssignUsersId String   @id @default(uuid()) @map("task_assign_users_id")
+  taskId            String   @map("task_id")
+  assginedToUserId  String   @map("assgined_to_user_id")
+  task              Task     @relation(fields: [taskId], references: [taskId], onDelete: Cascade)
+  user              User     @relation(fields: [assginedToUserId], references: [userId], onDelete: Cascade)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@unique([taskId, assginedToUserId])
+}
+
+model TaskDependencies {
+  taskDependenciesId   String               @id @default(uuid()) @map("dependencies_id")
+  dependentTaskId      String               @map("dependent_task_id")
+  dependentTask        Task                 @relation("dependencies", fields: [dependentTaskId], references: [taskId], onDelete: Cascade)
+  dependentType        TaskDependenciesEnum @map("dependent_type")
+  dependendentOnTaskId String               @map("dependent_on_task_id")
+  dependentOnTask      Task                 @relation("dependentOnTask", fields: [dependendentOnTaskId], references: [taskId], onDelete: Cascade)
+  createdAt            DateTime             @default(now()) @map("created_at")
+  updatedAt            DateTime             @updatedAt @map("updated_at")
+
+  @@unique([dependentTaskId, dependentType, dependendentOnTaskId])
+  @@index([dependentTaskId, dependentType, dependendentOnTaskId])
 }
 
 model TaskAttachment {

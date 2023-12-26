@@ -15,6 +15,14 @@ router.post('/comment/:taskId', TaskController.addComment);
 router.post('/attachment/:taskId', TaskController.addAttachment);
 router.delete('/attachment/:attachmentId', TaskController.deleteAttachment);
 
+router.post('/member/:taskId', TaskController.addMemberToTask);
+router.delete('/member/:taskAssignUsersId', TaskController.deleteMemberFromTask);
+
+router.post('/dependencies/:taskId', TaskController.addDependencies);
+router.delete('/dependencies/:dependenciesId', TaskController.removeDependencies);
+
+router.post('/milestone/:taskId', TaskController.addOrRemoveMilesstone);
+
 router.get('/byId/:taskId', TaskController.getTaskById);
 router.get('/:projectId', TaskController.getTasks);
 router.put('/:taskId', TaskController.updateTask);
