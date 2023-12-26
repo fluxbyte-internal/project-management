@@ -1,50 +1,55 @@
 import { useFormik } from "formik";
-import closeImage from "../../../assets/png/close.png";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import {
   createOrganisationSchema,
   updateOrganisationSchema,
 } from "../../../../../backend/src/schemas/organisationSchema";
-import useOrganisationMutation, {
-  OrganisationType,
-} from "@/api/mutation/useOrganisationMutation";
+import { OrganisationType } from "@/api/mutation/useOrganisationMutation";
 import { isAxiosError } from "axios";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
 import { useEffect, useState } from "react";
 import Select, { SingleValue, MultiValue } from "react-select";
-import { useNavigate } from "react-router-dom";
 import countries from "../../../assets/json/countries.json";
 import ErrorMessage from "@/components/common/ErrorMessage";
 import useOrganisationUpdateMutation from "@/api/mutation/useOrganisationUpdateMutation";
 import { toast } from "react-toastify";
+import FormLabel from "@/components/common/FormLabel";
+import {
+  TaskColorPaletteEnum,
+  userOrgSettingsUpdateSchema,
+} from "@backend/src/schemas/userSchema";
+import { useUser } from "@/hooks/useUser";
+import useOrgSettingsUpdateMutation from "@/api/mutation/useOrgSettingsUpdateMutation";
 
 interface Props {
-  close: () => void;
   editData?: OrganisationType;
+  viewOnly: boolean;
+  refetch: () => void;
 }
 type Options = { label: string; value: string };
 
-function OrganisationForm(props: Props) {
-  const { close, editData } = props;
+function OrganisationNoPopUpForm(props: Props) {
+  const { viewOnly ,editData } = props;
   const labelStyle = "block text-gray-500 text-sm font-bold mb-1";
-  const inputStyle =
-    "block w-full p-2.5 border border-gray-100 text-gray-500 text-sm rounded-md shadow-sm placeholder:text-gray-400";
-  const organisationMutation = useOrganisationMutation();
+  const inputStyle = `block w-full p-2.5 border border-gray-100 text-gray-500 text-sm rounded-md shadow-sm placeholder:text-gray-400 `;
 
   const organisationUpdateMutation = useOrganisationUpdateMutation(
     editData && editData.organisationId ? editData.organisationId : ""
   );
   const { refetch } = useCurrentUserQuery();
-  const navigate = useNavigate();
+  const { user } = useUser();
 
+  const orgSettingsUpdateMutation = useOrgSettingsUpdateMutation(
+    user?.userOrganisation[0].userOrganisationId ?? ""
+  );
   const [countryValue, setContryValue] = useState<SingleValue<Options>>();
   const [industryValue, setIndustryValue] = useState<SingleValue<Options>>();
   const [nonWorkingDaysValue, setNonWorkingDaysValue] =
     useState<MultiValue<Options>>();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
+  const [IsTaskColourSubmitting, setIsTaskColourSubmitting] = useState(false);
   const formik = useFormik<z.infer<typeof createOrganisationSchema>>({
     initialValues: {
       organisationName: "",
@@ -53,82 +58,92 @@ function OrganisationForm(props: Props) {
       nonWorkingDays: [],
       country: "",
     },
-    validationSchema: editData
-      ? toFormikValidationSchema(updateOrganisationSchema)
-      : toFormikValidationSchema(createOrganisationSchema),
+    validationSchema: toFormikValidationSchema(updateOrganisationSchema),
     onSubmit: (values, helper) => {
       setIsSubmitting(true);
-      if (editData && editData.organisationId) {
-        organisationUpdateMutation.mutate(values, {
-          onSuccess(data) {
-            toast.success(data.data.message);
-            close();
-            refetch();
-            setIsSubmitting(false);
-          },
-          onError(error) {
-            if (isAxiosError(error)) {
-              if (
-                error.response?.status === 400 &&
-                error.response.data?.errors &&
-                Array.isArray(error.response?.data.errors)
-              ) {
-                error.response.data.errors.map(
-                  (item: { message: string; path: [string] }) => {
-                    helper.setFieldError(item.path[0], item.message);
-                  }
-                );
-              }
-              if (!Array.isArray(error.response?.data.errors)) {
-                toast.error(
-                  error.response?.data?.message ??
-                    "An unexpected error occurred."
-                );
-              }
-              setIsSubmitting(false);
+      organisationUpdateMutation.mutate(values, {
+        onSuccess(data) {
+          toast.success(data.data.message);
+          close();
+          refetch();
+          props.refetch();
+          setIsSubmitting(false);
+        },
+        onError(error) {
+          if (isAxiosError(error)) {
+            if (
+              error.response?.status === 400 &&
+              error.response.data?.errors &&
+              Array.isArray(error.response?.data.errors)
+            ) {
+              error.response.data.errors.map(
+                (item: { message: string; path: [string] }) => {
+                  helper.setFieldError(item.path[0], item.message);
+                }
+              );
             }
-          },
-        });
-      } else {
-        organisationMutation.mutate(values, {
-          onSuccess(data) {
-            toast.success(data.data.message);
-            localStorage.setItem(
-              "organisation-id",
-              data.data.data.organisationId
-            );
-            close();
-            refetch().then(() => {
-              navigate("/projects");
-            });
-            setIsSubmitting(false);
-          },
-          onError(error) {
-            if (isAxiosError(error)) {
-              if (
-                error.response?.status === 400 &&
-                error.response.data?.errors &&
-                Array.isArray(error.response?.data.errors)
-              ) {
-                error.response.data.errors.map(
-                  (item: { message: string; path: [string] }) => {
-                    helper.setFieldError(item.path[0], item.message);
-                  }
-                );
-              }
-              if (!Array.isArray(error.response?.data.errors)) {
-                toast.error(
-                  error.response?.data?.message ??
-                    "An unexpected error occurred."
-                );
-              }
+            if (!Array.isArray(error.response?.data.errors)) {
+              toast.error(
+                error.response?.data?.message ?? "An unexpected error occurred."
+              );
             }
             setIsSubmitting(false);
-          },
-        });
-      }
+          }
+        },
+      });
     },
   });
+  const userOrgSettingForm = useFormik<
+    z.infer<typeof userOrgSettingsUpdateSchema>
+  >({
+    initialValues: {
+      jobTitle: user?.userOrganisation[0].jobTitle ?? "",
+      taskColour:
+        user?.userOrganisation[0].taskColour ?? TaskColorPaletteEnum.BLACK,
+    },
+    validationSchema: toFormikValidationSchema(userOrgSettingsUpdateSchema),
+    onSubmit: (values, helper) => {
+      setIsTaskColourSubmitting(true);
+      orgSettingsUpdateMutation.mutate(values, {
+        onSuccess(data) {
+          toast.success(data.data.message);
+          setIsTaskColourSubmitting(false);
+          refetch();
+        },
+        onError(error) {
+          if (isAxiosError(error)) {
+            if (
+              error.response?.status === 400 &&
+              error.response.data?.errors &&
+              Array.isArray(error.response?.data.errors)
+            ) {
+              error.response.data.errors.forEach((item) => {
+                helper.setFieldError(item.path[0], item.message);
+              });
+            }
+            if (!Array.isArray(error.response?.data.errors)) {
+              toast.error(
+                error.response?.data?.message ?? "An unexpected error occurred."
+              );
+            }
+          }
+          setIsTaskColourSubmitting(false);
+        },
+      });
+    },
+  });
+  const taskColors = Object.keys(TaskColorPaletteEnum).map((colorPalette) => {
+    const color =
+      TaskColorPaletteEnum[colorPalette as keyof typeof TaskColorPaletteEnum];
+    const colors = color.split(" ");
+    return {
+      colorPalette,
+      color,
+      textColor: colors[0],
+      bgColor: colors[1],
+    };
+  });
+
   useEffect(() => {
     if (editData) {
       formik.setValues({
@@ -157,7 +172,8 @@ function OrganisationForm(props: Props) {
         setNonWorkingDaysValue(setNonWorkingDays as MultiValue<Options>);
       }
     }
-  }, []);
+  }, [editData]);
+
 
   const reactSelectStyle = {
     control: (
@@ -165,11 +181,12 @@ function OrganisationForm(props: Props) {
       state: { isFocused: boolean }
     ) => ({
       ...provided,
-      border: state.isFocused ? "2px solid #943B0C" : "0px solid #943B0C",
-      boxShadow: state.isFocused ? "2px #943B0C" : "none",
+      border: "1px solid #E7E7E7",
+      outline: state.isFocused ? "2px solid #943B0C" : "1px solid #E7E7E7",
+      boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
       "&:hover": {
-        border: state.isFocused ? "2px solid #943B0C" : "0px solid #943B0C",
-        boxShadow: "1px 0px 0px #943B0C",
+        outline: state.isFocused ? "2px solid #943B0C" : "1px solid #E7E7E7",
+        boxShadow: "0px 0px 0px #943B0C",
       },
     }),
   };
@@ -219,26 +236,42 @@ function OrganisationForm(props: Props) {
       formik.setFieldValue("industry", val.value);
     }
   };
+
+  const organisationChange =
+    !editData?.country ||
+    editData?.country !== formik.values.country ||
+    !editData?.industry ||
+    editData?.industry !== formik.values?.industry ||
+    !editData?.nonWorkingDays ||
+    editData?.nonWorkingDays !== formik.values?.nonWorkingDays ||
+    !editData?.organisationName ||
+    editData?.organisationName !== formik.values?.organisationName;
+
+  const submitForm = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (organisationChange) {
+      formik.submitForm();
+    }
+    if (
+      user?.userOrganisation[0].taskColour &&
+      user?.userOrganisation[0].taskColour !==
+        userOrgSettingForm.values.taskColour
+    ) {
+      userOrgSettingForm.submitForm();
+    }
+  };
+
   return (
-    <div className="absolute w-full h-full z-50 top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-gray-900 bg-opacity-50 ">
-      <div className="bg-white rounded-lg shadow-md px-2.5 md:px-6 lg:px-8 pt-6 pb-8 mb-4 md:w-3/4 w-11/12 lg:w-[40rem]">
-        <div className="flex justify-between my-1 mb-5">
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-500">
-            {editData && editData.organisationId
-              ? "Update Organisation"
-              : "Create Organisation"}
-          </h1>
-          <button onClick={close} className="cursor-pointer">
-            <img src={closeImage} alt="close" className="w-5" />
-          </button>
-        </div>
-        <form onSubmit={formik.handleSubmit}>
-          <div>
+    <div className="bg-white rounded-lg border px-2 py-1.5 sm:px-5 sm:py-4 w-full">
+      <form onSubmit={(e) => submitForm(e)} className="">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+          <div className="block col-span-1">
             <label className={labelStyle}>
               Organisation Name
               <span className="ml-0.5 text-red-500">*</span>
             </label>
             <input
+              disabled={viewOnly}
               className={inputStyle}
               name="organisationName"
               onChange={formik.handleChange}
@@ -252,12 +285,13 @@ function OrganisationForm(props: Props) {
                 formik.errors.organisationName}
             </ErrorMessage>
           </div>
-          <div>
+          <div className="block">
             <label className={labelStyle}>
               Industry
               <span className="ml-0.5 text-red-500">*</span>
             </label>
             <Select
+              isDisabled={viewOnly}
               className={`${inputStyle} select !p-0`}
               onChange={handleIndustries}
               onBlur={() => formik.setTouched({ industry: true })}
@@ -271,12 +305,13 @@ function OrganisationForm(props: Props) {
               {formik.touched.industry && formik.errors.industry}
             </ErrorMessage>
           </div>
-          <div>
+          <div className="block">
             <label className={labelStyle}>
               Non Working Days
               <span className="ml-0.5 text-red-500">*</span>
             </label>
             <Select
+              isDisabled={viewOnly}
               className={`${inputStyle} select !p-0`}
               onChange={handleNonWorkingDays}
               onBlur={() => formik.setTouched({ nonWorkingDays: true })}
@@ -291,12 +326,13 @@ function OrganisationForm(props: Props) {
               {formik.touched.nonWorkingDays && formik.errors.nonWorkingDays}
             </ErrorMessage>
           </div>
-          <div>
+          <div className="block">
             <label className={labelStyle}>
               Country
               <span className="ml-0.5 text-red-500">*</span>
             </label>
             <Select
+              isDisabled={viewOnly}
               className={`${inputStyle} select !p-0`}
               onChange={handleCountry}
               onBlur={() => formik.setTouched({ country: true })}
@@ -310,20 +346,54 @@ function OrganisationForm(props: Props) {
               {formik.touched.country && formik.errors.country}
             </ErrorMessage>
           </div>
-          <div>
-            <Button
-              type="submit"
-              variant={"primary"}
-              isLoading={isSubmitting}
-              disabled={isSubmitting}
-              className="w-full py-2.5 mt-5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
-            >
-              Submit
-            </Button>
+        </div>
+        <div>
+          <FormLabel htmlFor="country">Default color</FormLabel>
+          <div className="flex flex-wrap gap-4">
+            {taskColors.map((taskColor) => (
+              <div
+                key={taskColor.colorPalette}
+                onClick={() => {
+                  !viewOnly &&
+                    userOrgSettingForm.setFieldValue(
+                      "taskColour",
+                      taskColor.color
+                    );
+                }}
+                className={
+                  "flex border-[5px] rounded-full overflow-hidden " +
+                  `${
+                    userOrgSettingForm.values.taskColour === taskColor.color
+                      ? "border-primary-500"
+                      : "border-primary-100"
+                  } ${viewOnly ? "cursor-not-allowed" : "cursor-pointer"}`
+                }
+              >
+                <div
+                  className="w-5 h-10"
+                  style={{ backgroundColor: taskColor.bgColor }}
+                ></div>
+                <div
+                  className="w-5 h-10"
+                  style={{ backgroundColor: taskColor.textColor }}
+                ></div>
+              </div>
+            ))}
           </div>
-        </form>
-      </div>
+        </div>
+        {!viewOnly&&<div className="flex justify-end">
+          <Button
+            type="submit"
+            variant={"primary"}
+            isLoading={isSubmitting || IsTaskColourSubmitting}
+            disabled={isSubmitting || IsTaskColourSubmitting}
+            className="py-2.5 mt-5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
+          >
+            Save
+          </Button>
+        </div>}
+      </form>
     </div>
   );
 }
-export default OrganisationForm;
+export default OrganisationNoPopUpForm;

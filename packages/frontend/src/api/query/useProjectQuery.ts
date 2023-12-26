@@ -15,7 +15,6 @@ export type Project = {
   projectDescription: string;
   startDate: string;
   estimatedEndDate: string;
-  actualEndDate: string | null;
   status: string;
   defaultView: keyof typeof ProjectDefaultViewEnumValue;
   timeTrack: string | null;

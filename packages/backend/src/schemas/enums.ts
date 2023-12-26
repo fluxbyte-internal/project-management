@@ -4,7 +4,8 @@ import type {
   TaskDependenciesEnum,
   TaskStatusEnum,
   OrgStatusEnum,
-  UserRoleEnum
+  UserRoleEnum,
+  ProjectOverAllTrackEnum
 } from "@prisma/client";
 import type { EnumStringValueObj } from "../types/enumStringValueObject.js";
 
@@ -48,4 +49,11 @@ export const UserRoleEnumValue: EnumStringValueObj<UserRoleEnum> = {
 
 export const ZodErrorMessageEnumValue= {
   REQUIRED : 'Required*'
+};
+
+export const OverAllTrackEnumValue: EnumStringValueObj<ProjectOverAllTrackEnum> = {
+  CLOUDY: "CLOUDY",
+  RAINY: "RAINY",
+  STORMY: "STORMY",
+  SUNNY: "SUNNY"
 };
