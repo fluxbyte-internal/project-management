@@ -6,6 +6,7 @@ import {
 } from "../types/axiosResponseType";
 import { QUERY_KEYS } from "./querykeys";
 import { requestURLs } from "@/Environment";
+import { ProjectDefaultViewEnumValue } from "@backend/src/schemas/enums";
 
 export interface ProjectDetailType {
   projectId: string;
@@ -15,7 +16,7 @@ export interface ProjectDetailType {
   startDate: string;
   estimatedEndDate: string;
   status: string;
-  defaultView: string;
+  defaultView: keyof typeof ProjectDefaultViewEnumValue;
   timeTrack: string | null;
   budgetTrack: string | null;
   estimatedBudget: string;
