@@ -8,6 +8,9 @@ import { TaskService } from '../services/task.services.js';
 import { TaskStatusEnum } from '@prisma/client';
 import { AwsUploadService } from '../services/aws.services.js';
 import { uuidSchema } from '../schemas/commonSchema.js';
+import { HistoryService } from '../services/history.services.js';
+import { HistoryTypeEnumValue } from '../schemas/enums.js';
+import { removeProperties } from '../types/removeProperties.js';
 
 export const getTasks = async (req: express.Request, res: express.Response) => {
   const projectId = projectIdSchema.parse(req.params.projectId);
@@ -62,7 +65,25 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
     },
   });
 
-  const finalResponse = { ...task };
+  // History
+  const history = await prisma.history.findMany({
+    orderBy: { createdAt: "desc" },
+    where: {
+      historyReferenceId: taskId,
+    },
+    include: {
+      historyCreatedByUser: {
+        select: {
+          avatarImg: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
+  });
+
+  const finalResponse = { ...task, history };
   return new SuccessResponse(
     StatusCodes.OK,
     finalResponse,
@@ -70,14 +91,15 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
   ).send(res);
 };
 
-export const createTask = async (req: express.Request, res: express.Response) => {
-  if (!req.userId) { throw new BadRequestError('userId not found!!') };
-  const {
-    taskName,
-    taskDescription,
-    startDate,
-    duration,
-  } = createTaskSchema.parse(req.body);
+export const createTask = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
+  const { taskName, taskDescription, startDate, duration } =
+    createTaskSchema.parse(req.body);
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const parentTaskId = req.params.parentTaskId as string;
@@ -112,8 +134,36 @@ export const createTask = async (req: express.Request, res: express.Response) =>
     },
   });
 
+  const fieldEntries = [
+    {
+      message: "TaskName was created",
+      value: { oldValue: null, newValue: taskName },
+    },
+    {
+      message: "Task's duration was added",
+      value: { oldValue: null, newValue: duration },
+    },
+    {
+      message: "Task's startDate was added",
+      value: { oldValue: null, newValue: startDate },
+    },
+  ];
+  for (const entry of fieldEntries) {
+    await HistoryService.createHistory(
+      req.userId,
+      req.tenantId,
+      HistoryTypeEnumValue.TASK,
+      entry.message,
+      entry.value,
+      task.taskId
+    );
+  }
   const finalResponse = { ...task };
-  return new SuccessResponse(StatusCodes.CREATED, finalResponse, 'task created successfully').send(res);
+  return new SuccessResponse(
+    StatusCodes.CREATED,
+    finalResponse,
+    "task created successfully"
+  ).send(res);
 };
 
 export const updateTask = async (
@@ -145,6 +195,46 @@ export const updateTask = async (
       dependencies: true,
     },
   });
+
+  // History-Manage
+  const updatedValueWithoutOtherTable = removeProperties(
+    taskUpdateDB as Record<string, any>,
+    [
+      "documentAttachments",
+      "assignedUsers",
+      "dependencies",
+      "milestoneIndicator",
+    ]
+  );
+
+  const findTaskWithoutOtherTable = removeProperties(
+    findtask as Record<string, any>,
+    [
+      "documentAttachments",
+      "assignedUsers",
+      "dependencies",
+      "milestoneIndicator"
+    ]
+  );
+
+  for (const key in taskUpdateValue) {
+    if (updatedValueWithoutOtherTable[key] !== findTaskWithoutOtherTable[key]) {
+      const historyMessage = `Task's ${key} was changed`;
+      const historyData = {
+        oldValue: findTaskWithoutOtherTable[key],
+        newvalue: updatedValueWithoutOtherTable[key],
+      };
+
+      await HistoryService.createHistory(
+        req.userId,
+        req.tenantId,
+        HistoryTypeEnumValue.TASK,
+        historyMessage,
+        historyData,
+        taskId
+      );
+    }
+  };
 
   const finalResponse = { ...taskUpdateDB };
   return new SuccessResponse(
@@ -190,6 +280,22 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
         updatedByUserId: req.userId
       },
     });
+
+    // History-Manage
+    const historyMessage = "Task’s status was changed";
+    const historyData = {
+      oldValue: findTask.status,
+      newvalue: statusBody.status,
+    };
+    await HistoryService.createHistory(
+      req.userId,
+      req.tenantId,
+      HistoryTypeEnumValue.TASK,
+      historyMessage,
+      historyData,
+      taskId
+    );
+
     return new SuccessResponse(StatusCodes.OK, updatedTask, 'task status change successfully').send(res);
   };
 };
@@ -204,6 +310,24 @@ export const statusCompletedAllTAsk = async (req: express.Request, res: express.
       where: { projectId: projectId },
       data: { status: TaskStatusEnum.COMPLETED, completionPecentage: '100', updatedByUserId: req.userId }
     })
+
+    // History-Manage
+    for (const task of findAllTaskByProjectId) {
+      const historyMessage = "Task’s status was changed";
+      const historyNewValue = {
+        oldValue: task.status,
+        newvalue: TaskStatusEnum.COMPLETED,
+      };
+      await HistoryService.createHistory(
+        req.userId,
+        req.tenantId,
+        HistoryTypeEnumValue.TASK,
+        historyMessage,
+        historyNewValue,
+        task.taskId
+      );
+    };
+
     return new SuccessResponse(StatusCodes.OK, null, 'all task status change to completed successfully').send(res);
   };
   throw new NotFoundError('Tasks not found!');
@@ -251,7 +375,9 @@ export const addAttachment = async (
   req: express.Request,
   res: express.Response
 ) => {
-
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
   const taskId = uuidSchema.parse(req.params.taskId);
 
   let files = [];
@@ -278,7 +404,19 @@ export const addAttachment = async (
         name: singleFile.name,
       },
     });
-  };
+
+    // History-Manage
+    const historyMessage = "Task's attachment was added";
+    const historyData = { oldValue: null, newvalue: taskAttachmentURL };
+    await HistoryService.createHistory(
+      req.userId,
+      req.tenantId,
+      HistoryTypeEnumValue.TASK,
+      historyMessage,
+      historyData,
+      taskId
+    );
+  }
 
   const findTask = await prisma.task.findFirst({
     where: { taskId: taskId },
@@ -296,6 +434,9 @@ export const deleteAttachment = async (
   req: express.Request,
   res: express.Response
 ) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
   const attachmentId = uuidSchema.parse(req.params.attachmentId);
   const prisma = await getClientByTenantId(req.tenantId);
   const attachment = await prisma.taskAttachment.findFirstOrThrow({
@@ -305,7 +446,19 @@ export const deleteAttachment = async (
   //TODO: If Delete require on S3
   // await AwsUploadService.deleteFile(attachment.name, 'task-attachment');
   await prisma.taskAttachment.delete({ where: { attachmentId } });
-  
+
+  // History-Manage
+  const historyMessage = "Task's attachment was removed";
+  const historyData = { oldValue: attachment.url, newvalue: null };
+  await HistoryService.createHistory(
+    req.userId,
+    req.tenantId,
+    HistoryTypeEnumValue.TASK,
+    historyMessage,
+    historyData,
+    attachment.taskId
+  );
+
   return new SuccessResponse(
     StatusCodes.OK,
     null,
@@ -349,6 +502,7 @@ export const addMemberToTask = async (
   req: express.Request,
   res: express.Response
 ) => {
+  if (!req.userId) { throw new BadRequestError('userId not found!!') };
   const taskId = uuidSchema.parse(req.params.taskId);
   const { assginedToUserId } = assginedToUserIdSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -358,6 +512,19 @@ export const addMemberToTask = async (
         taskId: taskId,
       },
   });
+
+  // History-Manage
+  const historyMessage = "Task's assignee was added";
+  const historyData = { oldValue: null, newvalue: assginedToUserId };
+  await HistoryService.createHistory(
+    req.userId,
+    req.tenantId,
+    HistoryTypeEnumValue.TASK,
+    historyMessage,
+    historyData,
+    member.taskId
+  );
+
   return new SuccessResponse(
     StatusCodes.CREATED,
     member,
@@ -369,13 +536,29 @@ export const deleteMemberFromTask = async (
   req: express.Request,
   res: express.Response
 ) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
   const taskAssignUsersId = uuidSchema.parse(req.params.taskAssignUsersId);
   const prisma = await getClientByTenantId(req.tenantId);
-  await prisma.taskAssignUsers.delete({
+  const deletedMember = await prisma.taskAssignUsers.delete({
     where: {
       taskAssignUsersId: taskAssignUsersId,
     },
   });
+
+  // History-Manage
+  const historyMessage = "Task's assignee was removed";
+  const historyData = { oldValue: taskAssignUsersId, newvalue: null };
+  await HistoryService.createHistory(
+    req.userId,
+    req.tenantId,
+    HistoryTypeEnumValue.TASK,
+    historyMessage,
+    historyData,
+    deletedMember.taskId
+  );
+
   return new SuccessResponse(
     StatusCodes.OK,
     null,
@@ -400,6 +583,19 @@ export const addDependencies = async (
       dependendentOnTaskId: dependendentOnTaskId,
     },
   });
+
+  // History-Manage
+  const historyMessage = "Task’s dependency was added";
+  const historyData = { oldValue: null, newvalue: dependentType };
+  await HistoryService.createHistory(
+    req.userId,
+    req.tenantId,
+    HistoryTypeEnumValue.TASK,
+    historyMessage,
+    historyData,
+    taskId
+  );
+
   return new SuccessResponse(
     StatusCodes.OK,
     addDependencies,
@@ -416,11 +612,24 @@ export const removeDependencies = async (
   }
   const taskDependenciesId = uuidSchema.parse(req.params.taskDependenciesId);
   const prisma = await getClientByTenantId(req.tenantId);
-  await prisma.taskDependencies.delete({
+  const deletedDependencies = await prisma.taskDependencies.delete({
     where: {
       taskDependenciesId: taskDependenciesId,
     },
   });
+
+  // History-Manage
+  const historyMessage = "Task’s dependency was removed";
+  const historyData = { oldValue: taskDependenciesId, newvalue: null };
+  await HistoryService.createHistory(
+    req.userId,
+    req.tenantId,
+    HistoryTypeEnumValue.TASK,
+    historyMessage,
+    historyData,
+    deletedDependencies.dependentTaskId
+  );
+
   return new SuccessResponse(
     StatusCodes.OK,
     null,
@@ -447,6 +656,24 @@ export const addOrRemoveMilesstone = async (
       taskId: taskId,
     },
   });
+
+  // History-Manage
+  const milestoneMessage = milestoneIndicator ? "converted" : "reverted";
+  const historyMessage = `Task was ${milestoneMessage} as a milestone`;
+  const isMilestone = milestoneIndicator;
+  const historyData = {
+    oldValue: isMilestone ? null : "true",
+    newvalue: isMilestone ? "true" : "false",
+  };
+  await HistoryService.createHistory(
+    req.userId,
+    req.tenantId,
+    HistoryTypeEnumValue.TASK,
+    historyMessage,
+    historyData,
+    taskId
+  );
+
   return new SuccessResponse(
     StatusCodes.OK,
     milestone,
