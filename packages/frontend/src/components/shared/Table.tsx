@@ -129,7 +129,7 @@ function Table(props: Props) {
     <>
       <div
         ref={table}
-        className="py-9 sm:pb-9 bg-white px-6 relative border rounded-md text-sm h-[90%] overflow-y-hidden overflow-x-auto"
+        className="py-9 sm:pb-9 bg-white px-6 relative border rounded-md text-sm h-full overflow-y-hidden overflow-x-auto"
       >
         <table className="w-full">
           <thead>

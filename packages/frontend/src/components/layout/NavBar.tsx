@@ -69,6 +69,9 @@ function NavBar() {
   const openAccountSettings = () => {
     navigate("/account-settings");
   };
+  const openOrganisationSettings = () => {
+    navigate("/organisation/" + user?.userOrganisation[0]?.organisationId);
+  };
 
   return (
     <div className="w-full h-14 z-10 fixed border-b-2 border-[#E2E8F0] flex items-center flex-col bg-white">
@@ -242,6 +245,18 @@ function NavBar() {
                   Account Settings
                 </Button>
               </DropdownMenuItem>
+              {user?.userOrganisation[0] &&
+                user?.userOrganisation[0].organisationId && (
+                <DropdownMenuItem onClick={openOrganisationSettings}>
+                  <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
+                  <Button
+                    className="p-0 font-normal h-auto"
+                    variant={"ghost"}
+                  >
+                      Organisations Settings
+                  </Button>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4 text-[#44546F]" />
                 <Button className="p-0 font-normal h-auto" variant={"ghost"}>

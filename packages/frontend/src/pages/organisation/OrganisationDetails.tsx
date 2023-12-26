@@ -21,10 +21,11 @@ import useAddOrganisationMemberMutation from "@/api/mutation/useAddOrganisationM
 import { useUser } from "@/hooks/useUser";
 import InputText from "@/components/common/InputText";
 import useDebounce from "@/hooks/useDebounce";
-import Setting from "../../assets/svg/Setting.svg";
+// import Setting from "../../assets/svg/Setting.svg";
 import OrganisationForm from "./organisationForm";
 import { OrganisationType } from "@/api/mutation/useOrganisationMutation";
 import { toast } from "react-toastify";
+import OrganisationNoPopUpForm from "./organisationForm/organisationNoPopupForm";
 const memberRoleOptions = [
   {
     value: UserRoleEnumValue.PROJECT_MANAGER,
@@ -38,7 +39,6 @@ const memberRoleOptions = [
 
 function OrganisationDetails() {
   const organisationId = useParams().organisationId!;
-
   const addOrganisationMemberMutation =
     useAddOrganisationMemberMutation(organisationId);
 
@@ -115,7 +115,7 @@ function OrganisationDetails() {
       email: "",
       role: "TEAM_MEMBER",
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -134,20 +134,6 @@ function OrganisationDetails() {
     } else {
       setFilteredOrganisationUsers(organisation.userOrganisation);
     }
-  }, [filterString, organisation?.userOrganisation]);
-
-  if (isLoading) return <Loader/>;
-  if (status === "error" || !organisation)
-    return (
-      <div className="text-red-500 text-lg text-center">
-        Organisation with id "{organisationId}" not found
-      </div>
-    );
-
-  const currentUserIsAdmin =
-    user?.userOrganisation.find((org) => org.organisationId === organisationId)
-      ?.role === "ADMINISTRATOR";
-  const organisationFormOpen = () => {
     if (organisation) {
       setEditData({
         country: organisation.country,
@@ -158,12 +144,40 @@ function OrganisationDetails() {
         organisationName: data?.data.data.organisationName,
         tenantId: organisation.tenantId,
         createdByUserId: organisation.createdBy,
-        createdAt:organisation.createdAt,
-        updatedAt:organisation.updatedAt,
+        createdAt: organisation.createdAt,
+        updatedAt: organisation.updatedAt,
       });
     }
-    setOrganisationForm(true);
-  };
+  }, [filterString, organisation?.userOrganisation,organisation]);
+
+  if (isLoading) return <Loader />;
+  if (status === "error" || !organisation)
+    return (
+      <div className="text-red-500 text-lg text-center">
+        Organisation with id "{organisationId}" not found
+      </div>
+    );
+
+  const currentUserIsAdmin =
+    user?.userOrganisation.find((org) => org.organisationId === organisationId)
+      ?.role === "ADMINISTRATOR";
+  // const organisationFormOpen = () => {
+  //   if (organisation) {
+  //     setEditData({
+  //       country: organisation.country,
+  //       industry: organisation.industry,
+  //       organisationId: organisation.organisationId,
+  //       nonWorkingDays: organisation.nonWorkingDays,
+  //       status: organisation.status,
+  //       organisationName: data?.data.data.organisationName,
+  //       tenantId: organisation.tenantId,
+  //       createdByUserId: organisation.createdBy,
+  //       createdAt:organisation.createdAt,
+  //       updatedAt:organisation.updatedAt,
+  //     });
+  //   }
+  //   setOrganisationForm(true);
+  // };
   const organisationFormClose = () => {
     setEditData(undefined);
     refetch();
@@ -174,15 +188,22 @@ function OrganisationDetails() {
       <div className="overflow-auto w-full">
         <div className="max-w-5xl mx-auto p-4 pb-5">
           <div className="flex justify-between items-center">
-            <div className="text-4xl">{organisation.organisationName}</div>
-            <div>
+            <div className="text-4xl my-2">{organisation.organisationName}</div>
+            {/* <div>
               <Button
                 onClick={organisationFormOpen}
                 variant={"outline"}
               >
                 <img src={Setting} />
               </Button>
-            </div>
+            </div> */}
+          </div>
+          <div>
+            {data&& <OrganisationNoPopUpForm
+              editData={editData}
+              viewOnly={currentUserIsAdmin ? false : true}
+              refetch ={refetch}
+            />}
           </div>
           <div className="text-2xl mt-5 mb-3">Members</div>
           <div className="border rounded-lg min-h-[300px]">
@@ -204,35 +225,40 @@ function OrganisationDetails() {
                 </Button>
               )}
             </div>
-            <div className="">
+            <div key={"filteredOrganisationUsers"}>
               {filteredOrganisationUsers.map((userOrg) => (
-                <div
-                  key={userOrg.userOrganisationId}
-                  className="flex flex-wrap md:flex-nowrap items-center border-b px-2 py-1.5 sm:px-5 sm:py-3 gap-2"
-                >
-                  <div className="flex w-full sm:w-auto gap-2 items-center grow">
-                    <UserAvatar user={userOrg.user}></UserAvatar>
-                    <div className="text-sm">
-                      <div className="text-slate-800 font-medium">
-                        {userOrg.user.firstName ?? ""}{" "}
-                        {userOrg.user.lastName ?? ""}
+                <>
+                  <div
+                    key={userOrg.userOrganisationId}
+                    className="flex flex-wrap md:flex-nowrap items-center px-2 py-1.5 sm:px-5 sm:py-3 gap-2"
+                  >
+                    <div className="flex w-full sm:w-auto gap-2 items-center grow">
+                      <UserAvatar user={userOrg.user}></UserAvatar>
+                      <div className="text-sm">
+                        <div className="text-slate-800 font-medium">
+                          {userOrg.user.firstName ?? ""}{" "}
+                          {userOrg.user.lastName ?? ""}
+                        </div>
+                        <div className="text-gray-400">
+                          {userOrg.user.email}
+                        </div>
                       </div>
-                      <div className="text-gray-400">{userOrg.user.email}</div>
                     </div>
+                    <div className="capitalize text-gray-700 text-sm">
+                      {userOrg.role?.toLowerCase().replaceAll("_", " ")}
+                    </div>
+                    {currentUserIsAdmin && (
+                      <Button
+                        variant="primary_outline"
+                        disabled={userOrg.role === "ADMINISTRATOR"}
+                        className="ml-auto text-danger border-danger hover:bg-danger hover:bg-opacity-10 hover:text-danger py-1.5 h-auto"
+                      >
+                        Remove
+                      </Button>
+                    )}
                   </div>
-                  <div className="capitalize text-gray-700 text-sm">
-                    {userOrg.role?.toLowerCase().replaceAll("_", " ")}
-                  </div>
-                  {currentUserIsAdmin && (
-                    <Button
-                      variant="primary_outline"
-                      disabled={userOrg.role === "ADMINISTRATOR"}
-                      className="ml-auto text-danger border-danger hover:bg-danger hover:bg-opacity-10 hover:text-danger py-1.5 h-auto"
-                    >
-                      Remove
-                    </Button>
-                  )}
-                </div>
+                  <hr className="h-px w-[98%] my-8 mx-auto bg-gray-200 border-0 " />
+                </>
               ))}
             </div>
           </div>
