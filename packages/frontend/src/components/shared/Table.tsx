@@ -31,8 +31,6 @@ function Table(props: Props) {
       setHeight(table.current.offsetHeight);
       setTableRowHeight(tableRow.current.offsetHeight);
       const length = parseInt((height / tableRowHeight).toFixed()) - 2;
-      console.log(length ,height,tableRowHeight);
-      
       setDataPerPage(length);
       if (!isNaN(length)) {
         setDataSource(data.slice(0, length));
