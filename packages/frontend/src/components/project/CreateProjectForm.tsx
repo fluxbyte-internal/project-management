@@ -171,7 +171,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
         defaultView: editData.defaultView,
         currency: editData.currency,
       });
-      setCurrencyValue({label:editData.currency,value:editData.currency})
+      setCurrencyValue({label:editData.currency,value:editData.currency});
     }
   }, []);
 
