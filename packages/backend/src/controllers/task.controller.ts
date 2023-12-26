@@ -54,6 +54,11 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
       },
       documentAttachments: true,
       subtasks: true,
+      dependencies: {
+        include: {
+          dependentOnTask: true
+        }
+      }
     },
   });
 
@@ -102,7 +107,8 @@ export const createTask = async (req: express.Request, res: express.Response) =>
     },
     include: {
       documentAttachments: true,
-      assignedUsers: true
+      assignedUsers: true,
+      dependencies: true
     },
   });
 
@@ -133,7 +139,11 @@ export const updateTask = async (
       ...taskUpdateValue,
       updatedByUserId: req.userId,
     },
-    include: { documentAttachments: true, assignedUsers: true },
+    include: {
+      documentAttachments: true,
+      assignedUsers: true,
+      dependencies: true,
+    },
   });
 
   const finalResponse = { ...taskUpdateDB };
@@ -151,7 +161,12 @@ export const deleteTask = async (req: express.Request, res: express.Response) =>
   if (taskId && await prisma.task.findFirstOrThrow({ where: { taskId: taskId } })) {
     await prisma.task.delete({
       where: { taskId },
-      include: { comments: true, documentAttachments: true, subtasks: true }
+      include: { 
+        comments: true, 
+        documentAttachments: true, 
+        subtasks: true,
+        dependencies: true,
+      }
     });
     return new SuccessResponse(StatusCodes.OK, null, 'task deleted successfully').send(res);
   };
@@ -368,29 +383,48 @@ export const deleteMemberFromTask = async (
   ).send(res);
 };
 
-export const addOrRemoveDependencies = async (
+export const addDependencies = async (
   req: express.Request,
   res: express.Response
 ) => {
   if (!req.userId) { throw new BadRequestError('userId not found!!') };
   const taskId = uuidSchema.parse(req.params.taskId);
-  const { dependencies, dependantTaskId } = dependenciesTaskSchema.parse(
+  const { dependentType, dependendentOnTaskId } = dependenciesTaskSchema.parse(
     req.body
   );
   const prisma = await getClientByTenantId(req.tenantId);
-  const addDependencies = await prisma.task.update({
+  const addDependencies = await prisma.taskDependencies.create({
     data: {
-      dependencies: dependencies,
-      dependantTaskId: dependantTaskId
-    },
-    where: {
-      taskId: taskId,
+      dependentType: dependentType,
+      dependentTaskId: taskId,
+      dependendentOnTaskId: dependendentOnTaskId,
     },
   });
   return new SuccessResponse(
     StatusCodes.OK,
     addDependencies,
-    "Dependencies updated successfully"
+    "Dependencies added successfully"
+  ).send(res);
+};
+
+export const removeDependencies = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
+  const taskDependenciesId = uuidSchema.parse(req.params.taskDependenciesId);
+  const prisma = await getClientByTenantId(req.tenantId);
+  await prisma.taskDependencies.delete({
+    where: {
+      taskDependenciesId: taskDependenciesId,
+    },
+  });
+  return new SuccessResponse(
+    StatusCodes.OK,
+    null,
+    "Dependencies removed successfully"
   ).send(res);
 };
 
