@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import {useState } from "react";
 import AddProjectIcon from "../../assets/svg/AddProjectIcon.svg";
 import downArrow from "../../assets/svg/DownArrow.svg";
 import RightSide from "../../assets/RightSide.png";
 import LeftSide from "../../assets/Left.png";
-import useProjectQuery, { Project } from "@/api/query/useProjectQuery";
+import useProjectQuery from "@/api/query/useProjectQuery";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   TooltipContent,
@@ -21,14 +21,10 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
   const { id } = useParams();
   const [isSelected, setIsSelected] = useState<string | undefined>(id);
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [Projectdata, setProjectdata] = useState<Project[]>();
 
   const navigate = useNavigate();
   const projectQuery = useProjectQuery();
 
-  useEffect(() => {
-    setProjectdata(projectQuery.data?.data.data);
-  }, [projectQuery.data?.data.data]);
 
   const handleDropdownClick = (id: string) => {
     if (isOpen && isSelected === id) {
@@ -85,7 +81,7 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
           </div>
         </div>
         <div className="max-h-[500px] overflow-y-auto">
-          {Projectdata?.map((item, index) => (
+          {projectQuery.data?.data.data.map((item, index) => (
             <div key={index}>
               <div
                 className={`mt-2 flex justify-between items-center p-1 ${
