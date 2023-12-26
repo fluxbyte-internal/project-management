@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ZodErrorMessageEnumValue } from "./enums.js";
 
 export const userUpdateSchema = z.object({
   firstName: z.string().min(1, "First name is a required field"),
@@ -33,4 +34,29 @@ export const avatarImgSchema = z
         files?.avatarImg?.mimetype
       ),
     ".jpg, .jpeg, .png and .webp files are accepted."
+  );
+
+export const changePasswordSchema = z
+  .object({
+    oldPassword: z.string(),
+    password: z
+      .string()
+      .regex(
+        /^(?=.*[!@#$%^&*(),.?":{}|<>])(?=.*[A-Z])(?=.*[0-9]).{8,}$/,
+        "Must contain 8+ chars, 1 uppercase, 1 lowercase, 1 number and 1 special chars."
+      )
+      .min(1, "Password is a required field"),
+    confirmPassword: z.string({
+      required_error: ZodErrorMessageEnumValue.REQUIRED,
+    }),
+  })
+  .refine(
+    (values) => {
+      if (!values.password) return true;
+      return values.password === values.confirmPassword;
+    },
+    {
+      message: "Passwords must match!",
+      path: ["confirmPassword"],
+    }
   );
