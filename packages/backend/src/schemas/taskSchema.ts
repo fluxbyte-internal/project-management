@@ -2,7 +2,7 @@ import { ZodError, z } from "zod";
 import { TaskDependenciesEnumValue, TaskStatusEnumValue } from "./enums.js";
 
 export const createTaskSchema = z.object({
-  taskName: z.string(),
+  taskName: z.string().min(1),
   taskDescription: z.string().optional(),
   startDate: z.coerce.date(),
   duration: z.number(),
@@ -33,50 +33,37 @@ export const attachmentTaskSchema = z.any();
 
 export const dependenciesTaskSchema = z
   .object({
-    dependencies: z.nativeEnum(TaskDependenciesEnumValue),
-    dependantTaskId: z
+    dependentType: z.nativeEnum(TaskDependenciesEnumValue),
+    dependendentOnTaskId: z
       .string({ required_error: "Task required*" })
       .uuid()
-      .nullable(),
   })
   .refine((data) => {
-    const { dependencies, dependantTaskId } = data;
+    const { dependentType, dependendentOnTaskId } = data;
     if (
-      (dependencies === TaskDependenciesEnumValue.BLOCKING ||
-        dependencies === TaskDependenciesEnumValue.WAITING_ON) &&
-      !dependantTaskId
+      (dependentType === TaskDependenciesEnumValue.BLOCKING ||
+        dependentType === TaskDependenciesEnumValue.WAITING_ON) &&
+      !dependendentOnTaskId
     ) {
       throw new ZodError([
         {
           code: "invalid_string",
           message:
-            "Dependant Task should not be null when dependencies provided",
-          path: ["dependantTaskId"],
+            "Dependant Task should not be null when dependentType provided",
+          path: ["dependendentOnTaskId"],
           validation: "uuid",
         },
       ]);
     } else if (
-      dependantTaskId &&
-      dependencies != TaskDependenciesEnumValue.WAITING_ON &&
-      dependencies != TaskDependenciesEnumValue.BLOCKING
+      dependendentOnTaskId &&
+      dependentType != TaskDependenciesEnumValue.WAITING_ON &&
+      dependentType != TaskDependenciesEnumValue.BLOCKING
     ) {
       throw new ZodError([
         {
           code: "invalid_string",
-          message: `Dependant Task should be null when dependencies provided`,
-          path: ["dependencies"],
-          validation: "uuid",
-        },
-      ]);
-    } else if (
-      dependencies === TaskDependenciesEnumValue.NO_DEPENDENCIES &&
-      dependantTaskId
-    ) {
-      throw new ZodError([
-        {
-          code: "invalid_string",
-          message: `Dependant Task should be null when dependencies is ${dependencies}`,
-          path: ["dependencies"],
+          message: `Dependant Task should be null when dependentType provided`,
+          path: ["dependentType"],
           validation: "uuid",
         },
       ]);
@@ -95,20 +82,11 @@ export const milestoneTaskSchema = z
       throw new ZodError([
         {
           code: "invalid_date",
-          message:
-            "Due Date should not be null when milestone provided",
+          message: "Due Date should not be null when milestone provided",
           path: ["dueDate"],
         },
       ]);
-    } else if (dueDate && !milestoneIndicator) {
-      throw new ZodError([
-        {
-          code: "invalid_date",
-          message: `Due date should be null when milestone provided`,
-          path: ["milestoneIndicator"],
-        },
-      ]);
-    } else if (dueDate && dueDate <= new Date()) {
+    } else if (milestoneIndicator && dueDate && dueDate <= new Date()) {
       throw new ZodError([
         {
           code: "invalid_date",

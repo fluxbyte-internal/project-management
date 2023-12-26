@@ -19,17 +19,38 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Edit, ScrollText, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Select, { SingleValue } from "react-select";
+import CalendarSvg from "../../assets/svg/Calendar.svg";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@radix-ui/react-popover";
+import { Calendar } from "@/components/ui/calendar";
+import { DateRange } from "react-day-picker";
 
-
+type Options = { label: string; value: string };
 function ProjectsList() {
   const [data, setData] = useState<Project[]>();
+  const [filterData, setFilterData] = useState<Project[]>();
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
   const [editData, setEditData] = useState<Project | undefined>();
+  const [filter, setFilter] = useState<{
+    projectManager: SingleValue<Options> | null;
+    status: SingleValue<Options> | null;
+    date: DateRange | undefined;
+  }>({
+    projectManager: null,
+    status: null,
+    date: undefined,
+  });
+
   const navigate = useNavigate();
 
   const projectQuery = useProjectQuery();
   useEffect(() => {
     setData(projectQuery.data?.data.data);
+    setFilterData(projectQuery.data?.data.data);
   }, [projectQuery.data?.data.data]);
 
   const close = () => {
@@ -40,11 +61,35 @@ function ProjectsList() {
   const handleView = (id:string) => {
     navigate("/project-details/" + id);
   };
+  const projectManager = (): Options[] | undefined => {
+    const projectManagerData: Options[] | undefined = [
+      { label: "Select manager", value: "" },
+    ];
+    data?.forEach(item=>{
+      const val = item.createdByUser.email;
+      if (!projectManagerData.some(i=> i.value == item.createdByUser.email)) {
+        projectManagerData.push({ label: val, value: val });
+      }
+    });
 
+    return projectManagerData;
+  };
+  const status = (): Options[] | undefined => {
+    const statusData: Options[] | undefined = [
+      { label: "Select status", value: "" },
+    ];
+    data?.forEach(item=>{
+      if (!statusData.some(i=> i.value == item.status)) {
+        statusData.push({ label: item.status, value: item.status });
+      }
+    });
+
+    return statusData;
+  };
   const columnDef: ColumeDef[] = [
     { key: "projectName", header: "Project Name", sorting: true },
     {
-      key: "projectManager",
+      key: "createdByUser",
       header: "Manager",
       onCellRender: (item: Project) => (
         <>
@@ -123,11 +168,60 @@ function ProjectsList() {
       ),
     },
   ];
-
+  const reactSelectStyle = {
+    control: (
+      provided: Record<string, unknown>,
+      state: { isFocused: boolean }
+    ) => ({
+      ...provided,
+      border: "1px solid #E7E7E7",
+      paddingTop: "0.2rem",
+      paddingBottom: "0.2rem",
+      zIndex: 1000,
+      outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
+      boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
+      "&:hover": {
+        outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
+        boxShadow: "0px 0px 0px #943B0C",
+      },
+    }),
+  };
   const handleEdit = (item: Project) => {
     setIsOpenPopUp(true);
     setEditData(item);
   };
+
+  useEffect(() => {
+    let filteredData = data;
+    setFilterData(filteredData);
+    if (filter && filter.status && filter.status.value) {
+      filteredData = data?.filter((d) => d.status === filter.status?.value);
+    } else if (filter && filter.date?.from && filter.date?.to) {
+      filteredData = data?.filter((d) => {
+        return (
+          new Date(d.estimatedEndDate) >= (filter.date?.from ?? new Date()) &&
+          new Date(d.estimatedEndDate) <= (filter.date?.to ?? new Date())
+        );
+      });
+    } else if (filter && filter.projectManager && filter.projectManager.value) {
+      filteredData = data?.filter(
+        (d) => d.createdByUser.email == filter.projectManager?.value
+      );
+    } else {
+      setFilterData(data);
+    }
+    setFilterData(filteredData);
+  }, [filter, data]);
+
+  const reset = () => {
+    setFilter({
+      projectManager: null,
+      date: undefined,
+      status: null,
+    });
+    setFilterData(data);
+  };
+
   return (
     <div className="w-full h-full relative">
       <BackgroundImage />
@@ -136,7 +230,7 @@ function ProjectsList() {
       ) : (
         <>
           {data && data.length > 0 ? (
-            <div className="h-full py-5 p-4 lg:p-14 w-full">
+            <div className="h-full py-5 p-4 lg:p-14 w-full flex flex-col gap-5">
               <div className="flex justify-between items-center">
                 <h2 className="font-medium text-3xl leading-normal text-gray-600">
                   Projects
@@ -150,9 +244,82 @@ function ProjectsList() {
                   </Button>
                 </div>
               </div>
-              <div className="my-8 h-full">
-                {data && (
-                  <Table key="Project view" columnDef={columnDef} data={data} />
+              {data && (
+                <div className="flex justify-around items-center">
+                  <div className="w-1/4">
+                    <Select
+                      className="p-0 z-40"
+                      value={filter.projectManager || { label: "Select manager", value: "" }}
+                      options={projectManager()}
+                      onChange={(e) =>
+                        setFilter((prev) => ({ ...prev, projectManager: e }))
+                      }
+                      placeholder="Select manager"
+                      styles={reactSelectStyle}
+                    />
+                  </div>
+                  <div className="w-1/4">
+                    <Select
+                      value={filter.status ||{ label: "Select status", value: "" } }
+                      className="p-0 z-40"
+                      options={status()}
+                      onChange={(e) =>
+                        setFilter((prev) => ({ ...prev, status: e }))
+                      }
+                      placeholder="Select status"
+                      styles={reactSelectStyle}
+                    />
+                  </div>
+                  <div className="w-1/4">
+                    <Popover>
+                      <PopoverTrigger className="w-full">
+                        <Button
+                          variant={"outline"}
+                          className="w-full h-11 py-1"
+                        >
+                          <div className="flex justify-between items-center w-full text-gray-400 font-normal">
+                            {filter.date
+                              ? `${dateFormatter(
+                                filter.date.from ?? new Date()
+                              )}-
+                              ${dateFormatter(filter.date.to ?? new Date())}`
+                              : "End date"}
+                            <img src={CalendarSvg} width={20} />
+                          </div>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="z-50 bg-white ">
+                        <div>
+                          <Calendar
+                            mode="range"
+                            selected={filter.date}
+                            onSelect={(e) =>
+                              setFilter((prev) => ({ ...prev, date: e }))
+                            }
+                            className="rounded-md border"
+                          />
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div>
+                    <Button
+                      variant={"outline"}
+                      className="h-11 py-1 bg-gray-100/50"
+                      onClick={reset}
+                    >
+                      Clear
+                    </Button>
+                  </div>
+                </div>
+              )}
+              <div className="max-h-[8%]">
+                {filterData && (
+                  <Table
+                    key="Project view"
+                    columnDef={columnDef}
+                    data={filterData}
+                  />
                 )}
                 {!data && (
                   <div className="flex justify-center p-3 w-full">

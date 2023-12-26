@@ -35,6 +35,7 @@ function Signup() {
     country: string;
     timeZone: string;
     jobTitle: string;
+    privacyPolicy:boolean
   };
 
   const formik = useFormik<FormValues>({
@@ -47,6 +48,7 @@ function Signup() {
       country: "",
       timeZone: "",
       jobTitle: "",
+      privacyPolicy:false,
     },
     validationSchema: toFormikValidationSchema(authSignUpSchema),
     onSubmit: (values, helper) => {
@@ -234,6 +236,14 @@ function Signup() {
                     formik.errors.confirmPassword}
                 </ErrorMessage>
               </div>
+            </div>
+            <div className="flex gap-2 items-center mb-1">
+              <input
+                name="privacyPolicy"
+                type="checkbox"
+                onChange={formik.handleChange}
+              />
+              <div>I agree to the <a className="text-primary-500" href="#"> term of use </a>and <a href="#" className="text-primary-500">privacy policy</a>.</div>
             </div>
             <div className="flex items-center">
               <Button

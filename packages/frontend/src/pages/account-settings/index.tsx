@@ -18,14 +18,15 @@ import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
 import FormLabel from "@/components/common/FormLabel";
 import InputText from "@/components/common/InputText";
 import InputSelect from "@/components/common/InputSelect";
-import { NavLink } from "react-router-dom";
 // import UserOrganisationCard from "./UserOrganisationCard";
+import UserOrganisationCard from "./UserOrganisationCard";
+import { NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useFileUploadMutation from "@/api/mutation/useFileUploadMutation";
 import Spinner from "@/components/ui/spinner";
 import UserAvatar from "@/components/ui/userAvatar";
 import useOrgSettingsUpdateMutation from "@/api/mutation/useOrgSettingsUpdateMutation";
-
+import BackArrow from "../../assets/svg/Arrow.svg";
 const countryOptions = countries.map((item) => {
   return { label: item.name, value: item.isoCode };
 });
@@ -44,6 +45,8 @@ function AccountSettings() {
   const orgSettingsUpdateMutation = useOrgSettingsUpdateMutation(
     user?.userOrganisation[0].userOrganisationId ?? ""
   );
+  const navigate = useNavigate();
+
 
   const userProfileForm = useFormik<z.infer<typeof userUpdateSchema>>({
     initialValues: {
@@ -181,7 +184,12 @@ function AccountSettings() {
   return (
     <div className="overflow-auto w-full">
       <div className="max-w-5xl mx-auto p-4 pb-5">
-        <div className="text-gray-600 text-lg font-bold mb-4">
+        <div className="text-gray-600 text-lg font-bold mb-4 flex justify-start items-center gap-1">
+          <div className="">
+            <Button variant={"none"} onClick={() => navigate(-1)}>
+              <img src={BackArrow} className="" />
+            </Button>
+          </div>
           Account Settings
         </div>
         <div className="grid lg:grid-cols-4 gap-2">
