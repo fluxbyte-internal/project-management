@@ -10,7 +10,7 @@ import { OrgStatusEnumValue, UserRoleEnumValue } from "@backend/src/schemas/enum
 import { TaskColorPaletteEnum } from "@backend/src/schemas/userSchema";
 import { OrgListOfNonWorkingDaysEnum } from "@backend/src/schemas/organisationSchema";
 
-type UserOrganisationType = {
+export type UserOrganisationType = {
   userOrganisationId: string;
   jobTitle?: string;
   role?: keyof typeof UserRoleEnumValue;

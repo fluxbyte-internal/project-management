@@ -17,7 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Edit, ScrollText, Settings } from "lucide-react";
+import { ScrollText, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Select, { SingleValue } from "react-select";
 import CalendarSvg from "../../assets/svg/Calendar.svg";
@@ -144,17 +144,17 @@ function ProjectsList() {
         <>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <div className=" cursor-pointer w-24 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex">
+              <div className="cursor-pointer w-24 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex">
                 <Settings className="mr-2 h-4 w-4" />
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-11 flex flex-col gap-1">
-              <DropdownMenuItem onClick={() => handleEdit(item)}>
+              {/* <DropdownMenuItem onClick={() => handleEdit(item)}>
                 <Edit className="mr-2 h-4 w-4 text-[#44546F]" />
                 <span className="p-0 font-normal h-auto" >
                   Edit
                 </span>
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuSeparator className="mx-1"/>
               <DropdownMenuItem onClick={() => handleView(item.projectId)}>
                 <ScrollText className="mr-2 h-4 w-4 text-[#44546F]" />
@@ -186,10 +186,10 @@ function ProjectsList() {
       },
     }),
   };
-  const handleEdit = (item: Project) => {
-    setIsOpenPopUp(true);
-    setEditData(item);
-  };
+  // const handleEdit = (item: Project) => {
+  //   setIsOpenPopUp(true);
+  //   setEditData(item);
+  // };
 
   useEffect(() => {
     let filteredData = data;
@@ -313,7 +313,7 @@ function ProjectsList() {
                   </div>
                 </div>
               )}
-              <div className="max-h-[8%]">
+              <div className="h-[80%]">
                 {filterData && (
                   <Table
                     key="Project view"

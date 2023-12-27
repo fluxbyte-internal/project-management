@@ -12,6 +12,7 @@ import OrganisationDetails from "./pages/organisation/OrganisationDetails";
 import Verification from "./pages/authentication/verification";
 import ForgotPassword from "./pages/authentication/forgot-password";
 import ResetPassword from "./pages/authentication/forgot-password/reset-password";
+import Tasks from "./pages/tasks";
 
 export const router = createBrowserRouter([
   {
@@ -74,8 +75,13 @@ export const router = createBrowserRouter([
             path: "/projects",
             element: <ProjectsList />,
           },
+          {
+            path: "/tasks/:projectId",
+            element: <Tasks />,
+          },
         ],
       },
+     
     ],
   },
 ]);
