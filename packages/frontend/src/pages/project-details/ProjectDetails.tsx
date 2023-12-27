@@ -1,28 +1,22 @@
 import SideBar from "@/components/layout/SideBar";
 import { useState } from "react";
 import cloudProjectDeatil from "../../assets/svg/CloudProjectDetail.svg";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
 import useProjectDetail from "../../api/query/useProjectDetailQuery";
 import { useParams } from "react-router-dom";
-import ClockProjectDetail from "../../assets/svg/ClockProjectDetail.svg";
+// import ClockProjectDetail from "../../assets/svg/ClockProjectDetail.svg";
 
-import InfoCircle from "../../assets/svg/Info circle.svg";
-import {
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Tooltip } from "@radix-ui/react-tooltip";
-import dateFormater from "@/helperFuntions/dateFormater";
+// import InfoCircle from "../../assets/svg/Info circle.svg";
+// import {
+//   TooltipContent,
+//   TooltipProvider,
+//   TooltipTrigger,
+// } from "@/components/ui/tooltip";
+// import { Tooltip } from "@radix-ui/react-tooltip";
+// import dateFormater from "@/helperFuntions/dateFormater";
 import Loader from "@/components/common/Loader";
+import CreateProjectNoPopUpForm from "@/components/project/CreateProjectNoPopupForm";
+import { Project } from "@/api/query/useProjectQuery";
+import { useUser } from "@/hooks/useUser";
 
 function ProjectDetails() {
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
@@ -32,9 +26,9 @@ function ProjectDetails() {
   };
   const { id } = useParams();
   const projectDetailQuery = useProjectDetail(id);
-
-  const labelstyle = "text-base font-medium text-gray-700";
-  const inputstyle = "mt-2.5 text-base font-normal text-[#9CA3AF]";
+  // const labelstyle = "text-base font-medium text-gray-700";
+  // const inputstyle = "mt-2.5 text-base font-normal text-[#9CA3AF]";
+  const { user } = useUser();
 
   const HandleStatus = () => {
     switch (projectDetailQuery.data?.data.data.status) {
@@ -66,6 +60,8 @@ function ProjectDetails() {
     }
   };
 
+  const currentUserIsAdmin =
+  user?.userOrganisation[0]?.role === "ADMINISTRATOR";
   return (
     <div className="w-full relative h-full">
       {projectDetailQuery.isLoading ? (
@@ -95,80 +91,9 @@ function ProjectDetails() {
                   </div>
                 </div>
                 <div className="my-4 border border-[#E2E8F0] rounded-lg sm:px-8 px-4 py-6">
+                  <CreateProjectNoPopUpForm viewOnly={currentUserIsAdmin?false:true} refetch={projectDetailQuery.refetch} editData={projectDetailQuery.data?.data.data as unknown as Project}/>
                   <div>
-                    <div className="text-base font-medium text-[#44546F]">
-                      Description
-                    </div>
-                    <p className="text-base font-normal text-[#9CA3AF] mt-2.5 mb-[20px] line-clamp-4">
-                      {projectDetailQuery.data?.data.data.projectDescription}
-                    </p>
-                  </div>
-                  <div>
-                    <form>
-                      <div className="sm:flex gap-8">
-                        <div className="sm:w-[50%] w-full">
-                          <div className={labelstyle}>Status</div>
-                          <Select disabled>
-                            <SelectTrigger className="w-full mt-2.5">
-                              <SelectValue
-                                className="text-gray-300 text-base font-normal"
-                                placeholder={
-                                  projectDetailQuery.data?.data.data.status ===
-                              "NOT_STARTED"
-                                    ? "Not Started"
-                                    : projectDetailQuery.data?.data.data.status ===
-                                  "ACTIVE"
-                                      ? "Active"
-                                      : projectDetailQuery.data?.data.data.status ===
-                                  "ON_HOLD"
-                                        ? "On Hold"
-                                        : projectDetailQuery.data?.data.data.status ===
-                                  "CLOSED"
-                                          ? "Closed"
-                                          : "Not Started"
-                                }
-                              ></SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectItem value="NOT_STARTED">
-                                  Not started
-                                </SelectItem>
-                                <SelectItem value="IN_REVIEW">
-                                  In Review
-                                </SelectItem>
-                                <SelectItem value="IN_PROGRESS">
-                                  In Progress
-                                </SelectItem>
-                                <SelectItem value="COMPLETED">
-                                  Completed
-                                </SelectItem>
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="sm:w-[50%] w-full mt-2 sm:mt-0">
-                          <div className={labelstyle}>Overall track</div>
-                          <Select disabled>
-                            <SelectTrigger className="w-full mt-2.5">
-                              <SelectValue
-                                placeholder="Stormy"
-                                className="text-gray-300 text-base font-normal"
-                              />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectItem value="Test 1">Test 1</SelectItem>
-                                <SelectItem value="Test 2">Test 2</SelectItem>
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </form>
-
-                    <div className="border-b-2 border-gray-100 my-3.5" />
-
+                    {/* <div className="border-b-2 border-gray-100 my-3.5" />
                     <div className="sm:flex gap-8">
                       <div className="sm:w-[50%] w-full mt-2 sm:mt-0">
                         <div className={labelstyle}>Start Date</div>
@@ -300,15 +225,11 @@ function ProjectDetails() {
                       </div>
                     </div>
                     <div className="border-b-2 border-gray-100 my-3.5" />
-
                     <div className="sm:flex gap-8">
                       <div className="sm:w-[50%] w-full">
                         <div className={labelstyle}>Project Budget</div>
 
                         <div className={inputstyle}>
-                          {/* {projectDetailQuery.data?.data.data.projectBudget
-    ? projectDetailQuery.data?.data.data.projectBudget
-    : 0} */}
                           0
                         </div>
                       </div>
@@ -325,27 +246,19 @@ function ProjectDetails() {
                     <div className="sm:flex gap-8 mt-3.5">
                       <div className="sm:w-[50%] w-full mt-2 sm:mt-0">
                         <div className={labelstyle}>Schedule Trend</div>
-
                         <div className={inputstyle}>
-                          {/* {projectDetailQuery.data?.data.data.ScheduleTrend
-    ? projectDetailQuery.data?.data.data.ScheduleTrend
-    : "lorem ipsum"} */}
                           lorem ipsum
                         </div>
                       </div>
                       <div className="sm:w-[50%] w-full mt-2 sm:mt-0">
                         <div className={labelstyle}>Cost Trend</div>
-
                         <div className={inputstyle}>
-                          {/* {projectDetailQuery.data?.data.data.CostTrend
-    ? projectDetailQuery.data?.data.data.CostTrend
-    : "lorem ipsum"} */}
                           lorem ipsum
                         </div>
                       </div>
-                    </div>
+                    </div> */}
 
-                    <div className="border-b-2 border-gray-100 my-6" />
+                    {/* <div className="border-b-2 border-gray-100 my-6" />
 
                     <div className="sm:grid grid-cols-2 gap-3.5">
                       <div className="mt-4 sm:mt-0">
@@ -382,7 +295,7 @@ function ProjectDetails() {
                           />
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
