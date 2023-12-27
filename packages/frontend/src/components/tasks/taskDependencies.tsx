@@ -11,7 +11,7 @@ import {
 } from "@radix-ui/react-dropdown-menu";
 import { toast } from "react-toastify";
 import { CheckIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "../../assets/svg/Link.svg";
 import PlusSvg from "../../assets/svg/Plus.svg";
 import ErrorMessage from "../common/ErrorMessage";
@@ -56,14 +56,9 @@ function TaskDependencies(props: Props) {
   const taskDependenciesMutation = useTaskDependenciesMutation(
     props.task.taskId
   );
+  const removeTaskDependenciesMutation = useRemoveTaskDependenciesMutation();
 
-  const dependenciesOptions: typeof TaskDependenciesEnumValue = {
-    BLOCKING: "BLOCKING",
-    WAITING_ON: "WAITING_ON",
-  };
-
-  useEffect(() => {}, [allTask.data]);
-
+  const [defaultsValue, setDefaultsValue] = useState<Options>();
   const dependencies = (): Options[] => {
     const dependenciesArr: Options[] = [{ label: "select", value: "" }];
     allTask.data?.data.data.forEach((task) => {
@@ -76,35 +71,41 @@ function TaskDependencies(props: Props) {
 
   const handleDependencies = (val: SingleValue<Options>) => {
     if (val) {
-      dependenciesFormik.setFieldValue("dependantTaskId", val.value ?? null);
+      setDefaultsValue({ label: val.label, value: val.value });
+      dependenciesFormik.setFieldValue(
+        "dependendentOnTaskId",
+        val.value ?? null
+      );
       if (!val.value) {
-        dependenciesFormik.setFieldValue("dependencies", "NO_DEPENDENCIES");
+        dependenciesFormik.setFieldValue(
+          "dependentType",
+          TaskDependenciesEnumValue.BLOCKING
+        );
       }
     }
   };
 
   const dependenciesFormik = useFormik<z.infer<typeof dependenciesTaskSchema>>({
     initialValues: {
-      dependencies: "BLOCKING",
-      dependantTaskId: "",
+      dependentType: TaskDependenciesEnumValue.BLOCKING,
+      dependendentOnTaskId: "",
     },
     validationSchema: toFormikValidationSchema(dependenciesTaskSchema),
     onSubmit: (values) => {
       taskDependenciesMutation.mutate(values, {
         onSuccess(data) {
           props.refetch();
-          toast.success(data.data.message);
           dependenciesFormik.resetForm();
+          setDefaultsValue({ label: "select", value: "" });
+          setDependenciesShow(false);
+          toast.success(data.data.message);
         },
         onError(error) {
           toast.error(error.response?.data.message);
-          dependenciesFormik.resetForm();
         },
       });
     },
   });
-
-  const removeTaskDependenciesMutation = useRemoveTaskDependenciesMutation();
 
   const removeDependency = () => {
     removeTaskDependenciesMutation.mutate(showConfirmDelete, {
@@ -133,8 +134,10 @@ function TaskDependencies(props: Props) {
           </Button>
         )}
       </div>
-      {Boolean(props.task?.taskDependencies.length) &&
-        props.task?.taskDependencies.map((dependency) => {
+      {Boolean(
+        props.task?.dependencies && props.task?.dependencies.length > 0
+      ) &&
+        props.task?.dependencies.map((dependency) => {
           return (
             <div className="flex gap-2 items-center mt-3 ">
               <div>
@@ -142,7 +145,7 @@ function TaskDependencies(props: Props) {
                   <DropdownMenuTrigger asChild disabled>
                     <div className="py-2 px-4 rounded-md text-sm font-medium bg-slate-100 hover:bg-slate-100/80 w-44 h-10">
                       <div className="flex items-center justify-between gap-4 w-full">
-                        <div>{dependency.dependencies}</div>
+                        <div>{dependency.dependentType}</div>
                         <div className="w-8 flex justify-end">
                           <img src={DownArrow}></img>
                         </div>
@@ -150,12 +153,12 @@ function TaskDependencies(props: Props) {
                     </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-44 bg-white shadow-md rounded-md">
-                    {Object.keys(dependenciesOptions).map(
+                    {Object.keys(TaskDependenciesEnumValue).map(
                       (item: string, index) => {
                         return (
                           <DropdownMenuItem
                             className={`p-2 ${
-                              dependency.dependencies == item
+                              dependency.dependentType == item
                                 ? "bg-gray-100"
                                 : ""
                             }`}
@@ -171,7 +174,7 @@ function TaskDependencies(props: Props) {
                                 <CheckIcon
                                   className={cn(
                                     "ml-auto h-4 w-4",
-                                    item === dependency.dependencies
+                                    item === dependency.dependentType
                                       ? "opacity-100"
                                       : "opacity-0"
                                   )}
@@ -191,8 +194,8 @@ function TaskDependencies(props: Props) {
                   placeholder="Select tasks"
                   styles={reactSelectStyle}
                   defaultValue={{
-                    label: dependency.dependantTask.taskName,
-                    value: dependency.dependantTask.taskId,
+                    label: dependency.dependentOnTask.taskName,
+                    value: dependency.dependentOnTask.taskId,
                   }}
                 />
               </div>
@@ -201,7 +204,7 @@ function TaskDependencies(props: Props) {
                   variant={"none"}
                   className="p-0 h-6 w-6"
                   onClick={() =>
-                    setShowConfirmDelete(dependency.dependenciesId)
+                    setShowConfirmDelete(dependency.taskDependenciesId)
                   }
                 >
                   <img src={TrashCan} />
@@ -218,7 +221,7 @@ function TaskDependencies(props: Props) {
                 <DropdownMenuTrigger asChild>
                   <div className="py-2 px-4 rounded-md text-sm font-medium bg-slate-100 hover:bg-slate-100/80 w-44 h-10">
                     <div className="flex items-center justify-between gap-4 w-full">
-                      <div>{dependenciesFormik.values.dependencies}</div>
+                      <div>{dependenciesFormik.values.dependentType}</div>
                       <div className="w-8 flex justify-end">
                         <img src={DownArrow}></img>
                       </div>
@@ -226,21 +229,21 @@ function TaskDependencies(props: Props) {
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-44 bg-white shadow-md rounded-md">
-                  {Object.keys(dependenciesOptions).map(
+                  {Object.keys(TaskDependenciesEnumValue).map(
                     (item: string, index) => {
                       return (
                         <DropdownMenuItem
                           className={`p-2 ${
-                            dependenciesFormik.values.dependencies == item
+                            dependenciesFormik.values.dependentType == item
                               ? "bg-gray-100"
                               : ""
                           }`}
                           key={index}
                           onClick={() => {
                             dependenciesFormik.setFieldValue(
-                              "dependencies",
-                              dependenciesOptions[
-                                item as keyof typeof dependenciesOptions
+                              "dependentType",
+                              TaskDependenciesEnumValue[
+                                item as keyof typeof TaskDependenciesEnumValue
                               ]
                             );
                           }}
@@ -256,7 +259,7 @@ function TaskDependencies(props: Props) {
                                 className={cn(
                                   "ml-auto h-4 w-4",
                                   item ===
-                                    dependenciesFormik.values.dependencies
+                                    dependenciesFormik.values.dependentType
                                     ? "opacity-100"
                                     : "opacity-0"
                                 )}
@@ -274,18 +277,18 @@ function TaskDependencies(props: Props) {
               <Select
                 placeholder="Select tasks"
                 styles={reactSelectStyle}
-                defaultValue={{ label: "select task", value: "" }}
+                defaultValue={defaultsValue}
                 options={dependencies()}
                 onChange={handleDependencies}
               />
             </div>
           </div>
           <ErrorMessage>
-            {dependenciesFormik.errors.dependencies &&
-              dependenciesFormik.errors.dependencies}
+            {dependenciesFormik.errors.dependentType &&
+              dependenciesFormik.errors.dependentType}
           </ErrorMessage>
           <ErrorMessage>
-            {dependenciesFormik.errors.dependantTaskId}
+            {dependenciesFormik.errors.dependendentOnTaskId}
           </ErrorMessage>
           <div className="flex justify-end gap-2">
             <div>

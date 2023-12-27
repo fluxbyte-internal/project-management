@@ -27,7 +27,7 @@ export type Task = {
   createdAt: Date;
   updatedAt: Date;
   parentTaskId: null | string;
-  taskDependencies: TaskDependencie[];
+  dependencies: Dependencies[];
   comments: Comments[];
   documentAttachments: DocumentAttachment[];
   endDate: Date;
@@ -37,14 +37,34 @@ export type Task = {
     { taskAssignUsersId: string; user: UserOrganisationType["user"] }
   ];
 };
-export interface TaskDependencie {
-  dependencies: keyof typeof TaskDependenciesEnumValue;
-  dependantTask:Task
-  dependenciesId: string;
-  taskId: string;
-  dependantTaskId: string;
+export interface Dependencies {
+  taskDependenciesId: string;
+  dependentTaskId: string;
+  dependentType: keyof typeof TaskDependenciesEnumValue;
+  dependendentOnTaskId: string;
   createdAt: Date;
   updatedAt: Date;
+  dependentOnTask: Task;
+}
+
+export interface DependentOnTask {
+  taskId: string;
+  projectId: string;
+  taskName: string;
+  taskDescription: string;
+  startDate: Date;
+  duration: number;
+  completionPecentage: null;
+  status: string;
+  milestoneIndicator: boolean;
+  dueDate: null;
+  createdByUserId: string;
+  updatedByUserId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  parentTaskId: string;
+  endDate: Date;
+  flag: string;
 }
 export interface Comments {
   commentId: string;

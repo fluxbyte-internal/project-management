@@ -48,7 +48,6 @@ import MultiLine from "../../assets/svg/MultiLine.svg";
 import PapperClip from "../../assets/svg/Paperclip.svg";
 import TopRightArrow from "../../assets/svg/TopRightArrow.svg";
 import useRemoveTaskMutation from "@/api/mutation/useTaskRemove";
-import { useNavigate } from "react-router-dom";
 
 type Props = {
   projectId: string | undefined;
@@ -66,7 +65,6 @@ function TaskSubTaskForm(props: Props) {
   const [member, setMambers] = useState<UserOrganisationType["user"][]>([]);
   const [attachmentUploading, setAttachmentUploading] =
     useState<boolean>(false);
-  const navigate = useNavigate();
   const taskQuery = useTaskQuery(taskId);
   const taskMemberList = useTaskMemberListQuery();
   const taskUpdateMutation = useUpdateTaskMutation(taskId);
@@ -77,7 +75,7 @@ function TaskSubTaskForm(props: Props) {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const taskCreateMutation = useCreateTaskMutation(
     props.projectId,
-    taskId ?? undefined
+    taskId
   );
   const taskAddUpdateMilestoneMutation =
     useTaskAddUpdateMilestoneMutation(taskId);
@@ -140,9 +138,9 @@ function TaskSubTaskForm(props: Props) {
   const removeTask = () => {
     removeTaskMutation.mutate(taskId, {
       onSuccess(data) {
-        tasks?.parentTaskId?  setTaskId(tasks?.parentTaskId) : navigate("/projects");
-        toast.success(data.data.message);
         setShowConfirmDelete(false);
+        tasks?.parentTaskId ? setTaskId(tasks?.parentTaskId) : props.close();
+        toast.success(data.data.message);
       },
       onError(error) {
         toast.error(error.response?.data.message);
@@ -289,7 +287,7 @@ function TaskSubTaskForm(props: Props) {
             <div className="text-sm font-normal">in list {tasks?.status}</div>
           </div>
           <div>
-            <Button variant={"ghost"} onClick={() => props.close}>
+            <Button variant={"ghost"} onClick={() => props.close()}>
               <img src={Close} width={24} height={24} />
             </Button>
           </div>
@@ -615,7 +613,7 @@ function TaskSubTaskForm(props: Props) {
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          <div>
+          {taskId&& <div>
             <Button
               variant={"destructive"}
               onClick={() => {
@@ -624,7 +622,7 @@ function TaskSubTaskForm(props: Props) {
             >
               Delete
             </Button>
-          </div>
+          </div>}
           <div>
             <Button variant={"primary"} onClick={taskFormik.submitForm}>
               submit
