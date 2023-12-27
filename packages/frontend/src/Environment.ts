@@ -15,4 +15,5 @@ export const requestURLs = {
   resetPassword:`${baseURL}/auth/reset-password`,
   task:`${baseURL}/task/`,
   fileUpload:`${baseURL}/user/avatarImg-update`,
+  changePassword:`${baseURL}/user/change-password`,
 };

@@ -24,8 +24,10 @@ import { toast } from "react-toastify";
 import useFileUploadMutation from "@/api/mutation/useFileUploadMutation";
 import Spinner from "@/components/ui/spinner";
 import UserAvatar from "@/components/ui/userAvatar";
+import ChangePassword from "@/components/changePassword/ChangePassword";
 import useOrgSettingsUpdateMutation from "@/api/mutation/useOrgSettingsUpdateMutation";
 import BackArrow from "../../assets/svg/Arrow.svg";
+
 const countryOptions = countries.map((item) => {
   return { label: item.name, value: item.isoCode };
 });
@@ -35,7 +37,12 @@ function AccountSettings() {
   const { refetch: refetchUser } = useCurrentUserQuery();
   const userProfileUpdateMutation = useUserProfileUpdateMutation();
   const [isUserProfileSubmitting, setIsUserProfileSubmitting] = useState(false);
+
+  const [isopenChangePassword, setIsOpenChangePassword] =
+    useState<boolean>(false);
+
   const [isJobTitleSubmitting, setIsJobTitleSubmitting] = useState(false);
+
   const [countryValue, setCountryValue] =
     useState<SingleValue<(typeof countryOptions)[number]>>();
   const [fileUploading, setFileUploading] = useState(false);
@@ -168,6 +175,11 @@ function AccountSettings() {
       });
     }
   }
+
+  const handleChangePassword = () => {
+    setIsOpenChangePassword(!isopenChangePassword);
+  };
+
   const submitForm = (e: React.FormEvent) => {
     e.preventDefault();
     if (userProfileHasChanges) {
@@ -192,7 +204,7 @@ function AccountSettings() {
           Account Settings
         </div>
         <div className="grid lg:grid-cols-4 gap-2">
-          <div className="text-center text-gray-700 text-sm space-y-2">
+          <div className="text-center text-gray-700 text-sm space-y-2 flex  flex-col items-center">
             <div>
               {user.avatarImg ? (
                 <div className="w-40 h-40 flex justify-center items-center m-auto rounded-full shadow">
@@ -227,13 +239,24 @@ function AccountSettings() {
               id=""
               style={{ display: "none" }}
             />
-            <Button
-              variant="primary_outline"
-              className="transition ease-in-out duration-150 h-auto px-2 py-1"
-              onClick={() => avatarImg.current?.click()}
-            >
-              {user.avatarImg ? "Change Profile Photo" : "Add Profile Photo"}
-            </Button>
+            <div className="w-[80%] flex flex-col gap-5">
+              <Button
+                variant="primary_outline"
+                className="transition ease-in-out duration-150 h-auto px-2 py-1 w-[1/2]"
+                onClick={() => avatarImg.current?.click()}
+              >
+                {user.avatarImg ? "Change Profile Photo" : "Add Profile Photo"}
+              </Button>
+              {user.provider?.providerType === "EMAIL" && (
+                <Button
+                  variant="primary_outline"
+                  className="transition ease-in-out duration-150 h-auto px-2 py-1 w-[1/2]"
+                  onClick={handleChangePassword}
+                >
+                  Change Password
+                </Button>
+              )}
+            </div>
           </div>
           <div className="lg:col-span-3">
             <form className="@container" onSubmit={(e) => submitForm(e)}>
@@ -372,6 +395,9 @@ function AccountSettings() {
           </div>
         </div>
       </div>
+      {isopenChangePassword && (
+        <ChangePassword handleClosePasswordPopUp={handleChangePassword} />
+      )}
     </div>
   );
 }
