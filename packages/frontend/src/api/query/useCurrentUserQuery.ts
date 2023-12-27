@@ -19,6 +19,7 @@ export type UserType = {
   createdAt: string;
   updatedAt: string;
   userOrganisation: UserOrganisationType[];
+  provider?:Provider;
 };
 
 export type UserOrganisationType = {
@@ -32,6 +33,11 @@ export type UserOrganisationType = {
   updatedAt: Date;
   organisation:OrganisationType
 };
+
+export interface Provider {
+
+  providerType?: string
+}
 
 export type UserResponseType = ResponseType<UserType>;
 

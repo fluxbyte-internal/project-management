@@ -36,7 +36,7 @@ export const avatarImgSchema = z
     ".jpg, .jpeg, .png and .webp files are accepted."
   );
 
-export const changePasswordSchema = z
+  export const changePasswordSchema = z
   .object({
     oldPassword: z.string(),
     password: z

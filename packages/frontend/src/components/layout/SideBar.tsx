@@ -40,6 +40,10 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
     setIsSelected(id);
     navigate("/project-details/" + id);
   };
+  const handleTask = (id: string) => {
+    setIsSelected(id);
+    navigate("/tasks/" + id);
+  };
 
   const handleSidebarClick = () => {
     if (!isSidebarExpanded) {
@@ -141,10 +145,16 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
                   {isSelected === item.projectId && isOpen && (
                     <div className="w-full flex flex-col gap-2 justify-center px-4 py-2">
                       <div
-                        className="cursor-pointer text-sm font-medium text-gray-700"
+                        className="cursor-pointer text-sm font-medium text-gray-700 p-1 rounded-md px-4 hover:bg-slate-100/80"
                         onClick={() => handleClick(item.projectId)}
                       >
                         Details
+                      </div>
+                      <div
+                        className="cursor-pointer text-sm font-medium text-gray-700 p-1 rounded-md px-4 hover:bg-slate-100/80"
+                        onClick={() => handleTask(item.projectId)}
+                      >
+                        Project Task
                       </div>
                     </div>
                   )}
