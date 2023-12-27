@@ -14,7 +14,7 @@ import InputEmail from "@/components/common/InputEmail";
 import { toast } from "react-toastify";
 import SignUp from "../../../assets/svg/signup.svg";
 import Google from "../../../assets/svg/google.svg";
-import Facebook from "../../../assets/svg/facebook.svg";
+// import Facebook from "../../../assets/svg/facebook.svg";
 import { baseURL } from "../../../Environment";
 
 function Signup() {
@@ -286,7 +286,7 @@ function Signup() {
                 Google
               </span>
             </Button>
-            <Button
+            {/* <Button
               type="button"
               variant={"secondary"}
               isLoading={isLoading}
@@ -297,7 +297,7 @@ function Signup() {
               <span>
                 Facebook
               </span>
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>
