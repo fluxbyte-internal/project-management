@@ -396,10 +396,10 @@ function TaskSubTaskForm(props: Props) {
             {/* Attachments */}
             {tasks?.documentAttachments &&
             tasks?.documentAttachments.length > 0 ? (
-              <TaskAttachment refetch={refetch} task={tasks}></TaskAttachment>
-            ) : (
-              ""
-            )}
+                <TaskAttachment refetch={refetch} task={tasks}></TaskAttachment>
+              ) : (
+                ""
+              )}
 
             <div className="flex items-center gap-2.5 mt-4">
               <img src={MultiLine} width={20} height={20} />
@@ -461,11 +461,11 @@ function TaskSubTaskForm(props: Props) {
                                   (u) => u.user.userId == data.user.userId
                                 )
                                   ? removeMembers(
-                                      tasks?.assignedUsers.find(
-                                        (id) =>
-                                          id.user.userId == data.user.userId
-                                      )?.taskAssignUsersId ?? ""
-                                    )
+                                    tasks?.assignedUsers.find(
+                                      (id) =>
+                                        id.user.userId == data.user.userId
+                                    )?.taskAssignUsersId ?? ""
+                                  )
                                   : submitMembers(data);
                               }}
                             >
@@ -526,10 +526,10 @@ function TaskSubTaskForm(props: Props) {
                     tasks?.flag == "Green"
                       ? "bg-green-500/60"
                       : tasks?.flag == "Red"
-                      ? "bg-red-500/60"
-                      : tasks?.flag == "Orange"
-                      ? "bg-primary-500/60"
-                      : ""
+                        ? "bg-red-500/60"
+                        : tasks?.flag == "Orange"
+                          ? "bg-primary-500/60"
+                          : ""
                   }`}
                 >
                   <img src={Tag} className="w-3.5" />
@@ -579,8 +579,8 @@ function TaskSubTaskForm(props: Props) {
                         <div className="text-sm  text-gray-300">
                           {milestoneFormik.values.dueDate
                             ? dateFormater(
-                                new Date(milestoneFormik.values.dueDate)
-                              )
+                              new Date(milestoneFormik.values.dueDate)
+                            )
                             : "Select date"}
                         </div>
                       </PopoverTrigger>
@@ -601,10 +601,10 @@ function TaskSubTaskForm(props: Props) {
                         />
                         {milestoneFormik.errors.dueDate &&
                           milestoneFormik.values.dueDate && (
-                            <ErrorMessage className="ml-0 p-0">
-                              {milestoneFormik.errors.dueDate}
-                            </ErrorMessage>
-                          )}
+                          <ErrorMessage className="ml-0 p-0">
+                            {milestoneFormik.errors.dueDate}
+                          </ErrorMessage>
+                        )}
                       </PopoverContent>
                     </Popover>
                   </div>
