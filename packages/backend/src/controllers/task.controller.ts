@@ -134,20 +134,41 @@ export const createTask = async (
     },
   });
 
-  const fieldEntries = [
-    {
-      message: "TaskName was created",
+  const fieldEntries = [];
+  if (parentTaskId) {
+    fieldEntries.push({
+      message: `Subtask was created`,
       value: { oldValue: null, newValue: taskName },
-    },
-    {
-      message: "Task's duration was added",
-      value: { oldValue: null, newValue: duration },
-    },
-    {
-      message: "Task's startDate was added",
-      value: { oldValue: null, newValue: startDate },
-    },
-  ];
+    });
+  } else {
+    fieldEntries.push({
+      message: `Task was created`,
+      value: { oldValue: null, newValue: taskName },
+    });
+  }
+
+  for (const [fieldName, fieldSchema] of Object.entries(
+    createTaskSchema.parse(req.body)
+  )) {
+    if (fieldName !== "taskName" && fieldName !== "taskDescription") {
+      const fieldValue = req.body[fieldName];
+
+      if (
+        fieldValue !== undefined &&
+        fieldValue !== null &&
+        !(fieldName === "duration" && fieldValue === 0)
+      ) {
+        const message = parentTaskId
+          ? `Subtask's ${fieldName} was added`
+          : `Task's ${fieldName} was added`;
+
+        fieldEntries.push({
+          message: message,
+          value: { oldValue: null, newValue: fieldValue },
+        });
+      }
+    }
+  }
   for (const entry of fieldEntries) {
     await HistoryService.createHistory(
       req.userId,
@@ -155,7 +176,7 @@ export const createTask = async (
       HistoryTypeEnumValue.TASK,
       entry.message,
       entry.value,
-      task.taskId
+      parentTaskId ? parentTaskId : task.taskId
     );
   }
   const finalResponse = { ...task };
@@ -222,7 +243,7 @@ export const updateTask = async (
       const historyMessage = `Task's ${key} was changed`;
       const historyData = {
         oldValue: findTaskWithoutOtherTable[key],
-        newvalue: updatedValueWithoutOtherTable[key],
+        newValue: updatedValueWithoutOtherTable[key],
       };
 
       await HistoryService.createHistory(
@@ -285,7 +306,7 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
     const historyMessage = "Task’s status was changed";
     const historyData = {
       oldValue: findTask.status,
-      newvalue: statusBody.status,
+      newValue: statusBody.status,
     };
     await HistoryService.createHistory(
       req.userId,
@@ -316,7 +337,7 @@ export const statusCompletedAllTAsk = async (req: express.Request, res: express.
       const historyMessage = "Task’s status was changed";
       const historyNewValue = {
         oldValue: task.status,
-        newvalue: TaskStatusEnum.COMPLETED,
+        newValue: TaskStatusEnum.COMPLETED,
       };
       await HistoryService.createHistory(
         req.userId,
@@ -407,7 +428,7 @@ export const addAttachment = async (
 
     // History-Manage
     const historyMessage = "Task's attachment was added";
-    const historyData = { oldValue: null, newvalue: taskAttachmentURL };
+    const historyData = { oldValue: null, newValue: taskAttachmentURL };
     await HistoryService.createHistory(
       req.userId,
       req.tenantId,
@@ -449,7 +470,7 @@ export const deleteAttachment = async (
 
   // History-Manage
   const historyMessage = "Task's attachment was removed";
-  const historyData = { oldValue: attachment.url, newvalue: null };
+  const historyData = { oldValue: attachment.url, newValue: null };
   await HistoryService.createHistory(
     req.userId,
     req.tenantId,
@@ -507,15 +528,22 @@ export const addMemberToTask = async (
   const { assginedToUserId } = assginedToUserIdSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
   const member = await prisma.taskAssignUsers.create({
-      data: {
-        assginedToUserId: assginedToUserId,
-        taskId: taskId,
+    data: {
+      assginedToUserId: assginedToUserId,
+      taskId: taskId
+    },
+    include: {
+      user: {
+        select: {
+          email: true,
+        },
       },
+    },
   });
 
   // History-Manage
   const historyMessage = "Task's assignee was added";
-  const historyData = { oldValue: null, newvalue: assginedToUserId };
+  const historyData = { oldValue: null, newValue: member.user?.email };
   await HistoryService.createHistory(
     req.userId,
     req.tenantId,
@@ -545,11 +573,18 @@ export const deleteMemberFromTask = async (
     where: {
       taskAssignUsersId: taskAssignUsersId,
     },
+    include: {
+      user: {
+        select: {
+          email: true
+        }
+      }
+    }
   });
 
   // History-Manage
   const historyMessage = "Task's assignee was removed";
-  const historyData = { oldValue: taskAssignUsersId, newvalue: null };
+  const historyData = { oldValue: deletedMember.user?.email, newValue: null };
   await HistoryService.createHistory(
     req.userId,
     req.tenantId,
@@ -586,7 +621,7 @@ export const addDependencies = async (
 
   // History-Manage
   const historyMessage = "Task’s dependency was added";
-  const historyData = { oldValue: null, newvalue: dependentType };
+  const historyData = { oldValue: null, newValue: dependentType };
   await HistoryService.createHistory(
     req.userId,
     req.tenantId,
@@ -620,7 +655,7 @@ export const removeDependencies = async (
 
   // History-Manage
   const historyMessage = "Task’s dependency was removed";
-  const historyData = { oldValue: taskDependenciesId, newvalue: null };
+  const historyData = { oldValue: taskDependenciesId, newValue: null };
   await HistoryService.createHistory(
     req.userId,
     req.tenantId,
@@ -663,7 +698,7 @@ export const addOrRemoveMilesstone = async (
   const isMilestone = milestoneIndicator;
   const historyData = {
     oldValue: isMilestone ? null : "true",
-    newvalue: isMilestone ? "true" : "false",
+    newValue: isMilestone ? "true" : "false",
   };
   await HistoryService.createHistory(
     req.userId,

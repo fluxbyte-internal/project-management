@@ -7,7 +7,7 @@ export class HistoryService {
     tenantId: string,
     historyType: HistoryTypeEnum,
     historyMesage: string,
-    historyData: { oldValue?: string; newvalue?: string } | any,
+    historyData: { oldValue?: string; newValue?: string } | any,
     historyRefrenceId: string
   ) {
     try {
