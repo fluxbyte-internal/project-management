@@ -16,7 +16,6 @@ import { ErrorHandlerMiddleware } from "./middleware/error.middleware.js";
 import morgan from "morgan";
 import passport from "passport";
 import "./services/passport.services.js";
-import session from "express-session";
 import fileUpload from "express-fileupload";
 // import compression from 'compression';
 
@@ -36,15 +35,6 @@ app.use(
   )
 );
 
-app.use(
-  session({
-    secret: settings.googleCredentials.clientSecret,
-    resave: false,
-    saveUninitialized: true,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 },
-  })
-);
-
 // CORS configuration
 app.use(cors({
   origin: true,
@@ -52,7 +42,6 @@ app.use(cors({
 }));
 
 app.use(passport.initialize());
-app.use(passport.session());
 
 //Cookie
 app.use(cookieParser());
