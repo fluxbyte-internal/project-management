@@ -5,7 +5,8 @@ import type {
   TaskStatusEnum,
   OrgStatusEnum,
   UserRoleEnum,
-  HistoryTypeEnum
+  HistoryTypeEnum,
+  ProjectOverAllTrackEnum
 } from "@prisma/client";
 import type { EnumStringValueObj } from "../types/enumStringValueObject.js";
 
@@ -53,4 +54,11 @@ export const ZodErrorMessageEnumValue= {
 export const HistoryTypeEnumValue: EnumStringValueObj<HistoryTypeEnum> = {
   PROJECT: "PROJECT",
   TASK: "TASK",
+};
+
+export const OverAllTrackEnumValue: EnumStringValueObj<ProjectOverAllTrackEnum> = {
+  CLOUDY: "CLOUDY",
+  RAINY: "RAINY",
+  STORMY: "STORMY",
+  SUNNY: "SUNNY"
 };

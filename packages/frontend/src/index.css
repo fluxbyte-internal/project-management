@@ -71,3 +71,17 @@ img {
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-primary-500;
 }
+
+.Toastify__progress-bar--success {
+  @apply bg-primary-500;
+
+}
+.Toastify__toast-theme--colored.Toastify__toast--success {
+  @apply bg-primary-500;
+
+}
+
+:root {
+  --toastify-color-progress-success: theme('colors.primary.500');
+  --toastify-icon-color-success: theme('colors.primary.500');
+}
