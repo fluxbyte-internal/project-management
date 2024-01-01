@@ -36,18 +36,18 @@ export type Task = {
   assignedUsers: [
     { taskAssignUsersId: string; user: UserOrganisationType["user"] }
   ];
-  history: History[];
+  histories: History[];
 };
 export interface History {
   historyId: string;
-  historyReferenceId: string;
-  historyType: string;
-  historyData: HistoryData;
-  historyMessage: string;
-  historyCreatedBy: string;
+  referenceId: string;
+  type: string;
+  data: HistoryData;
+  message: string;
+  createdBy: string;
   createdAt: Date;
   updatedAt: Date;
-  historyCreatedByUser: UserOrganisationType["user"];
+  createdByUser: UserOrganisationType["user"];
 }
 
 export interface HistoryData {

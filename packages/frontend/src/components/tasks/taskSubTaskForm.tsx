@@ -18,6 +18,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover";
 import {
   createTaskSchema,
   milestoneTaskSchema,
+  updateTaskSchema,
 } from "../../../../backend/src/schemas/taskSchema";
 import { Calendar } from "@/components/ui/calendar";
 
@@ -108,7 +109,9 @@ function TaskSubTaskForm(props: Props) {
       startDate: new Date(),
       duration: 0,
     },
-    validationSchema: toFormikValidationSchema(createTaskSchema),
+    validationSchema: toFormikValidationSchema(
+      taskId ? updateTaskSchema : createTaskSchema
+    ),
     onSubmit: (values) => {
       if (taskId) {
         taskUpdateMutation.mutate(values, {
@@ -396,10 +399,10 @@ function TaskSubTaskForm(props: Props) {
             {/* Attachments */}
             {tasks?.documentAttachments &&
             tasks?.documentAttachments.length > 0 ? (
-                <TaskAttachment refetch={refetch} task={tasks}></TaskAttachment>
-              ) : (
-                ""
-              )}
+              <TaskAttachment refetch={refetch} task={tasks}></TaskAttachment>
+            ) : (
+              ""
+            )}
 
             <div className="flex items-center gap-2.5 mt-4">
               <img src={MultiLine} width={20} height={20} />
@@ -421,7 +424,7 @@ function TaskSubTaskForm(props: Props) {
             {/* Comment  */}
             <TaskComment task={tasks} refetch={refetch}></TaskComment>
 
-            {(tasks?.history && tasks.history.length > 0) && (
+            {tasks?.histories && tasks.histories.length > 0 && (
               <TaskHistory task={tasks} />
             )}
           </div>
@@ -461,11 +464,11 @@ function TaskSubTaskForm(props: Props) {
                                   (u) => u.user.userId == data.user.userId
                                 )
                                   ? removeMembers(
-                                    tasks?.assignedUsers.find(
-                                      (id) =>
-                                        id.user.userId == data.user.userId
-                                    )?.taskAssignUsersId ?? ""
-                                  )
+                                      tasks?.assignedUsers.find(
+                                        (id) =>
+                                          id.user.userId == data.user.userId
+                                      )?.taskAssignUsersId ?? ""
+                                    )
                                   : submitMembers(data);
                               }}
                             >
@@ -526,10 +529,10 @@ function TaskSubTaskForm(props: Props) {
                     tasks?.flag == "Green"
                       ? "bg-green-500/60"
                       : tasks?.flag == "Red"
-                        ? "bg-red-500/60"
-                        : tasks?.flag == "Orange"
-                          ? "bg-primary-500/60"
-                          : ""
+                      ? "bg-red-500/60"
+                      : tasks?.flag == "Orange"
+                      ? "bg-primary-500/60"
+                      : ""
                   }`}
                 >
                   <img src={Tag} className="w-3.5" />
@@ -579,8 +582,8 @@ function TaskSubTaskForm(props: Props) {
                         <div className="text-sm  text-gray-300">
                           {milestoneFormik.values.dueDate
                             ? dateFormater(
-                              new Date(milestoneFormik.values.dueDate)
-                            )
+                                new Date(milestoneFormik.values.dueDate)
+                              )
                             : "Select date"}
                         </div>
                       </PopoverTrigger>
@@ -601,10 +604,10 @@ function TaskSubTaskForm(props: Props) {
                         />
                         {milestoneFormik.errors.dueDate &&
                           milestoneFormik.values.dueDate && (
-                          <ErrorMessage className="ml-0 p-0">
-                            {milestoneFormik.errors.dueDate}
-                          </ErrorMessage>
-                        )}
+                            <ErrorMessage className="ml-0 p-0">
+                              {milestoneFormik.errors.dueDate}
+                            </ErrorMessage>
+                          )}
                       </PopoverContent>
                     </Popover>
                   </div>

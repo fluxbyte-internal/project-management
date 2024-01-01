@@ -11,35 +11,35 @@ function TaskHistory(props: { task: Task | undefined }) {
     const regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
     return regex.test(dateString);
   }
-
-  const messageCreate = (history: Task["history"][0]): string => {
-    let message = history.historyMessage;
-    if (history.historyData.newValue && history.historyData.oldValue) {
+  
+  const messageCreate = (history: Task["histories"][0]): string => {
+    let message = history.message;
+    if (history.data.newValue && history.data.oldValue) {
       if (
-        isValidDate(history.historyData.newValue) &&
-        isValidDate(history.historyData.oldValue)
+        isValidDate(history.data.newValue) &&
+        isValidDate(history.data.oldValue)
       ) {
         message =
-          dateFormater(new Date(history.historyData.newValue)) +
+          dateFormater(new Date(history.data.newValue)) +
           " " +
           message +
           " to " +
-          dateFormater(new Date(history.historyData.oldValue));
+          dateFormater(new Date(history.data.oldValue));
       } else {
         message =
-          history.historyData.newValue +
+          history.data.newValue +
           " " +
           message +
           " to " +
-          history.historyData.oldValue;
+          history.data.oldValue;
       }
     } else {
-      if (isValidDate(history.historyData.newValue)) {
+      if (isValidDate(history.data.newValue)) {
         message =
-          dateFormater(new Date(history.historyData.newValue)) + " " + message;
+          dateFormater(new Date(history.data.newValue)) + " " + message;
       } else {
         message =
-          (history.historyData.oldValue ?? history.historyData.newValue) +
+          (history.data.oldValue ?? history.data.newValue) +
           " " +
           message;
       }
@@ -58,21 +58,21 @@ function TaskHistory(props: { task: Task | undefined }) {
         </div>
       </div>
       <div>
-        {props.task?.history
-          .slice(0, showAll ? props.task?.history.length - 1 : 7)
+        {props.task?.histories
+          .slice(0, showAll ? props.task?.histories.length - 1 : 7)
           .map((history) => {
             return (
               <div className="flex gap-3 items-center mt-3">
-                <UserAvatar user={history.historyCreatedByUser} />
+                <UserAvatar user={history.createdByUser} />
                 <div>
                   <div className="flex flex-col">
                     <p className="text-sm font-semibold w-full flex gap-2 items-center">
-                      {history.historyCreatedByUser.firstName &&
-                      history.historyCreatedByUser.lastName
-                        ? history.historyCreatedByUser.firstName +
+                      {history.createdByUser.firstName &&
+                      history.createdByUser.lastName
+                        ? history.createdByUser.firstName +
                           " " +
-                          history.historyCreatedByUser.lastName
-                        : history.historyCreatedByUser.email}
+                          history.createdByUser.lastName
+                        : history.createdByUser.email}
                       <p className="text-gray-400 text-xs">
                         {calculateTimeDifference(new Date(history.createdAt))}
                       </p>
@@ -87,7 +87,7 @@ function TaskHistory(props: { task: Task | undefined }) {
           })}
       </div>
       <div>
-        {props.task?.history && props.task?.history.length > 7 && (
+        {props.task?.histories && props.task?.histories.length > 7 && (
           <div>
             <hr className="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700"></hr>
             <div
