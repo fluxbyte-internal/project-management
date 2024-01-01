@@ -22,8 +22,15 @@ function generatePrismaClient(datasourceUrl?: string) {
           needs: { startDate: true, duration: true },
           compute(task) {
             const { startDate, duration } = task;
-            const endDate = new Date(startDate);
-            endDate.setDate(endDate.getDate() + duration);
+            const startDateObj = new Date(startDate);
+            const endDate = new Date(startDateObj);
+
+            const integerPart = Math.floor(duration);
+            endDate.setDate(startDateObj.getDate() + integerPart); // Duration as days
+            
+            const fractionalPartInHours = (duration % 1) * 24; // Duration as hours
+            endDate.setHours(startDateObj.getHours() + fractionalPartInHours);
+
             return endDate;
           },
         },

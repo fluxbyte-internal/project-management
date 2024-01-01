@@ -196,7 +196,7 @@ model Task {
   taskName            String         @map("task_name")
   taskDescription     String?        @map("task_description")
   startDate           DateTime       @map("start_date")
-  duration            Int            @map("duration")
+  duration            Float            @map("duration")
   completionPecentage String?        @map("completion_percentage")
   status              TaskStatusEnum @map("status")
   milestoneIndicator  Boolean        @default(false) @map("milestone_indicator")
