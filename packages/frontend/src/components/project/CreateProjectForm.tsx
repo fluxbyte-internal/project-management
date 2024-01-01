@@ -171,7 +171,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
         defaultView: editData.defaultView,
         currency: editData.currency,
       });
-      setCurrencyValue({label:editData.currency,value:editData.currency})
+      setCurrencyValue({label:editData.currency,value:editData.currency});
     }
   }, []);
 
@@ -209,7 +209,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
   };
   return (
     <div className="fixed bg-[#00000066] w-full top-0 h-full items-center flex justify-center z-50">
-      <div className="lg:rounded-lg border border-white bg-[#fff] md:max-w-5xl w-full flex flex-col h-full lg:max-h-[690px] max-h-screen lg:overflow-y-auto ">
+      <div className="lg:rounded-lg border border-white bg-[#fff] md:max-w-5xl w-full flex flex-col h-full lg:max-h-[690px] max-h-screen overflow-y-auto ">
         <div className="flex justify-between py-5 lg:px-12 px-4 border-b border-gray-100 lg:border-none">
           <div className="text-2xl lg:text-3xl font-bold text-gray-500 ">
             Create New Project
