@@ -14,11 +14,11 @@ export class HistoryService {
       const prisma = await getClientByTenantId(tenantId);
       const history = await prisma.history.create({
         data: {
-          historyType: historyType,
-          historyData: historyData,
-          historyCreatedBy: userId,
-          historyReferenceId: historyRefrenceId,
-          historyMessage: historyMesage,
+          type: historyType,
+          data: historyData,
+          createdBy: userId,
+          referenceId: historyRefrenceId,
+          message: historyMesage,
         },
       });
       return history;

@@ -17,7 +17,21 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
   const prisma = await getClientByTenantId(req.tenantId);
   const tasks = await prisma.task.findMany({
     where: { projectId: projectId },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    include: {
+      assignedUsers: {
+        include: {
+          user: {
+            select: {
+              email: true,
+              firstName: true,
+              lastName: true,
+              avatarImg: true
+            }
+          }
+        }
+      }
+    }
   });
   return new SuccessResponse(StatusCodes.OK, tasks, 'get all task successfully').send(res);
 };
@@ -59,31 +73,26 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
       subtasks: true,
       dependencies: {
         include: {
-          dependentOnTask: true
-        }
-      }
-    },
-  });
-
-  // History
-  const history = await prisma.history.findMany({
-    orderBy: { createdAt: "desc" },
-    where: {
-      historyReferenceId: taskId,
-    },
-    include: {
-      historyCreatedByUser: {
-        select: {
-          avatarImg: true,
-          email: true,
-          firstName: true,
-          lastName: true,
+          dependentOnTask: true,
+        },
+      },
+      histories: {
+        orderBy: { createdAt: "desc" },
+        include: {
+          createdByUser: {
+            select: {
+              avatarImg: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
         },
       },
     },
   });
 
-  const finalResponse = { ...task, history };
+  const finalResponse = { ...task };
   return new SuccessResponse(
     StatusCodes.OK,
     finalResponse,
@@ -234,7 +243,7 @@ export const updateTask = async (
       "documentAttachments",
       "assignedUsers",
       "dependencies",
-      "milestoneIndicator"
+      "milestoneIndicator",
     ]
   );
 
@@ -245,17 +254,23 @@ export const updateTask = async (
         oldValue: findTaskWithoutOtherTable[key],
         newValue: updatedValueWithoutOtherTable[key],
       };
-
-      await HistoryService.createHistory(
-        req.userId,
-        req.tenantId,
-        HistoryTypeEnumValue.TASK,
-        historyMessage,
-        historyData,
-        taskId
-      );
+      if (
+        key === "startDate" &&
+        historyData.newValue instanceof Date &&
+        historyData.oldValue instanceof Date &&
+        historyData.newValue.getTime() !== historyData.oldValue.getTime()
+      ) {
+        await HistoryService.createHistory(
+          req.userId,
+          req.tenantId,
+          HistoryTypeEnumValue.TASK,
+          historyMessage,
+          historyData,
+          taskId
+        );
+      }
     }
-  };
+  }
 
   const finalResponse = { ...taskUpdateDB };
   return new SuccessResponse(
