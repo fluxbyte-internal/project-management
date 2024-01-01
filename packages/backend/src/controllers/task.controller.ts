@@ -268,6 +268,15 @@ export const updateTask = async (
           historyData,
           taskId
         );
+      } else if (key !== "startDate") {
+        await HistoryService.createHistory(
+          req.userId,
+          req.tenantId,
+          HistoryTypeEnumValue.TASK,
+          historyMessage,
+          historyData,
+          taskId
+        );
       }
     }
   }
