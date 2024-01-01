@@ -35,9 +35,14 @@ function TaskHistory(props: { task: Task | undefined }) {
           history.historyData.oldValue;
       }
     } else {
-      message =
-        history.historyData.oldValue ??
-        history.historyData.newValue + " " + message;
+      if (isValidDate(history.historyData.newValue)) {
+        message =
+          dateFormater(new Date(history.historyData.newValue)) + " " + message;
+      } else {
+        message =
+          history.historyData.oldValue ??
+          history.historyData.newValue + " " + message;
+      }
     }
     return message;
   };
