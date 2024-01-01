@@ -5,7 +5,6 @@ import calculateTimeDifference from "../shared/TimeDifferenceCalculate";
 import { useState } from "react";
 import dateFormater from "@/helperFuntions/dateFormater";
 function TaskHistory(props: { task: Task | undefined }) {
-  
   const [showAll, setShowAll] = useState<boolean>(false);
 
   function isValidDate(dateString: string) {
@@ -40,8 +39,9 @@ function TaskHistory(props: { task: Task | undefined }) {
           dateFormater(new Date(history.historyData.newValue)) + " " + message;
       } else {
         message =
-          history.historyData.oldValue ??
-          history.historyData.newValue + " " + message;
+          (history.historyData.oldValue ?? history.historyData.newValue) +
+          " " +
+          message;
       }
     }
     return message;
