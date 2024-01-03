@@ -1,6 +1,9 @@
 import SideBar from "@/components/layout/SideBar";
 import { useState } from "react";
-import cloudProjectDeatil from "../../assets/svg/CloudProjectDetail.svg";
+import Cloudy from "../../assets/svg/cloudy.svg"
+import Stormy from "../../assets/svg/stormy.svg"
+import Sunny from "../../assets/svg/sunny.svg"
+import Rainy from "../../assets/svg/rainy.svg"
 import useProjectDetail from "../../api/query/useProjectDetailQuery";
 import { useParams } from "react-router-dom";
 // import ClockProjectDetail from "../../assets/svg/ClockProjectDetail.svg";
@@ -46,22 +49,24 @@ function ProjectDetails() {
   };
 
 
-  const HandleOverallTrack = (value: string) => {
-    switch (value) {
+  const HandleOverallTrack = () => {
+    switch (projectDetailQuery.data?.data.data.overallTrack) {
     case "STORMY":
-      return <img src={cloudProjectDeatil} className="h-full w-full" />;
+      return <img src={Stormy} className="h-full w-full" />;
     case "CLOUDY":
-      return <img src={cloudProjectDeatil} className="h-full w-full" />;
+      return <img src={Cloudy} className="h-full w-full" />;
     case "SUNNY":
-      return <img src={cloudProjectDeatil} className="h-full w-full" />;
+      return <img src={Sunny} className="h-full w-full" />;
+    case "RAINY":
+      return <img src={Rainy} className="h-full w-full" />;
 
     default:
-      return <img src={cloudProjectDeatil} className="h-full w-full" />;
+      return <img src={Sunny} className="h-full w-full" />;
     }
   };
 
   const currentUserIsAdmin =
-  user?.userOrganisation[0]?.role === "ADMINISTRATOR";
+  user?.userOrganisation[0]?.role ===  "PROJECT_MANAGER";
   return (
     <div className="w-full relative h-full">
       {projectDetailQuery.isLoading ? (
@@ -79,12 +84,12 @@ function ProjectDetails() {
           >
             <div className="sm:px-10 px-3">
               <div>
-                <div className="flex sm:gap-9 gap-2 items-center flex-wrap justify-evenly sm:justify-normal">
+                <div className="flex sm:gap-5 gap-2 items-center flex-wrap justify-evenly sm:justify-normal">
                   <div className="sm:text-3xl text-xl  font-semibold">
                     Project Detail
                   </div>
                   <div className="h-10 w-12">
-                    {HandleOverallTrack("STORMY")}
+                    {HandleOverallTrack()}
                   </div>
                   <div className="bg-[#227D9B] sm:px-4  text-white text-sm font-normal rounded-md py-0.5 px-4">
                     {HandleStatus()}

@@ -26,6 +26,8 @@ import OrganisationForm from "./organisationForm";
 import { OrganisationType } from "@/api/mutation/useOrganisationMutation";
 import { toast } from "react-toastify";
 import OrganisationNoPopUpForm from "./organisationForm/organisationNoPopupForm";
+import TrashCan from "../../assets/svg/TrashCan.svg";
+import useOrganisationRemoveMemberMutation from "@/api/mutation/useOrganisationRemoveMemberMutation";
 const memberRoleOptions = [
   {
     value: UserRoleEnumValue.PROJECT_MANAGER,
@@ -41,6 +43,7 @@ function OrganisationDetails() {
   const organisationId = useParams().organisationId!;
   const addOrganisationMemberMutation =
     useAddOrganisationMemberMutation(organisationId);
+  const removeTaskMutation = useOrganisationRemoveMemberMutation();
 
   const addOrgMemberForm = useFormik<
     z.infer<typeof addOrganisationMemberSchema>
@@ -98,6 +101,7 @@ function OrganisationDetails() {
   );
   const [organisationForm, setOrganisationForm] = useState(false);
   const [editData, setEditData] = useState<OrganisationType>();
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
   const closeAddMember = () => {
     addOrgMemberForm.setValues({
@@ -148,7 +152,7 @@ function OrganisationDetails() {
         updatedAt: organisation.updatedAt,
       });
     }
-  }, [filterString, organisation?.userOrganisation,organisation]);
+  }, [filterString, organisation?.userOrganisation, organisation]);
 
   if (isLoading) return <Loader />;
   if (status === "error" || !organisation)
@@ -182,6 +186,18 @@ function OrganisationDetails() {
     setEditData(undefined);
     refetch();
     setOrganisationForm(false);
+  };
+  const handleRemoveMember = (id: string) => {
+    removeTaskMutation.mutate(id, {
+      onSuccess(data) {
+        setShowConfirmDelete(false);
+        refetch();
+        toast.success(data.data.message);
+      },
+      onError(error) {
+        toast.error(error.response?.data.message);
+      },
+    });
   };
   return (
     <>
@@ -252,10 +268,42 @@ function OrganisationDetails() {
                         variant="primary_outline"
                         disabled={userOrg.role === "ADMINISTRATOR"}
                         className="ml-auto text-danger border-danger hover:bg-danger hover:bg-opacity-10 hover:text-danger py-1.5 h-auto"
+                        onClick={() => {
+                          setShowConfirmDelete(true);
+                        }}
                       >
                         Remove
                       </Button>
                     )}
+                    <Dialog
+                      isOpen={showConfirmDelete}
+                      onClose={() => { }}
+                      modalClass="rounded-lg"
+                    >
+                      <div className="flex flex-col gap-2 p-6 ">
+                        <img src={TrashCan} className="w-12 m-auto" /> Are you sure you want
+                        to delete ?
+                        <div className="flex gap-2 ml-auto">
+                          <Button
+                            variant={"outline"}
+                            isLoading={removeTaskMutation.isPending}
+                            disabled={removeTaskMutation.isPending}
+                            onClick={() => setShowConfirmDelete(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            variant={"primary"}
+                            // onClick={removeTask}
+                            isLoading={removeTaskMutation.isPending}
+                            disabled={removeTaskMutation.isPending}
+                            onClick={() => handleRemoveMember(userOrg.userOrganisationId)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    </Dialog>
                   </div>
                   <hr className="h-px w-[98%] my-8 mx-auto bg-gray-200 border-0 " />
                 </>
