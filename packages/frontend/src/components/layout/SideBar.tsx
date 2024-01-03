@@ -23,7 +23,7 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
   const { id } = useParams();
   const [isSelected, setIsSelected] = useState<string | undefined>(id);
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [isProjectCreate, setPorjectCreate] = useState(false);
+  const [isProjectCreate, setProjectCreate] = useState(false);
 
   const navigate = useNavigate();
   const projectQuery = useProjectQuery();
@@ -55,7 +55,7 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
     <>
       <div
         className={`bg-white border-r-2 border-primary-400 h-screen fixed z-10 ${
-          isSidebarExpanded ? "md:w-64 w-full z-10 md:z-0" : "w-0 pl-4 "
+          isSidebarExpanded ? "md:w-64 w-full z-10" : "w-0 pl-4 "
         } overflow-hidden `}
         onClick={handleSidebarClick}
       >
@@ -83,7 +83,7 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
             <Button
               variant={"secondary"}
               className="w-6 h-6 p-0 rounded-md"
-              onClick={() => setPorjectCreate(true)}
+              onClick={() => setProjectCreate(true)}
             >
               <div>
                 <img
@@ -166,7 +166,7 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
       </div>
       {isProjectCreate && (
         <CreateUpdateProjectForm
-          handleClosePopUp={() => setPorjectCreate(false)}
+          handleClosePopUp={() => setProjectCreate(false)}
         ></CreateUpdateProjectForm>
       )}
     </>

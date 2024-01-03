@@ -18,7 +18,7 @@ export type Task = {
   taskDescription: string;
   startDate: Date;
   duration: number;
-  completionPecentage: null;
+  completionPecentage: string | null;
   status: string;
   milestoneIndicator: boolean;
   createdByUserId: string;
