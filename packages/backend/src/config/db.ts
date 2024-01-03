@@ -23,7 +23,7 @@ function generatePrismaClient(datasourceUrl?: string) {
           compute(task) {
             const { startDate, duration } = task;
             const startDateObj = new Date(startDate);
-            const endDate = new Date(startDateObj);
+            const endDate = startDateObj;
 
             const integerPart = Math.floor(duration);
             endDate.setDate(startDateObj.getDate() + integerPart); // Duration as days
