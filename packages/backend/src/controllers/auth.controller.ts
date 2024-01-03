@@ -1,5 +1,5 @@
 import express from "express";
-import { UserStatusEnum } from "@prisma/client";
+import { UserProviderTypeEnum, UserStatusEnum } from "@prisma/client";
 import { getClientByTenantId } from "../config/db.js";
 import { settings } from "../config/settings.js";
 import { createJwtToken, verifyJwtToken } from "../utils/jwtHelper.js";
@@ -19,7 +19,6 @@ import {
   forgotPasswordSchema,
   resetPasswordTokenSchema,
   resetTokenSchema,
-  verifyEmailOtpSchema,
 } from "../schemas/authSchema.js";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library.js";
 import { PRISMA_ERROR_CODE } from "../constants/prismaErrorCodes.js";
@@ -41,8 +40,13 @@ export const signUp = async (req: express.Request, res: express.Response) => {
         firstName: firstName,
         lastName: lastName,
         email: email,
-        password: hashedPassword,
         status: UserStatusEnum.ACTIVE,
+        provider: {
+          create: {
+            idOrPassword: hashedPassword,
+            providerType: UserProviderTypeEnum.EMAIL,
+          },
+        },
       },
     });
     const tokenPayload = {
@@ -68,15 +72,25 @@ export const signUp = async (req: express.Request, res: express.Response) => {
     } catch (error) {
       console.error("Failed to send email", error);
     }
+
+    res.cookie(settings.jwt.tokenCookieKey, token, {
+      maxAge: 1 * 24 * 60 * 60 * 1000,
+      httpOnly: false,
+      secure: true,
+      sameSite: 'none',
+      domain: settings.domain
+    });
+
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
+      httpOnly: false,
       secure: true,
+      sameSite: 'none',
+      domain: settings.domain
     });
-    const { password: _, ...userInfoWithoutPassword } = user;
     return new SuccessResponse(
       StatusCodes.CREATED,
-      { user: userInfoWithoutPassword, token },
+      user,
       "Sign up successfully"
     ).send(res);
   } catch (error) {
@@ -101,25 +115,40 @@ export const login = async (req: express.Request, res: express.Response) => {
   const prisma = await getClientByTenantId(req.tenantId);
   const user = await prisma.user.findUnique({
     where: { email },
+    include: { provider: true },
   });
-  if (user && (await compareEncryption(password, user.password))) {
+  if (
+    user &&
+    user.provider?.providerType == UserProviderTypeEnum.EMAIL &&
+    (await compareEncryption(password, user.provider?.idOrPassword!))
+  ) {
     const tokenPayload = {
       userId: user.userId,
       email: email,
       tenantId: req.tenantId ?? "root",
     };
     const token = createJwtToken(tokenPayload);
+    res.cookie(settings.jwt.tokenCookieKey, token, {
+      maxAge: 1 * 24 * 60 * 60 * 1000,
+      httpOnly: false,
+      secure: true,
+      sameSite: 'none',
+      domain: settings.domain
+    });
+
     const refreshToken = createJwtToken(tokenPayload, true);
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
+      httpOnly: false,
       secure: true,
+      sameSite: 'none',
+      domain: settings.domain
     });
-    const { password, ...userInfoWithoutPassword } = user;
 
+    const { provider, ...userWithoutProvider } = user;
     return new SuccessResponse(
       StatusCodes.OK,
-      { user: userInfoWithoutPassword, token },
+      { user: userWithoutProvider },
       "Login successfully"
     ).send(res);
   }
@@ -128,7 +157,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 
 export const getAccessToken = (req: express.Request, res: express.Response) => {
   const refreshTokenCookie = authRefreshTokenSchema.parse(
-    req.cookies["refresh-token"]
+    req.cookies[settings.jwt.refreshTokenCookieKey]
   );
 
   const decoded = verifyJwtToken(refreshTokenCookie);
@@ -138,16 +167,25 @@ export const getAccessToken = (req: express.Request, res: express.Response) => {
     tenantId: decoded.tenantId,
   };
   const token = createJwtToken(tokenPayload);
-  const refreshToken = createJwtToken(tokenPayload, true);
+  res.cookie(settings.jwt.tokenCookieKey, token, {
+    maxAge: 1 * 24 * 60 * 60 * 1000,
+    httpOnly: false,
+    secure: true,
+    sameSite: 'none',
+    domain: settings.domain
+  });
 
+  const refreshToken = createJwtToken(tokenPayload, true);
   res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
     maxAge: 7 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
+    httpOnly: false,
     secure: true,
+    sameSite: 'none',
+    domain: settings.domain
   });
   return new SuccessResponse(
     StatusCodes.OK,
-    { token },
+    null,
     "Access token retrived successfully"
   ).send(res);
 };
@@ -232,7 +270,11 @@ export const resetPassword = async (
       isUsed: true,
       user: {
         update: {
-          password: hashedPassword,
+          provider: {
+            update: {
+              idOrPassword: hashedPassword,
+            },
+          },
         },
       },
     },

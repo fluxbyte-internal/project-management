@@ -1,10 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 import { requestURLs } from "../../Environment";
-import axios from "axios";
 import { z } from "zod";
 import { AxiosResponseAndError, ResponseType } from "@/api/types/axiosResponseType";
 import { authLoginSchema } from "@backend/src/schemas/authSchema";
-
+import ApiRequest from "../ApiRequest";
 
 export type LoginApiResponse = ResponseType<{
   token: string;
@@ -29,7 +28,8 @@ function useLoginMutation() {
     AxiosResponseAndError<LoginApiResponse>["error"],
     z.infer<typeof authLoginSchema>
   >({
-    mutationFn: (data) => axios.post<LoginApiResponse>(requestURLs.login, data),
+    mutationFn: (data) =>
+      ApiRequest.post<LoginApiResponse>(requestURLs.login, data),
   });
 
   return mutation;
