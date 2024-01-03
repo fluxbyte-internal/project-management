@@ -121,14 +121,32 @@ export const statusChangeProject = async (req: express.Request, res: express.Res
   const prisma = await getClientByTenantId(req.tenantId);
   const findProject = await prisma.project.findFirstOrThrow({ where: { projectId: projectId, organisationId: req.organisationId } });
   if (findProject) {
-    const findTaskWithIncompleteTask = await prisma.task.findMany({ where: { projectId: projectId, status: TaskStatusEnum.NOT_STARTED } });
-    if (findTaskWithIncompleteTask.length > 0 && status === ProjectStatusEnum.CLOSED) {
-      throw new BadRequestError('Incomplete tasks exists!')
-    };
-  };
+    const findTaskWithIncompleteTask = await prisma.task.findMany({
+      where: {
+        projectId: projectId,
+        status: {
+          in: [
+            TaskStatusEnum.TODO,
+            TaskStatusEnum.PLANNED,
+            TaskStatusEnum.IN_PROGRESS,
+          ],
+        },
+      },
+    });
+    if (
+      findTaskWithIncompleteTask.length > 0 &&
+      status === ProjectStatusEnum.CLOSED
+    ) {
+      throw new BadRequestError("Incomplete tasks exists!");
+    }
+  }
   const updateProject = await prisma.project.update({
     where: { projectId: projectId },
     data: { status: status, updatedByUserId: req.userId },
   });
-  return new SuccessResponse(StatusCodes.OK, updateProject, 'project status change successfully').send(res);
+  return new SuccessResponse(
+    StatusCodes.OK,
+    updateProject,
+    "project status change successfully"
+  ).send(res);
 };

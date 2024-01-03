@@ -46,9 +46,16 @@ enum ProjectOverAllTrackEnum {
   STORMY
 }
 
-enum TaskStatusEnum {
+enum MilestoneIndicatorStatusEnum {
   NOT_STARTED
   COMPLETED
+}
+
+enum TaskStatusEnum {
+  PLANNED
+  TODO
+  IN_PROGRESS
+  DONE
 }
 
 enum TaskDependenciesEnum {
@@ -190,23 +197,24 @@ model Project {
 }
 
 model Task {
-  taskId              String         @id @default(uuid()) @map("task_id")
-  projectId           String         @map("project_id")
-  project             Project        @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
-  taskName            String         @map("task_name")
-  taskDescription     String?        @map("task_description")
-  startDate           DateTime       @map("start_date")
-  duration            Int            @map("duration")
-  completionPecentage String?        @map("completion_percentage")
-  status              TaskStatusEnum @map("status")
-  milestoneIndicator  Boolean        @default(false) @map("milestone_indicator")
-  dueDate             DateTime?      @map("due_date")
-  createdByUserId     String         @map("created_by_user_id")
-  createdByUser       User           @relation("createdByUser", fields: [createdByUserId], references: [userId])
-  updatedByUserId     String?        @map("updated_by_user_id")
-  updatedByUser       User?          @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
-  createdAt           DateTime       @default(now()) @map("created_at")
-  updatedAt           DateTime       @updatedAt @map("updated_at")
+  taskId              String                       @id @default(uuid()) @map("task_id")
+  projectId           String                       @map("project_id")
+  project             Project                      @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  taskName            String                       @map("task_name")
+  taskDescription     String?                      @map("task_description")
+  startDate           DateTime                     @map("start_date")
+  duration            Int                          @map("duration")
+  completionPecentage String?                      @map("completion_percentage")
+  status              TaskStatusEnum               @default(PLANNED) @map("status")
+  milestoneIndicator  Boolean                      @default(false) @map("milestone_indicator")
+  milestoneStatus     MilestoneIndicatorStatusEnum @default(NOT_STARTED) @map("milestone_status")
+  dueDate             DateTime?                    @map("due_date")
+  createdByUserId     String                       @map("created_by_user_id")
+  createdByUser       User                         @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  updatedByUserId     String?                      @map("updated_by_user_id")
+  updatedByUser       User?                        @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  createdAt           DateTime                     @default(now()) @map("created_at")
+  updatedAt           DateTime                     @updatedAt @map("updated_at")
 
   subtasks            Task[]            @relation("parentTask")
   comments            Comments[]

@@ -5,7 +5,7 @@ import { StatusCodes } from 'http-status-codes';
 import { projectIdSchema } from '../schemas/projectSchema.js';
 import { createCommentTaskSchema, createTaskSchema, attachmentTaskSchema, taskStatusSchema, updateTaskSchema, assginedToUserIdSchema, dependenciesTaskSchema, milestoneTaskSchema } from '../schemas/taskSchema.js';
 import { TaskService } from '../services/task.services.js';
-import { TaskStatusEnum } from '@prisma/client';
+import { MilestoneIndicatorStatusEnum, TaskStatusEnum } from '@prisma/client';
 import { AwsUploadService } from '../services/aws.services.js';
 import { uuidSchema } from '../schemas/commonSchema.js';
 
@@ -100,7 +100,6 @@ export const createTask = async (req: express.Request, res: express.Response) =>
       taskDescription: taskDescription,
       duration: duration,
       startDate: startDate,
-      status: TaskStatusEnum.NOT_STARTED,
       parentTaskId: parentTaskId ? parentTaskId : null,
       createdByUserId: req.userId,
       updatedByUserId: req.userId,
@@ -183,8 +182,12 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
       where: { taskId: taskId },
       data: {
         status: statusBody.status,
+        milestoneStatus:
+          statusBody.status === TaskStatusEnum.DONE
+            ? MilestoneIndicatorStatusEnum.COMPLETED
+            : MilestoneIndicatorStatusEnum.NOT_STARTED,
         completionPecentage:
-          statusBody.status === TaskStatusEnum.COMPLETED
+          statusBody.status === TaskStatusEnum.DONE
             ? '100'
             : findTask.completionPecentage,
         updatedByUserId: req.userId
@@ -202,7 +205,12 @@ export const statusCompletedAllTAsk = async (req: express.Request, res: express.
   if (findAllTaskByProjectId.length > 0) {
     await prisma.task.updateMany({
       where: { projectId: projectId },
-      data: { status: TaskStatusEnum.COMPLETED, completionPecentage: '100', updatedByUserId: req.userId }
+      data: {
+        status: TaskStatusEnum.DONE,
+        milestoneStatus: MilestoneIndicatorStatusEnum.COMPLETED,
+        completionPecentage: "100",
+        updatedByUserId: req.userId,
+      }
     })
     return new SuccessResponse(StatusCodes.OK, null, 'all task status change to completed successfully').send(res);
   };
