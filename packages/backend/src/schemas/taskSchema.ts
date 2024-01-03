@@ -4,13 +4,13 @@ export const createTaskSchema = z.object({
   taskName: z.string().min(1),
   taskDescription: z.string().optional(),
   startDate: z.coerce.date(),
-  duration: z.number(),
+  duration: z.number().multipleOf(0.01)
 });
 export const updateTaskSchema = z.object({
   taskName: z.string().min(1).optional(),
   taskDescription: z.string().optional(),
   startDate: z.coerce.date().optional(),
-  duration: z.number().nonnegative().optional(),
+  duration: z.number().multipleOf(0.01).optional(),
   completionPecentage: z.string().optional(),
   status: z.nativeEnum(TaskStatusEnumValue).optional(),
 });
