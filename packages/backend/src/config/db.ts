@@ -1,4 +1,5 @@
-import { PrismaClient, Task } from "@prisma/client";
+import { NotificationTypeEnum, PrismaClient, Task } from "@prisma/client";
+import { RegisterSocketServices } from "../services/socket.services.js";
 const rootPrismaClient = generatePrismaClient();
 const prismaClients: Record<
   "root" | (Omit<string, "root"> & string),
@@ -27,7 +28,7 @@ function generatePrismaClient(datasourceUrl?: string) {
 
             const integerPart = Math.floor(duration);
             endDate.setDate(startDateObj.getDate() + integerPart); // Duration as days
-            
+
             const fractionalPartInHours = (duration % 1) * 24; // Duration as hours
             endDate.setHours(startDateObj.getHours() + fractionalPartInHours);
 
@@ -57,6 +58,31 @@ function generatePrismaClient(datasourceUrl?: string) {
               }
             }
           },
+        },
+      },
+    },
+    model: {
+      notification: {
+        async sendNotification(
+          notificationType: NotificationTypeEnum,
+          details: string,
+          sentTo: string,
+          sentBy: string,
+          referenceId: string
+        ) {
+          const responseNotification = await client.notification.create({
+            data: {
+              type: notificationType,
+              details: details,
+              sentTo: sentTo,
+              sentBy: sentBy,
+              referenceId: referenceId,
+            },
+          });
+          RegisterSocketServices.io.sockets
+            .in(`${responseNotification.sentTo}`)
+            .emit("notification", JSON.stringify(responseNotification));
+          return responseNotification;
         },
       },
     },

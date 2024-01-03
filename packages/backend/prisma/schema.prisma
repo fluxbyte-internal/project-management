@@ -56,6 +56,11 @@ enum TaskDependenciesEnum {
   WAITING_ON
 }
 
+enum NotificationTypeEnum {
+  PROJECT
+  TASK
+}
+
 model User {
   userId     String         @id @default(uuid()) @map("user_id")
   email      String         @unique @map("email")
@@ -84,6 +89,9 @@ model User {
   createdTask     Task[]            @relation("createdByUser")
   updatedTask     Task[]            @relation("updatedByUser")
   taskAssignUsers TaskAssignUsers[]
+
+  sentNotifications     Notification[] @relation("sentNotificationBy")
+  receivedNotifications Notification[] @relation("sentNotificationTo")
 
   @@unique([email, password])
   @@index([userId, email])
@@ -184,7 +192,8 @@ model Project {
   createdAt             DateTime                @default(now()) @map("created_at")
   updatedAt             DateTime                @updatedAt @map("updated_at")
 
-  tasks Task[]
+  tasks         Task[]
+  notifications Notification[]
 
   @@index([projectId, organisationId])
 }
@@ -196,7 +205,7 @@ model Task {
   taskName            String         @map("task_name")
   taskDescription     String?        @map("task_description")
   startDate           DateTime       @map("start_date")
-  duration            Float            @map("duration")
+  duration            Float          @map("duration")
   completionPecentage String?        @map("completion_percentage")
   status              TaskStatusEnum @map("status")
   milestoneIndicator  Boolean        @default(false) @map("milestone_indicator")
@@ -217,6 +226,8 @@ model Task {
   parent          Task?              @relation("parentTask", fields: [parentTaskId], references: [taskId])
   dependencies    TaskDependencies[] @relation("dependencies")
   dependentOnTask TaskDependencies[] @relation("dependentOnTask")
+
+  notifications Notification[]
 
   @@index([taskId, projectId])
 }
@@ -271,4 +282,26 @@ model Comments {
   commentByUser User @relation(fields: [commentByUserId], references: [userId], onDelete: Cascade)
 
   @@index([commentId, commentByUserId])
+}
+
+model Notification {
+  notificationId String               @id @default(uuid()) @map("notification_id")
+  type           NotificationTypeEnum @map("type")
+  referenceId    String               @map("reference_id")
+  task           Task?                @relation(fields: [referenceId], references: [taskId], onDelete: Cascade, map: "task_notification")
+  project        Project?             @relation(fields: [referenceId], references: [projectId], onDelete: Cascade, map: "project_notification")
+
+  sentBy             String @map("sent_by")
+  sentNotificationBy User   @relation("sentNotificationBy", fields: [sentBy], references: [userId], onDelete: Cascade)
+
+  sentTo             String @map("sent_to")
+  sentNotificationTo User   @relation("sentNotificationTo", fields: [sentTo], references: [userId], onDelete: Cascade)
+
+  details   String?  @map("details")
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+  ReadAt    DateTime @updatedAt @map("read_at")
+
+  @@unique([type, referenceId, sentBy, sentTo, isRead], name: "unique_notification_constraints")
+  @@index([sentBy, sentTo, referenceId])
 }

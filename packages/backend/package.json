@@ -23,6 +23,7 @@
     "@types/express-fileupload": "^1.4.4",
     "@types/jsonwebtoken": "^9.0.4",
     "@types/morgan": "^1.9.9",
+    "@types/socket.io": "^3.0.2",
     "aws-sdk": "^2.1506.0",
     "bcrypt": "^5.1.1",
     "compression": "^1.7.4",

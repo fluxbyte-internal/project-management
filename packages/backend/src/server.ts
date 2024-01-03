@@ -15,9 +15,14 @@ import { defualtHeaderMiddleware } from "./middleware/header.middleware.js";
 import { ErrorHandlerMiddleware } from "./middleware/error.middleware.js";
 import morgan from 'morgan';
 import fileUpload from "express-fileupload";
+import http from "http";
+import { RegisterSocketServices } from "./services/socket.services.js";
 // import compression from 'compression';
 
 const app: Application = express();
+
+const server = http.createServer(app);
+RegisterSocketServices.register(server); // Socket
 
 // compression
 // app.use(compression());
