@@ -186,6 +186,7 @@ model Project {
 
   tasks Task[]
 
+  @@unique([organisationId, projectName])
   @@index([projectId, organisationId])
 }
 
