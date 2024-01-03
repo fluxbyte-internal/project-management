@@ -19,7 +19,7 @@ router.post('/member/:taskId', TaskController.addMemberToTask);
 router.delete('/member/:taskAssignUsersId', TaskController.deleteMemberFromTask);
 
 router.post('/dependencies/:taskId', TaskController.addDependencies);
-router.delete('/dependencies/:dependenciesId', TaskController.removeDependencies);
+router.delete('/dependencies/:taskDependenciesId', TaskController.removeDependencies);
 
 router.post('/milestone/:taskId', TaskController.addOrRemoveMilesstone);
 
