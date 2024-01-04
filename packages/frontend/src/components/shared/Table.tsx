@@ -27,7 +27,7 @@ function Table(props: Props) {
   const tableRow = useRef<HTMLTableRowElement>(null);
 
   useEffect(() => {
-    setDataSource(data)
+    setDataSource(data);
     if (table.current && tableRow.current) {
       setHeight(table.current.offsetHeight);
       setTableRowHeight(tableRow.current.offsetHeight);

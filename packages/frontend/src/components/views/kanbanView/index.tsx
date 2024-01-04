@@ -297,18 +297,18 @@ function KanbanView(
       "!text-gray-600",
     ];
     switch (data.dataField) {
-      case TaskStatusEnumValue.PLANNED:
-        className.push("!bg-rose-500/40");
-        break;
-      case TaskStatusEnumValue.TODO:
-        className.push("!bg-slate-500/40");
-        break;
-      case TaskStatusEnumValue.IN_PROGRESS:
-        className.push("!bg-primary-500/40");
-        break;
-      case TaskStatusEnumValue.DONE:
-        className.push("!bg-green-500/40");
-        break;
+    case TaskStatusEnumValue.PLANNED:
+      className.push("!bg-rose-500/40");
+      break;
+    case TaskStatusEnumValue.TODO:
+      className.push("!bg-slate-500/40");
+      break;
+    case TaskStatusEnumValue.IN_PROGRESS:
+      className.push("!bg-primary-500/40");
+      break;
+    case TaskStatusEnumValue.DONE:
+      className.push("!bg-green-500/40");
+      break;
     }
     header.children[1].children[0].classList.add(...className);
   };
