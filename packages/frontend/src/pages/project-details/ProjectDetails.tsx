@@ -3,7 +3,7 @@ import { useState } from "react";
 import Cloudy from "../../assets/svg/cloudy.svg"
 import Stormy from "../../assets/svg/stormy.svg"
 import Sunny from "../../assets/svg/sunny.svg"
-import Rainy from "../../assets/svg/rainy.svg"
+import Rainy from "../../assets/svg/Rainy.svg"
 import useProjectDetail from "../../api/query/useProjectDetailQuery";
 import { useParams } from "react-router-dom";
 // import ClockProjectDetail from "../../assets/svg/ClockProjectDetail.svg";
