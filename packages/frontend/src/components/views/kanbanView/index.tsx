@@ -14,7 +14,7 @@ import { TaskStatusEnumValue } from "@backend/src/schemas/enums";
 import useTaskStatusUpdateMutation from "@/api/mutation/useTaskStatusUpdateMutation";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
-import { SingleValue } from "react-select";
+import Select,{ SingleValue } from "react-select";
 import {
   Popover,
   PopoverContent,
@@ -24,7 +24,7 @@ import CalendarSvg from "../../../assets/svg/Calendar.svg";
 import { DateRange } from "react-day-picker";
 import dateFormater from "@/helperFuntions/dateFormater";
 import { Calendar } from "@/components/ui/calendar";
-import Select from "react-select";
+import InputText from "@/components/common/InputText";
 
 export interface columnsRenderData {
   label: string;
@@ -99,26 +99,24 @@ function KanbanView(
     flag: null,
   });
   const flags: Options[] = [
-    { label: "Select flag", value: "null" },
-    { label: "Green", value: "Green" },
-    { label: "Red", value: "Red" },
-    { label: "Orange", value: "Orange" },
+    { label: "Select flag", value: "" },
+    { label: "Green", value: "#008000" },
+    { label: "Red", value: "#FF0000" },
+    { label: "Orange", value: "#FFA500" },
   ];
   useEffect(() => {
     setDataSource([]);
     setFilterData([]);
     if (allTasks.data?.data.data) {
       allTasks.data?.data.data.forEach((task) => {
-        if (!task.parentTaskId) {
-          setDataSource((prevItems) => [
-            ...(prevItems || []),
-            DataConvertToKanbanDataSource(task),
-          ]);
-          setFilterData((prevItems) => [
-            ...(prevItems || []),
-            DataConvertToKanbanDataSource(task),
-          ]);
-        }
+        setDataSource((prevItems) => [
+          ...(prevItems || []),
+          DataConvertToKanbanDataSource(task),
+        ]);
+        setFilterData((prevItems) => [
+          ...(prevItems || []),
+          DataConvertToKanbanDataSource(task),
+        ]);
       });
     }
   }, [allTasks.data?.data.data]);
@@ -141,9 +139,7 @@ function KanbanView(
     let filteredData = dataSource;
     setFilterData(filteredData);
     if (filter && filter.flag && filter.flag.value) {
-      filteredData = dataSource?.filter(
-        (d) => d.color === filter.flag?.value.toLowerCase()
-      );
+      filteredData = dataSource?.filter((d) => d.color === filter.flag?.value);
     } else if (filter && filter.date?.from && filter.date?.to) {
       filteredData = dataSource?.filter((d) => {
         return (
@@ -173,12 +169,13 @@ function KanbanView(
       filteredData = dataSource?.filter((data) =>
         isDueTodayDays(data.dueDate ?? new Date())
       );
+    } else {
+      setFilterData(dataSource);
     }
     setFilterData(filteredData);
-  }, [filter]);
+  }, [dataSource, filter]);
 
   const taskStatusUpdateMutation = useTaskStatusUpdateMutation();
-
   const statusUpdate = (e: (Event & CustomEvent) | undefined) => {
     const data = {
       status: e?.detail.value.status,
@@ -196,7 +193,7 @@ function KanbanView(
   function DataConvertToKanbanDataSource(data: Task): ExtendedKanbanDataSource {
     return {
       id: data.taskId,
-      color: data.flag.toLowerCase(),
+      color: data.flag,
       text: data.taskName,
       status: data.status,
       progress: data.completionPecentage ? Number(data.completionPecentage) : 1,
@@ -256,6 +253,18 @@ function KanbanView(
     });
     return projectManagerData;
   };
+  const searchTask = (searchString: string) => {
+    const tempData: ExtendedKanbanDataSource[] = [];
+    allTasks.data?.data.data?.forEach((element) => {
+      if (
+        element.taskName.search(searchString) >= 0 ||
+        element.taskDescription.search(searchString) >= 0
+      ) {
+        tempData.push(DataConvertToKanbanDataSource(element));
+      }
+    });
+    setFilterData(tempData);
+  };
   const reactSelectStyle = {
     control: (
       provided: Record<string, unknown>,
@@ -275,7 +284,7 @@ function KanbanView(
     }),
   };
   const dayFilters: Options[] = [
-    { label: "Select days", value: "null" },
+    { label: "Select days", value: "" },
     { label: "Due Today", value: "dueToday" },
     { label: "Over Due", value: "overDue" },
     { label: "Seven Day", value: "sevenDay" },
@@ -286,37 +295,43 @@ function KanbanView(
   ) => {
     const className = [
       "!text-sm",
-      "!inline-flex",
       "!items-center",
       "!font-bold",
       "!leading-sm",
       "!uppercase",
       "!px-2",
       "!py-0.5",
-      "!rounded-full",
+      "!rounded",
       "!text-gray-600",
     ];
     switch (data.dataField) {
     case TaskStatusEnumValue.PLANNED:
-      className.push("!bg-rose-500/40");
+      className.push("!bg-rose-500/20");
       break;
     case TaskStatusEnumValue.TODO:
-      className.push("!bg-slate-500/40");
+      className.push("!bg-slate-500/20");
       break;
     case TaskStatusEnumValue.IN_PROGRESS:
-      className.push("!bg-primary-500/40");
+      className.push("!bg-primary-500/20");
       break;
     case TaskStatusEnumValue.DONE:
-      className.push("!bg-green-500/40");
+      className.push("!bg-green-500/20");
       break;
     }
-    header.children[1].children[0].classList.add(...className);
+    header.classList.add(...className);
   };
   return (
     <div className="h-5/6 w-full scroll ">
       <div className="flex w-full justify-between items-center gap-2">
         <div className="flex justify-between w-full gap-2 text-gray-500 flex-col-reverse md:flex-col lg:flex-row">
           <div className="flex justify-between items-center gap-6 w-full lg:flex-row flex-col z-[2]">
+            <div className="w-full">
+              <InputText
+                className="mt-0"
+                onChange={(e) => searchTask(e.target.value)}
+                placeholder="Search task"
+              />
+            </div>
             <div className="w-full">
               <Select
                 className="p-0 z-40"
@@ -330,7 +345,7 @@ function KanbanView(
             <div className="w-full">
               <Popover>
                 <PopoverTrigger className="w-full">
-                  <Button variant={"outline"} className="w-full h-11 py-1">
+                  <Button variant={"outline"} className="w-full h-11 px-2">
                     <div className="flex justify-between text-base items-center w-full text-gray-950 font-normal">
                       {filter.date
                         ? `${dateFormater(filter.date.from ?? new Date())}-
@@ -383,16 +398,6 @@ function KanbanView(
             </div>
           </div>
         </div>
-      </div>
-      <div className="flex justify-end mr-1">
-        <Button
-          variant={"primary"}
-          onClick={() => {
-            setDialogRendered(undefined), setIsTaskShow(true);
-          }}
-        >
-          Create
-        </Button>
       </div>
       <Kanban
         ref={childRef}

@@ -14,7 +14,22 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
   const prisma = await getClientByTenantId(req.tenantId);
   const tasks = await prisma.task.findMany({
     where: { projectId: projectId },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },include: {
+      assignedUsers: {
+        select: {
+          taskAssignUsersId: true,
+          user:{
+            select: {
+              userId: true,
+              avatarImg: true, 
+              email: true,
+              firstName: true,
+              lastName: true
+            }
+          }
+        }
+      },
+    },
   });
   return new SuccessResponse(StatusCodes.OK, tasks, 'get all task successfully').send(res);
 };

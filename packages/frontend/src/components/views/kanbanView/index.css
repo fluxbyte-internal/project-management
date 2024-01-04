@@ -3,14 +3,13 @@
 .scroll {
     --smart-scroll-bar-thumb-background-active: theme('colors.primary.500');;
     --smart-scroll-bar-thumb-background-hover: theme('colors.primary.400');;
-    --smart-scroll-bar-thumb-background: theme('colors.primary.300');;
+    --smart-scroll-bar-thumb-background: theme('colors.primary.400');;
     --smart-scroll-bar-size: 12px;
+    --smart-scroll-bar-default-width:10px;
     --smart-scroll-bar-thumb-border-top-right-radius: 10px;
     --smart-scroll-bar-thumb-border-top-left-radius: 10px;
     --smart-scroll-bar-thumb-border-bottom-left-radius: 10px;
     --smart-scroll-bar-thumb-border-bottom-right-radius: 10px;
-    /* background-image: url('../../assets/png/Rectangle10.png') !important;
-    background-size: cover !important;
-    background-repeat: no-repeat !important ; */
-    /* --smart-scroll-button-size: 10px; */
+    --smart-scroll-button-size: 1px;
+    --smart-scroll-bar-button-color:"#3f51b500"
 }
