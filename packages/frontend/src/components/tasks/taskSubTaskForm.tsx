@@ -18,7 +18,6 @@ import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover";
 import {
   createTaskSchema,
   milestoneTaskSchema,
-  updateTaskSchema,
 } from "../../../../backend/src/schemas/taskSchema";
 import { Calendar } from "@/components/ui/calendar";
 
@@ -118,9 +117,7 @@ function TaskSubTaskForm(props: Props) {
       startDate: new Date(),
       duration: 0.0,
     },
-    validationSchema: toFormikValidationSchema(
-      taskId ? updateTaskSchema : createTaskSchema
-    ),
+    validationSchema: toFormikValidationSchema(createTaskSchema),
     onSubmit: (values) => {
       if (taskId) {
         taskUpdateMutation.mutate(values, {
