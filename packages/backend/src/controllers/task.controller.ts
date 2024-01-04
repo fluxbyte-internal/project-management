@@ -8,7 +8,6 @@ import { TaskService } from '../services/task.services.js';
 import { TaskStatusEnum } from '@prisma/client';
 import { AwsUploadService } from '../services/aws.services.js';
 import { uuidSchema } from '../schemas/commonSchema.js';
-import { HistoryService } from '../services/history.services.js';
 import { HistoryTypeEnumValue } from '../schemas/enums.js';
 import { removeProperties } from '../types/removeProperties.js';
 
@@ -179,9 +178,8 @@ export const createTask = async (
     }
   }
   for (const entry of fieldEntries) {
-    await HistoryService.createHistory(
+    await prisma.history.createHistory(
       req.userId,
-      req.tenantId,
       HistoryTypeEnumValue.TASK,
       entry.message,
       entry.value,
@@ -260,18 +258,16 @@ export const updateTask = async (
         historyData.oldValue instanceof Date &&
         historyData.newValue.getTime() !== historyData.oldValue.getTime()
       ) {
-        await HistoryService.createHistory(
+        await prisma.history.createHistory(
           req.userId,
-          req.tenantId,
           HistoryTypeEnumValue.TASK,
           historyMessage,
           historyData,
           taskId
         );
       } else if (key !== "startDate") {
-        await HistoryService.createHistory(
+        await prisma.history.createHistory(
           req.userId,
-          req.tenantId,
           HistoryTypeEnumValue.TASK,
           historyMessage,
           historyData,
@@ -332,9 +328,8 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
       oldValue: findTask.status,
       newValue: statusBody.status,
     };
-    await HistoryService.createHistory(
+    await prisma.history.createHistory(
       req.userId,
-      req.tenantId,
       HistoryTypeEnumValue.TASK,
       historyMessage,
       historyData,
@@ -363,9 +358,8 @@ export const statusCompletedAllTAsk = async (req: express.Request, res: express.
         oldValue: task.status,
         newValue: TaskStatusEnum.COMPLETED,
       };
-      await HistoryService.createHistory(
+      await prisma.history.createHistory(
         req.userId,
-        req.tenantId,
         HistoryTypeEnumValue.TASK,
         historyMessage,
         historyNewValue,
@@ -453,9 +447,8 @@ export const addAttachment = async (
     // History-Manage
     const historyMessage = "Task's attachment was added";
     const historyData = { oldValue: null, newValue: taskAttachmentURL };
-    await HistoryService.createHistory(
+    await prisma.history.createHistory(
       req.userId,
-      req.tenantId,
       HistoryTypeEnumValue.TASK,
       historyMessage,
       historyData,
@@ -495,9 +488,8 @@ export const deleteAttachment = async (
   // History-Manage
   const historyMessage = "Task's attachment was removed";
   const historyData = { oldValue: attachment.url, newValue: null };
-  await HistoryService.createHistory(
+  await prisma.history.createHistory(
     req.userId,
-    req.tenantId,
     HistoryTypeEnumValue.TASK,
     historyMessage,
     historyData,
@@ -568,9 +560,8 @@ export const addMemberToTask = async (
   // History-Manage
   const historyMessage = "Task's assignee was added";
   const historyData = { oldValue: null, newValue: member.user?.email };
-  await HistoryService.createHistory(
+  await prisma.history.createHistory(
     req.userId,
-    req.tenantId,
     HistoryTypeEnumValue.TASK,
     historyMessage,
     historyData,
@@ -609,9 +600,8 @@ export const deleteMemberFromTask = async (
   // History-Manage
   const historyMessage = "Task's assignee was removed";
   const historyData = { oldValue: deletedMember.user?.email, newValue: null };
-  await HistoryService.createHistory(
+  await prisma.history.createHistory(
     req.userId,
-    req.tenantId,
     HistoryTypeEnumValue.TASK,
     historyMessage,
     historyData,
@@ -646,9 +636,8 @@ export const addDependencies = async (
   // History-Manage
   const historyMessage = "Task’s dependency was added";
   const historyData = { oldValue: null, newValue: dependentType };
-  await HistoryService.createHistory(
+  await prisma.history.createHistory(
     req.userId,
-    req.tenantId,
     HistoryTypeEnumValue.TASK,
     historyMessage,
     historyData,
@@ -680,9 +669,8 @@ export const removeDependencies = async (
   // History-Manage
   const historyMessage = "Task’s dependency was removed";
   const historyData = { oldValue: taskDependenciesId, newValue: null };
-  await HistoryService.createHistory(
+  await prisma.history.createHistory(
     req.userId,
-    req.tenantId,
     HistoryTypeEnumValue.TASK,
     historyMessage,
     historyData,
@@ -724,9 +712,8 @@ export const addOrRemoveMilesstone = async (
     oldValue: isMilestone ? null : "true",
     newValue: isMilestone ? "true" : "false",
   };
-  await HistoryService.createHistory(
+  await prisma.history.createHistory(
     req.userId,
-    req.tenantId,
     HistoryTypeEnumValue.TASK,
     historyMessage,
     historyData,
