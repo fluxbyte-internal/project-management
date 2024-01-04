@@ -50,8 +50,8 @@ import PapperClip from "../../assets/svg/Paperclip.svg";
 import InfoCircle from "../../assets/svg/Info circle.svg";
 import TopRightArrow from "../../assets/svg/TopRightArrow.svg";
 import useRemoveTaskMutation from "@/api/mutation/useTaskRemove";
-import TaskHistory from "./taskHistory";
 import InputNumber from "../common/InputNumber";
+import TaskHistory from "./taskHistory";
 import {
   Tooltip,
   TooltipContent,
