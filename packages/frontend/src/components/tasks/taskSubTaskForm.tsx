@@ -50,6 +50,7 @@ import InfoCircle from "../../assets/svg/Info circle.svg";
 import TopRightArrow from "../../assets/svg/TopRightArrow.svg";
 import useRemoveTaskMutation from "@/api/mutation/useTaskRemove";
 import InputNumber from "../common/InputNumber";
+import TaskHistory from "./taskHistory";
 import {
   Tooltip,
   TooltipContent,
@@ -82,10 +83,7 @@ function TaskSubTaskForm(props: Props) {
   const tasks = taskQuery.data ? taskQuery.data.data.data : undefined;
   const taskAttachmentAddMutation = useTaskAttechmentAddMutation(taskId);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
-  const taskCreateMutation = useCreateTaskMutation(
-    props.projectId,
-    taskId
-  );
+  const taskCreateMutation = useCreateTaskMutation(props.projectId, taskId);
   const taskAddUpdateMilestoneMutation =
     useTaskAddUpdateMilestoneMutation(taskId);
   useEffect(() => {
@@ -117,7 +115,7 @@ function TaskSubTaskForm(props: Props) {
       taskName: "",
       taskDescription: "",
       startDate: new Date(),
-      duration: 0,
+      duration: 0.0,
     },
     validationSchema: toFormikValidationSchema(createTaskSchema),
     onSubmit: (values) => {
@@ -197,7 +195,7 @@ function TaskSubTaskForm(props: Props) {
     taskCreateMutation.mutate(value, {
       onSuccess(data) {
         refetch();
-        setSubtask('');
+        setSubtask("");
         toast.success(data.data.message);
       },
       onError(error) {
@@ -277,7 +275,7 @@ function TaskSubTaskForm(props: Props) {
                   <div>
                     <InputText
                       onBlur={() => {
-                        setTaskNameField(false),taskFormik.submitForm();
+                        setTaskNameField(false), taskFormik.submitForm();
                       }}
                       name="taskName"
                       onChange={taskFormik.handleChange}
@@ -357,7 +355,7 @@ function TaskSubTaskForm(props: Props) {
                       <Button
                         variant={"secondary"}
                         className="flex justify-between items-center w-full"
-                        onClick={() =>  setTaskId(task.taskId)}
+                        onClick={() => setTaskId(task.taskId)}
                       >
                         <div className="flex gap-2">
                           <img src={Folder} />
@@ -432,6 +430,10 @@ function TaskSubTaskForm(props: Props) {
             </div>
             {/* Comment  */}
             <TaskComment task={tasks} refetch={refetch}></TaskComment>
+
+            {tasks?.histories && tasks.histories.length > 0 && (
+              <TaskHistory task={tasks} />
+            )}
           </div>
           <div className="w-full md:w-1/4">
             <div>
@@ -468,7 +470,12 @@ function TaskSubTaskForm(props: Props) {
                                 tasks?.assignedUsers.some(
                                   (u) => u.user.userId == data.user.userId
                                 )
-                                  ? removeMembers( tasks?.assignedUsers.find(id => id.user.userId == data.user.userId)?.taskAssignUsersId ?? '')
+                                  ? removeMembers(
+                                    tasks?.assignedUsers.find(
+                                      (id) =>
+                                        id.user.userId == data.user.userId
+                                    )?.taskAssignUsersId ?? ""
+                                  )
                                   : submitMembers(data);
                               }}
                             >
@@ -703,16 +710,18 @@ function TaskSubTaskForm(props: Props) {
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          {taskId&& <div>
-            <Button
-              variant={"destructive"}
-              onClick={() => {
-                setShowConfirmDelete(true);
-              }}
-            >
-              Delete
-            </Button>
-          </div>}
+          {taskId && (
+            <div>
+              <Button
+                variant={"destructive"}
+                onClick={() => {
+                  setShowConfirmDelete(true);
+                }}
+              >
+                Delete
+              </Button>
+            </div>
+          )}
           <div>
             <Button variant={"primary"} onClick={taskFormik.submitForm}>
               submit
