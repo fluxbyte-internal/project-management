@@ -116,7 +116,7 @@ function TaskSubTaskForm(props: Props) {
       taskName: "",
       taskDescription: "",
       startDate: new Date(),
-      duration: 0,
+      duration: 0.0,
     },
     validationSchema: toFormikValidationSchema(
       taskId ? updateTaskSchema : createTaskSchema
