@@ -12,6 +12,7 @@ import {
   organisationIdSchema,
   updateOrganisationSchema,
   addOrganisationMemberSchema,
+  memberRoleSchema,
 } from "../schemas/organisationSchema.js";
 import { UserRoleEnum, UserStatusEnum } from "@prisma/client";
 import { encrypt } from "../utils/encryption.js";
@@ -265,4 +266,48 @@ export const addOrganisationMember = async (
     });
     return new SuccessResponse(200, null).send(res);
   }
+};
+
+export const removeOrganisationMember = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!");
+  }
+  const prisma = await getClientByTenantId(req.tenantId);
+  const userOrganisationId = uuidSchema.parse(req.params.userOrganisationId);
+  await prisma.userOrganisation.delete({
+    where: {
+      userOrganisationId: userOrganisationId,
+    },
+  });
+  return new SuccessResponse(
+    StatusCodes.OK,
+    null,
+    "Member removed successfully"
+  ).send(res);
+};
+
+export const changeMemberRole = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!");
+  }
+  const userOrganisationId = uuidSchema.parse(req.params.userOrganisationId);
+  const { role } = memberRoleSchema.parse(req.body);
+  const prisma = await getClientByTenantId(req.tenantId);
+  await prisma.userOrganisation.update({
+    where: { userOrganisationId: userOrganisationId },
+    data: {
+      role: role,
+    },
+  }); 
+  return new SuccessResponse(
+    StatusCodes.OK,
+    null,
+    "Member role changed successfully"
+  ).send(res);
 };
