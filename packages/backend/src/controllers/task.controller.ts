@@ -4,7 +4,6 @@ import { BadRequestError, NotFoundError, SuccessResponse } from '../config/apiEr
 import { StatusCodes } from 'http-status-codes';
 import { projectIdSchema } from '../schemas/projectSchema.js';
 import { createCommentTaskSchema, createTaskSchema, attachmentTaskSchema, taskStatusSchema, updateTaskSchema, assginedToUserIdSchema, dependenciesTaskSchema, milestoneTaskSchema } from '../schemas/taskSchema.js';
-import { TaskService } from '../services/task.services.js';
 import { TaskStatusEnum } from '@prisma/client';
 import { AwsUploadService } from '../services/aws.services.js';
 import { uuidSchema } from '../schemas/commonSchema.js';
@@ -91,6 +90,19 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
     },
   });
 
+  // Handle completionPercentage DB 
+  if (task && task.subtasks.length > 0) {
+    const completionPercentage =
+      await prisma.task.calculationSubTaskProgression(taskId);
+    await prisma.task.update({
+      where: { taskId },
+      data: {
+        completionPecentage: completionPercentage,
+      },
+    });
+    task.completionPecentage = completionPercentage;
+  }
+
   const finalResponse = { ...task };
   return new SuccessResponse(
     StatusCodes.OK,
@@ -119,7 +131,7 @@ export const createTask = async (
     if (!parentTask) { throw new NotFoundError('Parent task not found') };
 
     // Handle subtask not more then 3
-    const countOfSubTasks = await TaskService.calculateSubTask(parentTaskId, req.tenantId);
+    const countOfSubTasks = await prisma.task.calculateSubTask(parentTaskId);
     if (countOfSubTasks > 3) { throw new BadRequestError("Maximum limit of sub tasks reached") };
 
   };
@@ -316,7 +328,7 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
         status: statusBody.status,
         completionPecentage:
           statusBody.status === TaskStatusEnum.COMPLETED
-            ? '100'
+            ? 100
             : findTask.completionPecentage,
         updatedByUserId: req.userId
       },
@@ -348,7 +360,7 @@ export const statusCompletedAllTAsk = async (req: express.Request, res: express.
   if (findAllTaskByProjectId.length > 0) {
     await prisma.task.updateMany({
       where: { projectId: projectId },
-      data: { status: TaskStatusEnum.COMPLETED, completionPecentage: '100', updatedByUserId: req.userId }
+      data: { status: TaskStatusEnum.COMPLETED, completionPecentage: 100, updatedByUserId: req.userId }
     })
 
     // History-Manage

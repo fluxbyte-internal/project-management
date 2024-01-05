@@ -11,7 +11,7 @@ export const updateTaskSchema = z.object({
   taskDescription: z.string().optional(),
   startDate: z.coerce.date().optional(),
   duration: z.number().multipleOf(0.01).optional(),
-  completionPecentage: z.string().optional(),
+  completionPecentage: z.number().multipleOf(0.01).optional(),
   status: z.nativeEnum(TaskStatusEnumValue).optional(),
 });
 

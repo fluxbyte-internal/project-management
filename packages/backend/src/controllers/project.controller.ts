@@ -4,7 +4,6 @@ import { BadRequestError, NotFoundError, SuccessResponse } from '../config/apiEr
 import { StatusCodes } from 'http-status-codes';
 import { createProjectSchema, projectIdSchema, projectStatusSchema, updateProjectSchema } from '../schemas/projectSchema.js';
 import { ProjectStatusEnum, TaskStatusEnum } from '@prisma/client';
-import { ProjectService } from '../services/project.services.js';
 
 export const getProjects = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) { throw new BadRequestError('organisationId not found!') };
@@ -46,8 +45,12 @@ export const getProjectById = async (req: express.Request, res: express.Response
       }
     }
   });
-  const projectProgression = await ProjectService.calculateProjectProgressionPercentage(projectId, req.tenantId);
-  return new SuccessResponse(StatusCodes.OK, { ...projects, projectProgression }, 'project selected').send(res);
+
+  const projectProgression = await prisma.project.projectProgression(projectId);
+  const response = { ...projects, projectProgression };
+  return new SuccessResponse(StatusCodes.OK, response, "project selected").send(
+    res
+  );
 };
 
 export const createProject = async (req: express.Request, res: express.Response) => {
