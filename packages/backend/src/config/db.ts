@@ -42,9 +42,9 @@ function generatePrismaClient(datasourceUrl?: string) {
             //TODO: Need to change logic here
             const plannedProgress = duration / duration;
             if (!completionPecentage) {
-              completionPecentage = "100";
+              completionPecentage = 100;
             }
-            const tpi = parseInt(completionPecentage) / plannedProgress;
+            const tpi = completionPecentage / plannedProgress;
             if (milestoneIndicator) {
               return tpi < 1 ? "Red" : "Green";
             } else {
@@ -79,6 +79,74 @@ function generatePrismaClient(datasourceUrl?: string) {
             },
           });
           return history;
+        },
+      },
+      project: {
+        async projectProgression(projectId: string) {
+          const hours: number = 24;
+          const parentTasks = await client.task.findMany({
+            where: {
+              projectId,
+              parentTaskId: null,
+            },
+          });
+
+          let completionPecentageOrDuration = 0;
+          let averagesSumOfDuration = 0;
+
+          for (const value of parentTasks) {
+            completionPecentageOrDuration +=
+              Number(value.completionPecentage) * (value.duration * hours);
+          }
+          for (const secondValue of parentTasks) {
+            averagesSumOfDuration += secondValue.duration * hours * 100;
+          }
+          return completionPecentageOrDuration / averagesSumOfDuration;
+        },
+      },
+      task: {
+        async calculationSubTaskProgression(taskId: string) {
+          const hours: number = 24;
+          const parentTask = await client.task.findFirst({
+            where: { taskId },
+            include: {
+              subtasks: true,
+            },
+          });
+          if (
+            parentTask &&
+            !parentTask.parentTaskId &&
+            (parentTask?.subtasks).length > 0
+          ) {
+            let completionPecentageOrDurationTask = 0;
+            let averagesSumOfDurationTask = 0;
+            for (const value of parentTask.subtasks) {
+              completionPecentageOrDurationTask +=
+                Number(value.completionPecentage) * (value.duration * hours);
+            }
+            for (const secondValue of parentTask.subtasks) {
+              averagesSumOfDurationTask += secondValue.duration * hours * 100;
+            }
+            return (
+              completionPecentageOrDurationTask / averagesSumOfDurationTask
+            );
+          } else return Number(parentTask?.completionPecentage);
+        },
+        async calculateSubTask(startingTaskId: string) {
+          let currentTaskId: string | null = startingTaskId;
+          let count = 0;
+          while (currentTaskId) {
+            const currentTask = (await client.task.findFirst({
+              where: { taskId: currentTaskId },
+            })) as { taskId: string; parentTaskId: string | null };
+            if (currentTask) {
+              count += 1;
+              currentTaskId = currentTask.parentTaskId;
+            } else {
+              break;
+            }
+          }
+          return count;
         },
       },
     },
