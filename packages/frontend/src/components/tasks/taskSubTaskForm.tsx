@@ -47,7 +47,9 @@ import PapperClip from "../../assets/svg/Paperclip.svg";
 import InfoCircle from "../../assets/svg/Info circle.svg";
 import TopRightArrow from "../../assets/svg/TopRightArrow.svg";
 import BackIcon from "../../assets/svg/BackIcon.svg";
+import CalendarIcon from "../../assets/svg/Calendar.svg";
 import InputNumber from "../common/InputNumber";
+import TaskHistory from "./taskHistory";
 import {
   Tooltip,
   TooltipContent,
@@ -67,6 +69,7 @@ function TaskSubTaskForm(props: Props) {
   const fileInput = useRef<HTMLInputElement>(null);
   const [taskNameField, setTaskNameField] = useState(false);
   const [taskDurationField, setTaskDurationField] = useState(false);
+  const [taskProgressField, setTaskProgressField] = useState(false);
   const [taskId, setTaskId] = useState<string>(props.taskId ?? "");
   const [subTaskFieldShow, setSubTaskFieldShow] = useState<boolean>(false);
   const [member, setMambers] = useState<UserOrganisationType["user"][]>([]);
@@ -112,7 +115,7 @@ function TaskSubTaskForm(props: Props) {
       taskName: "",
       taskDescription: "",
       startDate: new Date(),
-      duration: 0,
+      duration: 0.0,
     },
     validationSchema: toFormikValidationSchema(createTaskSchema),
     onSubmit: (values) => {
@@ -243,6 +246,27 @@ function TaskSubTaskForm(props: Props) {
           setAttachmentUploading(false);
         },
       });
+    }
+  };
+
+  const [progressError, setProgressError] = useState("");
+  const onProgressUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (Number(val) > 100 || Number(val) < 0) {
+      setProgressError("Progress must be within the range of 0 to 100.");
+    } else {
+      setProgressError("");
+      taskUpdateMutation.mutate(
+        { completionPecentage: val.toString() },
+        {
+          onSuccess() {
+            refetch();
+          },
+          onError(err) {
+            toast.error(err.message);
+          },
+        }
+      );
     }
   };
 
@@ -436,6 +460,10 @@ function TaskSubTaskForm(props: Props) {
             </div>
             {/* Comment  */}
             <TaskComment task={tasks} refetch={refetch}></TaskComment>
+
+            {tasks?.histories && tasks.histories.length > 0 && (
+              <TaskHistory task={tasks} />
+            )}
           </div>
           <div className="w-full md:w-1/4">
             <div>
@@ -528,6 +556,44 @@ function TaskSubTaskForm(props: Props) {
                 </Button>
               </div>
               <div className="mt-2">
+                <Popover>
+                  <PopoverTrigger className="w-full">
+                    <Button
+                      variant={"secondary"}
+                      className="py-1.5 px-3 w-full"
+                      isLoading={attachmentUploading}
+                      disabled={attachmentUploading}
+                    >
+                      <div className="flex w-full gap-3 justify-start">
+                        <img src={CalendarIcon} className="w-3.5" />
+                        {tasks?.startDate
+                          ? dateFormater(new Date(taskFormik.values.startDate ))
+                          : "StartDate"}
+                      </div>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="p-0">
+                    <Calendar
+                      mode="single"
+                      selected={new Date(taskFormik.values.startDate ?? "")}
+                      onSelect={(e) => {
+                        {taskFormik.setFieldValue(
+                          "startDate",
+                          e ? e : undefined
+                        )}
+                      }}
+                      className="rounded-md border"
+                    />
+                    {taskFormik.errors.startDate &&
+                      taskFormik.values.startDate && (
+                      <ErrorMessage className="ml-0 p-0">
+                        {/* {taskFormik.errors.startDate} */}
+                      </ErrorMessage>
+                    )}
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="mt-2">
                 <div
                   className={`py-1.5 px-3 flex w-full gap-3 rounded-md justify-start font-semibold ${
                     tasks?.flag == "Green"
@@ -558,13 +624,10 @@ function TaskSubTaskForm(props: Props) {
                     Milestone
                   </div>
                   <div>
-                    <CheckIcon
-                      className={cn(
-                        "ml-auto h-4 w-4",
-                        milestoneFormik.values.milestoneIndicator
-                          ? "opacity-100"
-                          : "opacity-0"
-                      )}
+                    <input
+                      type="checkbox"
+                      className="accent-primary-300"
+                      checked={milestoneFormik.values.milestoneIndicator}
                     />
                   </div>
                 </Button>
@@ -579,7 +642,7 @@ function TaskSubTaskForm(props: Props) {
                 {milestoneFormik.values.milestoneIndicator && (
                   <div className="flex flex-col gap-2">
                     <div className="text-xs font-medium text-gray-400">
-                     Due Date:
+                      Due Date:
                     </div>
                     <Popover>
                       <PopoverTrigger className="w-full">
@@ -695,11 +758,45 @@ function TaskSubTaskForm(props: Props) {
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <div className="text-xs font-medium text-gray-400">
-                    Progress:
+                <div className="flex flex-col">
+                  <div className="flex gap-2 items-center">
+                    <div className="text-xs font-medium text-gray-400">
+                      Progress:
+                    </div>
                   </div>
-                  <div className="text-sm  text-gray-300">0%</div>
+                  {taskProgressField ? (
+                    <div className="w-full">
+                      <InputNumber
+                        className="py-1 px-1.5 text-sm h-9 w-full "
+                        min={0}
+                        max={100}
+                        placeholder="0 - 100 % "
+                        onBlur={() => setTaskProgressField(false)}
+                        onChange={(e) => onProgressUpdate(e)}
+                      />
+                      <ErrorMessage className="w-1/2">
+                        {progressError}
+                      </ErrorMessage>
+                    </div>
+                  ) : (
+                    <div className="flex items-center">
+                      <div className="text-sm  text-gray-300">
+                        {tasks?.completionPecentage}%
+                      </div>{" "}
+                      {tasks && tasks.subtasks?.length === 0 && (
+                        <div>
+                          <Button
+                            variant={"none"}
+                            onClick={() =>
+                              setTaskProgressField((prev) => !prev)
+                            }
+                          >
+                            <img src={Edit} />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

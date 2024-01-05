@@ -8,13 +8,29 @@ import { TaskService } from '../services/task.services.js';
 import { TaskStatusEnum } from '@prisma/client';
 import { AwsUploadService } from '../services/aws.services.js';
 import { uuidSchema } from '../schemas/commonSchema.js';
+import { HistoryTypeEnumValue } from '../schemas/enums.js';
+import { removeProperties } from '../types/removeProperties.js';
 
 export const getTasks = async (req: express.Request, res: express.Response) => {
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const tasks = await prisma.task.findMany({
     where: { projectId: projectId },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
+    include: {
+      assignedUsers: {
+        include: {
+          user: {
+            select: {
+              email: true,
+              firstName: true,
+              lastName: true,
+              avatarImg: true
+            }
+          }
+        }
+      }
+    }
   });
   return new SuccessResponse(StatusCodes.OK, tasks, 'get all task successfully').send(res);
 };
@@ -56,9 +72,22 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
       subtasks: true,
       dependencies: {
         include: {
-          dependentOnTask: true
-        }
-      }
+          dependentOnTask: true,
+        },
+      },
+      histories: {
+        orderBy: { createdAt: "desc" },
+        include: {
+          createdByUser: {
+            select: {
+              avatarImg: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -70,14 +99,15 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
   ).send(res);
 };
 
-export const createTask = async (req: express.Request, res: express.Response) => {
-  if (!req.userId) { throw new BadRequestError('userId not found!!') };
-  const {
-    taskName,
-    taskDescription,
-    startDate,
-    duration,
-  } = createTaskSchema.parse(req.body);
+export const createTask = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
+  const { taskName, taskDescription, startDate, duration } =
+    createTaskSchema.parse(req.body);
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const parentTaskId = req.params.parentTaskId as string;
@@ -112,8 +142,56 @@ export const createTask = async (req: express.Request, res: express.Response) =>
     },
   });
 
+  const fieldEntries = [];
+  if (parentTaskId) {
+    fieldEntries.push({
+      message: `Subtask was created`,
+      value: { oldValue: null, newValue: taskName },
+    });
+  } else {
+    fieldEntries.push({
+      message: `Task was created`,
+      value: { oldValue: null, newValue: taskName },
+    });
+  }
+
+  for (const [fieldName, fieldSchema] of Object.entries(
+    createTaskSchema.parse(req.body)
+  )) {
+    if (fieldName !== "taskName" && fieldName !== "taskDescription") {
+      const fieldValue = req.body[fieldName];
+
+      if (
+        fieldValue !== undefined &&
+        fieldValue !== null &&
+        !(fieldName === "duration" && fieldValue === 0)
+      ) {
+        const message = parentTaskId
+          ? `Subtask's ${fieldName} was added`
+          : `Task's ${fieldName} was added`;
+
+        fieldEntries.push({
+          message: message,
+          value: { oldValue: null, newValue: fieldValue },
+        });
+      }
+    }
+  }
+  for (const entry of fieldEntries) {
+    await prisma.history.createHistory(
+      req.userId,
+      HistoryTypeEnumValue.TASK,
+      entry.message,
+      entry.value,
+      parentTaskId ? parentTaskId : task.taskId
+    );
+  }
   const finalResponse = { ...task };
-  return new SuccessResponse(StatusCodes.CREATED, finalResponse, 'task created successfully').send(res);
+  return new SuccessResponse(
+    StatusCodes.CREATED,
+    finalResponse,
+    "task created successfully"
+  ).send(res);
 };
 
 export const updateTask = async (
@@ -145,6 +223,59 @@ export const updateTask = async (
       dependencies: true,
     },
   });
+
+  // History-Manage
+  const updatedValueWithoutOtherTable = removeProperties(
+    taskUpdateDB as Record<string, any>,
+    [
+      "documentAttachments",
+      "assignedUsers",
+      "dependencies",
+      "milestoneIndicator",
+    ]
+  );
+
+  const findTaskWithoutOtherTable = removeProperties(
+    findtask as Record<string, any>,
+    [
+      "documentAttachments",
+      "assignedUsers",
+      "dependencies",
+      "milestoneIndicator",
+    ]
+  );
+
+  for (const key in taskUpdateValue) {
+    if (updatedValueWithoutOtherTable[key] !== findTaskWithoutOtherTable[key]) {
+      const historyMessage = `Task's ${key} was changed`;
+      const historyData = {
+        oldValue: findTaskWithoutOtherTable[key],
+        newValue: updatedValueWithoutOtherTable[key],
+      };
+      if (
+        key === "startDate" &&
+        historyData.newValue instanceof Date &&
+        historyData.oldValue instanceof Date &&
+        historyData.newValue.getTime() !== historyData.oldValue.getTime()
+      ) {
+        await prisma.history.createHistory(
+          req.userId,
+          HistoryTypeEnumValue.TASK,
+          historyMessage,
+          historyData,
+          taskId
+        );
+      } else if (key !== "startDate") {
+        await prisma.history.createHistory(
+          req.userId,
+          HistoryTypeEnumValue.TASK,
+          historyMessage,
+          historyData,
+          taskId
+        );
+      }
+    }
+  }
 
   const finalResponse = { ...taskUpdateDB };
   return new SuccessResponse(
@@ -190,6 +321,21 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
         updatedByUserId: req.userId
       },
     });
+
+    // History-Manage
+    const historyMessage = "Task’s status was changed";
+    const historyData = {
+      oldValue: findTask.status,
+      newValue: statusBody.status,
+    };
+    await prisma.history.createHistory(
+      req.userId,
+      HistoryTypeEnumValue.TASK,
+      historyMessage,
+      historyData,
+      taskId
+    );
+
     return new SuccessResponse(StatusCodes.OK, updatedTask, 'task status change successfully').send(res);
   };
 };
@@ -204,6 +350,23 @@ export const statusCompletedAllTAsk = async (req: express.Request, res: express.
       where: { projectId: projectId },
       data: { status: TaskStatusEnum.COMPLETED, completionPecentage: '100', updatedByUserId: req.userId }
     })
+
+    // History-Manage
+    for (const task of findAllTaskByProjectId) {
+      const historyMessage = "Task’s status was changed";
+      const historyNewValue = {
+        oldValue: task.status,
+        newValue: TaskStatusEnum.COMPLETED,
+      };
+      await prisma.history.createHistory(
+        req.userId,
+        HistoryTypeEnumValue.TASK,
+        historyMessage,
+        historyNewValue,
+        task.taskId
+      );
+    };
+
     return new SuccessResponse(StatusCodes.OK, null, 'all task status change to completed successfully').send(res);
   };
   throw new NotFoundError('Tasks not found!');
@@ -251,7 +414,9 @@ export const addAttachment = async (
   req: express.Request,
   res: express.Response
 ) => {
-
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
   const taskId = uuidSchema.parse(req.params.taskId);
 
   let files = [];
@@ -278,7 +443,18 @@ export const addAttachment = async (
         name: singleFile.name,
       },
     });
-  };
+
+    // History-Manage
+    const historyMessage = "Task's attachment was added";
+    const historyData = { oldValue: null, newValue: taskAttachmentURL };
+    await prisma.history.createHistory(
+      req.userId,
+      HistoryTypeEnumValue.TASK,
+      historyMessage,
+      historyData,
+      taskId
+    );
+  }
 
   const findTask = await prisma.task.findFirst({
     where: { taskId: taskId },
@@ -296,6 +472,9 @@ export const deleteAttachment = async (
   req: express.Request,
   res: express.Response
 ) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
   const attachmentId = uuidSchema.parse(req.params.attachmentId);
   const prisma = await getClientByTenantId(req.tenantId);
   const attachment = await prisma.taskAttachment.findFirstOrThrow({
@@ -305,7 +484,18 @@ export const deleteAttachment = async (
   //TODO: If Delete require on S3
   // await AwsUploadService.deleteFile(attachment.name, 'task-attachment');
   await prisma.taskAttachment.delete({ where: { attachmentId } });
-  
+
+  // History-Manage
+  const historyMessage = "Task's attachment was removed";
+  const historyData = { oldValue: attachment.url, newValue: null };
+  await prisma.history.createHistory(
+    req.userId,
+    HistoryTypeEnumValue.TASK,
+    historyMessage,
+    historyData,
+    attachment.taskId
+  );
+
   return new SuccessResponse(
     StatusCodes.OK,
     null,
@@ -349,15 +539,35 @@ export const addMemberToTask = async (
   req: express.Request,
   res: express.Response
 ) => {
+  if (!req.userId) { throw new BadRequestError('userId not found!!') };
   const taskId = uuidSchema.parse(req.params.taskId);
   const { assginedToUserId } = assginedToUserIdSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
   const member = await prisma.taskAssignUsers.create({
-      data: {
-        assginedToUserId: assginedToUserId,
-        taskId: taskId,
+    data: {
+      assginedToUserId: assginedToUserId,
+      taskId: taskId
+    },
+    include: {
+      user: {
+        select: {
+          email: true,
+        },
       },
+    },
   });
+
+  // History-Manage
+  const historyMessage = "Task's assignee was added";
+  const historyData = { oldValue: null, newValue: member.user?.email };
+  await prisma.history.createHistory(
+    req.userId,
+    HistoryTypeEnumValue.TASK,
+    historyMessage,
+    historyData,
+    member.taskId
+  );
+
   return new SuccessResponse(
     StatusCodes.CREATED,
     member,
@@ -369,13 +579,35 @@ export const deleteMemberFromTask = async (
   req: express.Request,
   res: express.Response
 ) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
   const taskAssignUsersId = uuidSchema.parse(req.params.taskAssignUsersId);
   const prisma = await getClientByTenantId(req.tenantId);
-  await prisma.taskAssignUsers.delete({
+  const deletedMember = await prisma.taskAssignUsers.delete({
     where: {
       taskAssignUsersId: taskAssignUsersId,
     },
+    include: {
+      user: {
+        select: {
+          email: true
+        }
+      }
+    }
   });
+
+  // History-Manage
+  const historyMessage = "Task's assignee was removed";
+  const historyData = { oldValue: deletedMember.user?.email, newValue: null };
+  await prisma.history.createHistory(
+    req.userId,
+    HistoryTypeEnumValue.TASK,
+    historyMessage,
+    historyData,
+    deletedMember.taskId
+  );
+
   return new SuccessResponse(
     StatusCodes.OK,
     null,
@@ -400,6 +632,18 @@ export const addDependencies = async (
       dependendentOnTaskId: dependendentOnTaskId,
     },
   });
+
+  // History-Manage
+  const historyMessage = "Task’s dependency was added";
+  const historyData = { oldValue: null, newValue: dependentType };
+  await prisma.history.createHistory(
+    req.userId,
+    HistoryTypeEnumValue.TASK,
+    historyMessage,
+    historyData,
+    taskId
+  );
+
   return new SuccessResponse(
     StatusCodes.OK,
     addDependencies,
@@ -416,11 +660,23 @@ export const removeDependencies = async (
   }
   const taskDependenciesId = uuidSchema.parse(req.params.taskDependenciesId);
   const prisma = await getClientByTenantId(req.tenantId);
-  await prisma.taskDependencies.delete({
+  const deletedDependencies = await prisma.taskDependencies.delete({
     where: {
       taskDependenciesId: taskDependenciesId,
     },
   });
+
+  // History-Manage
+  const historyMessage = "Task’s dependency was removed";
+  const historyData = { oldValue: taskDependenciesId, newValue: null };
+  await prisma.history.createHistory(
+    req.userId,
+    HistoryTypeEnumValue.TASK,
+    historyMessage,
+    historyData,
+    deletedDependencies.dependentTaskId
+  );
+
   return new SuccessResponse(
     StatusCodes.OK,
     null,
@@ -447,6 +703,23 @@ export const addOrRemoveMilesstone = async (
       taskId: taskId,
     },
   });
+
+  // History-Manage
+  const milestoneMessage = milestoneIndicator ? "converted" : "reverted";
+  const historyMessage = `Task was ${milestoneMessage} as a milestone`;
+  const isMilestone = milestoneIndicator;
+  const historyData = {
+    oldValue: isMilestone ? null : "true",
+    newValue: isMilestone ? "true" : "false",
+  };
+  await prisma.history.createHistory(
+    req.userId,
+    HistoryTypeEnumValue.TASK,
+    historyMessage,
+    historyData,
+    taskId
+  );
+
   return new SuccessResponse(
     StatusCodes.OK,
     milestone,

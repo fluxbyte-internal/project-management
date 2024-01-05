@@ -1,4 +1,4 @@
-import { PrismaClient, Task } from "@prisma/client";
+import { HistoryTypeEnum, PrismaClient, Task } from "@prisma/client";
 const rootPrismaClient = generatePrismaClient();
 const prismaClients: Record<
   "root" | (Omit<string, "root"> & string),
@@ -57,6 +57,28 @@ function generatePrismaClient(datasourceUrl?: string) {
               }
             }
           },
+        },
+      },
+    },
+    model: {
+      history: {
+        async createHistory(
+          userId: string,
+          historyType: HistoryTypeEnum,
+          historyMesage: string,
+          historyData: { oldValue?: string; newValue?: string } | any,
+          historyRefrenceId: string
+        ) {
+          const history = await client.history.create({
+            data: {
+              type: historyType,
+              data: historyData,
+              createdBy: userId,
+              referenceId: historyRefrenceId,
+              message: historyMesage,
+            },
+          });
+          return history;
         },
       },
     },

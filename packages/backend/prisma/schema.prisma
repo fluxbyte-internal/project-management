@@ -56,6 +56,11 @@ enum TaskDependenciesEnum {
   WAITING_ON
 }
 
+enum HistoryTypeEnum {
+  TASK
+  PROJECT
+}
+
 model User {
   userId     String         @id @default(uuid()) @map("user_id")
   email      String         @unique @map("email")
@@ -84,6 +89,7 @@ model User {
   createdTask     Task[]            @relation("createdByUser")
   updatedTask     Task[]            @relation("updatedByUser")
   taskAssignUsers TaskAssignUsers[]
+  history         History[]
 
   @@unique([email, password])
   @@index([userId, email])
@@ -211,6 +217,7 @@ model Task {
 
   subtasks            Task[]            @relation("parentTask")
   comments            Comments[]
+  histories           History[]
   documentAttachments TaskAttachment[]
   assignedUsers       TaskAssignUsers[]
 
@@ -272,4 +279,19 @@ model Comments {
   commentByUser User @relation(fields: [commentByUserId], references: [userId], onDelete: Cascade)
 
   @@index([commentId, commentByUserId])
+}
+
+model History {
+  historyId     String          @id @default(uuid()) @map("history_id")
+  referenceId   String          @map("reference_id")
+  task          Task            @relation(fields: [referenceId], references: [taskId], onDelete: Cascade)
+  type          HistoryTypeEnum @map("type")
+  data          Json            @map("data")
+  message       String          @map("message")
+  createdBy     String          @map("created_by")
+  createdByUser User            @relation(fields: [createdBy], references: [userId], onDelete: Cascade)
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+
+  @@index([referenceId, createdBy])
 }

@@ -36,7 +36,25 @@ export type Task = {
   assignedUsers: [
     { taskAssignUsersId: string; user: UserOrganisationType["user"] }
   ];
+  histories: History[];
 };
+export interface History {
+  historyId: string;
+  referenceId: string;
+  type: string;
+  data: HistoryData;
+  message: string;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+  createdByUser: UserOrganisationType["user"];
+}
+
+export interface HistoryData {
+  newValue: string;
+  oldValue: string | null;
+}
+
 export interface Dependencies {
   taskDependenciesId: string;
   dependentTaskId: string;

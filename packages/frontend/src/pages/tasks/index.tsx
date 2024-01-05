@@ -23,7 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-
+import DimondIcon from "../../assets/svg/DiamondIcon.svg";
 function Tasks() {
   const [taskData, setTaskData] = useState<Task[]>();
   const [taskId, setTaskId] = useState<string | undefined>();
@@ -39,7 +39,21 @@ function Tasks() {
     allTaskQuery.refetch();
   };
   const columnDef: ColumeDef[] = [
-    { key: "taskName", header: "Task Name", sorting: true },
+    {
+      key: "taskName",
+      header: "Task Name",
+      sorting: true,
+      onCellRender: (item: Task) => (
+        <div className="flex gap-2 items-center">
+          <div>{item.taskName}</div>
+          {item.milestoneIndicator && (
+            <div className="img w-3.5 h-3.5">
+              <img src={DimondIcon} />
+            </div>
+          )}
+        </div>
+      ),
+    },
     {
       key: "startDate",
       header: "Start Date",
@@ -80,7 +94,7 @@ function Tasks() {
       key: "progress",
       header: "Progress",
       onCellRender: (item: Task) => (
-        <PercentageCircle percentage={item.completionPecentage??0} />
+        <PercentageCircle percentage={item.completionPecentage ?? 0} />
       ),
     },
     {
@@ -100,7 +114,9 @@ function Tasks() {
                 <span className="p-0 font-normal h-auto">View Tasks</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="mx-1" />
-              <DropdownMenuItem onClick={() => setShowConfirmDelete(item.taskId)}>
+              <DropdownMenuItem
+                onClick={() => setShowConfirmDelete(item.taskId)}
+              >
                 <img src={TrashCan} className="mr-2 h-4 w-4 text-[#44546F]" />
                 <span className="p-0 font-normal h-auto text-red-500">
                   Remove
