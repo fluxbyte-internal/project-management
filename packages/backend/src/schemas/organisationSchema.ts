@@ -45,3 +45,7 @@ export const addOrganisationMemberSchema = z.object({
     }
   ),
 });
+
+export const organisationStatuSchema = z.object({
+  status: z.nativeEnum(OrgStatusEnumValue),
+});
