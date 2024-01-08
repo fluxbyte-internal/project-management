@@ -11,8 +11,8 @@ export class RegisterSocketServices {
     this.io = new SocketIOServer(server, { cors: { origin: "*" } });
 
     this.io.sockets.on("connection", (socket: Socket) => {
-      socket.on("join", async (data: { userId: string | string[] }) => {
-        socket.join(data.userId);
+      socket.on("join", async (userId: string) => {
+        socket.join(userId);
       });
       socket.on("disconnect", () => {});
     });

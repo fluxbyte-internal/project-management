@@ -193,7 +193,6 @@ model Project {
   updatedAt             DateTime                @updatedAt @map("updated_at")
 
   tasks         Task[]
-  notifications Notification[]
 
   @@index([projectId, organisationId])
 }
@@ -289,7 +288,6 @@ model Notification {
   type           NotificationTypeEnum @map("type")
   referenceId    String               @map("reference_id")
   task           Task?                @relation(fields: [referenceId], references: [taskId], onDelete: Cascade, map: "task_notification")
-  project        Project?             @relation(fields: [referenceId], references: [projectId], onDelete: Cascade, map: "project_notification")
 
   sentBy             String @map("sent_by")
   sentNotificationBy User   @relation("sentNotificationBy", fields: [sentBy], references: [userId], onDelete: Cascade)
@@ -302,6 +300,5 @@ model Notification {
   createdAt DateTime @default(now()) @map("created_at")
   ReadAt    DateTime @updatedAt @map("read_at")
 
-  @@unique([type, referenceId, sentBy, sentTo, isRead], name: "unique_notification_constraints")
   @@index([sentBy, sentTo, referenceId])
 }

@@ -5,9 +5,10 @@ import { StatusCodes } from 'http-status-codes';
 import { projectIdSchema } from '../schemas/projectSchema.js';
 import { createCommentTaskSchema, createTaskSchema, attachmentTaskSchema, taskStatusSchema, updateTaskSchema, assginedToUserIdSchema, dependenciesTaskSchema, milestoneTaskSchema } from '../schemas/taskSchema.js';
 import { TaskService } from '../services/task.services.js';
-import { TaskStatusEnum } from '@prisma/client';
+import { NotificationTypeEnum, TaskStatusEnum } from '@prisma/client';
 import { AwsUploadService } from '../services/aws.services.js';
 import { uuidSchema } from '../schemas/commonSchema.js';
+import { RegisterSocketServices } from '../services/socket.services.js';
 
 export const getTasks = async (req: express.Request, res: express.Response) => {
   const projectId = projectIdSchema.parse(req.params.projectId);
@@ -349,6 +350,7 @@ export const addMemberToTask = async (
   req: express.Request,
   res: express.Response
 ) => {
+  if (!req.userId) { throw new BadRequestError('userId not found!!') };
   const taskId = uuidSchema.parse(req.params.taskId);
   const { assginedToUserId } = assginedToUserIdSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -358,6 +360,16 @@ export const addMemberToTask = async (
         taskId: taskId,
       },
   });
+
+  //Send notification 
+  const message = `Task assigned to you`;
+  await prisma.notification.sendNotification(
+    NotificationTypeEnum.TASK,
+    message,
+    assginedToUserId,
+    req.userId,
+    taskId
+  );
   return new SuccessResponse(
     StatusCodes.CREATED,
     member,
