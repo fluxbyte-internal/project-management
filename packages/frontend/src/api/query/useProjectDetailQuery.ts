@@ -21,6 +21,7 @@ export interface ProjectDetailType {
   budgetTrack: string | null;
   estimatedBudget: string;
   actualCost: string | null;
+  overallTrack:string|null;
   progressionPercentage: string | null ;
   createdByUserId: string;
   updatedByUserId: string;

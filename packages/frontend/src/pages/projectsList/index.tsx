@@ -28,6 +28,7 @@ import {
 } from "@radix-ui/react-popover";
 import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
+import { useUser } from "@/hooks/useUser";
 
 type Options = { label: string; value: string };
 function ProjectsList() {
@@ -44,7 +45,7 @@ function ProjectsList() {
     status: null,
     date: undefined,
   });
-
+  const { user } = useUser();
   const navigate = useNavigate();
 
   const projectQuery = useProjectQuery();
@@ -235,14 +236,16 @@ function ProjectsList() {
                 <h2 className="font-medium text-3xl leading-normal text-gray-600">
                   Projects
                 </h2>
-                <div>
-                  <Button
-                    variant={"primary"}
-                    onClick={() => setIsOpenPopUp(true)}
-                  >
-                    Add Project
-                  </Button>
-                </div>
+                {user?.userOrganisation[0]?.role !== "TEAM_MEMBER" && (
+                  <div>
+                    <Button
+                      variant={"primary"}
+                      onClick={() => setIsOpenPopUp(true)}
+                    >
+                      Add Project
+                    </Button>
+                  </div>
+                )}
               </div>
               {data && (
                 <div className="flex justify-around items-center">
