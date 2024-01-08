@@ -1,11 +1,11 @@
 import SideBar from "@/components/layout/SideBar";
 import { useState } from "react";
-import Cloudy from "../../assets/svg/cloudy.svg"
-import Stormy from "../../assets/svg/stormy.svg"
-import Sunny from "../../assets/svg/sunny.svg"
-import Rainy from "../../assets/svg/Rainy.svg"
+import Cloudy from "../../assets/svg/cloudy.svg";
+import Stormy from "../../assets/svg/stormy.svg";
+import Sunny from "../../assets/svg/sunny.svg";
+import Rainy from "../../assets/svg/Rainy.svg";
 import useProjectDetail from "../../api/query/useProjectDetailQuery";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 // import ClockProjectDetail from "../../assets/svg/ClockProjectDetail.svg";
 
 // import InfoCircle from "../../assets/svg/Info circle.svg";
@@ -23,7 +23,7 @@ import { useUser } from "@/hooks/useUser";
 
 function ProjectDetails() {
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
-
+  const navigate = useNavigate();
   const toggleSidebar = () => {
     setSidebarExpanded(!isSidebarExpanded);
   };
@@ -65,6 +65,9 @@ function ProjectDetails() {
     }
   };
 
+  const handleProjectClick = () => {
+    navigate("/projects");
+  };
   const currentUserIsAdmin =
   user?.userOrganisation[0]?.role ===  "PROJECT_MANAGER";
   return (
@@ -84,7 +87,41 @@ function ProjectDetails() {
           >
             <div className="sm:px-10 px-3">
               <div>
-                <div className="flex sm:gap-5 gap-2 items-center flex-wrap justify-evenly sm:justify-normal">
+                <div>
+                  <div className="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+                    <div className="inline-flex items-center">
+                      <div
+                        onClick={handleProjectClick}
+                        className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white cursor-pointer"
+                      >
+                        Project
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center">
+                        <svg
+                          className="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 6 10"
+                        >
+                          <path
+                            stroke="currentColor"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="m1 9 4-4-4-4"
+                          />
+                        </svg>
+                        <span className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">
+                          {projectDetailQuery.data?.data.data.projectName}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex sm:gap-5 gap-2 items-center flex-wrap justify-evenly sm:justify-normal sm:mt-5 mt-2 ">
                   <div className="sm:text-3xl text-xl  font-semibold">
                     Project Detail
                   </div>
