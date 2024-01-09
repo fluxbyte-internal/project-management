@@ -123,9 +123,7 @@ function generatePrismaClient(datasourceUrl?: string) {
             for (const value of parentTask.subtasks) {
               completionPecentageOrDurationTask +=
                 Number(value.completionPecentage) * (value.duration * hours);
-            }
-            for (const secondValue of parentTask.subtasks) {
-              averagesSumOfDurationTask += secondValue.duration * hours * 100;
+                averagesSumOfDurationTask += value.duration * hours * 100;
             }
             return (
               completionPecentageOrDurationTask / averagesSumOfDurationTask
@@ -138,6 +136,7 @@ function generatePrismaClient(datasourceUrl?: string) {
           while (currentTaskId) {
             const currentTask = (await client.task.findFirst({
               where: { taskId: currentTaskId },
+              select: { parentTaskId: true },
             })) as { taskId: string; parentTaskId: string | null };
             if (currentTask) {
               count += 1;
