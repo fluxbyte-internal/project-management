@@ -46,8 +46,17 @@ import SubTask from "../../assets/svg/SubTask.svg";
 import TrashCan from "../../assets/svg/TrashCan.svg";
 import MultiLine from "../../assets/svg/MultiLine.svg";
 import PapperClip from "../../assets/svg/Paperclip.svg";
+import InfoCircle from "../../assets/svg/Info circle.svg";
 import TopRightArrow from "../../assets/svg/TopRightArrow.svg";
 import useRemoveTaskMutation from "@/api/mutation/useTaskRemove";
+import InputNumber from "../common/InputNumber";
+import TaskHistory from "./taskHistory";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@radix-ui/react-tooltip";
 
 type Props = {
   projectId: string | undefined;
@@ -60,6 +69,7 @@ function TaskSubTaskForm(props: Props) {
   const [subTask, setSubtask] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
   const [taskNameField, setTaskNameField] = useState(false);
+  const [taskDurationField, setTaskDurationField] = useState(false);
   const [taskId, setTaskId] = useState<string>(props.taskId ?? "");
   const [subTaskFieldShow, setSubTaskFieldShow] = useState<boolean>(false);
   const [member, setMambers] = useState<UserOrganisationType["user"][]>([]);
@@ -73,10 +83,7 @@ function TaskSubTaskForm(props: Props) {
   const tasks = taskQuery.data ? taskQuery.data.data.data : undefined;
   const taskAttachmentAddMutation = useTaskAttechmentAddMutation(taskId);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
-  const taskCreateMutation = useCreateTaskMutation(
-    props.projectId,
-    taskId
-  );
+  const taskCreateMutation = useCreateTaskMutation(props.projectId, taskId);
   const taskAddUpdateMilestoneMutation =
     useTaskAddUpdateMilestoneMutation(taskId);
   useEffect(() => {
@@ -108,7 +115,7 @@ function TaskSubTaskForm(props: Props) {
       taskName: "",
       taskDescription: "",
       startDate: new Date(),
-      duration: 0,
+      duration: 0.0,
     },
     validationSchema: toFormikValidationSchema(createTaskSchema),
     onSubmit: (values) => {
@@ -161,6 +168,7 @@ function TaskSubTaskForm(props: Props) {
     taskAddUpdateMilestoneMutation.mutate(values, {
       onSuccess(data) {
         toast.success(data.data.message);
+        refetch();
       },
       onError(error) {
         toast.error(error.response?.data.message);
@@ -187,7 +195,7 @@ function TaskSubTaskForm(props: Props) {
     taskCreateMutation.mutate(value, {
       onSuccess(data) {
         refetch();
-        setSubtask('');
+        setSubtask("");
         toast.success(data.data.message);
       },
       onError(error) {
@@ -267,7 +275,7 @@ function TaskSubTaskForm(props: Props) {
                   <div>
                     <InputText
                       onBlur={() => {
-                        setTaskNameField(false),taskFormik.submitForm();
+                        setTaskNameField(false), taskFormik.submitForm();
                       }}
                       name="taskName"
                       onChange={taskFormik.handleChange}
@@ -347,7 +355,7 @@ function TaskSubTaskForm(props: Props) {
                       <Button
                         variant={"secondary"}
                         className="flex justify-between items-center w-full"
-                        onClick={() =>  setTaskId(task.taskId)}
+                        onClick={() => setTaskId(task.taskId)}
                       >
                         <div className="flex gap-2">
                           <img src={Folder} />
@@ -422,6 +430,10 @@ function TaskSubTaskForm(props: Props) {
             </div>
             {/* Comment  */}
             <TaskComment task={tasks} refetch={refetch}></TaskComment>
+
+            {tasks?.histories && tasks.histories.length > 0 && (
+              <TaskHistory task={tasks} />
+            )}
           </div>
           <div className="w-full md:w-1/4">
             <div>
@@ -458,7 +470,12 @@ function TaskSubTaskForm(props: Props) {
                                 tasks?.assignedUsers.some(
                                   (u) => u.user.userId == data.user.userId
                                 )
-                                  ? removeMembers( tasks?.assignedUsers.find(id => id.user.userId == data.user.userId)?.taskAssignUsersId ?? '')
+                                  ? removeMembers(
+                                    tasks?.assignedUsers.find(
+                                      (id) =>
+                                        id.user.userId == data.user.userId
+                                    )?.taskAssignUsersId ?? ""
+                                  )
                                   : submitMembers(data);
                               }}
                             >
@@ -561,11 +578,11 @@ function TaskSubTaskForm(props: Props) {
               </div>
             </div>
             <div className="mt-3">
-              <div className="flex justify-between">
+              <div className="flex justify-between my-2">
                 {milestoneFormik.values.milestoneIndicator && (
                   <div className="flex flex-col gap-2">
                     <div className="text-xs font-medium text-gray-400">
-                      Your milestone:
+                     Due Date:
                     </div>
                     <Popover>
                       <PopoverTrigger className="w-full">
@@ -602,6 +619,86 @@ function TaskSubTaskForm(props: Props) {
                     </Popover>
                   </div>
                 )}
+                {(!tasks?.dueDate || !tasks.milestoneIndicator) && (
+                  <div className="flex flex-col gap-2">
+                    <div className="text-xs font-medium text-gray-400">
+                      End Date
+                    </div>
+                    {/* <div className="text-sm  text-gray-300">
+                    {tasks?.milestoneIndicator
+                      ? dateFormater(tasks.dueDate ?? new Date())
+                      : dateFormater(new Date())}
+                  </div> */}
+                    <div className="text-sm  text-gray-300">
+                      {dateFormater(
+                        tasks?.endDate ? new Date(tasks.endDate) : new Date()
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-between">
+                <div>
+                  <div className="flex flex-col">
+                    <div className="flex gap-5">
+                      <div className="text-xs font-medium text-gray-400">
+                        Duration:
+                      </div>
+                      <div className="flex items-center justify-center relative">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <img
+                                src={InfoCircle}
+                                className="h-[16px] w-[16px]"
+                                alt="InfoCircle"
+                              />
+                            </TooltipTrigger>
+                            <TooltipContent className="z-50 bg-white p-2 rounded-md shadow-md">
+                              <div>
+                                <p>
+                                  Enter the duration in days, using decimals if{" "}
+                                  <br />
+                                  needed. For example, you can input 0.5 for
+                                  half
+                                  <br />a day or 1.0 for a full day.
+                                </p>
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <div>
+                        {!taskDurationField ? (
+                          <div className="text-sm  text-gray-300">
+                            {taskFormik.values.duration ?? 0.0} Day
+                          </div>
+                        ) : (
+                          <div>
+                            <InputNumber
+                              onBlur={() => {
+                                setTaskDurationField(false),
+                                taskFormik.submitForm();
+                              }}
+                              name="duration"
+                              onChange={taskFormik.handleChange}
+                              onClick={taskFormik.handleBlur}
+                              value={taskFormik.values.duration}
+                            ></InputNumber>
+                          </div>
+                        )}
+                      </div>
+                      <Button
+                        variant={"ghost"}
+                        onClick={() => setTaskDurationField((prev) => !prev)}
+                      >
+                        <img src={Edit} className="w-2.5 h-2.5" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
                 <div className="flex flex-col gap-2">
                   <div className="text-xs font-medium text-gray-400">
                     Progress:
@@ -613,16 +710,18 @@ function TaskSubTaskForm(props: Props) {
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          {taskId&& <div>
-            <Button
-              variant={"destructive"}
-              onClick={() => {
-                setShowConfirmDelete(true);
-              }}
-            >
-              Delete
-            </Button>
-          </div>}
+          {taskId && (
+            <div>
+              <Button
+                variant={"destructive"}
+                onClick={() => {
+                  setShowConfirmDelete(true);
+                }}
+              >
+                Delete
+              </Button>
+            </div>
+          )}
           <div>
             <Button variant={"primary"} onClick={taskFormik.submitForm}>
               submit
