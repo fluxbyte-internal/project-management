@@ -38,6 +38,11 @@ router.get(
 router.get("/operator", authMiddleware, ConsoleController.getAllOperator);
 router.put("/operator", authMiddleware, ConsoleController.updateOperator);
 router.put(
+  "/change-password",
+  authMiddleware,
+  ConsoleController.changePassword
+);
+router.put(
   "/profile",
   authMiddleware,
   ConsoleController.updateConsoleUserAvtarImg

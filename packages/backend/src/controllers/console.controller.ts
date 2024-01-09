@@ -4,7 +4,6 @@ import { compareEncryption, encrypt } from "../utils/encryption.js";
 import { ConsoleRoleEnum, ConsoleStatusEnum } from "@prisma/client";
 import {
   BadRequestError,
-  ErrorResponse,
   NotFoundError,
   SuccessResponse,
   UnAuthorizedError,
@@ -36,9 +35,7 @@ export const me = async (req: express.Request, res: express.Response) => {
     },
   });
   if (user?.status === ConsoleStatusEnum.INACTIVE) {
-    return new ErrorResponse(StatusCodes.BAD_REQUEST, "User is DEACTIVE").send(
-      res
-    );
+    throw new BadRequestError("User is DEACTIVE");
   }
   const { password, ...infoWithoutPassword } = user;
   return new SuccessResponse(
@@ -57,6 +54,9 @@ export const loginConsole = async (
   const user = await prisma.consoleUser.findUnique({
     where: { email },
   });
+  if (user?.status === ConsoleStatusEnum.INACTIVE) {
+    throw new BadRequestError("User is DEACTIVE");
+  }
   if (user && (await compareEncryption(password, user.password))) {
     const tokenPayload = {
       userId: user.userId,
@@ -116,7 +116,6 @@ export const createOperator = async (
   const prisma = await getClientByTenantId(req.tenantId);
   const { email, firstName, lastName } = operatorSchema.parse(req.body);
   const randomPassword = generateRandomPassword();
-  console.log({ randomPassword });
   const hashedPassword = await encrypt(randomPassword);
   const findOperator = await prisma.consoleUser.findUnique({
     where: {

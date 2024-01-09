@@ -1,6 +1,6 @@
 import express from "express";
 import { getClientByTenantId } from "../config/db.js";
-import { BadRequestError, ErrorResponse, InternalServerError, NotFoundError, SuccessResponse, UnAuthorizedError } from "../config/apiError.js";
+import { BadRequestError, InternalServerError, NotFoundError, SuccessResponse } from "../config/apiError.js";
 import { StatusCodes } from "http-status-codes";
 import {
   userUpdateSchema,
@@ -24,19 +24,14 @@ export const me = async (req: express.Request, res: express.Response) => {
     },
   });
   if (user?.status === UserStatusEnum.INACTIVE) {
-    return new ErrorResponse(StatusCodes.BAD_REQUEST, "User is DEACTIVE").send(
-      res
-    );
+    throw new BadRequestError('User is DEACTIVE');
   }
 
   if (user.userOrganisation.length > 0) {
     const organisation = user.userOrganisation[0]?.organisation;
 
     if (organisation?.status === OrgStatusEnum.DEACTIVE) {
-      return new ErrorResponse(
-        StatusCodes.BAD_REQUEST,
-        "Organisation is DEACTIVE"
-      ).send(res);
+      throw new BadRequestError("Organisation is DEACTIVE");
     }
   }
 
