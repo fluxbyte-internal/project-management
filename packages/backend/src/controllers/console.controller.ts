@@ -292,7 +292,6 @@ export const changeOrganisationStatus = async (
   }
 
   const organisationId = uuidSchema.parse(req.params.organisationId);
-  console.log({ organisationId });
   const statusValue = organisationStatuSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
   const updatedOrganisation = await prisma.organisation.update({
