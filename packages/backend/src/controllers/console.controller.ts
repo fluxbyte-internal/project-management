@@ -102,7 +102,7 @@ export const createSuperAdmin = async (
   return new SuccessResponse(
     StatusCodes.CREATED,
     null,
-    "Super admin successfully"
+    "Super admin created successfully"
   ).send(res);
 };
 
