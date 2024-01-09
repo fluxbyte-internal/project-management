@@ -24,7 +24,16 @@ export const getProjects = async (req: express.Request, res: express.Response) =
     },
     orderBy: { createdAt: 'desc' }
   });
-  return new SuccessResponse(StatusCodes.OK, projects, 'get all project successfully').send(res);
+
+  // progressionPercentage for all projects
+  const projectsWithProgression = [];
+
+  for (const project of projects) {
+    const progressionPercentage = await prisma.project.projectProgression(project.projectId);
+    const projectWithProgression = { ...project, progressionPercentage };
+    projectsWithProgression.push(projectWithProgression);
+  }
+  return new SuccessResponse(StatusCodes.OK, projectsWithProgression, 'get all project successfully').send(res);
 };
 
 export const getProjectById = async (req: express.Request, res: express.Response) => {
@@ -46,8 +55,8 @@ export const getProjectById = async (req: express.Request, res: express.Response
     }
   });
 
-  const projectProgression = await prisma.project.projectProgression(projectId);
-  const response = { ...projects, projectProgression };
+  const progressionPercentage = await prisma.project.projectProgression(projectId);
+  const response = { ...projects, progressionPercentage };
   return new SuccessResponse(StatusCodes.OK, response, "project selected").send(
     res
   );
