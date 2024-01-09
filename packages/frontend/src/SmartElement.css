@@ -3,13 +3,18 @@ smart-gantt-chart {
   --smart-gantt-chart-timeline-task-background-color: rgb(253, 253, 253);
   --smart-gantt-chart-task-default-height: 40px;
   --smart-gantt-chart-default-width:100%;
-  --smart-gantt-chart-default-height:100%;
+  /* --smart-gantt-chart-default-height:100vh; */
   --smart-gantt-chart-project-default-color: #38a238;
   --smart-gantt-chart-project-progress-default-color: #008000;
   --smart-gantt-chart-task-default-color: #6495ed;
   --smart-gantt-chart-task-progress-default-color: #2d75f5;
   --smart-gantt-chart-task-label-color: white;
-  --smart-gantt-chart-task-color:theme('colors.primary.500')
+  --smart-gantt-chart-task-color:theme('colors.primary.500');
+  --smart-gantt-chart-timeline-nonworking-color:  theme('colors.primary.100');
+  --smart-gantt-chart-header-placeholder:"-";
+  --smart-gantt-chart-task-default-height:40px;
+  --smart-box-height: 40px
+
 }
 smart-table thead th .sort-by:before {
 

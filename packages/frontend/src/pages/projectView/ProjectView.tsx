@@ -8,33 +8,14 @@ import { Task } from "@/api/mutation/useTaskCreateMutation";
 import UserAvatar from "@/components/ui/userAvatar";
 import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
 import ReactDOMServer from "react-dom/server";
-import { GanttChartTask } from "smart-webcomponents-react/ganttchart";
+import { GanttChartTask, GanttChartTaskColumn } from "smart-webcomponents-react/ganttchart";
 
-type TaskTypes = { label: string; dateStart: Date; dateEnd: Date };
-type ConvertedTaskTypes = {
-  id: string;
-  label: string;
-  dateStart: Date;
-  dateEnd: Date;
-  description: string;
-  tasks: ConvertedTaskTypes[];
-  resources: { id: string };
-  disableResources: boolean;
-};
 
 function ProjectView() {
-  const taskColumns: GanttChartTask[] = [
+  const taskColumns: GanttChartTaskColumn[] = [
     {
       label: "Tasks",
       value: "label",
-      tasks: [
-        {
-          label: "Tasks",
-          dateStart: "dateStart",
-          dateEnd: "dateEnd",
-          type: "task",
-        },
-      ],
     },
     {
       label: "Assignee",
@@ -60,7 +41,7 @@ function ProjectView() {
  
   ];
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
-  const [taskData, setTaskData] = useState<TaskTypes[]>();
+  const [taskData, setTaskData] = useState<GanttChartTask[]>();
 
   const toggleSidebar = () => {
     setSidebarExpanded(!isSidebarExpanded);
@@ -70,15 +51,15 @@ function ProjectView() {
   const allTaskQuery = useAllTaskQuery(projectId);
 
   const convertTask = (originalTask: Task) => {
-    const convertedTask: ConvertedTaskTypes = {
+    const convertedTask: GanttChartTask = {
       id: originalTask.taskId,
       label: originalTask.taskName,
       dateStart: originalTask.startDate,
       dateEnd: originalTask.endDate,
-      description: originalTask.taskDescription,
       disableResources: true,
-      resources: { id: JSON.stringify(originalTask.assignedUsers) },
+      resources: [{ id: JSON.stringify(originalTask.assignedUsers) }],
       tasks: [],
+      dragProject:true
     };
 
     if (originalTask.subtasks) {

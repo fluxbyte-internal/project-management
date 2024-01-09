@@ -7,6 +7,9 @@ import { useParams } from "react-router-dom";
 import Select, { SingleValue } from "react-select";
 import useAllTaskQuery from "@/api/query/useAllTaskQuery";
 import "../../SmartElement.css";
+import useUpdateTaskMutation from "@/api/mutation/useTaskUpdateMutation";
+import { toast } from "react-toastify";
+import { useUser } from "@/hooks/useUser";
 
 export interface Options {
   label: string;
@@ -18,18 +21,20 @@ function GanttView(props: GanttChartProps) {
   const durationUnit = "hour";
   const sortMode = "one";
   const taskFiltering = true;
+  // const horizontalScrollBarVisibility=true
   // const showBaseline = true;
 
   const { projectId } = useParams();
   const [isOpenTask, setIsOpenTask] = useState<string>();
   const [filterUnit, setFilterUnit] = useState<string>("week");
   const [filterUser, setFilterUser] = useState<string>();
+  const [UpdateUser, setUpdateUser] = useState<string>();
   const ganttChart = useRef<GanttChart>(null);
-
+  const { user } = useUser();
   console.log(filterUser, "filterUser");
   const allTaskQuery = useAllTaskQuery(projectId);
   const [viewUserData, setViewUserData] = useState<Options[]>([]);
-
+  const taskUpdateMutation = useUpdateTaskMutation(UpdateUser);
   useEffect(() => {
     const users: Options[] = [];
     if (allTaskQuery.data?.data.data) {
@@ -50,12 +55,13 @@ function GanttView(props: GanttChartProps) {
       });
       setViewUserData(users);
     }
+    // refetch();
   }, [allTaskQuery.data]);
 
   const handlePopUp = (e: any) => {
-    e?.stopPropagation();
-    setIsOpenTask(e.detail.id);
-    console.log(e.detail.id, "e.Detail.values");
+    e.preventDefault();
+    console.log(e.detail.target._target.id, "e.Detail.values");
+    setIsOpenTask(e.detail.target._target.id);
   };
 
   const viewData: Options[] = [
@@ -74,6 +80,47 @@ function GanttView(props: GanttChartProps) {
       setFilterUser(val.value);
     }
   };
+  const updateTaskFromGanttView = (e: { detail: { dateStart: Date; dateEnd: Date; }; }) => {
+  
+    const workingDays = dateDiffrence(e.detail.dateStart, e.detail.dateEnd);
+  
+    taskUpdateMutation.mutate(
+      {
+        startDate: e.detail.dateStart,
+        duration: workingDays,
+      },
+      {
+        onSuccess(data) {
+          toast.success(data.data.message);
+        },
+        onError(error) {
+          toast.error(error.response?.data.message);
+        },
+      }
+    );
+  };
+  const dateDiffrence = (startDate: Date, endDate: Date) => {
+    const date1:any = new Date(startDate);
+    const date2:any = new Date(endDate);
+    const diffTime = Math.abs(date2 - date1);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const nonWorkingDays = HandleNonWorkingDays();
+  
+    let nonWorkingDaysCount = 0;
+    for (let i = 0; i < diffDays; i++) {
+      const currentDate = new Date(date1);
+      currentDate.setDate(date1.getDate() + i);
+  
+      if (nonWorkingDays.find((day: number) => day === currentDate.getDay())) {
+        nonWorkingDaysCount++;
+      }
+      
+    }
+  
+    const workingDays = diffDays - nonWorkingDaysCount;
+  
+    return workingDays;
+  };
 
   const reactSelectStyle = {
     control: (
@@ -91,6 +138,45 @@ function GanttView(props: GanttChartProps) {
     }),
   };
 
+  const HandleNonWorkingDays = () => {
+    const nonWorkingDays =
+      user?.userOrganisation.map((org) => org.organisation.nonWorkingDays) ||
+      [];
+
+
+    const mapDayToNumber = (day: string) => {
+      switch (day) {
+      case "SUN":
+        return 0;
+      case "MON":
+        return 1;
+      case "TUE":
+        return 2;
+      case "WED":
+        return 3;
+      case "THU":
+        return 4;
+      case "FRI":
+        return 5;
+      case "SAT":
+        return 6;
+      default:
+        return 0;
+      }
+    };
+
+    const result: any = [];
+
+    nonWorkingDays.forEach((days) => {
+      days.forEach((day) => {
+        result.push(mapDayToNumber(day));
+      });
+    });
+
+    return result;
+  };
+
+  
   return (
     <div className="h-full w-full">
       <div className="flex justify-between">
@@ -122,14 +208,25 @@ function GanttView(props: GanttChartProps) {
         taskColumns={props.taskColumns}
         treeSize={treeSize}
         durationUnit={durationUnit}
+        nonworkingDays={HandleNonWorkingDays()}
         monthScale="day"
         monthFormat="firstTwoLetters"
         id="gantt"
-        onItemClick={(e) => handlePopUp(e)}
+        onOpen={(e) => handlePopUp(e)}
         view={filterUnit}
         sortMode={sortMode}
         taskFiltering={taskFiltering}
+        onResizeEnd={(e: any) => {
+          setUpdateUser(e?.detail.id), updateTaskFromGanttView(e);
+        }}
         hideResourcePanel
+        infiniteTimeline
+        horizontalScrollBarVisibility="visible"
+        verticalScrollBarVisibility="visible"
+        // for past day clr
+        // shadeUntilCurrentTime
+        // snap to nearest value
+        snapToNearest 
         // showBaseline={showBaseline}
         autoSchedule
       ></GanttChart>
