@@ -13,19 +13,7 @@ import TaskShellView from "./taskShellView";
 import { TaskStatusEnumValue } from "@backend/src/schemas/enums";
 import useTaskStatusUpdateMutation from "@/api/mutation/useTaskStatusUpdateMutation";
 import { toast } from "react-toastify";
-import { Button } from "@/components/ui/button";
-import Select,{ SingleValue } from "react-select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@radix-ui/react-popover";
-import CalendarSvg from "../../../assets/svg/Calendar.svg";
-import { DateRange } from "react-day-picker";
-import dateFormater from "@/helperFuntions/dateFormater";
-import { Calendar } from "@/components/ui/calendar";
-import InputText from "@/components/common/InputText";
-
+import TaskFilter, { FIELDS } from "../TaskFilter";
 export interface columnsRenderData {
   label: string;
   dataField: string;
@@ -38,10 +26,10 @@ export interface columnsRenderData {
   editable: boolean;
   reorder: boolean;
 }
-type Options = { label: string; value: string };
-type ExtendedKanbanDataSource = KanbanDataSource & {
+export type ExtendedKanbanDataSource = KanbanDataSource & {
   users: string;
   subTask: number;
+  mileStone: boolean;
 };
 function KanbanView(
   props: (HTMLAttributes<Element> & KanbanProps) | undefined
@@ -52,8 +40,10 @@ function KanbanView(
   const [isTaskShow, setIsTaskShow] = useState<boolean>(false);
   const childRef = useRef<Kanban>(null);
   const { projectId } = useParams();
+  const allTasks = useAllTaskQuery(projectId);
+
   const [dataSource, setDataSource] = useState<ExtendedKanbanDataSource[]>();
-  const [filterData, setFilterData] = useState<ExtendedKanbanDataSource[]>();
+  const [filterData, setFilterData] = useState<Task[]>();
 
   const close = () => {
     setDialogRendered(undefined);
@@ -86,34 +76,11 @@ function KanbanView(
     },
   ];
 
-  const allTasks = useAllTaskQuery(projectId);
-  const [filter, setFilter] = useState<{
-    assigned: SingleValue<Options> | null;
-    days: SingleValue<Options> | null;
-    date: DateRange | undefined;
-    flag: SingleValue<Options> | null;
-  }>({
-    assigned: null,
-    date: undefined,
-    days: null,
-    flag: null,
-  });
-  const flags: Options[] = [
-    { label: "Select flag", value: "" },
-    { label: "Green", value: "#008000" },
-    { label: "Red", value: "#FF0000" },
-    { label: "Orange", value: "#FFA500" },
-  ];
   useEffect(() => {
-    setDataSource([]);
-    setFilterData([]);
+    setDataSource([])
     if (allTasks.data?.data.data) {
-      allTasks.data?.data.data.forEach((task) => {
+      allTasks.data?.data.data?.forEach((task) => {
         setDataSource((prevItems) => [
-          ...(prevItems || []),
-          DataConvertToKanbanDataSource(task),
-        ]);
-        setFilterData((prevItems) => [
           ...(prevItems || []),
           DataConvertToKanbanDataSource(task),
         ]);
@@ -121,59 +88,17 @@ function KanbanView(
     }
   }, [allTasks.data?.data.data]);
 
-  function isDateSevenDays(inputDate: Date): boolean {
-    const currentDate: Date = new Date();
-    const sevenDaysAgo: Date = new Date(currentDate);
-    sevenDaysAgo.setDate(currentDate.getDate() + 7);
-    return new Date(inputDate) <= sevenDaysAgo;
-  }
-  function isOverDueDays(inputDate: Date): boolean {
-    const currentDate: Date = new Date();
-    return new Date(inputDate) <= currentDate;
-  }
-  function isDueTodayDays(inputDate: Date): boolean {
-    const currentDate: Date = new Date();
-    return new Date(inputDate) === currentDate;
-  }
   useEffect(() => {
-    let filteredData = dataSource;
-    setFilterData(filteredData);
-    if (filter && filter.flag && filter.flag.value) {
-      filteredData = dataSource?.filter((d) => d.color === filter.flag?.value);
-    } else if (filter && filter.date?.from && filter.date?.to) {
-      filteredData = dataSource?.filter((d) => {
-        return (
-          new Date(d.startDate ?? "") >= (filter.date?.from ?? new Date()) &&
-          new Date(d.startDate ?? "") <= (filter.date?.to ?? new Date())
-        );
+    setDataSource([]);
+    if (filterData) {
+      filterData?.forEach((task) => {
+        setDataSource((prevItems) => [
+          ...(prevItems || []),
+          DataConvertToKanbanDataSource(task),
+        ]);
       });
-    } else if (filter && filter.assigned && filter.assigned.value) {
-      const arr: ExtendedKanbanDataSource[] = [];
-      dataSource?.forEach((data) => {
-        JSON.parse(data.users)?.forEach((u: Task["assignedUsers"][0]) => {
-          if (u.user.email === filter.assigned?.value) {
-            arr.push(data);
-          }
-        });
-      });
-      filteredData = arr;
-    } else if (filter && filter.days?.value == "sevenDay") {
-      filteredData = dataSource?.filter((data) =>
-        isDateSevenDays(data.dueDate ?? new Date())
-      );
-    } else if (filter && filter.days?.value == "overDue") {
-      filteredData = dataSource?.filter((data) =>
-        isOverDueDays(data.dueDate ?? new Date())
-      );
-    } else if (filter && filter.days?.value == "dueToday") {
-      filteredData = dataSource?.filter((data) =>
-        isDueTodayDays(data.dueDate ?? new Date())
-      );
-    } else {
-      setFilterData(dataSource);
     }
-    setFilterData(filteredData);
-  }, [dataSource, filter]);
+  }, [filterData]);
 
   const taskStatusUpdateMutation = useTaskStatusUpdateMutation();
   const statusUpdate = (e: (Event & CustomEvent) | undefined) => {
@@ -210,6 +135,7 @@ function KanbanView(
           userId: comment.commentByUserId,
         };
       }),
+      mileStone: data.milestoneIndicator,
     };
   }
   const taskCustomFields = [
@@ -239,56 +165,6 @@ function KanbanView(
     root.render(<TaskShellView taskData={data} />);
   };
 
-  const assignedTask = (): Options[] | undefined => {
-    const projectManagerData: Options[] | undefined = [
-      { label: "Select assigned user", value: "" },
-    ];
-    allTasks.data?.data.data.forEach((item) => {
-      item.assignedUsers?.forEach((user) => {
-        const val = user.user.email;
-        if (!projectManagerData.some((i) => i.value === user.user.email)) {
-          projectManagerData.push({ label: val, value: val });
-        }
-      });
-    });
-    return projectManagerData;
-  };
-  const searchTask = (searchString: string) => {
-    const tempData: ExtendedKanbanDataSource[] = [];
-    allTasks.data?.data.data?.forEach((element) => {
-      if (
-        element.taskName.search(searchString) >= 0 ||
-        element.taskDescription.search(searchString) >= 0
-      ) {
-        tempData.push(DataConvertToKanbanDataSource(element));
-      }
-    });
-    setFilterData(tempData);
-  };
-  const reactSelectStyle = {
-    control: (
-      provided: Record<string, unknown>,
-      state: { isFocused: boolean }
-    ) => ({
-      ...provided,
-      border: "1px solid #E7E7E7",
-      paddingTop: "0.2rem",
-      paddingBottom: "0.2rem",
-      zIndex: -1000,
-      outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
-      boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
-      "&:hover": {
-        outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
-        boxShadow: "0px 0px 0px #943B0C",
-      },
-    }),
-  };
-  const dayFilters: Options[] = [
-    { label: "Select days", value: "" },
-    { label: "Due Today", value: "dueToday" },
-    { label: "Over Due", value: "overDue" },
-    { label: "Seven Day", value: "sevenDay" },
-  ];
   const onColumnHeaderRender = (
     header: HTMLElement,
     data: { dataField: keyof typeof TaskStatusEnumValue }
@@ -305,105 +181,42 @@ function KanbanView(
       "!text-gray-600",
     ];
     switch (data.dataField) {
-    case TaskStatusEnumValue.PLANNED:
-      className.push("!bg-rose-500/20");
-      break;
-    case TaskStatusEnumValue.TODO:
-      className.push("!bg-slate-500/20");
-      break;
-    case TaskStatusEnumValue.IN_PROGRESS:
-      className.push("!bg-primary-500/20");
-      break;
-    case TaskStatusEnumValue.DONE:
-      className.push("!bg-green-500/20");
-      break;
+      case TaskStatusEnumValue.PLANNED:
+        className.push("!bg-rose-500/20");
+        break;
+      case TaskStatusEnumValue.TODO:
+        className.push("!bg-slate-500/20");
+        break;
+      case TaskStatusEnumValue.IN_PROGRESS:
+        className.push("!bg-primary-500/20");
+        break;
+      case TaskStatusEnumValue.DONE:
+        className.push("!bg-green-500/20");
+        break;
     }
     header.classList.add(...className);
   };
   return (
     <div className="h-5/6 w-full scroll ">
-      <div className="flex w-full justify-between items-center gap-2">
-        <div className="flex justify-between w-full gap-2 text-gray-500 flex-col-reverse md:flex-col lg:flex-row">
-          <div className="flex justify-between items-center gap-6 w-full lg:flex-row flex-col z-[2]">
-            <div className="w-full">
-              <InputText
-                className="mt-0"
-                onChange={(e) => searchTask(e.target.value)}
-                placeholder="Search task"
-              />
-            </div>
-            <div className="w-full">
-              <Select
-                className="p-0 z-40"
-                value={filter.days || { label: "Select days", value: "" }}
-                options={dayFilters}
-                onChange={(e) => setFilter((prev) => ({ ...prev, days: e }))}
-                placeholder="Select days"
-                styles={reactSelectStyle}
-              />
-            </div>
-            <div className="w-full">
-              <Popover>
-                <PopoverTrigger className="w-full">
-                  <Button variant={"outline"} className="w-full h-11 px-2">
-                    <div className="flex justify-between text-base items-center w-full text-gray-950 font-normal">
-                      {filter.date
-                        ? `${dateFormater(filter.date.from ?? new Date())}-
-                              ${dateFormater(filter.date.to ?? new Date())}`
-                        : "Select start date"}
-                      <img src={CalendarSvg} width={20} />
-                    </div>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="z-50 bg-white ">
-                  <div>
-                    <Calendar
-                      mode="range"
-                      selected={filter.date}
-                      onSelect={(e) =>
-                        setFilter((prev) => ({ ...prev, date: e }))
-                      }
-                      className="rounded-md border"
-                    />
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div className="w-full">
-              <Select
-                className="p-0 z-40"
-                value={
-                  filter.assigned || {
-                    label: "Select assigned user",
-                    value: "",
-                  }
-                }
-                options={assignedTask()}
-                onChange={(e) =>
-                  setFilter((prev) => ({ ...prev, assigned: e }))
-                }
-                placeholder="Select assigned user"
-                styles={reactSelectStyle}
-              />
-            </div>
-            <div className="w-full">
-              <Select
-                className="p-0 z-40"
-                value={filter.flag || { label: "Select flag", value: "" }}
-                options={flags}
-                onChange={(e) => setFilter((prev) => ({ ...prev, flag: e }))}
-                placeholder="Select flags"
-                styles={reactSelectStyle}
-              />
-            </div>
-          </div>
-        </div>
+      <div>
+        <TaskFilter
+          fieldToShow={[
+            FIELDS.ASSIGNED,
+            FIELDS.DATE,
+            FIELDS.DUESEVENDAYS,
+            FIELDS.FLAGS,
+            FIELDS.OVERDUEDAYS,
+            FIELDS.TODAYDUEDAYS,
+          ]}
+          tasks={allTasks.data?.data.data}
+          filteredData={(task) => setFilterData(task)}
+        />
       </div>
       <Kanban
         ref={childRef}
         {...props}
         columns={Columns}
-        dataSource={filterData}
+        dataSource={dataSource}
         collapsible
         addNewButton
         editable

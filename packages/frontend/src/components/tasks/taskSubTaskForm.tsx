@@ -53,6 +53,7 @@ type Props = {
   projectId: string | undefined;
   taskId: string | undefined;
   close: () => void;
+  initialValues?:{startDate:Date|undefined}
 };
 
 function TaskSubTaskForm(props: Props) {
@@ -107,7 +108,7 @@ function TaskSubTaskForm(props: Props) {
     initialValues: {
       taskName: "",
       taskDescription: "",
-      startDate: new Date(),
+      startDate: props.initialValues?.startDate || new Date(),
       duration: 0,
     },
     validationSchema: toFormikValidationSchema(createTaskSchema),

@@ -2,18 +2,16 @@ import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
 import UserAvatar from "@/components/ui/userAvatar";
 import dateFormater from "@/helperFuntions/dateFormater";
 import { Progress } from "@/components/ui/progress";
-import { KanbanDataSource } from "smart-webcomponents-react";
-interface Props {
-  taskData: KanbanDataSource & { users: string | undefined; subTask: number };
-}
-function TaskShellView(props: Props) {
+import DiamondIcon from "../../../assets/svg/DiamondIcon.svg";
+import {ExtendedKanbanDataSource} from "./index";
+function TaskShellView(props:{taskData: ExtendedKanbanDataSource}) {
   const users: UserOrganisationType[] = JSON.parse(
     props.taskData?.users ?? "[]"
   );
   // function getRandomArbitrary() {
   //   return Math.round(Math.random() * (4-0) + 0);
   // }
-  const colors =[
+  const colors = [
     "bg-[#E9F2FF]",
     "bg-[#FFE9E9]",
     "bg-[#F9E9FF]",
@@ -22,7 +20,12 @@ function TaskShellView(props: Props) {
   return (
     <div className="w-full h-full">
       <div className="flex justify-between w-full">
-        <div className="text-lg text-gray-500">{props.taskData?.text}</div>
+        <div className="text-lg text-gray-500 flex gap-2 items-center">
+          {props.taskData?.text}
+          {props.taskData.mileStone && (
+            <img src={DiamondIcon} className="w-3 h-3" />
+          )}
+        </div>
         <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
           {users.slice(0, 3).map((item, index) => {
             const zIndex = Math.abs(index - 2);
