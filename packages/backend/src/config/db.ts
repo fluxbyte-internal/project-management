@@ -1,4 +1,4 @@
-import { PrismaClient, Task } from "@prisma/client";
+import { HistoryTypeEnum, PrismaClient, Task } from "@prisma/client";
 const rootPrismaClient = generatePrismaClient();
 const prismaClients: Record<
   "root" | (Omit<string, "root"> & string),
@@ -22,8 +22,15 @@ function generatePrismaClient(datasourceUrl?: string) {
           needs: { startDate: true, duration: true },
           compute(task) {
             const { startDate, duration } = task;
-            const endDate = new Date(startDate);
-            endDate.setDate(endDate.getDate() + duration);
+            const startDateObj = new Date(startDate);
+            const endDate = startDateObj;
+
+            const integerPart = Math.floor(duration);
+            endDate.setDate(startDateObj.getDate() + integerPart); // Duration as days
+            
+            const fractionalPartInHours = (duration % 1) * 24; // Duration as hours
+            endDate.setHours(startDateObj.getHours() + fractionalPartInHours);
+
             return endDate;
           },
         },
@@ -50,6 +57,28 @@ function generatePrismaClient(datasourceUrl?: string) {
               }
             }
           },
+        },
+      },
+    },
+    model: {
+      history: {
+        async createHistory(
+          userId: string,
+          historyType: HistoryTypeEnum,
+          historyMesage: string,
+          historyData: { oldValue?: string; newValue?: string } | any,
+          historyRefrenceId: string
+        ) {
+          const history = await client.history.create({
+            data: {
+              type: historyType,
+              data: historyData,
+              createdBy: userId,
+              referenceId: historyRefrenceId,
+              message: historyMesage,
+            },
+          });
+          return history;
         },
       },
     },
