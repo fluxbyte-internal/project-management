@@ -71,7 +71,7 @@ app.use("*", (req: Request, res: Response) => {
 });
 
 // Send notification and Email if Due date today
-CronService.sendNotificationAndEmailToTaskDueDate();
+CronService.oneDayCron();
 
 // Error handling middleware
 app.use(ErrorHandlerMiddleware.handler);
