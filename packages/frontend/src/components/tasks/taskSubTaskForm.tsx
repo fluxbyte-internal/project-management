@@ -257,7 +257,7 @@ function TaskSubTaskForm(props: Props) {
     } else {
       setProgressError("");
       taskUpdateMutation.mutate(
-        { completionPecentage: val.toString() },
+        { completionPecentage:Number(val)??0 },
         {
           onSuccess() {
             refetch();
