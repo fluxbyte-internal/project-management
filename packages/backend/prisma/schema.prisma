@@ -188,7 +188,7 @@ model UserOrganisation {
   createdAt          DateTime     @default(now()) @map("created_at")
   updatedAt          DateTime     @updatedAt @map("updated_at")
 
-  organisation Organisation? @relation(fields: [organisationId], references: [organisationId])
+  organisation Organisation? @relation(fields: [organisationId], references: [organisationId], onDelete: Cascade)
   user         User?         @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@unique([userId, organisationId])
@@ -198,7 +198,7 @@ model UserOrganisation {
 model Project {
   projectId             String                  @id @unique @default(uuid()) @map("project_id")
   organisationId        String                  @map("organisation_id")
-  organisation          Organisation            @relation(fields: [organisationId], references: [organisationId])
+  organisation          Organisation            @relation(fields: [organisationId], references: [organisationId], onDelete: Cascade)
   projectName           String                  @map("project_name")
   projectDescription    String                  @map("project_description") @db.VarChar(500)
   startDate             DateTime                @map("start_date")
@@ -213,9 +213,9 @@ model Project {
   actualCost            String?                 @map("actual_cost")
   progressionPercentage String?                 @map("progression_percentage")
   createdByUserId       String                  @map("created_by_user_id")
-  createdByUser         User                    @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  createdByUser         User                    @relation("createdByUser", fields: [createdByUserId], references: [userId], onDelete: Cascade)
   updatedByUserId       String?                 @map("updated_by_user_id")
-  updatedByUser         User?                   @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  updatedByUser         User?                   @relation("updatedByUser", fields: [updatedByUserId], references: [userId], onDelete: Cascade)
   createdAt             DateTime                @default(now()) @map("created_at")
   updatedAt             DateTime                @updatedAt @map("updated_at")
 
@@ -237,9 +237,9 @@ model Task {
   milestoneIndicator  Boolean        @default(false) @map("milestone_indicator")
   dueDate             DateTime?      @map("due_date")
   createdByUserId     String         @map("created_by_user_id")
-  createdByUser       User           @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  createdByUser       User           @relation("createdByUser", fields: [createdByUserId], references: [userId], onDelete: Cascade)
   updatedByUserId     String?        @map("updated_by_user_id")
-  updatedByUser       User?          @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  updatedByUser       User?          @relation("updatedByUser", fields: [updatedByUserId], references: [userId], onDelete: Cascade)
   createdAt           DateTime       @default(now()) @map("created_at")
   updatedAt           DateTime       @updatedAt @map("updated_at")
 
@@ -250,7 +250,7 @@ model Task {
   assignedUsers       TaskAssignUsers[]
 
   parentTaskId    String?            @map("parent_task_id")
-  parent          Task?              @relation("parentTask", fields: [parentTaskId], references: [taskId])
+  parent          Task?              @relation("parentTask", fields: [parentTaskId], references: [taskId], onDelete: Cascade)
   dependencies    TaskDependencies[] @relation("dependencies")
   dependentOnTask TaskDependencies[] @relation("dependentOnTask")
 

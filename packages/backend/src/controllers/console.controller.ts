@@ -336,6 +336,27 @@ export const getAllOrganisation = async (
   ).send(res);
 };
 
+export const deleteOrganisation = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
+  const organisationId = uuidSchema.parse(req.params.organisationId);
+  const prisma = await getClientByTenantId(req.tenantId);
+  await prisma.organisation.delete({
+    where: {
+      organisationId,
+    },
+  });
+  return new SuccessResponse(
+    StatusCodes.OK,
+    null,
+    "Organisation deleted successfully"
+  ).send(res);
+};
+
 export const changePassword = async (
   req: express.Request,
   res: express.Response

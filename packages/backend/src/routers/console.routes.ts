@@ -35,6 +35,12 @@ router.get(
   ConsoleController.getAllOrganisation
 );
 
+router.delete(
+  "/organisations/:organisationId",
+  authMiddleware,
+  ConsoleController.deleteOrganisation
+);
+
 router.get("/operator", authMiddleware, ConsoleController.getAllOperator);
 router.put("/operator", authMiddleware, ConsoleController.updateOperator);
 router.put(
