@@ -1,7 +1,12 @@
 import express from "express";
 import { getClientByTenantId } from "../config/db.js";
 import { compareEncryption, encrypt } from "../utils/encryption.js";
-import { ConsoleRoleEnum, ConsoleStatusEnum } from "@prisma/client";
+import {
+  ConsoleRoleEnum,
+  ConsoleStatusEnum,
+  UserRoleEnum,
+  UserStatusEnum,
+} from "@prisma/client";
 import {
   BadRequestError,
   NotFoundError,
@@ -11,6 +16,7 @@ import {
 import { StatusCodes } from "http-status-codes";
 import {
   avatarImgConsoleSchema,
+  changeOrganisationMemberRoleSchema,
   consoleLoginSchema,
   consolePasswordSchema,
   operatorSchema,
@@ -79,6 +85,44 @@ export const loginConsole = async (
     ).send(res);
   }
   throw new UnAuthorizedError();
+};
+
+export const changePassword = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
+  const { oldPassword, password } = consolePasswordSchema.parse(req.body);
+  const prisma = await getClientByTenantId(req.tenantId);
+  const findConsoleUser = await prisma.consoleUser.findUniqueOrThrow({
+    where: {
+      userId: req.userId,
+    },
+  });
+  const verifyPassword = await compareEncryption(
+    oldPassword,
+    findConsoleUser?.password
+  );
+  if (!verifyPassword) {
+    throw new UnAuthorizedError();
+  }
+  const hashedPassword = await encrypt(password);
+  await prisma.consoleUser.update({
+    data: {
+      password: hashedPassword,
+    },
+    where: {
+      userId: req.userId,
+    },
+  });
+  const { password: _, ...withoutPassword } = findConsoleUser;
+  return new SuccessResponse(
+    StatusCodes.OK,
+    withoutPassword,
+    "Change password successfully"
+  ).send(res);
 };
 
 export const createSuperAdmin = async (
@@ -163,28 +207,28 @@ export const createOperator = async (
   ).send(res);
 };
 
-export const getAllOperator = async (
+export const updateOperator = async (
   req: express.Request,
   res: express.Response
 ) => {
   if (!req.userId) {
     throw new BadRequestError("userId not found!!");
   }
+  const operatorDataToUpdate = operatorUpdateSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
-  const operators = await prisma.consoleUser.findMany({
-    where: {
-      role: {
-        in: [ConsoleRoleEnum.OPERATOR],
-      },
+  const user = await prisma.consoleUser.update({
+    data: {
+      firstName: operatorDataToUpdate.firstName,
+      lastName: operatorDataToUpdate.lastName,
+      country: operatorDataToUpdate.country,
     },
-    orderBy: {
-      createdAt: "asc",
-    },
+    where: { userId: req.userId },
   });
+  const { password, ...infoWithoutPassword } = user;
   return new SuccessResponse(
     StatusCodes.OK,
-    operators,
-    "Operators get successfully"
+    infoWithoutPassword,
+    "Profile updated"
   ).send(res);
 };
 
@@ -212,31 +256,6 @@ export const changeOperatorStatus = async (
   ).send(res);
 };
 
-export const updateOperator = async (
-  req: express.Request,
-  res: express.Response
-) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
-  const operatorDataToUpdate = operatorUpdateSchema.parse(req.body);
-  const prisma = await getClientByTenantId(req.tenantId);
-  const user = await prisma.consoleUser.update({
-    data: {
-      firstName: operatorDataToUpdate.firstName,
-      lastName: operatorDataToUpdate.lastName,
-      country: operatorDataToUpdate.country,
-    },
-    where: { userId: req.userId },
-  });
-  const { password, ...infoWithoutPassword } = user;
-  return new SuccessResponse(
-    StatusCodes.OK,
-    infoWithoutPassword,
-    "Profile updated"
-  ).send(res);
-};
-
 export const deleteOperator = async (
   req: express.Request,
   res: express.Response
@@ -259,6 +278,31 @@ export const deleteOperator = async (
   ).send(res);
 };
 
+export const getAllOperator = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
+  const prisma = await getClientByTenantId(req.tenantId);
+  const operators = await prisma.consoleUser.findMany({
+    where: {
+      role: {
+        in: [ConsoleRoleEnum.OPERATOR],
+      },
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
+  return new SuccessResponse(
+    StatusCodes.OK,
+    operators,
+    "Operators get successfully"
+  ).send(res);
+};
+
 export const changeUserStatus = async (
   req: express.Request,
   res: express.Response
@@ -268,10 +312,32 @@ export const changeUserStatus = async (
   }
   const userId = uuidSchema.parse(req.params.userId);
   const prisma = await getClientByTenantId(req.tenantId);
-  const statusValue = userStatuSchema.parse(req.body);
+  const { organisationId, status } = userStatuSchema.parse(req.body);
+  const findUser = await prisma.user.findFirstOrThrow({
+    where: { userId },
+    include: {
+      userOrganisation: {
+        select: {
+          role: true,
+        },
+      },
+    },
+  });
+  if (findUser.userOrganisation[0]?.role === UserRoleEnum.ADMINISTRATOR) {
+    const findAdministrator = await prisma.userOrganisation.findAdministrator(
+      organisationId
+    );
+    if (findAdministrator.length > 0 && status === UserStatusEnum.ACTIVE) {
+      throw new BadRequestError("Administrator already exists");
+    }
+  }
+
+  if (findUser.status === status) {
+    throw new BadRequestError(`User status is already  ${status}`);
+  }
   const user = await prisma.user.update({
     data: {
-      status: statusValue.status,
+      status: status,
     },
     where: { userId: userId },
   });
@@ -309,6 +375,38 @@ export const changeOrganisationStatus = async (
   ).send(res);
 };
 
+export const changeUserOrganisationRole = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
+  const organisationId = uuidSchema.parse(req.params.organisationId);
+  const { role, userOrganisationId } = changeOrganisationMemberRoleSchema.parse(
+    req.body
+  );
+  const prisma = await getClientByTenantId(req.tenantId);
+  const findAdministrator = await prisma.userOrganisation.findAdministrator(
+    organisationId
+  );
+
+  if (findAdministrator.length > 0) {
+    throw new BadRequestError("Administrator already exists");
+  }
+  const updatedOrganisation = await prisma.userOrganisation.update({
+    where: { organisationId, userOrganisationId },
+    data: {
+      role,
+    },
+  });
+  return new SuccessResponse(
+    StatusCodes.OK,
+    updatedOrganisation,
+    "User role changed successfully"
+  ).send(res);
+};
+
 export const getAllOrganisation = async (
   req: express.Request,
   res: express.Response
@@ -336,6 +434,25 @@ export const getAllOrganisation = async (
   ).send(res);
 };
 
+export const organisationsUser = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
+  const organisationId = uuidSchema.parse(req.params.organisationId);
+  const prisma = await getClientByTenantId(req.tenantId);
+  const userOfOrg = await prisma.userOrganisation.findMany({
+    where: { organisationId },
+  });
+  return new SuccessResponse(
+    StatusCodes.OK,
+    userOfOrg,
+    "Organisation's user fetched successfully"
+  ).send(res);
+};
+
 export const deleteOrganisation = async (
   req: express.Request,
   res: express.Response
@@ -354,44 +471,6 @@ export const deleteOrganisation = async (
     StatusCodes.OK,
     null,
     "Organisation deleted successfully"
-  ).send(res);
-};
-
-export const changePassword = async (
-  req: express.Request,
-  res: express.Response
-) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
-  const { oldPassword, password } = consolePasswordSchema.parse(req.body);
-  const prisma = await getClientByTenantId(req.tenantId);
-  const findConsoleUser = await prisma.consoleUser.findUniqueOrThrow({
-    where: {
-      userId: req.userId,
-    },
-  });
-  const verifyPassword = await compareEncryption(
-    oldPassword,
-    findConsoleUser?.password
-  );
-  if (!verifyPassword) {
-    throw new UnAuthorizedError();
-  }
-  const hashedPassword = await encrypt(password);
-  await prisma.consoleUser.update({
-    data: {
-      password: hashedPassword,
-    },
-    where: {
-      userId: req.userId,
-    },
-  });
-  const { password: _, ...withoutPassword } = findConsoleUser;
-  return new SuccessResponse(
-    StatusCodes.OK,
-    withoutPassword,
-    "Change password successfully"
   ).send(res);
 };
 

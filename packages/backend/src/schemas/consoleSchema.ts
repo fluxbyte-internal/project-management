@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { OperatorStatusEnumValue, ZodErrorMessageEnumValue } from "./enums.js";
+import { OperatorStatusEnumValue, UserRoleEnumValue, ZodErrorMessageEnumValue } from "./enums.js";
 
 export const consoleLoginSchema = z.object({
   email: z
@@ -67,3 +67,8 @@ export const avatarImgConsoleSchema = z
       ),
     ".jpg, .jpeg, .png and .webp files are accepted."
   );
+
+  export const changeOrganisationMemberRoleSchema = z.object({
+    userOrganisationId: z.string().uuid(),
+    role: z.nativeEnum(UserRoleEnumValue),
+  });

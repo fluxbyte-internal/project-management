@@ -23,6 +23,13 @@ router.put(
   authMiddleware,
   ConsoleController.changeUserStatus
 );
+
+router.put(
+  "/user/role/:organisationId",
+  authMiddleware,
+  ConsoleController.changeUserOrganisationRole
+);
+
 router.put(
   "/organisation/status/:organisationId",
   authMiddleware,
@@ -33,6 +40,12 @@ router.get(
   "/organisations",
   authMiddleware,
   ConsoleController.getAllOrganisation
+);
+
+router.get(
+  "/organisations/:organisationId",
+  authMiddleware,
+  ConsoleController.organisationsUser
 );
 
 router.delete(

@@ -63,5 +63,6 @@ export const avatarImgSchema = z
 
   
 export const userStatuSchema = z.object({
+  organisationId: z.string().uuid(),
   status: z.nativeEnum(UserStatusEnumValue),
 });
