@@ -88,9 +88,11 @@ model User {
   createdProject Project[] @relation("createdByUser")
   updatedProject Project[] @relation("updatedByUser")
 
-  createdTask     Task[]            @relation("createdByUser")
-  updatedTask     Task[]            @relation("updatedByUser")
-  taskAssignUsers TaskAssignUsers[]
+  createdTask         Task[]            @relation("createdByUser")
+  updatedTask         Task[]            @relation("updatedByUser")
+  taskAssignUsers     TaskAssignUsers[]
+  createdKanbanColumn KanbanColumn[]    @relation("createdByUser")
+  updatedKanbanColumn KanbanColumn[]    @relation("updatedByUser")
 
   @@unique([email, password])
   @@index([userId, email])
@@ -191,7 +193,8 @@ model Project {
   createdAt             DateTime                @default(now()) @map("created_at")
   updatedAt             DateTime                @updatedAt @map("updated_at")
 
-  tasks Task[]
+  tasks         Task[]
+  kanbanColumns KanbanColumn[]
 
   @@index([projectId, organisationId])
 }
@@ -279,4 +282,23 @@ model Comments {
   commentByUser User @relation(fields: [commentByUserId], references: [userId], onDelete: Cascade)
 
   @@index([commentId, commentByUserId])
+}
+
+model KanbanColumn {
+  kanbanColumnId String @id @default(uuid()) @map("kanban_column_id")
+
+  projectId String  @map("project_id")
+  project   Project @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+
+  name            String  @map("name")
+  percentage      Float?  @map("percentage")
+  createdByUserId String  @map("created_by_user_id")
+  createdByUser   User    @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  updatedByUserId String? @map("updated_by_user_id")
+  updatedByUser   User?   @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([kanbanColumnId, projectId])
 }
