@@ -580,7 +580,7 @@ function TaskSubTaskForm(props: Props) {
                         {taskFormik.setFieldValue(
                           "startDate",
                           e ? e : undefined
-                        )}
+                        );}
                       }}
                       className="rounded-md border"
                     />
