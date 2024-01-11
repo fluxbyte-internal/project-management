@@ -295,7 +295,10 @@ function OrganisationDetails() {
                     key={userOrg.userOrganisationId}
                     className="flex flex-wrap md:flex-nowrap items-center px-2 py-1.5 sm:px-5 sm:py-3 gap-2"
                   >
-                    <div className="flex w-full sm:w-auto gap-2 items-center grow cursor-pointer"
+                    <div
+                      className={`flex w-full sm:w-auto gap-2 items-center grow ${
+                        currentUserIsAdmin ? "cursor-pointer" : ""
+                      }`}
                       onClick={() => {
                         setUpdateData(userOrg), setIsOpen(true);
                       }}
