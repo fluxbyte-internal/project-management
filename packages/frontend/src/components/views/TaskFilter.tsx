@@ -183,7 +183,7 @@ function TaskFilter(props: Filter) {
     }
     let applyFilter = 0;
     Object.keys(filter).forEach((element) => {
-      const key = element as keyof FilterField
+      const key = element as keyof FilterField;
       if (filter[key]) {
         applyFilter++;
       }
@@ -310,8 +310,8 @@ function TaskFilter(props: Filter) {
                               <div className="flex justify-between text-base items-center w-full text-gray-950 font-normal">
                                 {filter.date
                                   ? `${dateFormater(
-                                      filter.date.from ?? new Date()
-                                    )}-
+                                    filter.date.from ?? new Date()
+                                  )}-
                           ${dateFormater(filter.date.to ?? new Date())}`
                                   : "Select start date"}
                                 <img src={CalendarSvg} width={20} />

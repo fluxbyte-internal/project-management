@@ -607,7 +607,7 @@ function TaskSubTaskForm(props: Props) {
                   <div className="text-xs font-medium text-gray-400">
                     Progress:
                   </div>
-                  <div className="text-sm  text-gray-300">0%</div>
+                  <div className="text-sm  text-gray-300">{tasks?.completionPecentage}%</div>
                 </div>
               </div>
             </div>

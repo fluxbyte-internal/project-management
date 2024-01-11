@@ -1,4 +1,5 @@
 import Kanban, {
+  KanbanColumn,
   KanbanDataSource,
   KanbanProps,
 } from "smart-webcomponents-react/kanban";
@@ -11,9 +12,17 @@ import "./index.css";
 import { createRoot } from "react-dom/client";
 import TaskShellView from "./taskShellView";
 import { TaskStatusEnumValue } from "@backend/src/schemas/enums";
-import useTaskStatusUpdateMutation from "@/api/mutation/useTaskStatusUpdateMutation";
 import { toast } from "react-toastify";
 import TaskFilter, { FIELDS } from "../TaskFilter";
+import RulesSetups from "./rulesSetups/rulesSetups";
+import { KanbanColumnType } from "@/api/mutation/useKanbanCreateColumn";
+import { Button } from "@/components/ui/button";
+import useUpdateTaskMutation from "@/api/mutation/useTaskUpdateMutation";
+import Dialog from "@/components/common/Dialog";
+import RulesForm from "./rulesSetups/rulesForm";
+import CrossIcon from "@/assets/svg/CrossIcon.svg";
+import useAllKanbanColumnQuery from "@/api/query/useAllKanbanColumn";
+import Loader from "@/components/common/Loader";
 export interface columnsRenderData {
   label: string;
   dataField: string;
@@ -40,44 +49,35 @@ function KanbanView(
   const [isTaskShow, setIsTaskShow] = useState<boolean>(false);
   const childRef = useRef<Kanban>(null);
   const { projectId } = useParams();
+  const allKanbanColumn = useAllKanbanColumnQuery(projectId);
   const allTasks = useAllTaskQuery(projectId);
 
   const [dataSource, setDataSource] = useState<ExtendedKanbanDataSource[]>();
   const [filterData, setFilterData] = useState<Task[]>();
+  const [isColumnsOpen, setIsColumnsOpen] = useState<boolean>(false);
+  const [Columns, setColumns] = useState<KanbanColumn[]>();
+  const [closePopup, setClosePopup] = useState<boolean>(false);
+  useEffect(() => {
+    if (allKanbanColumn.status == "success") {
+      setOpen();
+    }
+  }, [allKanbanColumn.status == "success"]);
 
   const close = () => {
     setDialogRendered(undefined);
     setIsTaskShow(false);
     allTasks.refetch();
   };
-  const Columns = [
-    {
-      label: TaskStatusEnumValue.PLANNED,
-      dataField: TaskStatusEnumValue.PLANNED,
-      width: 300,
-    },
-    {
-      label: TaskStatusEnumValue.TODO,
-      dataField: TaskStatusEnumValue.TODO,
-      width: 300,
-      addNewButton: false,
-    },
-    {
-      label: TaskStatusEnumValue.IN_PROGRESS.replace("_", " "),
-      dataField: TaskStatusEnumValue.IN_PROGRESS,
-      width: 300,
-      addNewButton: false,
-    },
-    {
-      label: TaskStatusEnumValue.DONE,
-      dataField: TaskStatusEnumValue.DONE,
-      width: 300,
-      addNewButton: false,
-    },
-  ];
-
   useEffect(() => {
-    setDataSource([])
+    if (allKanbanColumn.data?.data.data) {
+      allKanbanColumn.data?.data.data.sort(
+        (a, b) => (a.percentage ?? 0) - (b.percentage ?? 0)
+      );
+      handleColumn(allKanbanColumn.data?.data.data);
+    }
+  }, [allKanbanColumn.data?.data.data]);
+  useEffect(() => {
+    setDataSource([]);
     if (allTasks.data?.data.data) {
       allTasks.data?.data.data?.forEach((task) => {
         setDataSource((prevItems) => [
@@ -86,7 +86,7 @@ function KanbanView(
         ]);
       });
     }
-  }, [allTasks.data?.data.data]);
+  }, [allTasks.data?.data.data, Columns]);
 
   useEffect(() => {
     setDataSource([]);
@@ -100,19 +100,20 @@ function KanbanView(
     }
   }, [filterData]);
 
-  const taskStatusUpdateMutation = useTaskStatusUpdateMutation();
+  const taskStatusUpdateMutation = useUpdateTaskMutation();
   const statusUpdate = (e: (Event & CustomEvent) | undefined) => {
-    const data = {
-      status: e?.detail.value.status,
-      taskId: e?.detail?.value.id,
-    };
-
-    taskStatusUpdateMutation.mutate(data, {
-      onError(error) {
-        allTasks.refetch();
-        toast.error(error.response?.data.message);
-      },
-    });
+    taskStatusUpdateMutation.mutate(
+      { completionPecentage: e?.detail.value.status, id: e?.detail.value.id },
+      {
+        onSuccess() {
+          allTasks.refetch();
+        },
+        onError(error) {
+          allTasks.refetch();
+          toast.error(error.response?.data.message);
+        },
+      }
+    );
   };
 
   function DataConvertToKanbanDataSource(data: Task): ExtendedKanbanDataSource {
@@ -120,7 +121,7 @@ function KanbanView(
       id: data.taskId,
       color: data.flag,
       text: data.taskName,
-      status: data.status,
+      status: setStatus(data),
       progress: data.completionPecentage ? Number(data.completionPecentage) : 1,
       startDate: data.startDate,
       dueDate: data.dueDate ?? data.endDate,
@@ -148,6 +149,25 @@ function KanbanView(
       dataField: "subTask",
     },
   ];
+
+  const setStatus = (task: Task) => {
+    let closestNumber = 0;
+    if (Columns && Columns.length > 0) {
+      for (const num of Columns) {
+        if (Number(num.dataField) <= Number(task.completionPecentage)) {
+          if (
+            closestNumber === 0 ||
+            Math.abs(Number(task.completionPecentage) - Number(num.dataField)) <
+              Math.abs(Number(task.completionPecentage) - closestNumber)
+          ) {
+            closestNumber = Number(num.dataField);
+          }
+        }
+      }
+    }
+
+    return String(closestNumber);
+  };
 
   const onOpening = (e: (Event & CustomEvent) | undefined) => {
     e?.preventDefault();
@@ -181,54 +201,88 @@ function KanbanView(
       "!text-gray-600",
     ];
     switch (data.dataField) {
-      case TaskStatusEnumValue.PLANNED:
-        className.push("!bg-rose-500/20");
-        break;
-      case TaskStatusEnumValue.TODO:
-        className.push("!bg-slate-500/20");
-        break;
-      case TaskStatusEnumValue.IN_PROGRESS:
-        className.push("!bg-primary-500/20");
-        break;
-      case TaskStatusEnumValue.DONE:
-        className.push("!bg-green-500/20");
-        break;
+    case TaskStatusEnumValue.PLANNED:
+      className.push("!bg-rose-500/20");
+      break;
+    case TaskStatusEnumValue.TODO:
+      className.push("!bg-slate-500/20");
+      break;
+    case TaskStatusEnumValue.IN_PROGRESS:
+      className.push("!bg-primary-500/20");
+      break;
+    case TaskStatusEnumValue.DONE:
+      className.push("!bg-green-500/20");
+      break;
     }
     header.classList.add(...className);
   };
+  const handleColumn = (data: KanbanColumnType[]) => {
+    const column: KanbanColumn[] = data.map((d) => {
+      return {
+        label: d.name.toUpperCase() ,
+        dataField: String(d.percentage),
+        width: 300,
+        addNewButton: d.percentage == 0 ? true : false,
+      };
+    });
+    setColumns(column);
+  };
+  const setOpen = () => {
+    
+    if (allKanbanColumn.data?.data.data && allKanbanColumn.data.data.data.length > 0) {
+      setClosePopup(false);
+    } else {
+      setClosePopup(true);
+    }
+  };
+
   return (
-    <div className="h-5/6 w-full scroll ">
-      <div>
-        <TaskFilter
-          fieldToShow={[
-            FIELDS.ASSIGNED,
-            FIELDS.DATE,
-            FIELDS.DUESEVENDAYS,
-            FIELDS.FLAGS,
-            FIELDS.OVERDUEDAYS,
-            FIELDS.TODAYDUEDAYS,
-          ]}
-          tasks={allTasks.data?.data.data}
-          filteredData={(task) => setFilterData(task)}
-        />
-      </div>
-      <Kanban
-        ref={childRef}
-        {...props}
-        columns={Columns}
-        dataSource={dataSource}
-        collapsible
-        addNewButton
-        editable
-        className="!h-full !w-full"
-        taskCustomFields={taskCustomFields}
-        onTaskRender={onTaskRender}
-        onOpening={(e) => onOpening(e as (Event & CustomEvent) | undefined)}
-        onTaskUpdate={(e) =>
-          statusUpdate(e as (Event & CustomEvent) | undefined)
-        }
-        onColumnHeaderRender={onColumnHeaderRender}
-      />
+    <div className="w-full h-full scroll p-2">
+      {allKanbanColumn.isLoading ||
+        (allTasks.isLoading && <Loader className="top-0 right-0" />)}
+      {!closePopup && (
+        <div className="flex flex-col h-full w-full">
+          <div className="flex justify-between  w-full">
+            <TaskFilter
+              fieldToShow={[
+                FIELDS.ASSIGNED,
+                FIELDS.DATE,
+                FIELDS.DUESEVENDAYS,
+                FIELDS.FLAGS,
+                FIELDS.OVERDUEDAYS,
+                FIELDS.TODAYDUEDAYS,
+              ]}
+              tasks={allTasks.data?.data.data}
+              filteredData={(task) => setFilterData(task)}
+            />
+            <div>
+              <Button
+                variant={"primary"}
+                value={"Create Columns"}
+                onClick={() => setIsColumnsOpen(true)}
+              >
+                Create Columns
+              </Button>
+            </div>
+          </div>
+          <Kanban
+            ref={childRef}
+            {...props}
+            columns={Columns}
+            dataSource={dataSource}
+            addNewButton
+            onColumnClick={() => setClosePopup(true)}
+            className="!h-[92%] !w-full kanban"
+            taskCustomFields={taskCustomFields}
+            onTaskRender={onTaskRender}
+            onOpening={(e) => onOpening(e as (Event & CustomEvent) | undefined)}
+            onTaskUpdate={(e) =>
+              statusUpdate(e as (Event & CustomEvent) | undefined)
+            }
+            onColumnHeaderRender={onColumnHeaderRender}
+          />
+        </div>
+      )}
       {(dialogRendered || isTaskShow) && (
         <TaskSubTaskForm
           close={close}
@@ -236,6 +290,33 @@ function KanbanView(
           projectId={projectId}
         />
       )}
+      {closePopup && (
+        <RulesSetups
+          key={"RulesSetups#1"}
+          setColumes={(data) => handleColumn(data)}
+          close={() => {
+            setClosePopup(false);
+            setOpen();
+          }}
+        />
+      )}
+      <Dialog
+        isOpen={isColumnsOpen}
+        modalClass="rounded-md p-3"
+        onClose={() => {}}
+      >
+        <div className="flex justify-between mb-3">
+          <div className="text-lg font-semibold">Create column</div>
+          <Button variant={"none"} onClick={() => setIsColumnsOpen(false)}>
+            <img src={CrossIcon} />
+          </Button>
+        </div>
+        <RulesForm
+          projectId={projectId ?? ""}
+          refatch={() => allKanbanColumn.refetch()}
+          close={() => setIsColumnsOpen(false)}
+        />
+      </Dialog>
     </div>
   );
 }

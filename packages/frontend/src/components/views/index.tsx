@@ -1,8 +1,9 @@
 import { useState } from "react";
-// import KanbanView from "./kanbanView";
+import KanbanView from "./kanbanView";
 import SideBar from "../layout/SideBar";
 import BackgroundImage from "../layout/BackgroundImage";
-import CalendarView from "./calendarView";
+// import CalendarView from "./calendarView";
+// import RulesSetups from "./kanbanView/rulesSetups/rulesSetups";
 // import Tasks from "@/pages/tasks";
 function TaskViews() {
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
@@ -19,10 +20,11 @@ function TaskViews() {
           toggleSidebar={toggleSidebar}
           isSidebarExpanded={isSidebarExpanded}
         />
-        <div className={`p-3 h-full ${isSidebarExpanded ? "ml-64" : "ml-4"}`}>
+        <div className={`h-full ${isSidebarExpanded ? "ml-64" : "ml-4"}`}>
          
-          <CalendarView />
-          {/* <KanbanView /> */}
+          {/* <CalendarView /> */}
+          {/* <RulesSetups/> */}
+          <KanbanView />
           {/* <Tasks/> */}
         </div>
       </div>

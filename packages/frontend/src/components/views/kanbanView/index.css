@@ -4,12 +4,23 @@
     --smart-scroll-bar-thumb-background-active: theme('colors.primary.500');;
     --smart-scroll-bar-thumb-background-hover: theme('colors.primary.400');;
     --smart-scroll-bar-thumb-background: theme('colors.primary.400');;
-    --smart-scroll-bar-size: 12px;
-    --smart-scroll-bar-default-width:10px;
-    --smart-scroll-bar-thumb-border-top-right-radius: 10px;
-    --smart-scroll-bar-thumb-border-top-left-radius: 10px;
-    --smart-scroll-bar-thumb-border-bottom-left-radius: 10px;
-    --smart-scroll-bar-thumb-border-bottom-right-radius: 10px;
+    --smart-scroll-bar-size: 0px;
+    --smart-scroll-bar-default-width:0px;
+    --smart-scroll-bar-thumb-border-top-right-radius: 0;
+    --smart-scroll-bar-thumb-border-top-left-radius: 0;
+    --smart-scroll-bar-thumb-border-bottom-left-radius: 0;
+    --smart-scroll-bar-thumb-border-bottom-right-radius: 0;
     --smart-scroll-button-size: 1px;
     --smart-scroll-bar-button-color:"#3f51b500"
+}
+.kanban{
+    --smart-border-width: 0px;
+    --smart-kanban-color-band-width: 0px;
+    .smart-kanban-task{
+        padding: 0px;
+        grid-template-rows:  auto;
+    }
+}
+.smart-kanban .smart-kanban-column-content-tasks .smart-kanban-task[focus] {
+    box-shadow: none !important;
 }
