@@ -36,6 +36,12 @@ router.put(
   ConsoleController.changeOrganisationStatus
 );
 
+router.put(
+  "/organisations/block-reassigned",
+  authMiddleware,
+  ConsoleController.blockAndReassignAdministator
+);
+
 router.get(
   "/organisations",
   authMiddleware,

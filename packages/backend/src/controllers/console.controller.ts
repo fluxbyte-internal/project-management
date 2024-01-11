@@ -16,6 +16,7 @@ import {
 import { StatusCodes } from "http-status-codes";
 import {
   avatarImgConsoleSchema,
+  blockAndReassignAdministatorSchema,
   changeOrganisationMemberRoleSchema,
   consoleLoginSchema,
   consolePasswordSchema,
@@ -422,7 +423,15 @@ export const getAllOrganisation = async (
     include: {
       userOrganisation: {
         include: {
-          user: true,
+          user: {
+            select: {
+              avatarImg: true,
+              email: true,
+              lastName: true,
+              firstName: true,
+              status: true,
+            },
+          },
         },
       },
     },
@@ -445,6 +454,17 @@ export const organisationsUser = async (
   const prisma = await getClientByTenantId(req.tenantId);
   const userOfOrg = await prisma.userOrganisation.findMany({
     where: { organisationId },
+    include: {
+      user: {
+        select: {
+          avatarImg: true,
+          email: true,
+          lastName: true,
+          firstName: true,
+          status: true,
+        },
+      },
+    },
   });
   return new SuccessResponse(
     StatusCodes.OK,
@@ -496,4 +516,65 @@ export const updateConsoleUserAvtarImg = async (
     where: { userId: req.userId },
   });
   return new SuccessResponse(StatusCodes.OK, user, "Profile updated").send(res);
+};
+
+export const blockAndReassignAdministator = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
+  const prisma = await getClientByTenantId(req.tenantId);
+  await prisma.$transaction(async (tx) => {
+    const { organisationId, userOrganisationBlockId, reassginAdministratorId } =
+      blockAndReassignAdministatorSchema.parse(req.body);
+
+    const findUserOrg = await tx.userOrganisation.findFirstOrThrow({
+      where: {
+        userOrganisationId: reassginAdministratorId,
+      },
+      include: {
+        user: {
+          select: {
+            status: true,
+          },
+        },
+      },
+    });
+
+    if (
+      findUserOrg.user?.status === UserStatusEnum.INACTIVE &&
+      findUserOrg.role === UserRoleEnum.ADMINISTRATOR
+    ) {
+      throw new BadRequestError("Administrator can't be active again");
+    }
+
+    // Update the user status to INACTIVE
+    await tx.user.update({
+      data: {
+        status: UserStatusEnum.INACTIVE,
+      },
+      where: { userId: userOrganisationBlockId },
+    });
+
+    // Update the user role and status to ADMINISTRATOR and ACTIVE
+    await tx.userOrganisation.update({
+      where: { organisationId, userOrganisationId: reassginAdministratorId },
+      data: {
+        role: UserRoleEnum.ADMINISTRATOR,
+        user: {
+          update: {
+            status: UserStatusEnum.ACTIVE,
+          },
+        },
+      },
+    });
+  });
+
+  return new SuccessResponse(
+    StatusCodes.OK,
+    null,
+    "Administrator reassgined successfully"
+  ).send(res);
 };

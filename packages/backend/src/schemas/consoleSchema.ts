@@ -72,3 +72,10 @@ export const avatarImgConsoleSchema = z
     userOrganisationId: z.string().uuid(),
     role: z.nativeEnum(UserRoleEnumValue),
   });
+
+
+export const blockAndReassignAdministatorSchema = z.object({
+  organisationId: z.string().uuid(),
+  userOrganisationBlockId: z.string().uuid(),
+  reassginAdministratorId: z.string().uuid()
+});
