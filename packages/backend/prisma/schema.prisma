@@ -240,17 +240,16 @@ model TaskAssignUsers {
 }
 
 model TaskDependencies {
-  taskDependenciesId   String               @id @default(uuid()) @map("dependencies_id")
-  dependentTaskId      String               @map("dependent_task_id")
-  dependentTask        Task                 @relation("dependencies", fields: [dependentTaskId], references: [taskId], onDelete: Cascade)
-  dependentType        TaskDependenciesEnum @map("dependent_type")
-  dependendentOnTaskId String               @map("dependent_on_task_id")
-  dependentOnTask      Task                 @relation("dependentOnTask", fields: [dependendentOnTaskId], references: [taskId], onDelete: Cascade)
-  createdAt            DateTime             @default(now()) @map("created_at")
-  updatedAt            DateTime             @updatedAt @map("updated_at")
-
-  addDependenciesBy     String @map("add_dependencies_by_user_id")
-  addDependenciesByUser User   @relation(fields: [addDependenciesBy], references: [userId], onDelete: Cascade)
+  taskDependenciesId      String               @id @default(uuid()) @map("dependencies_id")
+  dependentTaskId         String               @map("dependent_task_id")
+  dependentTask           Task                 @relation("dependencies", fields: [dependentTaskId], references: [taskId], onDelete: Cascade)
+  dependentType           TaskDependenciesEnum @map("dependent_type")
+  dependendentOnTaskId    String               @map("dependent_on_task_id")
+  dependentOnTask         Task                 @relation("dependentOnTask", fields: [dependendentOnTaskId], references: [taskId], onDelete: Cascade)
+  createdAt               DateTime             @default(now()) @map("created_at")
+  updatedAt               DateTime             @updatedAt @map("updated_at")
+  dependenciesAddedBy     String               @map("dependencies_added_by")
+  dependenciesAddedByUser User                 @relation(fields: [dependenciesAddedBy], references: [userId], onDelete: Cascade)
 
   @@unique([dependentTaskId, dependentType, dependendentOnTaskId])
   @@index([dependentTaskId, dependentType, dependendentOnTaskId])

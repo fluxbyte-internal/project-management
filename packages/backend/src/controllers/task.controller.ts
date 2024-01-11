@@ -587,17 +587,17 @@ export const deleteAttachment = async (
   }
   //TODO: If Delete require on S3
   // await AwsUploadService.deleteFile(attachment.name, 'task-attachment');
-  const deletedAttcahment = await prisma.taskAttachment.delete({ where: { attachmentId } });
+  const deletedAttachment = await prisma.taskAttachment.delete({ where: { attachmentId } });
 
   // History-Manage
   const historyMessage = "Task's attachment was removed";
-  const historyData = { oldValue: deletedAttcahment.url, newValue: null };
+  const historyData = { oldValue: deletedAttachment.url, newValue: null };
   await prisma.history.createHistory(
     req.userId,
     HistoryTypeEnumValue.TASK,
     historyMessage,
     historyData,
-    deletedAttcahment.taskId
+    deletedAttachment.taskId
   );
 
   return new SuccessResponse(
@@ -758,7 +758,7 @@ export const addDependencies = async (
       dependentType: dependentType,
       dependentTaskId: taskId,
       dependendentOnTaskId: dependendentOnTaskId,
-      addDependenciesBy: req.userId
+      dependenciesAddedBy: req.userId
     },
   });
 

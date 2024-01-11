@@ -270,7 +270,7 @@ function generatePrismaClient(datasourceUrl?: string) {
           );
 
           const isDependenciesAuthor =
-            dependencies.addDependenciesBy === userId;
+            dependencies.dependenciesAddedBy === userId;
           const canPerformAction =
             userRoles.some((role) => allowedRoles.includes(role)) ||
             isDependenciesAuthor;
