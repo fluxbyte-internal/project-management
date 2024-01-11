@@ -16,8 +16,6 @@ enum UserRoleEnum {
   ADMINISTRATOR
   PROJECT_MANAGER
   TEAM_MEMBER
-  SUPER_ADMIN
-  OPERATOR
 }
 
 enum UserStatusEnum {
@@ -86,10 +84,12 @@ model User {
   createdProject Project[] @relation("createdByUser")
   updatedProject Project[] @relation("updatedByUser")
 
-  createdTask     Task[]            @relation("createdByUser")
-  updatedTask     Task[]            @relation("updatedByUser")
-  taskAssignUsers TaskAssignUsers[]
-  history         History[]
+  createdTask        Task[]             @relation("createdByUser")
+  updatedTask        Task[]             @relation("updatedByUser")
+  taskAssignUsers    TaskAssignUsers[]
+  history            History[]
+  uploadedAttachment TaskAttachment[]
+  addedDependencies  TaskDependencies[]
 
   @@unique([email, password])
   @@index([userId, email])
@@ -167,27 +167,27 @@ model UserOrganisation {
 }
 
 model Project {
-  projectId             String                  @id @unique @default(uuid()) @map("project_id")
-  organisationId        String                  @map("organisation_id")
-  organisation          Organisation            @relation(fields: [organisationId], references: [organisationId])
-  projectName           String                  @map("project_name")
-  projectDescription    String                  @map("project_description") @db.VarChar(500)
-  startDate             DateTime                @map("start_date")
-  estimatedEndDate      DateTime                @map("estimated_end_date")
-  status                ProjectStatusEnum       @default(NOT_STARTED) @map("status")
-  defaultView           ProjectDefaultViewEnum  @default(LIST) @map("default_view")
-  timeTrack             String?                 @map("time_track")
-  budgetTrack           String?                 @map("budget_track")
-  currency              String                  @map("currency")
-  overallTrack          ProjectOverAllTrackEnum @default(SUNNY) @map("overall_track")
-  estimatedBudget       String                  @map("estimated_budget")
-  actualCost            String?                 @map("actual_cost")
-  createdByUserId       String                  @map("created_by_user_id")
-  createdByUser         User                    @relation("createdByUser", fields: [createdByUserId], references: [userId])
-  updatedByUserId       String?                 @map("updated_by_user_id")
-  updatedByUser         User?                   @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
-  createdAt             DateTime                @default(now()) @map("created_at")
-  updatedAt             DateTime                @updatedAt @map("updated_at")
+  projectId          String                  @id @unique @default(uuid()) @map("project_id")
+  organisationId     String                  @map("organisation_id")
+  organisation       Organisation            @relation(fields: [organisationId], references: [organisationId])
+  projectName        String                  @map("project_name")
+  projectDescription String                  @map("project_description") @db.VarChar(500)
+  startDate          DateTime                @map("start_date")
+  estimatedEndDate   DateTime                @map("estimated_end_date")
+  status             ProjectStatusEnum       @default(NOT_STARTED) @map("status")
+  defaultView        ProjectDefaultViewEnum  @default(LIST) @map("default_view")
+  timeTrack          String?                 @map("time_track")
+  budgetTrack        String?                 @map("budget_track")
+  currency           String                  @map("currency")
+  overallTrack       ProjectOverAllTrackEnum @default(SUNNY) @map("overall_track")
+  estimatedBudget    String                  @map("estimated_budget")
+  actualCost         String?                 @map("actual_cost")
+  createdByUserId    String                  @map("created_by_user_id")
+  createdByUser      User                    @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  updatedByUserId    String?                 @map("updated_by_user_id")
+  updatedByUser      User?                   @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  createdAt          DateTime                @default(now()) @map("created_at")
+  updatedAt          DateTime                @updatedAt @map("updated_at")
 
   tasks Task[]
 
@@ -249,6 +249,9 @@ model TaskDependencies {
   createdAt            DateTime             @default(now()) @map("created_at")
   updatedAt            DateTime             @updatedAt @map("updated_at")
 
+  addDependenciesBy     String @map("add_dependencies_by_user_id")
+  addDependenciesByUser User   @relation(fields: [addDependenciesBy], references: [userId], onDelete: Cascade)
+
   @@unique([dependentTaskId, dependentType, dependendentOnTaskId])
   @@index([dependentTaskId, dependentType, dependendentOnTaskId])
 }
@@ -261,6 +264,9 @@ model TaskAttachment {
   task         Task     @relation(fields: [taskId], references: [taskId], onDelete: Cascade)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
+
+  uploadedBy     String @map("uploaded_by")
+  uploadedByUser User   @relation(fields: [uploadedBy], references: [userId], onDelete: Cascade)
 
   @@index([taskId])
 }

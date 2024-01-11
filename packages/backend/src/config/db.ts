@@ -1,4 +1,9 @@
-import { HistoryTypeEnum, PrismaClient, Task } from "@prisma/client";
+import {
+  HistoryTypeEnum,
+  PrismaClient,
+  Task,
+  UserRoleEnum,
+} from "@prisma/client";
 const rootPrismaClient = generatePrismaClient();
 const prismaClients: Record<
   "root" | (Omit<string, "root"> & string),
@@ -105,6 +110,51 @@ function generatePrismaClient(datasourceUrl?: string) {
         },
       },
       task: {
+        // create action (comment-attachment-dependencies)
+        async canCreate(taskId: string, userId: string) {
+          const task = await client.task.getTaskById(taskId);
+          const userRoles = await client.user.getUserRoles(userId);
+          const allowedRoles: UserRoleEnum[] = [
+            UserRoleEnum.ADMINISTRATOR,
+            UserRoleEnum.PROJECT_MANAGER,
+          ];
+
+          const isAssignedToTask = task.assignedUsers.some(
+            (assignedUser) => assignedUser.user.userId === userId
+          );
+          return (
+            userId === task.createdByUserId ||
+            userRoles.some((role) => allowedRoles.includes(role)) ||
+            isAssignedToTask
+          );
+        },
+        async canEditOrDelete(taskId: string, userId: string) {
+          const task = await client.task.getTaskById(taskId);
+          const userRoles = await client.user.getUserRoles(userId);
+
+          const allowedRoles: UserRoleEnum[] = [
+            UserRoleEnum.ADMINISTRATOR,
+            UserRoleEnum.PROJECT_MANAGER,
+          ];
+          const isTaskAuthor = task.createdByUserId === userId;
+          const canPerformAction =
+            userRoles.some((role) => allowedRoles.includes(role)) ||
+            isTaskAuthor;
+
+          return canPerformAction;
+        },
+        async getTaskById(taskId: string) {
+          return client.task.findFirstOrThrow({
+            where: { taskId },
+            include: {
+              assignedUsers: {
+                include: {
+                  user: true,
+                },
+              },
+            },
+          });
+        },
         async calculationSubTaskProgression(taskId: string) {
           const hours: number = 24;
           const parentTask = await client.task.findFirst({
@@ -123,7 +173,7 @@ function generatePrismaClient(datasourceUrl?: string) {
             for (const value of parentTask.subtasks) {
               completionPecentageOrDurationTask +=
                 Number(value.completionPecentage) * (value.duration * hours);
-                averagesSumOfDurationTask += value.duration * hours * 100;
+              averagesSumOfDurationTask += value.duration * hours * 100;
             }
             return (
               completionPecentageOrDurationTask / averagesSumOfDurationTask
@@ -146,6 +196,103 @@ function generatePrismaClient(datasourceUrl?: string) {
             }
           }
           return count;
+        },
+      },
+      comments: {
+        async canEditOrDelete(commentId: string, userId: string) {
+          const comment = await client.comments.findFirstOrThrow({
+            where: { commentId },
+            include: {
+              commentByUser: true,
+            },
+          });
+          const userRoles = await client.user.getUserRoles(userId);
+
+          const allowedRoles: UserRoleEnum[] = [
+            UserRoleEnum.ADMINISTRATOR,
+            UserRoleEnum.PROJECT_MANAGER,
+          ];
+
+          const isCommentAuthor = comment.commentByUser.userId === userId;
+          const canPerformAction =
+            userRoles.some((role) => allowedRoles.includes(role)) ||
+            isCommentAuthor;
+
+          return canPerformAction;
+        },
+      },
+      taskAttachment: {
+        async canDelete(attachmentId: string, userId: string) {
+          const attachment = await client.taskAttachment.findFirstOrThrow({
+            where: { attachmentId: attachmentId },
+            include: {
+              task: {
+                include: {
+                  assignedUsers: {
+                    include: {
+                      user: true,
+                    },
+                  },
+                },
+              },
+            },
+          });
+
+          const userRoles = await client.user.getUserRoles(userId);
+          const allowedRoles: UserRoleEnum[] = [
+            UserRoleEnum.ADMINISTRATOR,
+            UserRoleEnum.PROJECT_MANAGER,
+          ];
+          const isAttachmentAuthor = attachment.uploadedBy === userId;
+          const canPerformAction =
+            userRoles.some((role) => allowedRoles.includes(role)) ||
+            isAttachmentAuthor;
+
+          return canPerformAction;
+        },
+      },
+      taskDependencies: {
+        async canDelete(taskDependenciesId: string, userId: string) {
+          const dependencies = await client.taskDependencies.findFirstOrThrow({
+            where: {
+              taskDependenciesId: taskDependenciesId,
+            },
+          });
+
+          const userRoles = await client.user.getUserRoles(userId);
+          const allowedRoles: UserRoleEnum[] = [
+            UserRoleEnum.ADMINISTRATOR,
+            UserRoleEnum.PROJECT_MANAGER,
+          ];
+
+          const isAdminOrProjectManager = userRoles.some((role) =>
+            allowedRoles.includes(role)
+          );
+
+          const isDependenciesAuthor =
+            dependencies.addDependenciesBy === userId;
+          const canPerformAction =
+            userRoles.some((role) => allowedRoles.includes(role)) ||
+            isDependenciesAuthor;
+
+          return canPerformAction;
+        },
+      },
+      user: {
+        async getUserRoles(userId: string) {
+          const user = await client.user.findFirstOrThrow({
+            include: {
+              userOrganisation: {
+                select: {
+                  role: true,
+                },
+              },
+            },
+            where: {
+              userId: userId,
+            },
+          });
+          return user.userOrganisation.map((org) => org.role);
         },
       },
     },
