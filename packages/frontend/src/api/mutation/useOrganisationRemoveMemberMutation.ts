@@ -25,4 +25,4 @@ function useOrganisationRemoveMemberMutation() {
   return mutation;
 }
 
-export default useOrganisationRemoveMemberMutation
+export default useOrganisationRemoveMemberMutation;

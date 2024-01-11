@@ -303,7 +303,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p> Date will be automatically </p>
-                                    <p>updated after saving a baseline</p>
+                                  <p>updated after saving a baseline</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>

@@ -151,7 +151,7 @@ function OrganisationDetails() {
       role: UpdateData?.role ?? "TEAM_MEMBER",
     });
     setIsOpen(false);
-    setUpdateData(undefined)
+    setUpdateData(undefined);
   };
 
   useEffect(() => {
