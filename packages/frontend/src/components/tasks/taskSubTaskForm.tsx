@@ -48,7 +48,7 @@ import InfoCircle from "../../assets/svg/Info circle.svg";
 import TopRightArrow from "../../assets/svg/TopRightArrow.svg";
 import BackIcon from "../../assets/svg/BackIcon.svg";
 import CalendarIcon from "../../assets/svg/Calendar.svg";
-import InputNumber from "@/components/common/inputNumber";
+import InputNumber from "@/components/common/InputNumber";
 import TaskHistory from "./taskHistory";
 import {
   Tooltip,
