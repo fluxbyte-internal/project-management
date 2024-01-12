@@ -6,7 +6,6 @@ import { CheckIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 
-import Dialog from "../common/Dialog";
 import { Button } from "../ui/button";
 import TaskComment from "./taskComment";
 import UserAvatar from "../ui/userAvatar";
@@ -43,12 +42,12 @@ import Edit from "../../assets/svg/EditPen.svg";
 import Folder from "../../assets/svg/Folders.svg";
 import Close from "../../assets/svg/CrossIcon.svg";
 import SubTask from "../../assets/svg/SubTask.svg";
-import TrashCan from "../../assets/svg/TrashCan.svg";
 import MultiLine from "../../assets/svg/MultiLine.svg";
 import PapperClip from "../../assets/svg/Paperclip.svg";
 import InfoCircle from "../../assets/svg/Info circle.svg";
 import TopRightArrow from "../../assets/svg/TopRightArrow.svg";
-import useRemoveTaskMutation from "@/api/mutation/useTaskRemove";
+import BackIcon from "../../assets/svg/BackIcon.svg";
+import CalendarIcon from "../../assets/svg/Calendar.svg";
 import InputNumber from "../common/InputNumber";
 import TaskHistory from "./taskHistory";
 import {
@@ -70,6 +69,7 @@ function TaskSubTaskForm(props: Props) {
   const fileInput = useRef<HTMLInputElement>(null);
   const [taskNameField, setTaskNameField] = useState(false);
   const [taskDurationField, setTaskDurationField] = useState(false);
+  const [taskProgressField, setTaskProgressField] = useState(false);
   const [taskId, setTaskId] = useState<string>(props.taskId ?? "");
   const [subTaskFieldShow, setSubTaskFieldShow] = useState<boolean>(false);
   const [member, setMambers] = useState<UserOrganisationType["user"][]>([]);
@@ -80,9 +80,9 @@ function TaskSubTaskForm(props: Props) {
   const taskUpdateMutation = useUpdateTaskMutation(taskId);
   const taskRemoveMembersMutation = useRemoveTaskMemberMutation();
   const taskAddMembersMutation = useTaskAddMembersMutation(taskId);
-  const tasks = taskQuery.data ? taskQuery.data.data.data : undefined;
+
+  let tasks = taskQuery.data && taskId ? taskQuery.data.data.data : undefined;
   const taskAttachmentAddMutation = useTaskAttechmentAddMutation(taskId);
-  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const taskCreateMutation = useCreateTaskMutation(props.projectId, taskId);
   const taskAddUpdateMilestoneMutation =
     useTaskAddUpdateMilestoneMutation(taskId);
@@ -123,6 +123,7 @@ function TaskSubTaskForm(props: Props) {
         taskUpdateMutation.mutate(values, {
           onSuccess(data) {
             toast.success(data.data.message);
+            props.close();
           },
           onError(error) {
             toast.error(error.response?.data.message);
@@ -133,6 +134,7 @@ function TaskSubTaskForm(props: Props) {
           onSuccess(data) {
             setTaskId(data.data.data.taskId);
             toast.success(data.data.message);
+            props.close();
           },
           onError(error) {
             toast.error(error.response?.data.message);
@@ -141,19 +143,7 @@ function TaskSubTaskForm(props: Props) {
       }
     },
   });
-  const removeTaskMutation = useRemoveTaskMutation();
-  const removeTask = () => {
-    removeTaskMutation.mutate(taskId, {
-      onSuccess(data) {
-        setShowConfirmDelete(false);
-        tasks?.parentTaskId ? setTaskId(tasks?.parentTaskId) : props.close();
-        toast.success(data.data.message);
-      },
-      onError(error) {
-        toast.error(error.response?.data.message);
-      },
-    });
-  };
+
   const milestoneFormik = useFormik<z.infer<typeof milestoneTaskSchema>>({
     initialValues: {
       milestoneIndicator: false,
@@ -195,7 +185,7 @@ function TaskSubTaskForm(props: Props) {
     taskCreateMutation.mutate(value, {
       onSuccess(data) {
         refetch();
-        setSubtask("");
+        setSubtask('');
         toast.success(data.data.message);
       },
       onError(error) {
@@ -259,19 +249,59 @@ function TaskSubTaskForm(props: Props) {
     }
   };
 
+  const [progressError, setProgressError] = useState("");
+  const onProgressUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (Number(val) > 100 || Number(val) < 0) {
+      setProgressError("Progress must be within the range of 0 to 100.");
+    } else {
+      setProgressError("");
+      taskUpdateMutation.mutate(
+        { completionPecentage:Number(val)??0 },
+        {
+          onSuccess() {
+            refetch();
+          },
+          onError(err) {
+            toast.error(err.message);
+          },
+        }
+      );
+    }
+  };
+
   return (
     <div className="absolute w-full h-full z-50 top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-gray-900 bg-opacity-50">
-      <div className="bg-white rounded-lg text-gray-700 p-6 lg:p-12 w-full md:max-w-[95%] lg:max-w-[80%] h-full md:max-h-[80%] overflow-auto ">
+      <div className="bg-white rounded-lg text-gray-700 p-6 lg:p-10 w-full md:max-w-[95%] lg:max-w-[80%] h-full md:max-h-[80%] overflow-auto ">
+        <div className="flex justify-between items-center">
+          <div>
+            <div className={`${tasks?.parentTaskId ? "block" : "hidden"}`}>
+              <Button
+                variant={"link"}
+                className="flex justify-start p-0"
+                onClick={() => setTaskId(tasks?.parentTaskId ?? "")}
+              >
+                <img src={BackIcon} width={24} height={24} />
+              </Button>
+            </div>
+          </div>
+          <div>
+            <Button
+              variant={"ghost"}
+              onClick={() => {
+                props.close(), (tasks = undefined);
+              }}
+            >
+              <img src={Close} width={24} height={24} />
+            </Button>
+          </div>
+        </div>
         <div className="flex justify-between items-center">
           <div className="flex flex-col">
             <div className="flex items-center gap-2.5">
               <img src={TaskSvg} width={24} height={24} />
               <div>
-                {!taskNameField ? (
-                  <div className="text-2xl font-semibold">
-                    {taskFormik.values.taskName}
-                  </div>
-                ) : (
+                {taskNameField || !taskId ? (
                   <div>
                     <InputText
                       onBlur={() => {
@@ -280,8 +310,13 @@ function TaskSubTaskForm(props: Props) {
                       name="taskName"
                       onChange={taskFormik.handleChange}
                       onClick={taskFormik.handleBlur}
+                      placeholder="Task Name"
                       value={taskFormik.values.taskName}
                     ></InputText>
+                  </div>
+                ) : (
+                  <div className="text-2xl font-semibold">
+                    {taskFormik.values.taskName}
                   </div>
                 )}
               </div>
@@ -294,17 +329,12 @@ function TaskSubTaskForm(props: Props) {
             </div>
             <div className="text-sm font-normal">in list {tasks?.status}</div>
           </div>
-          <div>
-            <Button variant={"ghost"} onClick={() => props.close()}>
-              <img src={Close} width={24} height={24} />
-            </Button>
-          </div>
         </div>
         <div className="flex gap-3 md:gap-8 justify-between md:flex-row flex-col-reverse mt-4 md:mt-0">
           <div className="w-full md:w-3/4">
             <div className="mt-4 flex gap-4">
               <div>
-                <p className="text-sm font-semibold">Members</p>
+                <p className="text-sm font-semibold">Assignees</p>
                 <div className="flex gap-4 justify-between items-center">
                   <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))]">
                     {member.slice(0, 4).map((item, index) => {
@@ -355,7 +385,7 @@ function TaskSubTaskForm(props: Props) {
                       <Button
                         variant={"secondary"}
                         className="flex justify-between items-center w-full"
-                        onClick={() => setTaskId(task.taskId)}
+                        onClick={() =>  setTaskId(task.taskId)}
                       >
                         <div className="flex gap-2">
                           <img src={Folder} />
@@ -470,12 +500,7 @@ function TaskSubTaskForm(props: Props) {
                                 tasks?.assignedUsers.some(
                                   (u) => u.user.userId == data.user.userId
                                 )
-                                  ? removeMembers(
-                                    tasks?.assignedUsers.find(
-                                      (id) =>
-                                        id.user.userId == data.user.userId
-                                    )?.taskAssignUsersId ?? ""
-                                  )
+                                  ? removeMembers( tasks?.assignedUsers.find(id => id.user.userId == data.user.userId)?.taskAssignUsersId ?? '')
                                   : submitMembers(data);
                               }}
                             >
@@ -531,6 +556,44 @@ function TaskSubTaskForm(props: Props) {
                 </Button>
               </div>
               <div className="mt-2">
+                <Popover>
+                  <PopoverTrigger className="w-full">
+                    <Button
+                      variant={"secondary"}
+                      className="py-1.5 px-3 w-full"
+                      isLoading={attachmentUploading}
+                      disabled={attachmentUploading}
+                    >
+                      <div className="flex w-full gap-3 justify-start">
+                        <img src={CalendarIcon} className="w-3.5" />
+                        {tasks?.startDate
+                          ? dateFormater(new Date(taskFormik.values.startDate ))
+                          : "StartDate"}
+                      </div>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="p-0">
+                    <Calendar
+                      mode="single"
+                      selected={new Date(taskFormik.values.startDate ?? "")}
+                      onSelect={(e) => {
+                        {taskFormik.setFieldValue(
+                          "startDate",
+                          e ? e : undefined
+                        );}
+                      }}
+                      className="rounded-md border"
+                    />
+                    {taskFormik.errors.startDate &&
+                      taskFormik.values.startDate && (
+                      <ErrorMessage className="ml-0 p-0">
+                        {/* {taskFormik.errors.startDate} */}
+                      </ErrorMessage>
+                    )}
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="mt-2">
                 <div
                   className={`py-1.5 px-3 flex w-full gap-3 rounded-md justify-start font-semibold ${
                     tasks?.flag == "Green"
@@ -561,13 +624,10 @@ function TaskSubTaskForm(props: Props) {
                     Milestone
                   </div>
                   <div>
-                    <CheckIcon
-                      className={cn(
-                        "ml-auto h-4 w-4",
-                        milestoneFormik.values.milestoneIndicator
-                          ? "opacity-100"
-                          : "opacity-0"
-                      )}
+                    <input
+                      type="checkbox"
+                      className="accent-primary-300"
+                      checked={milestoneFormik.values.milestoneIndicator}
                     />
                   </div>
                 </Button>
@@ -582,7 +642,7 @@ function TaskSubTaskForm(props: Props) {
                 {milestoneFormik.values.milestoneIndicator && (
                   <div className="flex flex-col gap-2">
                     <div className="text-xs font-medium text-gray-400">
-                     Due Date:
+                      Due Date:
                     </div>
                     <Popover>
                       <PopoverTrigger className="w-full">
@@ -619,10 +679,11 @@ function TaskSubTaskForm(props: Props) {
                     </Popover>
                   </div>
                 )}
-                {(!tasks?.dueDate || !tasks.milestoneIndicator) && (
+                {(!tasks?.dueDate || !tasks.milestoneIndicator) &&
+                  tasks?.endDate && (
                   <div className="flex flex-col gap-2">
                     <div className="text-xs font-medium text-gray-400">
-                      End Date
+                        End Date
                     </div>
                     {/* <div className="text-sm  text-gray-300">
                     {tasks?.milestoneIndicator
@@ -630,9 +691,7 @@ function TaskSubTaskForm(props: Props) {
                       : dateFormater(new Date())}
                   </div> */}
                     <div className="text-sm  text-gray-300">
-                      {dateFormater(
-                        tasks?.endDate ? new Date(tasks.endDate) : new Date()
-                      )}
+                      {dateFormater(new Date(tasks.endDate))}
                     </div>
                   </div>
                 )}
@@ -699,11 +758,45 @@ function TaskSubTaskForm(props: Props) {
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <div className="text-xs font-medium text-gray-400">
-                    Progress:
+                <div className="flex flex-col">
+                  <div className="flex gap-2 items-center">
+                    <div className="text-xs font-medium text-gray-400">
+                      Progress:
+                    </div>
                   </div>
-                  <div className="text-sm  text-gray-300">0%</div>
+                  {taskProgressField ? (
+                    <div className="w-full">
+                      <InputNumber
+                        className="py-1 px-1.5 text-sm h-9 w-full "
+                        min={0}
+                        max={100}
+                        placeholder="0 - 100 % "
+                        onBlur={() => setTaskProgressField(false)}
+                        onChange={(e) => onProgressUpdate(e)}
+                      />
+                      <ErrorMessage className="w-1/2">
+                        {progressError}
+                      </ErrorMessage>
+                    </div>
+                  ) : (
+                    <div className="flex items-center">
+                      <div className="text-sm  text-gray-300">
+                        {tasks?.completionPecentage}%
+                      </div>{" "}
+                      {tasks && tasks.subtasks?.length === 0 && (
+                        <div>
+                          <Button
+                            variant={"none"}
+                            onClick={() =>
+                              setTaskProgressField((prev) => !prev)
+                            }
+                          >
+                            <img src={Edit} />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -715,48 +808,25 @@ function TaskSubTaskForm(props: Props) {
               <Button
                 variant={"destructive"}
                 onClick={() => {
-                  setShowConfirmDelete(true);
+                  props.close();
                 }}
               >
-                Delete
+                Cancel
               </Button>
             </div>
           )}
           <div>
-            <Button variant={"primary"} onClick={taskFormik.submitForm}>
-              submit
+            <Button
+              variant={"primary"}
+              onClick={() => {
+                taskFormik.submitForm(), props.close();
+              }}
+            >
+              Submit
             </Button>
           </div>
         </div>
       </div>
-      <Dialog
-        isOpen={showConfirmDelete}
-        onClose={() => {}}
-        modalClass="rounded-lg"
-      >
-        <div className="flex flex-col gap-2 p-6 ">
-          <img src={TrashCan} className="w-12 m-auto" /> Are you sure you want
-          to delete ?
-          <div className="flex gap-2 ml-auto">
-            <Button
-              variant={"outline"}
-              isLoading={removeTaskMutation.isPending}
-              disabled={removeTaskMutation.isPending}
-              onClick={() => setShowConfirmDelete(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant={"primary"}
-              onClick={removeTask}
-              isLoading={removeTaskMutation.isPending}
-              disabled={removeTaskMutation.isPending}
-            >
-              Delete
-            </Button>
-          </div>
-        </div>
-      </Dialog>
     </div>
   );
 }

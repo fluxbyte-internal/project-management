@@ -7,7 +7,7 @@ import {
 } from "@/api/types/axiosResponseType";
 import { createTaskSchema } from "@backend/src/schemas/taskSchema";
 import ApiRequest from "../ApiRequest";
-import { TaskDependenciesEnumValue } from "@backend/src/schemas/enums";
+import { TaskDependenciesEnumValue, TaskStatusEnumValue } from "@backend/src/schemas/enums";
 import { UserType } from "../query/useCurrentUserQuery";
 import { UserOrganisationType } from "../query/useOrganisationDetailsQuery";
 
@@ -18,8 +18,8 @@ export type Task = {
   taskDescription: string;
   startDate: Date;
   duration: number;
-  completionPecentage: null;
-  status: string;
+  completionPecentage: string | undefined;
+  status: keyof typeof TaskStatusEnumValue;
   milestoneIndicator: boolean;
   createdByUserId: string;
   updatedByUserId: string;

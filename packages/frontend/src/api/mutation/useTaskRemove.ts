@@ -15,7 +15,7 @@ function useRemoveTaskMutation() {
     string
   >({
     mutationFn: (data) =>
-      ApiRequest.delete<TaskRemoveResponseType>(`${requestURLs.task}/${data}`),
+      ApiRequest.delete<TaskRemoveResponseType>(`${requestURLs.task}${data}`),
   });
 
   return mutation;

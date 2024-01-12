@@ -53,9 +53,7 @@ export const OperatorStatusEnumValue: EnumStringValueObj<ConsoleStatusEnum> = {
 
 export const UserRoleEnumValue: EnumStringValueObj<UserRoleEnum> = {
   ADMINISTRATOR: 'ADMINISTRATOR',
-  OPERATOR: 'OPERATOR',
   PROJECT_MANAGER: 'PROJECT_MANAGER',
-  SUPER_ADMIN: 'SUPER_ADMIN',
   TEAM_MEMBER: 'TEAM_MEMBER',
 }
 
