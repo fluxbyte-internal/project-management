@@ -186,7 +186,6 @@ function KanbanView(
   };
 
   const onColumnHeaderRender = (
-    header: HTMLElement,
     data: { dataField: keyof typeof TaskStatusEnumValue }
   ) => {
     const className = "";
