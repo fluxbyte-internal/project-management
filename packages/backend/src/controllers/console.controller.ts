@@ -342,10 +342,9 @@ export const changeUserStatus = async (
     },
     where: { userId: userId },
   });
-  const { password, ...infoWithoutPassword } = user;
   return new SuccessResponse(
     StatusCodes.OK,
-    infoWithoutPassword,
+    user,
     "User status updated successfully"
   ).send(res);
 };
