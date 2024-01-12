@@ -39,7 +39,6 @@ export const me = async (req: express.Request, res: express.Response) => {
     }
   }
 
-  const { password, ...userInfoWithoutPassword } = user;
   return new SuccessResponse(
     StatusCodes.OK,
     user,
