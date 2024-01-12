@@ -310,7 +310,7 @@ function generatePrismaClient(datasourceUrl?: string) {
         },
       },
     },
-  });
+    }});
   return client;
 }
 
