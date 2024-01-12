@@ -100,6 +100,7 @@ function generatePrismaClient(datasourceUrl?: string) {
             },
           });
         },
+      },
       project: {
         async projectProgression(projectId: string) {
           const hours: number = 24;
@@ -310,7 +311,7 @@ function generatePrismaClient(datasourceUrl?: string) {
         },
       },
     },
-    }});
+    });
   return client;
 }
 
