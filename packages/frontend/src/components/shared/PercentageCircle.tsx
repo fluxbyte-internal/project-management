@@ -15,7 +15,7 @@ function PercentageCircle(props: Props) {
     if (per > 50 && per < 75) {
       color = "#060fff8f";
     }
-    if (per > 75 && per < 100) {
+    if (per > 75 && per <= 100) {
       color = "#15A687";
     }
   }

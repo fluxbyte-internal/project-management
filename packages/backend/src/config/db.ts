@@ -3,7 +3,9 @@ import {
   PrismaClient,
   Task,
   UserRoleEnum,
+  UserStatusEnum,
 } from "@prisma/client";
+
 const rootPrismaClient = generatePrismaClient();
 const prismaClients: Record<
   "root" | (Omit<string, "root"> & string),
@@ -32,7 +34,7 @@ function generatePrismaClient(datasourceUrl?: string) {
 
             const integerPart = Math.floor(duration);
             endDate.setDate(startDateObj.getDate() + integerPart); // Duration as days
-            
+
             const fractionalPartInHours = (duration % 1) * 24; // Duration as hours
             endDate.setHours(startDateObj.getHours() + fractionalPartInHours);
 
@@ -84,6 +86,19 @@ function generatePrismaClient(datasourceUrl?: string) {
             },
           });
           return history;
+        },
+      },
+      userOrganisation: {
+        async findAdministrator(organisationId: string) {
+          return await client.userOrganisation.findMany({
+            where: {
+              organisationId,
+              role: UserRoleEnum.ADMINISTRATOR,
+              user: {
+                status: UserStatusEnum.ACTIVE,
+              },
+            },
+          });
         },
       },
       project: {
@@ -296,9 +311,10 @@ function generatePrismaClient(datasourceUrl?: string) {
         },
       },
     },
-  });
+    });
   return client;
 }
+
 export async function getClientByTenantId(
   tenantId: string
 ): Promise<ReturnType<typeof generatePrismaClient>> {

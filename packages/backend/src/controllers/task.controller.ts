@@ -1,27 +1,13 @@
-import express from "express";
-import { getClientByTenantId } from "../config/db.js";
-import {
-  BadRequestError,
-  NotFoundError,
-  SuccessResponse,
-  UnAuthorizedError,
-} from "../config/apiError.js";
-import { StatusCodes } from "http-status-codes";
-import { projectIdSchema } from "../schemas/projectSchema.js";
-import {
-  createCommentTaskSchema,
-  createTaskSchema,
-  attachmentTaskSchema,
-  taskStatusSchema,
-  updateTaskSchema,
-  assginedToUserIdSchema,
-  dependenciesTaskSchema,
-  milestoneTaskSchema,
-} from "../schemas/taskSchema.js";
-import { TaskStatusEnum } from "@prisma/client";
-import { AwsUploadService } from "../services/aws.services.js";
-import { uuidSchema } from "../schemas/commonSchema.js";
-import { HistoryTypeEnumValue } from "../schemas/enums.js";
+import express from 'express';
+import { getClientByTenantId } from '../config/db.js';
+import { BadRequestError, NotFoundError, SuccessResponse, UnAuthorizedError } from '../config/apiError.js';
+import { StatusCodes } from 'http-status-codes';
+import { projectIdSchema } from '../schemas/projectSchema.js';
+import { createCommentTaskSchema, createTaskSchema, attachmentTaskSchema, taskStatusSchema, updateTaskSchema, assginedToUserIdSchema, dependenciesTaskSchema, milestoneTaskSchema } from '../schemas/taskSchema.js';
+import { MilestoneIndicatorStatusEnum, TaskStatusEnum } from '@prisma/client';
+import { AwsUploadService } from '../services/aws.services.js';
+import { uuidSchema } from '../schemas/commonSchema.js';
+import { HistoryTypeEnumValue } from '../schemas/enums.js';
 import { removeProperties } from "../types/removeProperties.js";
 
 export const getTasks = async (req: express.Request, res: express.Response) => {
@@ -29,21 +15,22 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
   const prisma = await getClientByTenantId(req.tenantId);
   const tasks = await prisma.task.findMany({
     where: { projectId: projectId },
-    orderBy: { createdAt: 'desc' },
-    include: {
+    orderBy: { createdAt: 'desc' },include: {
       assignedUsers: {
-        include: {
-          user: {
+        select: {
+          taskAssignUsersId: true,
+          user:{
             select: {
+              userId: true,
+              avatarImg: true, 
               email: true,
               firstName: true,
-              lastName: true,
-              avatarImg: true
+              lastName: true
             }
           }
         }
-      }
-    }
+      },
+    },
   });
   return new SuccessResponse(StatusCodes.OK, tasks, 'get all task successfully').send(res);
 };
@@ -156,7 +143,6 @@ export const createTask = async (
       taskDescription: taskDescription,
       duration: duration,
       startDate: startDate,
-      status: TaskStatusEnum.NOT_STARTED,
       parentTaskId: parentTaskId ? parentTaskId : null,
       createdByUserId: req.userId,
       updatedByUserId: req.userId,
@@ -344,24 +330,23 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
   const taskId = uuidSchema.parse(req.params.taskId);
   const statusBody = taskStatusSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
-  const action = await prisma.task.canEditOrDelete(taskId, req.userId);
-  if (!action) {
-    throw new UnAuthorizedError();
-  }
-  const findTask = await prisma.task.findFirstOrThrow({
-    where: { taskId: taskId }
-  });
-  let updatedTask = await prisma.task.update({
-    where: { taskId: taskId },
-    data: {
-      status: statusBody.status,
-      completionPecentage:
-        statusBody.status === TaskStatusEnum.COMPLETED
-          ? 100
-          : findTask.completionPecentage,
-      updatedByUserId: req.userId
-    },
-  });
+  if (taskId) {
+    const findTask = await prisma.task.findFirstOrThrow({ where: { taskId: taskId } })
+    let updatedTask = await prisma.task.update({
+      where: { taskId: taskId },
+      data: {
+        status: statusBody.status,
+        milestoneStatus:
+          statusBody.status === TaskStatusEnum.DONE
+            ? MilestoneIndicatorStatusEnum.COMPLETED
+            : MilestoneIndicatorStatusEnum.NOT_STARTED,
+        completionPecentage:
+          statusBody.status === TaskStatusEnum.DONE
+            ? 100
+            : findTask.completionPecentage,
+        updatedByUserId: req.userId
+      },
+    });
 
   // History-Manage
   const historyMessage = "Task’s status was changed";
@@ -383,6 +368,7 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
     "task status change successfully"
   ).send(res);
 };
+}
 
 export const statusCompletedAllTAsk = async (req: express.Request, res: express.Response) => {
   if (!req.userId) { throw new BadRequestError('userId not found!!') };
@@ -395,7 +381,7 @@ export const statusCompletedAllTAsk = async (req: express.Request, res: express.
     await prisma.task.updateMany({
       where: { projectId: projectId },
       data: {
-        status: TaskStatusEnum.COMPLETED,
+        status: TaskStatusEnum.DONE,
         completionPecentage: 100,
         updatedByUserId: req.userId
       }
@@ -406,7 +392,7 @@ export const statusCompletedAllTAsk = async (req: express.Request, res: express.
       const historyMessage = "Task’s status was changed";
       const historyNewValue = {
         oldValue: task.status,
-        newValue: TaskStatusEnum.COMPLETED,
+        newValue: TaskStatusEnum.DONE,
       };
       await prisma.history.createHistory(
         req.userId,
