@@ -15,10 +15,15 @@ function useUpdateTaskMutation(taskId?: string) {
   const mutation = useMutation<
     AxiosResponseAndError<UpdateTaskResponseType>["response"],
     AxiosResponseAndError<UpdateTaskResponseType>["error"],
-    z.infer<typeof updateTaskSchema> & {id:string}
+    z.infer<typeof updateTaskSchema> & { id?: string }
   >({
-    mutationFn: (data) =>
-      ApiRequest.put<UpdateTaskResponseType>(requestURLs.task +data.id?? taskId, data),
+    mutationFn: (data) => {
+      const id = data.id ? data.id : taskId;
+      return ApiRequest.put<UpdateTaskResponseType>(
+        requestURLs.task + id,
+        data
+      );
+    },
   });
 
   return mutation;

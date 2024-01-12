@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import z from "zod";
-import InputNumber from "@/components/common/inputNumber";
+import InputNumber from "@/components/common/InputNumber";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -209,6 +209,7 @@ function RulesSetups(props: Props) {
             <RulesForm
               projectId={projectId ?? ""}
               refatch={() => allKanbanColumn.refetch()}
+              reules={rules}
             />
           </div>
         </div>

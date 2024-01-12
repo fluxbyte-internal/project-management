@@ -103,7 +103,7 @@ function KanbanView(
   const taskStatusUpdateMutation = useUpdateTaskMutation();
   const statusUpdate = (e: (Event & CustomEvent) | undefined) => {
     taskStatusUpdateMutation.mutate(
-      { completionPecentage: e?.detail.value.status, id: e?.detail.value.id },
+      { completionPecentage: Number(e?.detail.value.status), id: e?.detail.value.id },
       {
         onSuccess() {
           allTasks.refetch();
@@ -174,7 +174,7 @@ function KanbanView(
     if (e?.detail.purpose === "add") {
       setDialogRendered(undefined), setIsTaskShow(true);
     } else {
-      setDialogRendered(e?.detail.task.data.id);
+      setDialogRendered(e?.detail.value.id);
     }
   };
   const onTaskRender = (
@@ -189,37 +189,27 @@ function KanbanView(
     header: HTMLElement,
     data: { dataField: keyof typeof TaskStatusEnumValue }
   ) => {
-    const className = [
-      "!text-sm",
-      "!items-center",
-      "!font-bold",
-      "!leading-sm",
-      "!uppercase",
-      "!px-2",
-      "!py-0.5",
-      "!rounded",
-      "!text-gray-600",
-    ];
+    const className = "";
     switch (data.dataField) {
-    case TaskStatusEnumValue.PLANNED:
-      className.push("!bg-rose-500/20");
-      break;
-    case TaskStatusEnumValue.TODO:
-      className.push("!bg-slate-500/20");
-      break;
-    case TaskStatusEnumValue.IN_PROGRESS:
-      className.push("!bg-primary-500/20");
-      break;
-    case TaskStatusEnumValue.DONE:
-      className.push("!bg-green-500/20");
-      break;
+      case TaskStatusEnumValue.PLANNED:
+        className.concat("!bg-rose-500/20");
+        break;
+      case TaskStatusEnumValue.TODO:
+        className.concat("!bg-slate-500/20");
+        break;
+      case TaskStatusEnumValue.IN_PROGRESS:
+        className.concat("!bg-primary-500/20");
+        break;
+      case TaskStatusEnumValue.DONE:
+        className.concat("!bg-green-500/20");
+        break;
     }
-    header.classList.add(...className);
+    // header.classList.add(...className.split(" "));
   };
   const handleColumn = (data: KanbanColumnType[]) => {
     const column: KanbanColumn[] = data.map((d) => {
       return {
-        label: d.name.toUpperCase() ,
+        label: d.name.toUpperCase(),
         dataField: String(d.percentage),
         width: 300,
         addNewButton: d.percentage == 0 ? true : false,
@@ -227,9 +217,18 @@ function KanbanView(
     });
     setColumns(column);
   };
-  const setOpen = () => {
+  const onDragging = (e: (Event & CustomEvent) | undefined) => {
+    console.log(e?.detail.data.ItemData );
     
-    if (allKanbanColumn.data?.data.data && allKanbanColumn.data.data.data.length > 0) {
+    if (e?.detail.data.ItemData.subTask > 0) {
+      e?.preventDefault();
+    }
+  };
+  const setOpen = () => {
+    if (
+      allKanbanColumn.data?.data.data &&
+      allKanbanColumn.data.data.data.length > 0
+    ) {
       setClosePopup(false);
     } else {
       setClosePopup(true);
@@ -275,6 +274,12 @@ function KanbanView(
             className="!h-[92%] !w-full kanban"
             taskCustomFields={taskCustomFields}
             onTaskRender={onTaskRender}
+            onDragStart={(e) =>
+              onDragging(e as (Event & CustomEvent) | undefined)
+            }
+            onTaskDoubleClick={(e) =>
+              onOpening(e as (Event & CustomEvent) | undefined)
+            }
             onOpening={(e) => onOpening(e as (Event & CustomEvent) | undefined)}
             onTaskUpdate={(e) =>
               statusUpdate(e as (Event & CustomEvent) | undefined)
