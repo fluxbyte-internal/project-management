@@ -5,6 +5,7 @@ import type {
   TaskStatusEnum,
   OrgStatusEnum,
   UserRoleEnum,
+  HistoryTypeEnum,
   ProjectOverAllTrackEnum
 } from "@prisma/client";
 import type { EnumStringValueObj } from "../types/enumStringValueObject.js";
@@ -42,14 +43,17 @@ export const OrgStatusEnumValue: EnumStringValueObj<OrgStatusEnum> = {
 
 export const UserRoleEnumValue: EnumStringValueObj<UserRoleEnum> = {
   ADMINISTRATOR: 'ADMINISTRATOR',
-  OPERATOR: 'OPERATOR',
   PROJECT_MANAGER: 'PROJECT_MANAGER',
-  SUPER_ADMIN: 'SUPER_ADMIN',
   TEAM_MEMBER: 'TEAM_MEMBER',
 }
 
 export const ZodErrorMessageEnumValue= {
   REQUIRED : 'Required*'
+};
+
+export const HistoryTypeEnumValue: EnumStringValueObj<HistoryTypeEnum> = {
+  PROJECT: "PROJECT",
+  TASK: "TASK",
 };
 
 export const OverAllTrackEnumValue: EnumStringValueObj<ProjectOverAllTrackEnum> = {
