@@ -4,7 +4,7 @@ import useKanbanColumnMutation, {
 import ErrorMessage from "@/components/common/ErrorMessage";
 import FormLabel from "@/components/common/FormLabel";
 import InputText from "@/components/common/InputText";
-import InputNumber from "@/components/common/InputNumber";
+import InputNumber from "@/components/common/inputNumber";
 import { Button } from "@/components/ui/button";
 import { createKanbanSchema } from "@backend/src/schemas/projectSchema";
 import { useFormik } from "formik";
