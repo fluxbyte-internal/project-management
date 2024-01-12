@@ -22,8 +22,9 @@ export type SideBarProps = {
 function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
   const { id } = useParams();
   const [isSelected, setIsSelected] = useState<string | undefined>(id);
+
   const [isOpen, setIsOpen] = useState<boolean>(true);
-  const [isProjectCreate, setPorjectCreate] = useState(false);
+  const [isProjectCreate, setProjectCreate] = useState(false);
   const { user } = useUser();
 
   const navigate = useNavigate();
@@ -78,7 +79,7 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
               <Button
                 variant={"secondary"}
                 className="w-6 h-6 p-0 rounded-md"
-                onClick={() => setPorjectCreate(true)}
+                onClick={() => setProjectCreate(true)}
               >
                 <div>
                   <img
@@ -162,7 +163,7 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
       </div>
       {isProjectCreate && (
         <CreateUpdateProjectForm
-          handleClosePopUp={() => setPorjectCreate(false)}
+          handleClosePopUp={() => setProjectCreate(false)}
         ></CreateUpdateProjectForm>
       )}
     </>

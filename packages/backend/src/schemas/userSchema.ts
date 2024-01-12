@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ZodErrorMessageEnumValue } from "./enums.js";
+import { UserStatusEnumValue, ZodErrorMessageEnumValue } from "./enums.js";
 
 export const userUpdateSchema = z.object({
   firstName: z.string().min(1, "First name is a required field"),
@@ -60,3 +60,9 @@ export const avatarImgSchema = z
       path: ["confirmPassword"],
     }
   );
+
+  
+export const userStatuSchema = z.object({
+  organisationId: z.string().uuid(),
+  status: z.nativeEnum(UserStatusEnumValue),
+});

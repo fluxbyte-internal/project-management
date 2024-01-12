@@ -16,6 +16,8 @@ export const requestURLs = {
   resetPassword:`${baseURL}/auth/reset-password`,
   task:`${baseURL}/task/`,
   fileUpload:`${baseURL}/user/avatarImg-update`,
-  changePassword:`${baseURL}/user/change-password`,
+  changePassword:`${baseURL}/project/change-password`,
+  kanbanColumn:`${baseURL}/project/kanban-column/`,
   logOut:`${baseURL}/auth/logOut`,
+
 };

@@ -7,6 +7,7 @@ import helmet from "helmet";
 import { settings } from "./config/settings.js";
 import UserRoutes from "./routers/user.routes.js";
 import AuthRoutes from "./routers/auth.routes.js";
+import ConsoleRoutes from "./routers/console.routes.js";
 import OrganisationRoutes from "./routers/organisation.routes.js";
 import ProjectRoutes from "./routers/project.routes.js";
 import TaskRoutes from "./routers/task.routes.js";
@@ -57,6 +58,7 @@ app.set("json spaces", 2);
 app.use(defualtHeaderMiddleware);
 
 app.use("/api/auth", AuthRoutes);
+app.use("/api/console", ConsoleRoutes);
 app.use("/api/user", authMiddleware, UserRoutes);
 app.use("/api/organisation", authMiddleware, OrganisationRoutes);
 app.use("/api/project", authMiddleware, ProjectRoutes);

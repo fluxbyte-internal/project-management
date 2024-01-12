@@ -46,6 +46,10 @@ export const addOrganisationMemberSchema = z.object({
   ),
 });
 
+export const organisationStatuSchema = z.object({
+  status: z.nativeEnum(OrgStatusEnumValue),
+});
+
 export const memberRoleSchema = z.object({
   role: z.nativeEnum(UserRoleEnumValue).refine(
     (value) => {
@@ -60,3 +64,4 @@ export const memberRoleSchema = z.object({
     }
   ),
 });
+

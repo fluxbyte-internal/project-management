@@ -48,7 +48,7 @@ import InfoCircle from "../../assets/svg/Info circle.svg";
 import TopRightArrow from "../../assets/svg/TopRightArrow.svg";
 import BackIcon from "../../assets/svg/BackIcon.svg";
 import CalendarIcon from "../../assets/svg/Calendar.svg";
-import InputNumber from "../common/InputNumber";
+import InputNumber from "@/components/common/InputNumber";
 import TaskHistory from "./taskHistory";
 import {
   Tooltip,
@@ -61,6 +61,7 @@ type Props = {
   projectId: string | undefined;
   taskId: string | undefined;
   close: () => void;
+  initialValues?:{startDate:Date|undefined}
 };
 
 function TaskSubTaskForm(props: Props) {
