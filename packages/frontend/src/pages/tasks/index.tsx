@@ -38,6 +38,7 @@ function Tasks() {
     setTaskCreate(false);
     allTaskQuery.refetch();
   };
+
   const columnDef: ColumeDef[] = [
     {
       key: "taskName",
@@ -129,9 +130,122 @@ function Tasks() {
     },
   ];
 
+  const accordionColumnDef: ColumeDef[] = [
+    {
+      key: "taskName",
+      header: "Task Name",
+      sorting: true,
+      onCellRender: (item: Task) => (
+        <div className="flex gap-2 items-center">
+          <div>{item.taskName}</div>
+          {item.milestoneIndicator && (
+            <div className="img w-3.5 h-3.5">
+              <img src={DimondIcon} />
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "startDate",
+      header: "Start Date",
+      sorting: true,
+      onCellRender: (item: Task) => (
+        <>{dateFormater(new Date(item.startDate))}</>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      onCellRender: (item: Task) => (
+        <>
+          <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
+            <div className="text-cyan-700 text-xs font-medium leading-tight">
+              {item.status}
+            </div>
+          </div>
+        </>
+      ),
+    },
+    {
+      key: "startDate",
+      header: "Start Date",
+      sorting: true,
+      onCellRender: (item: Task) => (
+        <>{dateFormater(new Date(item.startDate))}</>
+      ),
+    },
+    {
+      key: "actualEndDate",
+      header: "End Date",
+      onCellRender: (item: Task) => (
+        <>{item.endDate && dateFormater(new Date(item.endDate))}</>
+      ),
+    },
+    {
+      key: "progress",
+      header: "Progress",
+      onCellRender: (item: Task) => (
+        <PercentageCircle percentage={item.completionPecentage ?? 0} />
+      ),
+    },
+    {
+      key: "Action",
+      header: "Action",
+      onCellRender: (item: Task) => (
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div className="cursor-pointer w-24 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex">
+                <Settings className="mr-2 h-4 w-4" />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-fit flex flex-col gap-1 bg-white shadow rounded">
+              <DropdownMenuItem onClick={() => setTaskId(item.taskId)}>
+                <img src={Edit} className="mr-2 h-4 w-4 " alt="" />
+                <span className="p-0 font-normal h-auto">View Tasks</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="mx-1" />
+              <DropdownMenuItem
+                onClick={() => setShowConfirmDelete(item.taskId)}
+              >
+                <img src={TrashCan} className="mr-2 h-4 w-4 text-[#44546F]" />
+                <span className="p-0 font-normal h-auto text-red-500">
+                  Remove
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </>
+      ),
+    },
+  ];
+
   useEffect(() => {
-    setTaskData(allTaskQuery.data?.data.data);
-  }, [allTaskQuery.data?.data.data, projectId, taskId]);
+    if (allTaskQuery.data?.data.data) {
+      allTaskQuery.data?.data.data.forEach((task) => {
+        task.subtasks = allTaskQuery.data?.data.data.filter(
+          (subtask) => subtask.parentTaskId === task.taskId
+        );
+      });
+      const topLevelTasks = allTaskQuery.data?.data.data.filter(
+        (task) => task.parentTaskId === null
+      );
+      const convertedData = topLevelTasks.map((task) => convertTask(task));
+      setTaskData(convertedData);
+    }
+  }, [allTaskQuery.data?.data.data, taskId]);
+
+  const convertTask = (originalTask: Task) => {
+    const convertedTask:Task&{tasks?:Task[]} = originalTask;
+    if (originalTask.subtasks) {
+      convertedTask.tasks = originalTask.subtasks.map((subtask) =>
+        convertTask(subtask)
+      );
+    }
+
+    return convertedTask;
+  };
   const createTask = () => {
     setTaskId("");
     setTaskCreate(true);
@@ -151,6 +265,7 @@ function Tasks() {
       });
     }
   };
+
   return (
     <div className="h-full">
       {taskData && taskData.length > 0 ? (
@@ -168,7 +283,7 @@ function Tasks() {
             </div>
           </div>
           <div className="h-[80%]">
-            <Table columnDef={columnDef} data={taskData}></Table>
+            <Table columnDef={columnDef} data={taskData} accordion={true} accordionColumnDef={accordionColumnDef} accordionDataKey="tasks"></Table>
           </div>
         </>
       ) : (

@@ -8,7 +8,10 @@ export type ColumeDef = {
   onCellRender?: (data: any) => JSX.Element;
 };
 export type Props = {
-  columnDef: ColumeDef[];
+  columnDef?: ColumeDef[];
+  accordion?: boolean;
+  accordionDataKey?: string;
+  accordionColumnDef?: ColumeDef[];
   data: any[];
 };
 
@@ -129,56 +132,61 @@ function Table(props: Props) {
     <>
       <div
         ref={table}
-        className="py-9 sm:pb-9 bg-white px-6 relative border rounded-md text-sm h-full overflow-y-hidden overflow-x-auto"
+        className="py-9 sm:pb-9 bg-white px-6 relative border rounded-md text-sm h-full overflow-y-hidden overflow-x-auto  w-full"
       >
         <table className="w-full">
           <thead>
             <tr className="text-left border-b border-[#D1D1D1] ">
-              {columnDef.map((item, index) => {
-                return (
-                  <th
-                    className="py-2.5 px-2 w-fit whitespace-nowrap"
-                    key={index}
-                  >
-                    {item.sorting ? (
-                      <>
-                        <div
-                          className="flex gap-1 items-center cursor-pointer group"
-                          onClick={() => sorting(item.key)}
-                        >
-                          {item.header}
-                          <img
-                            src={downArrow}
-                            className={`${!ascendingToggle ? "rotate-180" : "" } group-hover:opacity-50 opacity-0 `}
-                          />
-                        </div>
-                      </>
-                    ) : (
-                      item.header
-                    )}
-                  </th>
-                );
-              })}
+              {columnDef &&
+                columnDef.map((item, index) => {
+                  return (
+                    <th
+                      className="py-2.5 px-2 w-fit whitespace-nowrap"
+                      key={index}
+                    >
+                      {item.sorting ? (
+                        <>
+                          <div
+                            className="flex gap-1 items-center cursor-pointer group"
+                            onClick={() => sorting(item.key)}
+                          >
+                            {item.header}
+                            <img
+                              src={downArrow}
+                              className={`${
+                                !ascendingToggle ? "rotate-180" : ""
+                              } group-hover:opacity-50 opacity-0 `}
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        item.header
+                      )}
+                    </th>
+                  );
+                })}
             </tr>
           </thead>
           <tbody>
             {dataSource.map((item, index) => {
               return (
-                <tr ref={tableRow} className="border-b" key={index}>
-                  {columnDef.map((key: ColumeDef) => {
-                    return (
-                      <td
-                        className="px-2 py-2.5 max-md:truncate lg:break-words "
-                        key={key.key}
-                      >
-                        {" "}
-                        {key.onCellRender && key.key
-                          ? key.onCellRender(item)
-                          : null ?? item[key.key]}
-                      </td>
-                    );
-                  })}
-                </tr>
+                <>
+                  <tr ref={tableRow} className="border-b" key={index}>
+                    {columnDef &&
+                      columnDef.map((key: ColumeDef) => {
+                        return (
+                          <td
+                            className="px-2 py-2.5 max-md:truncate lg:break-words "
+                            key={key.key}
+                          >
+                            {key.onCellRender && key.key
+                              ? key.onCellRender(item)
+                              : null ?? item[key.key]}
+                          </td>
+                        );
+                      })}
+                  </tr>
+                </>
               );
             })}
           </tbody>

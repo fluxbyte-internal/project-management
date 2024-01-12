@@ -1,8 +1,8 @@
 import axios from "axios";
-import { baseURL } from "@/Environment";
+// import { baseURL } from "@/Environment";
 
 const ApiRequest = axios.create({
-  baseURL,
+  // baseURL,
   headers: {
     Authorization: `Bearer ${localStorage.getItem("Token")}`,
   },
