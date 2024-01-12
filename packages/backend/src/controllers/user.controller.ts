@@ -13,6 +13,7 @@ import { EmailService } from "../services/email.services.js";
 import { OtpService } from "../services/userOtp.services.js";
 import { generateOTP } from "../utils/otpHelper.js";
 import { AwsUploadService } from "../services/aws.services.js";
+import { OrgStatusEnum, UserStatusEnum } from "@prisma/client";
 
 export const me = async (req: express.Request, res: express.Response) => {
   const prisma = await getClientByTenantId(req.tenantId);
@@ -22,6 +23,18 @@ export const me = async (req: express.Request, res: express.Response) => {
       userOrganisation: { include: { organisation: true } },
     },
   });
+  if (user?.status === UserStatusEnum.INACTIVE) {
+    throw new BadRequestError('User is DEACTIVE');
+  }
+
+  if (user.userOrganisation.length > 0) {
+    const organisation = user.userOrganisation[0]?.organisation;
+
+    if (organisation?.status === OrgStatusEnum.DEACTIVE) {
+      throw new BadRequestError("Organisation is DEACTIVE");
+    }
+  }
+
   const { password, ...userInfoWithoutPassword } = user;
   return new SuccessResponse(
     StatusCodes.OK,
