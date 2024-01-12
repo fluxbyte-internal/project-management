@@ -27,7 +27,7 @@ export const userOrgSettingsUpdateSchema = z.object({
 
 export const avatarImgSchema = z
   .any()
-  .refine((files) => files?.avatarImg?.size <= 1024 * 1024 * 1, {message:"Max file size is 1MB."})
+  .refine((files) => files?.avatarImg?.size <= 1024 * 1024 * 2, {message:"Max file size is 2MB."})
   .refine(
     (files) =>
       ["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(
