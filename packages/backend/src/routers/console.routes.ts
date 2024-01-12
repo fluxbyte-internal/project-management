@@ -4,7 +4,7 @@ import { authMiddleware } from "../middleware/auth.middleware.js";
 
 let router = express.Router();
 
-router.post("/super-admin", ConsoleController.createSuperAdmin);
+// router.post("/super-admin", ConsoleController.createSuperAdmin);
 router.post("/login", ConsoleController.loginConsole);
 router.get("/me", authMiddleware, ConsoleController.me);
 router.post("/operator", authMiddleware, ConsoleController.createOperator);

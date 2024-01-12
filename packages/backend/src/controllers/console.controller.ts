@@ -452,7 +452,7 @@ export const organisationsUser = async (
   }
   const organisationId = uuidSchema.parse(req.params.organisationId);
   const prisma = await getClientByTenantId(req.tenantId);
-  const userOfOrg = await prisma.userOrganisation.findMany({
+  let userOfOrg = await prisma.userOrganisation.findMany({
     where: { organisationId },
     include: {
       user: {
@@ -466,6 +466,13 @@ export const organisationsUser = async (
       },
     },
   });
+  userOfOrg = userOfOrg.filter(
+    (value) =>
+      !(
+        value.role === UserRoleEnum.ADMINISTRATOR &&
+        value.user?.status === UserStatusEnum.INACTIVE
+      )
+  );
   return new SuccessResponse(
     StatusCodes.OK,
     userOfOrg,
