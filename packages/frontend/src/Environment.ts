@@ -17,4 +17,5 @@ export const requestURLs = {
   task:`${baseURL}/task/`,
   fileUpload:`${baseURL}/user/avatarImg-update`,
   changePassword:`${baseURL}/user/change-password`,
+  logOut:`${baseURL}/auth/logOut`,
 };

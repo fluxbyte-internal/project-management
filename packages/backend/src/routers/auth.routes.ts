@@ -11,6 +11,7 @@ router.put("/reset-password/:token", AuthController.resetPassword);
 router.post("/forgot-password", AuthController.forgotPassword);
 router.post("/sign-up", AuthController.signUp);
 router.post("/login", AuthController.login);
+router.post('/logout', AuthController.logout);
 router.get("/access-token", AuthController.getAccessToken);
 router.post("/root-auth", AuthController.verifyRoot);
 

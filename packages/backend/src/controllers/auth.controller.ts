@@ -285,3 +285,11 @@ export const resetPassword = async (
     "Reset password successfully"
   ).send(res);
 };
+
+export const logout = (req: express.Request, res: express.Response) => {
+  res.clearCookie(settings.jwt.tokenCookieKey);
+  res.clearCookie(settings.jwt.refreshTokenCookieKey);
+  return new SuccessResponse(StatusCodes.OK, null, "Logout successfully").send(
+    res
+  );
+};

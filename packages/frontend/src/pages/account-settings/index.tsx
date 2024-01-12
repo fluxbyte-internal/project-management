@@ -336,7 +336,7 @@ function AccountSettings() {
                   </div>
                 </div>
               </div>
-             {user?.userOrganisation[0]?.organisationId&& <div>
+              {user?.userOrganisation[0]?.organisationId&& <div>
                 <FormLabel htmlFor="jobTitle">Job Title</FormLabel>
                 <InputText
                   name="jobTitle"
