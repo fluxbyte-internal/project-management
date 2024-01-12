@@ -5,8 +5,10 @@ import type {
   TaskStatusEnum,
   OrgStatusEnum,
   UserRoleEnum,
-  HistoryTypeEnum,
-  ProjectOverAllTrackEnum
+  ProjectOverAllTrackEnum,
+  UserStatusEnum,
+  ConsoleStatusEnum,
+  HistoryTypeEnum
 } from "@prisma/client";
 import type { EnumStringValueObj } from "../types/enumStringValueObject.js";
 
@@ -39,6 +41,16 @@ export const TaskStatusEnumValue: EnumStringValueObj<TaskStatusEnum> = {
 export const OrgStatusEnumValue: EnumStringValueObj<OrgStatusEnum> = {
   ACTIVE: 'ACTIVE',
   DEACTIVE: 'DEACTIVE',
+};
+
+export const UserStatusEnumValue: EnumStringValueObj<UserStatusEnum> = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+};
+
+export const OperatorStatusEnumValue: EnumStringValueObj<ConsoleStatusEnum> = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
 };
 
 export const UserRoleEnumValue: EnumStringValueObj<UserRoleEnum> = {
