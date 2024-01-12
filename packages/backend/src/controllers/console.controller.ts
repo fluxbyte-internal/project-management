@@ -193,7 +193,7 @@ export const createOperator = async (
     const bodyMessage = `
       You are invited in console
       
-      URL: ${settings.appURL}/login
+      URL: ${settings.adminURL}/login
       PASSWORD: ${randomPassword}
       `;
     await EmailService.sendEmail(newUser.email, subjectMessage, bodyMessage);
