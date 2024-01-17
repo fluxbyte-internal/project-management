@@ -8,21 +8,52 @@ import dateFormater from "@/helperFuntions/dateFormater";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import NoTask from "./NoTask";
-
+import Dialog from "@/components/common/Dialog";
+import useRemoveTaskMutation from "@/api/mutation/useTaskRemove";
+import TrashCan from "../../assets/svg/TrashCan.svg";
+import Edit from "../../assets/svg/EditPen.svg";
+import { toast } from "react-toastify";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
+import { Settings } from "lucide-react";
+import {
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import DimondIcon from "../../assets/svg/DiamondIcon.svg";
 function Tasks() {
   const [taskData, setTaskData] = useState<Task[]>();
   const [taskId, setTaskId] = useState<string | undefined>();
   const [taskCreate, setTaskCreate] = useState<boolean>(false);
   const { projectId } = useParams();
   const allTaskQuery = useAllTaskQuery(projectId);
-  
+  const [showConfirmDelete, setShowConfirmDelete] = useState<string | null>(
+    null
+  );
   const close = () => {
     setTaskId(undefined);
     setTaskCreate(false);
     allTaskQuery.refetch();
   };
   const columnDef: ColumeDef[] = [
-    { key: "taskName", header: "Task Name", sorting: true },
+    {
+      key: "taskName",
+      header: "Task Name",
+      sorting: true,
+      onCellRender: (item: Task) => (
+        <div className="flex gap-2 items-center">
+          <div>{item.taskName}</div>
+          {item.milestoneIndicator && (
+            <div className="img w-3.5 h-3.5">
+              <img src={DimondIcon} />
+            </div>
+          )}
+        </div>
+      ),
+    },
     {
       key: "startDate",
       header: "Start Date",
@@ -63,7 +94,7 @@ function Tasks() {
       key: "progress",
       header: "Progress",
       onCellRender: (item: Task) => (
-        <PercentageCircle percentage={item.completionPecentage} />
+        <PercentageCircle percentage={item.completionPecentage ?? 0} />
       ),
     },
     {
@@ -71,12 +102,28 @@ function Tasks() {
       header: "Action",
       onCellRender: (item: Task) => (
         <>
-          <div
-            onClick={() => setTaskId(item.taskId)}
-            className="cursor-pointer w-24 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex"
-          >
-            View Tasks
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div className="cursor-pointer w-24 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex">
+                <Settings className="mr-2 h-4 w-4" />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-fit flex flex-col gap-1 bg-white shadow rounded">
+              <DropdownMenuItem onClick={() => setTaskId(item.taskId)}>
+                <img src={Edit} className="mr-2 h-4 w-4 " alt="" />
+                <span className="p-0 font-normal h-auto">View Tasks</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="mx-1" />
+              <DropdownMenuItem
+                onClick={() => setShowConfirmDelete(item.taskId)}
+              >
+                <img src={TrashCan} className="mr-2 h-4 w-4 text-[#44546F]" />
+                <span className="p-0 font-normal h-auto text-red-500">
+                  Remove
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </>
       ),
     },
@@ -84,10 +131,25 @@ function Tasks() {
 
   useEffect(() => {
     setTaskData(allTaskQuery.data?.data.data);
-  }, [allTaskQuery.data?.data.data, projectId,taskId]);
+  }, [allTaskQuery.data?.data.data, projectId, taskId]);
   const createTask = () => {
     setTaskId("");
     setTaskCreate(true);
+  };
+  const removeTaskMutation = useRemoveTaskMutation();
+  const removeTask = () => {
+    if (showConfirmDelete) {
+      removeTaskMutation.mutate(showConfirmDelete, {
+        onSuccess(data) {
+          setShowConfirmDelete(null);
+          allTaskQuery.refetch();
+          toast.success(data.data.message);
+        },
+        onError(error) {
+          toast.error(error.response?.data.message);
+        },
+      });
+    }
   };
   return (
     <div className="h-full">
@@ -110,11 +172,46 @@ function Tasks() {
           </div>
         </>
       ) : (
-        (projectId &&taskData && taskData.length==0) && <NoTask projectId={projectId} refetch={()=>allTaskQuery.refetch()}/>
+        projectId &&
+        taskData &&
+        taskData.length == 0 && (
+          <NoTask
+            projectId={projectId}
+            refetch={() => allTaskQuery.refetch()}
+          />
+        )
       )}
       {(Boolean(taskId) || taskCreate) && (
         <TaskSubTaskForm taskId={taskId} projectId={projectId} close={close} />
       )}
+      <Dialog
+        isOpen={Boolean(showConfirmDelete)}
+        onClose={() => {}}
+        modalClass="rounded-lg"
+      >
+        <div className="flex flex-col gap-2 p-6 ">
+          <img src={TrashCan} className="w-12 m-auto" /> Are you sure you want
+          to delete ?
+          <div className="flex gap-2 ml-auto">
+            <Button
+              variant={"outline"}
+              isLoading={removeTaskMutation.isPending}
+              disabled={removeTaskMutation.isPending}
+              onClick={() => setShowConfirmDelete(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant={"primary"}
+              onClick={removeTask}
+              isLoading={removeTaskMutation.isPending}
+              disabled={removeTaskMutation.isPending}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 }

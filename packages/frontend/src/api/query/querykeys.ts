@@ -6,4 +6,5 @@ export const QUERY_KEYS = {
   taskById:"taskById",
   taskMamber:"taskMamber",
   allTask:"allTask",
+  allKanbanColumn:"allKanbanColumn",
 } as const;
