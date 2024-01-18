@@ -80,10 +80,12 @@ function KanbanView(
     setDataSource([]);
     if (allTasks.data?.data.data) {
       allTasks.data?.data.data?.forEach((task) => {
-        setDataSource((prevItems) => [
-          ...(prevItems || []),
-          DataConvertToKanbanDataSource(task),
-        ]);
+        if (!task.milestoneIndicator) {
+          setDataSource((prevItems) => [
+            ...(prevItems || []),
+            DataConvertToKanbanDataSource(task),
+          ]);
+        }
       });
     }
   }, [allTasks.data?.data.data, Columns]);
@@ -92,10 +94,12 @@ function KanbanView(
     setDataSource([]);
     if (filterData) {
       filterData?.forEach((task) => {
-        setDataSource((prevItems) => [
-          ...(prevItems || []),
-          DataConvertToKanbanDataSource(task),
-        ]);
+        if (!task.milestoneIndicator) {
+          setDataSource((prevItems) => [
+            ...(prevItems || []),
+            DataConvertToKanbanDataSource(task),
+          ]);
+        }
       });
     }
   }, [filterData]);
@@ -190,18 +194,18 @@ function KanbanView(
   ) => {
     const className = "";
     switch (data.dataField) {
-      case TaskStatusEnumValue.PLANNED:
-        className.concat("!bg-rose-500/20");
-        break;
-      case TaskStatusEnumValue.TODO:
-        className.concat("!bg-slate-500/20");
-        break;
-      case TaskStatusEnumValue.IN_PROGRESS:
-        className.concat("!bg-primary-500/20");
-        break;
-      case TaskStatusEnumValue.DONE:
-        className.concat("!bg-green-500/20");
-        break;
+    case TaskStatusEnumValue.PLANNED:
+      className.concat("!bg-rose-500/20");
+      break;
+    case TaskStatusEnumValue.TODO:
+      className.concat("!bg-slate-500/20");
+      break;
+    case TaskStatusEnumValue.IN_PROGRESS:
+      className.concat("!bg-primary-500/20");
+      break;
+    case TaskStatusEnumValue.DONE:
+      className.concat("!bg-green-500/20");
+      break;
     }
     // header.classList.add(...className.split(" "));
   };
@@ -249,6 +253,7 @@ function KanbanView(
                 FIELDS.FLAGS,
                 FIELDS.OVERDUEDAYS,
                 FIELDS.TODAYDUEDAYS,
+                FIELDS.TASK,
               ]}
               tasks={allTasks.data?.data.data}
               filteredData={(task) => setFilterData(task)}

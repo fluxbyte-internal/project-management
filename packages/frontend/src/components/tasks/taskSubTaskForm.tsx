@@ -782,7 +782,7 @@ function TaskSubTaskForm(props: Props) {
                   ) : (
                     <div className="flex items-center">
                       <div className="text-sm  text-gray-300">
-                        {tasks?.completionPecentage}%
+                        {tasks?.completionPecentage??0}%
                       </div>{" "}
                       {tasks && tasks.subtasks?.length === 0 && (
                         <div>
