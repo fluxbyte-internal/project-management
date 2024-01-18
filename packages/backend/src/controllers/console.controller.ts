@@ -132,7 +132,7 @@ export const createSuperAdmin = async (
   req: express.Request,
   res: express.Response
 ) => {
-  const prisma = await getClientByTenantId(req.tenantId);
+  const prisma = await getClientByTenantId("root");
   const { firstName, lastName, email, password } = req.body;
   const hashedPassword = await encrypt(password);
   await prisma.consoleUser.create({
