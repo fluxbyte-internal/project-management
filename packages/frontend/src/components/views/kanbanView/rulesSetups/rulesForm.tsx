@@ -54,7 +54,7 @@ function RulesForm(props: Props) {
     // if (Boolean(props.reules?.find(d=> d.percentage === Number(value)))) {
     //   kanbanColumnFormik.setFieldError("percentage","Rule already exists. Choose a unique one.");
     // }
-  }
+  };
   return (
     <div className="border rounded-lg flex flex-col justify-between gap-2 px-2.5 py-1.5 bg-white">
       <div>
@@ -76,7 +76,7 @@ function RulesForm(props: Props) {
           name="percentage"
           min={0}
           max={100}
-          onChange={(e)=>{kanbanColumnFormik.handleChange(e),setError(e.target.value)}}
+          onChange={(e)=>{kanbanColumnFormik.handleChange(e),setError(e.target.value);}}
           value={kanbanColumnFormik.values.percentage}
         />
         <ErrorMessage>{kanbanColumnFormik.errors.percentage}</ErrorMessage>
