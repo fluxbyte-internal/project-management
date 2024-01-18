@@ -16,7 +16,7 @@ function TaskViews() {
   const selectOption = [
     {label:"Table",value:"Table"},
     {label:"Kanban",value:"Kanban"},
-  ]
+  ];
   const reactSelectStyle = {
     control: (
       provided: Record<string, unknown>,
@@ -35,7 +35,7 @@ function TaskViews() {
       },
     }),
   };
-  const [views, setViews] = useState<string>(selectOption[0].value)
+  const [views, setViews] = useState<string>(selectOption[0].value);
   return (
     <>
       <BackgroundImage></BackgroundImage>
