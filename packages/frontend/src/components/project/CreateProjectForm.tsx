@@ -66,7 +66,6 @@ function CreateUpdateProjectForm(props: AddProjectType) {
   const { handleClosePopUp, editData } = props;
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-
   const errorStyle = "text-red-400 block text-sm h-1";
   const labelStyle = "font-medium text-base text-gray-700 ";
   const inputStyle =
@@ -83,11 +82,11 @@ function CreateUpdateProjectForm(props: AddProjectType) {
     initialValues: {
       projectName: "",
       projectDescription: "",
-      startDate: '' as unknown as Date,
-      estimatedEndDate: '' as unknown as Date,
+      startDate: "" as unknown as Date,
+      estimatedEndDate: "" as unknown as Date,
       estimatedBudget: "",
       defaultView: "KANBAN",
-      currency:"USD",
+      currency: "USD",
     },
     validationSchema:
       editData && editData.projectId
@@ -116,7 +115,10 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                 });
               }
               if (!Array.isArray(error.response?.data.errors)) {
-                toast.error(error.response?.data?.message?? "An unexpected error occurred.");
+                toast.error(
+                  error.response?.data?.message ??
+                    "An unexpected error occurred."
+                );
               }
             }
           },
@@ -142,7 +144,10 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                 });
               }
               if (!Array.isArray(error.response?.data.errors)) {
-                toast.error(error.response?.data?.message?? "An unexpected error occurred.");
+                toast.error(
+                  error.response?.data?.message ??
+                    "An unexpected error occurred."
+                );
               }
             }
           },
@@ -158,20 +163,22 @@ function CreateUpdateProjectForm(props: AddProjectType) {
         const month = date.getMonth() + 1;
         const day = date.getDate();
 
-        return `${year}-${month
+        return `${year}-${month.toString().padStart(2, "0")}-${day
           .toString()
-          .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+          .padStart(2, "0")}`;
       };
       formik.setValues({
         startDate: formatDate(editData.startDate) as unknown as Date,
-        estimatedEndDate: formatDate(editData.estimatedEndDate)as unknown as Date,
+        estimatedEndDate: formatDate(
+          editData.estimatedEndDate
+        ) as unknown as Date,
         estimatedBudget: editData.estimatedBudget,
         projectDescription: editData.projectDescription,
         projectName: editData.projectName,
         defaultView: editData.defaultView,
         currency: editData.currency,
       });
-      setCurrencyValue({label:editData.currency,value:editData.currency});
+      setCurrencyValue({ label: editData.currency, value: editData.currency });
     }
   }, []);
 
@@ -200,7 +207,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
       },
     }),
   };
-  
+
   const handleCurrency = (val: SingleValue<Options>) => {
     if (val) {
       setCurrencyValue(val);
@@ -327,9 +334,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                         </span>
                       </div>
                     </div>
-                    <div
-                      className="text-left flex gap-2 "
-                    >
+                    <div className="text-left flex gap-2 ">
                       <div className="w-36">
                         <label className={labelStyle}>Currency</label>
                         <Select

@@ -80,10 +80,12 @@ function KanbanView(
     setDataSource([]);
     if (allTasks.data?.data.data) {
       allTasks.data?.data.data?.forEach((task) => {
-        setDataSource((prevItems) => [
-          ...(prevItems || []),
-          DataConvertToKanbanDataSource(task),
-        ]);
+        if (!task.milestoneIndicator) {
+          setDataSource((prevItems) => [
+            ...(prevItems || []),
+            DataConvertToKanbanDataSource(task),
+          ]);
+        }
       });
     }
   }, [allTasks.data?.data.data, Columns]);
@@ -92,10 +94,12 @@ function KanbanView(
     setDataSource([]);
     if (filterData) {
       filterData?.forEach((task) => {
-        setDataSource((prevItems) => [
-          ...(prevItems || []),
-          DataConvertToKanbanDataSource(task),
-        ]);
+        if (!task.milestoneIndicator) {
+          setDataSource((prevItems) => [
+            ...(prevItems || []),
+            DataConvertToKanbanDataSource(task),
+          ]);
+        }
       });
     }
   }, [filterData]);
@@ -103,7 +107,10 @@ function KanbanView(
   const taskStatusUpdateMutation = useUpdateTaskMutation();
   const statusUpdate = (e: (Event & CustomEvent) | undefined) => {
     taskStatusUpdateMutation.mutate(
-      { completionPecentage: Number(e?.detail.value.status), id: e?.detail.value.id },
+      {
+        completionPecentage: Number(e?.detail.value.status),
+        id: e?.detail.value.id,
+      },
       {
         onSuccess() {
           allTasks.refetch();
@@ -185,9 +192,9 @@ function KanbanView(
     root.render(<TaskShellView taskData={data} />);
   };
 
-  const onColumnHeaderRender = (
-    data: { dataField: keyof typeof TaskStatusEnumValue }
-  ) => {
+  const onColumnHeaderRender = (data: {
+    dataField: keyof typeof TaskStatusEnumValue;
+  }) => {
     const className = "";
     switch (data.dataField) {
       case TaskStatusEnumValue.PLANNED:
@@ -217,8 +224,8 @@ function KanbanView(
     setColumns(column);
   };
   const onDragging = (e: (Event & CustomEvent) | undefined) => {
-    console.log(e?.detail.data.ItemData );
-    
+    console.log(e?.detail.data.ItemData);
+
     if (e?.detail.data.ItemData.subTask > 0) {
       e?.preventDefault();
     }
@@ -249,6 +256,7 @@ function KanbanView(
                 FIELDS.FLAGS,
                 FIELDS.OVERDUEDAYS,
                 FIELDS.TODAYDUEDAYS,
+                FIELDS.TASK,
               ]}
               tasks={allTasks.data?.data.data}
               filteredData={(task) => setFilterData(task)}
