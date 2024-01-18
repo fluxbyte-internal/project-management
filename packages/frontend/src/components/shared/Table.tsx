@@ -9,14 +9,13 @@ export type ColumeDef = {
 };
 export type Props = {
   columnDef?: ColumeDef[];
-  accordion?: boolean;
-  accordionDataKey?: string;
-  accordionColumnDef?: ColumeDef[];
   data: any[];
+  className?: string;
+  onAccordionRender?: (data: any) => JSX.Element;
 };
 
 function Table(props: Props) {
-  const { columnDef, data } = props;
+  const { columnDef, data, className } = props;
   const [dataSource, setDataSource] = useState(data);
   const [height, setHeight] = useState(0);
   const [tableRowHeight, setTableRowHeight] = useState(0);
@@ -25,11 +24,12 @@ function Table(props: Props) {
   const [currentPage, setCurrentPage] = useState(1);
 
   const [ascendingToggle, setAscendingToggle] = useState<boolean>(false);
-
+  const [accordions, setAccordionshow] = useState<number | null>();
   const table = useRef<HTMLDivElement>(null);
   const tableRow = useRef<HTMLTableRowElement>(null);
-
+  const [tableRendered, setTableRendered] = useState(false);
   useEffect(() => {
+    setDataSource(data);
     if (table.current && tableRow.current) {
       setHeight(table.current.offsetHeight);
       setTableRowHeight(tableRow.current.offsetHeight);
@@ -41,6 +41,7 @@ function Table(props: Props) {
         setPages(count);
       }
     }
+    setTableRendered(true);
   }, [data, height, tableRowHeight, ascendingToggle]);
 
   const nextPage = () => {
@@ -112,6 +113,13 @@ function Table(props: Props) {
       return !ascendingToggle ? comparison * -1 : comparison;
     };
   }
+  function toggle(index: number) {
+    if (index == accordions) {
+      setAccordionshow(null);
+    } else {
+      setAccordionshow(index);
+    }
+  }
 
   function isValidDate(dateString: string) {
     const regex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
@@ -123,6 +131,7 @@ function Table(props: Props) {
   }
 
   const sorting = (key: string) => {
+    setAccordionshow(null);
     setDataSource(data.sort(dynamicSort(key)));
     setCurrentPage(1);
     setAscendingToggle((prev) => !prev);
@@ -130,69 +139,88 @@ function Table(props: Props) {
 
   return (
     <>
-      <div
-        ref={table}
-        className="py-9 sm:pb-9 bg-white px-6 relative border rounded-md text-sm h-full overflow-y-hidden overflow-x-auto  w-full"
-      >
-        <table className="w-full">
-          <thead>
-            <tr className="text-left border-b border-[#D1D1D1] ">
-              {columnDef &&
-                columnDef.map((item, index) => {
-                  return (
-                    <th
-                      className="py-2.5 px-2 w-fit whitespace-nowrap"
+      <div className="h-full">
+        <div
+          ref={table}
+          className={`py-9 sm:pb-9 bg-white px-6 relative border rounded-md text-sm h-full ${
+            tableRendered ? "overflow-y-auto" : "overflow-y-hidden"
+          }  overflow-x-auto  w-full ${className ?? ""}`}
+        >
+          <table className="w-full">
+            <thead>
+              <tr className="text-left border-b border-[#D1D1D1] ">
+                {columnDef &&
+                  columnDef.map((item, index) => {
+                    return (
+                      <th
+                        className="py-2.5 px-2 w-fit whitespace-nowrap"
+                        key={index}
+                      >
+                        {item.sorting ? (
+                          <>
+                            <div
+                              className="flex gap-1 items-center cursor-pointer group"
+                              onClick={() => sorting(item.key)}
+                            >
+                              {item.header}
+                              <img
+                                src={downArrow}
+                                className={`${
+                                  !ascendingToggle ? "rotate-180" : ""
+                                } group-hover:opacity-50 opacity-0 `}
+                              />
+                            </div>
+                          </>
+                        ) : (
+                          item.header
+                        )}
+                      </th>
+                    );
+                  })}
+              </tr>
+            </thead>
+            <tbody>
+              {dataSource.map((item, index) => {
+                return (
+                  <>
+                    <tr
+                      ref={tableRow}
+                      onClick={() => toggle(index)}
+                      className="border-b"
                       key={index}
                     >
-                      {item.sorting ? (
-                        <>
-                          <div
-                            className="flex gap-1 items-center cursor-pointer group"
-                            onClick={() => sorting(item.key)}
-                          >
-                            {item.header}
-                            <img
-                              src={downArrow}
-                              className={`${
-                                !ascendingToggle ? "rotate-180" : ""
-                              } group-hover:opacity-50 opacity-0 `}
-                            />
-                          </div>
-                        </>
-                      ) : (
-                        item.header
-                      )}
-                    </th>
-                  );
-                })}
-            </tr>
-          </thead>
-          <tbody>
-            {dataSource.map((item, index) => {
-              return (
-                <>
-                  <tr ref={tableRow} className="border-b" key={index}>
-                    {columnDef &&
-                      columnDef.map((key: ColumeDef) => {
-                        return (
-                          <td
-                            className="px-2 py-2.5 max-md:truncate lg:break-words "
-                            key={key.key}
-                          >
-                            {key.onCellRender && key.key
-                              ? key.onCellRender(item)
-                              : null ?? item[key.key]}
-                          </td>
-                        );
-                      })}
-                  </tr>
-                </>
-              );
-            })}
-          </tbody>
-        </table>
+                      {columnDef &&
+                        columnDef.map((key: ColumeDef) => {
+                          return (
+                            <>
+                              <td
+                                className="px-2 py-2.5 max-md:truncate lg:break-words "
+                                key={key.key}
+                              >
+                                {key.onCellRender && key.key
+                                  ? key.onCellRender(item)
+                                  : null ?? item[key.key]}
+                              </td>
+                            </>
+                          );
+                        })}
+                    </tr>
+                    {accordions === index && (
+                      <tr>
+                        <td colSpan={columnDef?.length}>
+                          {props.onAccordionRender &&
+                            props.onAccordionRender(item)}
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
         {dataPerPage < data.length && (
-          <div className="flex gap-x-3 gap-y-5 fixed sm:absolute max-w-full bottom-[3%]  right-[7%]  sm:bottom-[0%] sm:right-[1%] p-0 justify-end items-center mb-2">
+          <div className="flex gap-x-3 gap-y-5 absolute max-w-full bottom-[6%]  right-[5%] p-0 justify-end items-center mb-2">
             <button
               className="disabled:opacity-50 "
               onClick={previousPage}
