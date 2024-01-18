@@ -107,7 +107,10 @@ function KanbanView(
   const taskStatusUpdateMutation = useUpdateTaskMutation();
   const statusUpdate = (e: (Event & CustomEvent) | undefined) => {
     taskStatusUpdateMutation.mutate(
-      { completionPecentage: Number(e?.detail.value.status), id: e?.detail.value.id },
+      {
+        completionPecentage: Number(e?.detail.value.status),
+        id: e?.detail.value.id,
+      },
       {
         onSuccess() {
           allTasks.refetch();
@@ -189,23 +192,23 @@ function KanbanView(
     root.render(<TaskShellView taskData={data} />);
   };
 
-  const onColumnHeaderRender = (
-    data: { dataField: keyof typeof TaskStatusEnumValue }
-  ) => {
+  const onColumnHeaderRender = (data: {
+    dataField: keyof typeof TaskStatusEnumValue;
+  }) => {
     const className = "";
     switch (data.dataField) {
-    case TaskStatusEnumValue.PLANNED:
-      className.concat("!bg-rose-500/20");
-      break;
-    case TaskStatusEnumValue.TODO:
-      className.concat("!bg-slate-500/20");
-      break;
-    case TaskStatusEnumValue.IN_PROGRESS:
-      className.concat("!bg-primary-500/20");
-      break;
-    case TaskStatusEnumValue.DONE:
-      className.concat("!bg-green-500/20");
-      break;
+      case TaskStatusEnumValue.PLANNED:
+        className.concat("!bg-rose-500/20");
+        break;
+      case TaskStatusEnumValue.TODO:
+        className.concat("!bg-slate-500/20");
+        break;
+      case TaskStatusEnumValue.IN_PROGRESS:
+        className.concat("!bg-primary-500/20");
+        break;
+      case TaskStatusEnumValue.DONE:
+        className.concat("!bg-green-500/20");
+        break;
     }
     // header.classList.add(...className.split(" "));
   };
@@ -221,8 +224,8 @@ function KanbanView(
     setColumns(column);
   };
   const onDragging = (e: (Event & CustomEvent) | undefined) => {
-    console.log(e?.detail.data.ItemData );
-    
+    console.log(e?.detail.data.ItemData);
+
     if (e?.detail.data.ItemData.subTask > 0) {
       e?.preventDefault();
     }

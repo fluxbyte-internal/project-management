@@ -37,13 +37,13 @@ type FilterField = {
   todayDueDays: boolean;
   date: DateRange | undefined;
   flag: SingleValue<Options> | null;
-} 
+};
 function TaskFilter(props: Filter) {
   const { tasks, fieldToShow } = props;
   const [popOverCLose, setPopOverCLose] = useState(false);
   const [filter, setFilter] = useState<FilterField>({
     assigned: null,
-    tasks:null,
+    tasks: null,
     date: undefined,
     dueSevenDays: false,
     overdueDays: false,
@@ -192,14 +192,10 @@ function TaskFilter(props: Filter) {
     if (filter && filter.tasks) {
       let val;
       if (filter.tasks.value == "1") {
-        val = tasks?.filter((data) =>
-          !data.parentTaskId 
-        );
+        val = tasks?.filter((data) => !data.parentTaskId);
       }
       if (filter.tasks.value == "2") {
-        val = tasks?.filter((data) =>
-          !!data.parentTaskId 
-        );
+        val = tasks?.filter((data) => !!data.parentTaskId);
       }
       if (val) {
         filteredData = filteredData.concat(val);
@@ -220,7 +216,7 @@ function TaskFilter(props: Filter) {
     }
     setPopOverCLose(false);
   };
-  
+
   return (
     <div>
       <div className="flex w-full justify-between items-center gap-2">
@@ -334,8 +330,8 @@ function TaskFilter(props: Filter) {
                               <div className="flex justify-between text-base items-center w-full text-gray-950 font-normal">
                                 {filter.date
                                   ? `${dateFormater(
-                                    filter.date.from ?? new Date()
-                                  )}-
+                                      filter.date.from ?? new Date()
+                                    )}-
                           ${dateFormater(filter.date.to ?? new Date())}`
                                   : "Select start date"}
                                 <img src={CalendarSvg} width={20} />
@@ -407,15 +403,15 @@ function TaskFilter(props: Filter) {
                       <div className="w-full">
                         <Select
                           className="p-0 "
-                          value={
-                            filter.tasks || { label: "Both", value: "" }
-                          }
+                          value={filter.tasks || { label: "Both", value: "" }}
                           options={taskOption}
-                          onChange={(e) =>{ if (e && e.value == "") {
-                            setFilter((prev) => ({ ...prev, tasks: null }));
-                          } else {
-                            setFilter((prev) => ({ ...prev, tasks: e }));
-                          }}}
+                          onChange={(e) => {
+                            if (e && e.value == "") {
+                              setFilter((prev) => ({ ...prev, tasks: null }));
+                            } else {
+                              setFilter((prev) => ({ ...prev, tasks: e }));
+                            }
+                          }}
                           placeholder="Select Task"
                           styles={reactSelectStyle}
                         />
