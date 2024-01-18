@@ -48,11 +48,11 @@ function RulesForm(props: Props) {
     kanbanColumnFormik.submitForm();
   };
   const setError = (value: string) => {
-    // console.log(props.reules?.find((d) => d.percentage === Number(value)));
-    // console.log(kanbanColumnFormik.errors);
-
-    if (props.reules?.find(d=> d.percentage === Number(value))) {
-      kanbanColumnFormik.setFieldError("percentage","Rule already exists. Choose a unique one.");
+    if (props.reules?.find((d) => d.percentage === Number(value))) {
+      kanbanColumnFormik.setFieldError(
+        "percentage",
+        "Rule already exists. Choose a unique one."
+      );
     }
   };
   return (

@@ -21,6 +21,7 @@ export enum FIELDS {
   OVERDUEDAYS = "OVERDUEDAYS",
   TODAYDUEDAYS = "TODAYDUEDAYS",
   DATE = "DATE",
+  TASK = "TASK",
 }
 
 type Filter = {
@@ -30,17 +31,19 @@ type Filter = {
 };
 type FilterField = {
   assigned: SingleValue<Options> | null;
+  tasks: SingleValue<Options> | null;
   dueSevenDays: boolean;
   overdueDays: boolean;
   todayDueDays: boolean;
   date: DateRange | undefined;
   flag: SingleValue<Options> | null;
-} 
+};
 function TaskFilter(props: Filter) {
   const { tasks, fieldToShow } = props;
   const [popOverCLose, setPopOverCLose] = useState(false);
   const [filter, setFilter] = useState<FilterField>({
     assigned: null,
+    tasks: null,
     date: undefined,
     dueSevenDays: false,
     overdueDays: false,
@@ -55,6 +58,11 @@ function TaskFilter(props: Filter) {
     { label: "Orange", value: "Orange" },
   ];
 
+  const taskOption: Options[] = [
+    { label: "both", value: "" },
+    { label: "Parent task", value: "1" },
+    { label: "Sub task", value: "2" },
+  ];
   const assignedTask = (): Options[] | undefined => {
     const projectManagerData: Options[] | undefined = [
       { label: "Select assigned user", value: "" },
@@ -177,6 +185,18 @@ function TaskFilter(props: Filter) {
       const val = tasks?.filter((data) =>
         isDueTodayDays(data.dueDate ?? new Date())
       );
+      if (val) {
+        filteredData = filteredData.concat(val);
+      }
+    }
+    if (filter && filter.tasks) {
+      let val;
+      if (filter.tasks.value == "1") {
+        val = tasks?.filter((data) => !data.parentTaskId);
+      }
+      if (filter.tasks.value == "2") {
+        val = tasks?.filter((data) => !!data.parentTaskId);
+      }
       if (val) {
         filteredData = filteredData.concat(val);
       }
@@ -310,8 +330,8 @@ function TaskFilter(props: Filter) {
                               <div className="flex justify-between text-base items-center w-full text-gray-950 font-normal">
                                 {filter.date
                                   ? `${dateFormater(
-                                    filter.date.from ?? new Date()
-                                  )}-
+                                      filter.date.from ?? new Date()
+                                    )}-
                           ${dateFormater(filter.date.to ?? new Date())}`
                                   : "Select start date"}
                                 <img src={CalendarSvg} width={20} />
@@ -375,6 +395,24 @@ function TaskFilter(props: Filter) {
                             }
                           }}
                           placeholder="Select flags"
+                          styles={reactSelectStyle}
+                        />
+                      </div>
+                    )}
+                    {fieldToShow.includes(FIELDS.TASK) && (
+                      <div className="w-full">
+                        <Select
+                          className="p-0 "
+                          value={filter.tasks || { label: "Both", value: "" }}
+                          options={taskOption}
+                          onChange={(e) => {
+                            if (e && e.value == "") {
+                              setFilter((prev) => ({ ...prev, tasks: null }));
+                            } else {
+                              setFilter((prev) => ({ ...prev, tasks: e }));
+                            }
+                          }}
+                          placeholder="Select Task"
                           styles={reactSelectStyle}
                         />
                       </div>
