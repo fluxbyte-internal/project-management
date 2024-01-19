@@ -33,3 +33,13 @@ export const projectIdSchema = z.string().uuid();
 export const projectStatusSchema = z.object({
   status: z.nativeEnum(ProjectStatusEnumValue),
 });
+
+export const createKanbanSchema = z.object({
+  name: z.string({ required_error: ZodErrorMessageEnumValue.REQUIRED }),
+  percentage: z.number().min(0).max(100).multipleOf(0.01),
+});
+
+export const updateKanbanSchema = z.object({
+  name: z.string({ required_error: ZodErrorMessageEnumValue.REQUIRED }),
+  percentage: z.number().min(0).max(100).multipleOf(0.01).optional(),
+});

@@ -15,6 +15,11 @@ router.get(
   ProjectController.getProjects
 );
 
+router.get('/kanban-column/:projectId', ProjectController.getKanbanColumnById);
+router.post('/kanban-column/:projectId', ProjectController.createKanbanColumn);
+router.put('/kanban-column/:kanbanColumnId', ProjectController.updatekanbanColumn);
+router.delete('/kanban-column/:kanbanColumnId', ProjectController.deleteKanbanColumn);
+
 router.get(
   "/:projectId",
   roleMiddleware([

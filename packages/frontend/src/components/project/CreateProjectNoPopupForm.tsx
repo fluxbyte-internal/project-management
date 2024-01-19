@@ -145,7 +145,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
         projectName: editData.projectName,
         defaultView: editData.defaultView,
         currency: editData.currency,
-        overallTrack:editData.overallTrack, 
+        overallTrack: editData.overallTrack,
       });
       setCurrencyValue({ label: editData.currency, value: editData.currency });
     }
