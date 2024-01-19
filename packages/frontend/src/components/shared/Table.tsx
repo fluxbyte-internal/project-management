@@ -40,6 +40,7 @@ function Table(props: Props) {
         const count = Math.ceil(data.length / length);
         setPages(count);
       }
+      setCurrentPage(1);
     }
     setTableRendered(true);
   }, [data, height, tableRowHeight, ascendingToggle]);
@@ -139,111 +140,117 @@ function Table(props: Props) {
 
   return (
     <>
-      <div className="h-full">
-        <div
-          ref={table}
-          className={`py-9 sm:pb-9 bg-white px-6 relative border rounded-md text-sm h-full ${
-            tableRendered ? "overflow-y-auto" : "overflow-y-hidden"
-          }  overflow-x-auto  w-full ${className ?? ""}`}
-        >
-          <table className="w-full">
-            <thead>
-              <tr className="text-left border-b border-[#D1D1D1] ">
-                {columnDef &&
-                  columnDef.map((item, index) => {
-                    return (
-                      <th
-                        className="py-2.5 px-2 w-fit whitespace-nowrap"
-                        key={index}
-                      >
-                        {item.sorting ? (
-                          <>
-                            <div
-                              className="flex gap-1 items-center cursor-pointer group"
-                              onClick={() => sorting(item.key)}
-                            >
-                              {item.header}
-                              <img
-                                src={downArrow}
-                                className={`${
-                                  !ascendingToggle ? "rotate-180" : ""
-                                } group-hover:opacity-50 opacity-0 `}
-                              />
-                            </div>
-                          </>
-                        ) : (
-                          item.header
-                        )}
-                      </th>
-                    );
-                  })}
-              </tr>
-            </thead>
-            <tbody>
-              {dataSource.map((item, index) => {
-                return (
-                  <>
-                    <tr
-                      ref={tableRow}
-                      onClick={() => toggle(index)}
-                      className="border-b"
+      <div
+        ref={table}
+        className={`py-9 sm:pb-9 bg-white px-6 relative border rounded-md text-sm h-full ${
+          tableRendered ? "overflow-y-auto" : "overflow-y-hidden"
+        }  overflow-x-auto  w-full ${className ?? ""}`}
+      >
+        <table className="w-full">
+          <thead>
+            <tr className="text-left border-b border-[#D1D1D1] ">
+              {columnDef &&
+                columnDef.map((item, index) => {
+                  return (
+                    <th
+                      className="py-2.5 px-2 w-fit whitespace-nowrap"
                       key={index}
                     >
-                      {columnDef &&
-                        columnDef.map((key: ColumeDef) => {
-                          return (
-                            <>
-                              <td
-                                className="px-2 py-2.5 max-md:truncate lg:break-words "
-                                key={key.key}
-                              >
-                                {key.onCellRender && key.key
-                                  ? key.onCellRender(item)
-                                  : null ?? item[key.key]}
-                              </td>
-                            </>
-                          );
-                        })}
+                      {item.sorting ? (
+                        <>
+                          <div
+                            className="flex gap-1 items-center cursor-pointer group"
+                            onClick={() => sorting(item.key)}
+                          >
+                            {item.header}
+                            <img
+                              src={downArrow}
+                              className={`${
+                                !ascendingToggle ? "rotate-180" : ""
+                              } group-hover:opacity-50 opacity-0 `}
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        item.header
+                      )}
+                    </th>
+                  );
+                })}
+            </tr>
+          </thead>
+          <tbody>
+            {dataSource.map((item, index) => {
+              return (
+                <>
+                  <tr
+                    ref={tableRow}
+                    onClick={() => toggle(index)}
+                    className="border-b"
+                    key={index}
+                  >
+                    {columnDef &&
+                      columnDef.map((key: ColumeDef) => {
+                        return (
+                          <>
+                            <td
+                              className="px-2 py-2.5 max-md:truncate lg:break-words "
+                              key={key.key}
+                            >
+                              {key.onCellRender && key.key
+                                ? key.onCellRender(item)
+                                : null ?? item[key.key]}
+                            </td>
+                          </>
+                        );
+                      })}
+                  </tr>
+                  {accordions === index && (
+                    <tr>
+                      <td
+                        colSpan={columnDef?.length}
+                        className={`bg-gray-200/30 rounded-2xl ${
+                          props.onAccordionRender &&
+                          props.onAccordionRender(item).props.children
+                            ? "py-2 lg:py-6 "
+                            : ""
+                        } `}
+                      >
+                        {props.onAccordionRender &&
+                          props.onAccordionRender(item)}
+                      </td>
                     </tr>
-                    {accordions === index && (
-                      <tr>
-                        <td colSpan={columnDef?.length}>
-                          {props.onAccordionRender &&
-                            props.onAccordionRender(item)}
-                        </td>
-                      </tr>
-                    )}
-                  </>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        {dataPerPage < data.length && (
-          <div className="flex gap-x-3 gap-y-5 absolute max-w-full bottom-[6%]  right-[5%] p-0 justify-end items-center mb-2">
-            <button
-              className="disabled:opacity-50 "
-              onClick={previousPage}
-              disabled={currentPage <= 1}
-            >
-              <img src={arrowImg} className="w-3" />
-            </button>
-            {currentPage}/{pages}
-            <button
-              className="disabled:opacity-50 "
-              onClick={nextPage}
-              disabled={currentPage === pages}
-            >
-              <img
-                src={arrowImg}
-                className="rotate-180 w-3"
-                width={18}
-                height={10}
-              />
-            </button>
-          </div>
-        )}
+                  )}
+                </>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
+      {dataPerPage < data.length && (
+        <div className="mr-10 justify-end items-center mb-2 flex gap-2">
+          <button
+            className="disabled:opacity-50 "
+            onClick={previousPage}
+            disabled={currentPage <= 1}
+          >
+            <img src={arrowImg} className="w-3" />
+          </button>
+          {currentPage}/{pages}
+          <button
+            className="disabled:opacity-50 "
+            onClick={nextPage}
+            disabled={currentPage === pages}
+          >
+            <img
+              src={arrowImg}
+              className="rotate-180 w-3"
+              width={18}
+              height={10}
+            />
+          </button>
+        </div>
+      )}
     </>
   );
 }

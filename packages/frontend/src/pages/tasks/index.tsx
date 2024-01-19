@@ -238,13 +238,13 @@ function Tasks() {
 
   const subTableRender = (task: Task) => {
     return (
-      <div>
+      <div className="shadow-md w-[95%] mx-auto">
         {task.subtasks.length > 0 && (
           <Table
             data={task.subtasks}
             columnDef={columnDef}
             onAccordionRender={(task) => subTableRender(task)}
-            className="mt-2"
+            className="pt-9 pb-1 sm:pb-8"
           />
         )}
       </div>
@@ -267,11 +267,12 @@ function Tasks() {
               </div>
             </div>
           </div>
-          <div className="h-[85%]">
+          <div className="h-[80%]">
             <Table
               columnDef={columnDef}
               data={taskData}
               onAccordionRender={(task) => subTableRender(task)}
+              className="!pt-9 !pb-1 !sm:pb-8"
             ></Table>
           </div>
         </>
