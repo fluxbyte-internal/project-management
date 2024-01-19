@@ -26,7 +26,6 @@ function TaskViews() {
       border: "1px solid #E7E7E7",
       paddingTop: "0.2rem",
       paddingBottom: "0.2rem",
-      zIndex: 1000,
       outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
       boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
       "&:hover": {
