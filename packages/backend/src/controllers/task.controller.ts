@@ -30,9 +30,27 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
           }
         }
       },
+      subtasks: {
+        include: {
+          subtasks: {
+            include: {
+              subtasks: true,
+            },
+          },
+        },
+      },
     },
   });
-  return new SuccessResponse(StatusCodes.OK, tasks, 'get all task successfully').send(res);
+  const finalArray = tasks.map((task) => {
+    const updatedTask = {
+      ...task,
+      completionPecentage: prisma.task
+        .calculationSubTaskProgression(task)
+    };
+    return updatedTask;
+  });
+
+  return new SuccessResponse(StatusCodes.OK, finalArray, 'get all task successfully').send(res);
 };
 
 export const getTaskById = async (req: express.Request, res: express.Response) => {
@@ -91,18 +109,6 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
     },
   });
 
-  // Handle completionPercentage DB 
-  if (task && task.subtasks.length > 0) {
-    const completionPercentage =
-      await prisma.task.calculationSubTaskProgression(taskId);
-    await prisma.task.update({
-      where: { taskId },
-      data: {
-        completionPecentage: completionPercentage,
-      },
-    });
-    task.completionPecentage = completionPercentage;
-  }
 
   const finalResponse = { ...task };
   return new SuccessResponse(
