@@ -52,7 +52,7 @@ function TaskViews() {
           </div>
           {/* <CalendarView /> */}
           {/* <RulesSetups/> */}
-          <div className="h-full px-2">
+          <div className="h-full overflow-hidden px-2">
             {views == "Kanban"&&<KanbanView />}
             {views == "Table"&&<Tasks/>}
           </div>
