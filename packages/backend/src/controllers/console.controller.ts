@@ -71,10 +71,19 @@ export const loginConsole = async (
       tenantId: req.tenantId ?? "root",
     };
     const token = createJwtToken(tokenPayload);
+
+    res.cookie(settings.jwt.tokenCookieKey, token, {
+      maxAge: 1 * 24 * 60 * 60 * 1000,
+      httpOnly: false,
+      secure: true,
+      sameSite: 'none',
+      domain: settings.domain
+    });
+
     const refreshToken = createJwtToken(tokenPayload, true);
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
+      httpOnly: false,
       secure: true,
       sameSite: 'none',
       domain: settings.domain
@@ -83,7 +92,7 @@ export const loginConsole = async (
 
     return new SuccessResponse(
       StatusCodes.OK,
-      { user: infoWithoutPassword, token },
+      { user: infoWithoutPassword },
       "Login successfully"
     ).send(res);
   }
