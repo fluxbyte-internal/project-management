@@ -49,7 +49,7 @@ function ProjectView() {
 
   const { projectId } = useParams();
   const allTaskQuery = useAllTaskQuery(projectId);
-
+console.log(allTaskQuery,"alltttt")
   const convertTask = (originalTask: Task) => {
     const convertedTask: GanttChartTask = {
       id: originalTask.taskId,
@@ -59,7 +59,9 @@ function ProjectView() {
       disableResources: true,
       resources: [{ id: JSON.stringify(originalTask.assignedUsers) }],
       tasks: [],
-      dragProject:true
+      progress:originalTask.completionPecentage ? originalTask.completionPecentage : 0 ,
+      dragProject:true,
+      
     };
 
     if (originalTask.subtasks) {

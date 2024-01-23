@@ -23,6 +23,7 @@ function GanttView(props: GanttChartProps) {
   const taskFiltering = true;
   // const horizontalScrollBarVisibility=true
   // const showBaseline = true;
+  const showProgressLabel = true;
 
   const { projectId } = useParams();
   const [isOpenTask, setIsOpenTask] = useState<string>();
@@ -59,10 +60,14 @@ function GanttView(props: GanttChartProps) {
   }, [allTaskQuery.data]);
 
   const handlePopUp = (e: any) => {
-    e.preventDefault();
+    e?.preventDefault();
+    e?.stopPropagation()
     console.log(e.detail.target._target.id, "e.Detail.values");
     setIsOpenTask(e.detail.target._target.id);
   };
+  const tooltip = {
+		enabled: true
+	};
 
   const viewData: Options[] = [
     { label: "Day", value: "day" },
@@ -216,6 +221,7 @@ function GanttView(props: GanttChartProps) {
         view={filterUnit}
         sortMode={sortMode}
         taskFiltering={taskFiltering}
+        tooltip={tooltip}
         onResizeEnd={(e: any) => {
           setUpdateUser(e?.detail.id), updateTaskFromGanttView(e);
         }}
@@ -223,12 +229,14 @@ function GanttView(props: GanttChartProps) {
         infiniteTimeline
         horizontalScrollBarVisibility="visible"
         verticalScrollBarVisibility="visible"
+        showProgressLabel={showProgressLabel}
         // for past day clr
         // shadeUntilCurrentTime
         // snap to nearest value
         snapToNearest 
         // showBaseline={showBaseline}
         autoSchedule
+        
       ></GanttChart>
       {Boolean(isOpenTask) && (
         <TaskSubTaskForm

@@ -13,9 +13,20 @@ smart-gantt-chart {
   --smart-gantt-chart-timeline-nonworking-color:  theme('colors.primary.100');
   --smart-gantt-chart-header-placeholder:"-";
   --smart-gantt-chart-task-default-height:40px;
-  --smart-box-height: 40px
+  --smart-box-height: 40px;
+  --smart-gantt-chart-project-label-color: white;
+  --smart-gantt-chart-timeline-task-progress-height:70%;
+  --smart-gantt-chart-task-fill-border-radius:5px;
+
 
 }
+
+.smart-gantt-chart .smart-timeline-task-fill {
+  border-radius: var(--smart-gantt-chart-task-fill-border-radius);
+  padding: 5px;
+}
+
+
 smart-table thead th .sort-by:before {
 
   content: var(--smart-icon-up);
@@ -29,3 +40,6 @@ smart-table thead th .sort-by:before {
   position: relative;
 align-content: center;
 }
+
+
+
