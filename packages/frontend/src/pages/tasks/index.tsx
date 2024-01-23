@@ -24,8 +24,11 @@ import { Settings } from "lucide-react";
 import DimondIcon from "../../assets/svg/DiamondIcon.svg";
 import DownArrowIcon from "../../assets/svg/DownArrow.svg";
 import UserAvatar from "@/components/ui/userAvatar";
+import TaskFilter from "@/components/views/TaskFilter";
+import { FIELDS } from "@/api/types/enums";
 function Tasks() {
   const [taskData, setTaskData] = useState<Task[]>();
+  const [filterData, setFilterData] = useState<Task[] | undefined>(taskData);
   const [taskId, setTaskId] = useState<string | undefined>();
   const [taskCreate, setTaskCreate] = useState<boolean>(false);
   const { projectId } = useParams();
@@ -135,7 +138,7 @@ function Tasks() {
                 <>
                   <div key={index} style={{ zIndex: zIndex }}>
                     <UserAvatar
-                      className={`shadow-sm `}
+                      className={`shadow-sm h-7 w-7`}
                       user={item.user}
                     ></UserAvatar>
                   </div>
@@ -193,18 +196,22 @@ function Tasks() {
 
   useEffect(() => {
     if (allTaskQuery.data?.data.data) {
-      allTaskQuery.data?.data.data.forEach((task) => {
-        task.subtasks = allTaskQuery.data?.data.data.filter(
+      setTaskData(setData(allTaskQuery.data?.data.data));
+      setFilterData(setData(allTaskQuery.data?.data.data));
+    }
+  }, [allTaskQuery.data?.data.data, taskId]);
+
+  const setData = (data: Task[] | undefined) => {
+    if (data) {
+      data.forEach((task) => {
+        task.subtasks = data.filter(
           (subtask) => subtask.parentTaskId === task.taskId
         );
       });
-      const topLevelTasks = allTaskQuery.data?.data.data.filter(
-        (task) => task.parentTaskId === null
-      );
-      const convertedData = topLevelTasks.map((task) => convertTask(task));
-      setTaskData(convertedData);
+      const topLevelTasks = data.filter((task) => task.parentTaskId === null);
+      return topLevelTasks.map((task) => convertTask(task));
     }
-  }, [allTaskQuery.data?.data.data, taskId]);
+  };
 
   const convertTask = (originalTask: Task) => {
     const convertedTask: Task & { tasks?: Task[] } = originalTask;
@@ -238,13 +245,13 @@ function Tasks() {
 
   const subTableRender = (task: Task) => {
     return (
-      <div className="shadow-md w-[95%] mx-auto">
+      <div className="shadow-md w-[95%]">
         {task.subtasks.length > 0 && (
           <Table
             data={task.subtasks}
             columnDef={columnDef}
-            onAccordionRender={(task) => subTableRender(task)}
-            className="pt-9 pb-1 sm:pb-8"
+            onAccordionRender={(task) => task.subtasks.length > 0 ? subTableRender(task) : <></>}
+            className="pt-9 !px-2 pb-1 sm:pb-7"
           />
         )}
       </div>
@@ -252,28 +259,37 @@ function Tasks() {
   };
 
   return (
-    <div className="h-full">
+    <div className="h-full overflow-hidden">
       {taskData && taskData.length > 0 ? (
         <>
-          <div className="py-5 px-16 w-full flex flex-col gap-5">
-            <div className="flex justify-between items-center">
-              <h2 className="font-medium text-3xl leading-normal text-gray-600">
-                Tasks
-              </h2>
+          <div className="w-full flex flex-col gap-3 h-[80%]">
+            <div className="flex justify-between">
+              <TaskFilter
+                fieldToShow={[
+                  FIELDS.ASSIGNED,
+                  FIELDS.DATE,
+                  FIELDS.DUESEVENDAYS,
+                  FIELDS.FLAGS,
+                  FIELDS.OVERDUEDAYS,
+                  FIELDS.TODAYDUEDAYS,
+                ]}
+                filteredData={(data) => setFilterData(setData(data))}
+                tasks={taskData}
+              />
               <div>
-                <Button variant={"primary"} onClick={createTask}>
+                <Button variant={"primary"} size={"sm"} onClick={createTask}>
                   Add Task
                 </Button>
               </div>
             </div>
-          </div>
-          <div className="h-[80%]">
-            <Table
-              columnDef={columnDef}
-              data={taskData}
-              onAccordionRender={(task) => subTableRender(task)}
-              className="!pt-9 !pb-1 !sm:pb-8"
-            ></Table>
+            <div className="!h-full">
+              <Table
+                columnDef={columnDef}
+                data={filterData ?? []}
+                onAccordionRender={(task) => subTableRender(task)}
+                className="!pt-9 !pb-0 !sm:pb-7"
+              ></Table>
+            </div>
           </div>
         </>
       ) : (

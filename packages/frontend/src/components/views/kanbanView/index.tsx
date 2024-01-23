@@ -13,7 +13,7 @@ import { createRoot } from "react-dom/client";
 import TaskShellView from "./taskShellView";
 import { TaskStatusEnumValue } from "@backend/src/schemas/enums";
 import { toast } from "react-toastify";
-import TaskFilter, { FIELDS } from "../TaskFilter";
+import TaskFilter from "../TaskFilter";
 import RulesSetups from "./rulesSetups/rulesSetups";
 import { KanbanColumnType } from "@/api/mutation/useKanbanCreateColumn";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ import RulesForm from "./rulesSetups/rulesForm";
 import CrossIcon from "@/assets/svg/CrossIcon.svg";
 import useAllKanbanColumnQuery from "@/api/query/useAllKanbanColumn";
 import Loader from "@/components/common/Loader";
+import { FIELDS } from "@/api/types/enums";
 export interface columnsRenderData {
   label: string;
   dataField: string;
@@ -224,8 +225,6 @@ function KanbanView(
     setColumns(column);
   };
   const onDragging = (e: (Event & CustomEvent) | undefined) => {
-    console.log(e?.detail.data.ItemData);
-
     if (e?.detail.data.ItemData.subTask > 0) {
       e?.preventDefault();
     }
