@@ -24,7 +24,8 @@ import { Settings } from "lucide-react";
 import DimondIcon from "../../assets/svg/DiamondIcon.svg";
 import DownArrowIcon from "../../assets/svg/DownArrow.svg";
 import UserAvatar from "@/components/ui/userAvatar";
-import TaskFilter, { FIELDS } from "@/components/views/TaskFilter";
+import TaskFilter from "@/components/views/TaskFilter";
+import { FIELDS } from "@/api/types/enums";
 function Tasks() {
   const [taskData, setTaskData] = useState<Task[]>();
   const [filterData, setFilterData] = useState<Task[] | undefined>(taskData);

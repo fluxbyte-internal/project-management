@@ -45,12 +45,12 @@ function TaskViews() {
     setSidebarExpanded(!isSidebarExpanded);
   };
   const { projectId } = useParams();
-  const projectQuary = useProjectDetail(projectId);
+  const projectQuery = useProjectDetail(projectId);
   useEffect(() => {
-    if (projectQuary.data?.data.data) {
-      setViews(projectQuary.data.data.data.defaultView);
+    if (projectQuery.data?.data.data) {
+      setViews(projectQuery.data.data.data.defaultView);
     }
-  }, [projectQuary.data?.data.data]);
+  }, [projectQuery.data?.data.data]);
   
   return (
     <>
