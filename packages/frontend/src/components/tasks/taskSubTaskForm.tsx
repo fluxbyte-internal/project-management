@@ -118,7 +118,7 @@ function TaskSubTaskForm(props: Props) {
       startDate: props.initialValues?.startDate
         ? new Date(props.initialValues?.startDate)
         : new Date(),
-      duration: 0.0,
+      duration: 1.0,
     },
     validationSchema: toFormikValidationSchema(createTaskSchema),
     onSubmit: (values) => {
@@ -181,7 +181,7 @@ function TaskSubTaskForm(props: Props) {
       taskName: subTask,
       taskDescription: "",
       startDate: new Date(),
-      duration: 0,
+      duration: 1,
       assginedToUserId: [currantUser.user?.userId ?? ""],
       milestoneIndicator: false,
     };
@@ -574,9 +574,7 @@ function TaskSubTaskForm(props: Props) {
                     >
                       <div className="flex w-full gap-3 justify-start">
                         <img src={CalendarIcon} className="w-3.5" />
-                        {tasks?.startDate
-                          ? dateFormater(new Date(taskFormik.values.startDate))
-                          : "StartDate"}
+                        {dateFormater(new Date(taskFormik.values.startDate))}
                       </div>
                     </Button>
                   </PopoverTrigger>

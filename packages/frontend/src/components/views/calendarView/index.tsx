@@ -4,7 +4,7 @@ import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Scheduler, SchedulerEvent } from "smart-webcomponents-react/scheduler";
-import TaskFilter, { FIELDS } from "../TaskFilter";
+import TaskFilter from "../TaskFilter";
 import { useUser } from "@/hooks/useUser";
 import "./index.css";
 import Dialog from "@/components/common/Dialog";
@@ -12,6 +12,7 @@ import TrashCan from "../../../assets/svg/TrashCan.svg";
 import { Button } from "@/components/ui/button";
 import useRemoveTaskMutation from "@/api/mutation/useTaskRemove";
 import { toast } from "react-toastify";
+import { FIELDS } from "@/api/types/enums";
 
 function CalendarView() {
   const { projectId } = useParams();

@@ -29,7 +29,6 @@ function Table(props: Props) {
   const tableRow = useRef<HTMLTableRowElement>(null);
   const [tableRendered, setTableRendered] = useState(false);
   useEffect(() => {
-    setDataSource(data);
     if (table.current && tableRow.current) {
       setHeight(table.current.offsetHeight);
       setTableRowHeight(tableRow.current.offsetHeight);
@@ -42,8 +41,11 @@ function Table(props: Props) {
       }
       setCurrentPage(1);
     }
-    setTableRendered(true);
-  }, [data, height, tableRowHeight, ascendingToggle]);
+  }, [dataSource, height, tableRowHeight]);
+
+  useEffect(() => {
+    setDataSource(data);
+  }, [data]);
 
   const nextPage = () => {
     if (currentPage < pages) {
@@ -117,7 +119,9 @@ function Table(props: Props) {
   function toggle(index: number) {
     if (index == accordions) {
       setAccordionshow(null);
+      setTableRendered(false);
     } else {
+      setTableRendered(true);
       setAccordionshow(index);
     }
   }
@@ -209,15 +213,17 @@ function Table(props: Props) {
                     <tr>
                       <td
                         colSpan={columnDef?.length}
-                        className={`bg-gray-200/30 rounded-2xl ${
+                       
+                      >
+                        <div  className={`bg-gray-200/30 rounded-2xl flex justify-center ${
                           props.onAccordionRender &&
                           props.onAccordionRender(item).props.children
-                            ? "py-2 lg:py-6 "
+                            ? "py-2 mt-3 lg:py-6 "
                             : ""
-                        } `}
-                      >
-                        {props.onAccordionRender &&
-                          props.onAccordionRender(item)}
+                        } `}>
+                          {props.onAccordionRender &&
+                            props.onAccordionRender(item)}
+                        </div>
                       </td>
                     </tr>
                   )}

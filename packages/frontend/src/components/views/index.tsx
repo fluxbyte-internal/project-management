@@ -1,22 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import KanbanView from "./kanbanView";
 import SideBar from "../layout/SideBar";
-import BackgroundImage from "../layout/BackgroundImage";
 import CalendarView from "./calendarView";
-// import RulesSetups from "./kanbanView/rulesSetups/rulesSetups";
 import Tasks from "@/pages/tasks";
-import Select  from "react-select";
+import Select from "react-select";
+import useProjectDetail from "@/api/query/useProjectDetailQuery";
+import { useParams } from "react-router-dom";
+import { ProjectDefaultViewEnumValue } from "@backend/src/schemas/enums";
 function TaskViews() {
-  const [isSidebarExpanded, setSidebarExpanded] = useState(true);
-
-  const toggleSidebar = () => {
-    setSidebarExpanded(!isSidebarExpanded);
-  };
 
   const selectOption = [
-    {label:"Table",value:"Table"},
-    {label:"Kanban",value:"Kanban"},
-    {label:"Calendar",value:"Calendar"},
+    {
+      label: ProjectDefaultViewEnumValue.LIST,
+      value: ProjectDefaultViewEnumValue.LIST,
+    },
+    {
+      label: ProjectDefaultViewEnumValue.KANBAN,
+      value: ProjectDefaultViewEnumValue.KANBAN,
+    },
+    {
+      label: ProjectDefaultViewEnumValue.CALENDAR,
+      value: ProjectDefaultViewEnumValue.CALENDAR,
+    },
   ];
   const reactSelectStyle = {
     control: (
@@ -27,7 +32,6 @@ function TaskViews() {
       border: "1px solid #E7E7E7",
       paddingTop: "0.2rem",
       paddingBottom: "0.2rem",
-      zIndex: 1000,
       outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
       boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
       "&:hover": {
@@ -36,29 +40,49 @@ function TaskViews() {
       },
     }),
   };
+
+  const [isSidebarExpanded, setSidebarExpanded] = useState(true);
   const [views, setViews] = useState<string>(selectOption[0].value);
+
+  const toggleSidebar = () => {
+    setSidebarExpanded(!isSidebarExpanded);
+  };
+  const { projectId } = useParams();
+  const projectQuery = useProjectDetail(projectId);
+  useEffect(() => {
+    if (projectQuery.data?.data.data) {
+      setViews(projectQuery.data.data.data.defaultView);
+    }
+  }, [projectQuery.data?.data.data]);
+  
   return (
     <>
-      <BackgroundImage></BackgroundImage>
-      <div className="relative h-full">
+      <div className="relative h-full overflow-hidden">
         <SideBar
           toggleSidebar={toggleSidebar}
           isSidebarExpanded={isSidebarExpanded}
         />
-        <div className={`h-full ${isSidebarExpanded ? "ml-64" : "ml-4"} flex flex-col`}>
+        <div
+          className={`h-full ${
+            isSidebarExpanded ? "ml-64" : "ml-4"
+          } flex flex-col`}
+        >
           <div className="flex justify-between px-4 py-2 items-center">
-            <div className="text-xl font-semibold text-gray-400">
-              Task View
-            </div>
-            <Select defaultValue={selectOption[0]} styles={reactSelectStyle} options={selectOption} onChange={(val)=>setViews(val?.value ?? '')}/>
+            <div className="text-xl font-semibold text-gray-400">Task View</div>
+            <Select
+              defaultValue={selectOption.find(e => e.value == views)}
+              styles={reactSelectStyle}
+              options={selectOption}
+              onChange={(val) => setViews(val?.value ?? "")}
+            />
           </div>
-          {/* <RulesSetups/> */}
-          <div className="h-full px-2">
-            {views === "Kanban"&&<KanbanView />}
-            {views === "Table"&&<Tasks/>}
-            {views === "Calendar"&&<CalendarView/>}
+          {/* <CalendarView /> */}
+          <div className="h-full overflow-hidden px-2">
+            {views == ProjectDefaultViewEnumValue.KANBAN && <KanbanView />}
+            {views == ProjectDefaultViewEnumValue.LIST && <Tasks />}
+            {views == ProjectDefaultViewEnumValue.CALENDAR && <CalendarView />}
+
           </div>
-          {/* <Tasks/> */}
         </div>
       </div>
     </>

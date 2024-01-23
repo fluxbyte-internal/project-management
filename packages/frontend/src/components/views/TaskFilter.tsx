@@ -13,16 +13,9 @@ import { Calendar } from "@/components/ui/calendar";
 import InputText from "@/components/common/InputText";
 import { Task } from "@/api/mutation/useTaskCreateMutation";
 import FilterIcon from "../../assets/svg/Filter.svg";
+import { FIELDS } from "@/api/types/enums";
 type Options = { label: string; value: string };
-export enum FIELDS {
-  FLAGS = "FLAGS",
-  ASSIGNED = "ASSIGNED",
-  DUESEVENDAYS = "DUESEVENDAYS",
-  OVERDUEDAYS = "OVERDUEDAYS",
-  TODAYDUEDAYS = "TODAYDUEDAYS",
-  DATE = "DATE",
-  TASK = "TASK",
-}
+
 
 type Filter = {
   tasks: Task[] | undefined;
@@ -330,8 +323,8 @@ function TaskFilter(props: Filter) {
                               <div className="flex justify-between text-base items-center w-full text-gray-950 font-normal">
                                 {filter.date
                                   ? `${dateFormater(
-                                      filter.date.from ?? new Date()
-                                    )}-
+                                    filter.date.from ?? new Date()
+                                  )}-
                           ${dateFormater(filter.date.to ?? new Date())}`
                                   : "Select start date"}
                                 <img src={CalendarSvg} width={20} />
