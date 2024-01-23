@@ -8,15 +8,18 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "../ui/dropdown-menu";
-import { LogOut, Settings } from "lucide-react";
-import { useState } from "react";
+import { CheckCheck, LogOut, Settings } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CreateProjectForm from "../project/CreateProjectForm";
 import { useAuth } from "@/hooks/useAuth";
 import { useUser } from "@/hooks/useUser";
 import UserAvatar from "../ui/userAvatar";
-
+import io from "socket.io-client";
+import timeAgo from "@/helperFuntions/notificationFormatter";
+import useAllNotificationQuery from "@/api/query/useAllNotificationQuery";
 type NavItemType =
   | {
       id: number;
@@ -33,7 +36,9 @@ type NavItemType =
       }>;
     };
 
-function hasSubItem(item: NavItemType): item is {
+function hasSubItem(
+  item: NavItemType
+): item is {
   id: number;
   name: string;
   dropDown: Array<{
@@ -58,25 +63,77 @@ const navbarData: NavItemType[] = [
   },
 ] as NavItemType[];
 
+const notification = [
+  {
+    id: 1,
+    message: "hey",
+    timestamp: new Date(),
+  },
+  {
+    id: 2,
+    message: "how's",
+    timestamp: new Date(),
+  },
+  {
+    id: 3,
+    message: "you",
+    timestamp: new Date(),
+  },
+];
 function NavBar() {
   const navigate = useNavigate();
   const [isOpenPopUp, setisOpenPopUp] = useState(false);
   const { logout } = useAuth();
   const { user } = useUser();
+  const [notifications, setNotifications] = useState(notification);
+  const [readAll, setReadAll] = useState<boolean>(true);
   const handleOpenPopUp = () => {
     setisOpenPopUp(!isOpenPopUp);
   };
-  const openAccountSettings = () => {
-    navigate("/account-settings");
-  };
-  const openOrganisationSettings = () => {
-    navigate("/organisation/" + user?.userOrganisation[0]?.organisationId);
-  };
+const useAllNotification =useAllNotificationQuery()
+const openAccountSettings = () => {
+  navigate("/account-settings");
+};
+const openOrganisationSettings = () => {
+  navigate("/organisation/" + user?.userOrganisation[0]?.organisationId);
+};
 
+const handleReadAll = () => {
+  setReadAll(!readAll);
+};
+useEffect(() => {
+    console.log(useAllNotification.data?.data,"useAllNotification");
+    const socket = io("http://localhost:8000", {
+      path: "/socket.io",
+      forceNew: true,
+      reconnectionAttempts: 3,
+      timeout: 2000,
+      query:{
+        roomName: user?.userId
+      }
+    });
+    socket.emit("join", user?.userId);
+    socket.on("notification", (notificationObject) => {
+      console.log(notificationObject, "notificationObject");
+
+      setNotifications((prevNotifications) => [
+        ...prevNotifications,
+        {
+          id: notificationObject.notificationId,
+          message: notificationObject.details,
+          timestamp: new Date(),
+        },
+      ]);
+    });
+
+    return () => {
+      socket.off("notification");
+    };
+  }, []);
   return (
     <div className="w-full h-14 z-10 fixed border-b-2 border-[#E2E8F0] flex items-center flex-col bg-white">
       <div className="flex items-center w-full h-full justify-between sm:px-3 px-2">
-        <div className="flex gap-5 items-center ">
+        <div className="flex gap-5 items-center">
           <div className="text-primary-800 text-sm font-bold flex justify-center items-center w-auto h-auto">
             {user?.userOrganisation[0]?.organisation?.organisationName}
           </div>
@@ -208,10 +265,59 @@ function NavBar() {
             </div>
           )}
         </div>
-        <div className="flex md:gap-5 gap-2 items-center relative">
-          <Button className="relative w-8 h-8 aspect-square rounded-full bg-transparent active:bg-primary-100 hover:bg-primary-100 md:block hidden cursor-pointer">
-            <img src={Notification} className="absolute top-1 left-1" />
-          </Button>
+        <div className="flex gap-5  items-center relative">
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Button className="relative w-8 h-8 aspect-square rounded-full bg-transparent active:bg-primary-100 hover:bg-primary-100  cursor-pointer">
+                <img src={Notification} className="absolute top-1 left-1" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="!overflow-y-auto !max-h-[600px] !w-64">
+              <div className="flex justify-between">
+                <div>
+                  <DropdownMenuLabel className="!font-bold">
+                    Notifications
+                  </DropdownMenuLabel>
+                </div>
+
+                <CheckCheck
+                  onClick={handleReadAll}
+                  className="flex justify-center items-center"
+                />
+              </div>
+              <DropdownMenuSeparator />
+              {notifications.length > 0 ? (
+                notifications.map(({ id, message, timestamp }) => (
+                  <>
+                    <DropdownMenuItem key={id}>
+                      <div className="w-full">
+                        <div className="flex justify-between w-full">
+                          <div className="text-md font-semibold break-all">
+                            {message}
+                          </div>
+                        </div>
+                        <div className="text-gray-300 ">
+                          {timeAgo(timestamp)}
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                ))
+              ) : (
+                <div className="p-2">No notification Found</div>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {notifications.length > 0 && (
+            <div
+              className=" w-6 h-6 rounded-full bg-red-700 
+            absolute bottom-5 left-5 text-xs p-2 flex justify-center items-center text-white"
+            >
+              {notifications.length <= 99 ? notifications.length : "99+"}
+            </div>
+          )}
+
           <Button className="relative w-8 h-8 aspect-square rounded-full bg-transparent active:bg-primary-100 hover:bg-primary-100 md:block hidden cursor-pointer">
             <img src={Information} className="absolute top-0 left-0" />
           </Button>
@@ -223,14 +329,6 @@ function NavBar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56 flex flex-col gap-1">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuItem className="flex md:hidden">
-                <div className="mr-2 h-5 w-5">
-                  <img src={Notification} className="mr-2 h-full w-full" />
-                </div>
-                <Button className="p-0 font-normal h-auto" variant={"ghost"}>
-                  Notification
-                </Button>
-              </DropdownMenuItem>
               <DropdownMenuItem className="flex md:hidden">
                 <div className="mr-2 h-5 w-5">
                   <img src={Information} className="mr-2 h-full w-full" />
@@ -247,16 +345,16 @@ function NavBar() {
               </DropdownMenuItem>
               {user?.userOrganisation[0] &&
                 user?.userOrganisation[0].organisationId && (
-                <DropdownMenuItem onClick={openOrganisationSettings}>
-                  <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
-                  <Button
-                    className="p-0 font-normal h-auto"
-                    variant={"ghost"}
-                  >
+                  <DropdownMenuItem onClick={openOrganisationSettings}>
+                    <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
+                    <Button
+                      className="p-0 font-normal h-auto"
+                      variant={"ghost"}
+                    >
                       Organisations Settings
-                  </Button>
-                </DropdownMenuItem>
-              )}
+                    </Button>
+                  </DropdownMenuItem>
+                )}
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4 text-[#44546F]" />
                 <Button className="p-0 font-normal h-auto" variant={"ghost"}>

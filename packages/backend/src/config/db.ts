@@ -81,7 +81,7 @@ function generatePrismaClient(datasourceUrl?: string) {
           });
           RegisterSocketServices.io
             .in(responseNotification.sentTo)
-            .emit("notification", details);
+            .emit("notification", responseNotification);
           return responseNotification;
         },
       },

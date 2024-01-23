@@ -13,6 +13,10 @@ export class RegisterSocketServices {
     this.io.sockets.on("connection", (socket: Socket) => {
       socket.on("join", async (userId: string) => {
         socket.join(userId);
+        socket.to(userId).emit("notification", {
+          id: 4,
+          message: "You are added in task 1",
+        });
       });
       socket.on("disconnect", () => {});
     });
