@@ -33,7 +33,7 @@ function PercentageCircle(props: Props) {
             background: `radial-gradient(closest-side, white 79%, transparent 80% 100%), conic-gradient(${color} ${per}%, #cecece 0)`,
           }}
         >
-          <div className="m-1">{per}%</div>
+          <div className="m-1">{per.toFixed()}%</div>
         </div>
       </div>
     </>

@@ -2,6 +2,7 @@ import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
 import UserAvatar from "@/components/ui/userAvatar";
 import dateFormater from "@/helperFuntions/dateFormater";
 import DiamondIcon from "../../../assets/svg/DiamondIcon.svg";
+import ParentTaskIcon from "../../../assets/svg/ParentTaskIcon.svg";
 import { ExtendedKanbanDataSource } from "./index";
 import PercentageCircle from "@/components/shared/PercentageCircle";
 function TaskShellView(props: { taskData: ExtendedKanbanDataSource }) {
@@ -30,10 +31,13 @@ function TaskShellView(props: { taskData: ExtendedKanbanDataSource }) {
     }`}>
       <div className="flex justify-between w-full">
         <div className="text-lg text-gray-500 flex gap-1">
+          {props.taskData.subTask>0 && (
+            <img src={ParentTaskIcon} className="w-3 h-3 mt-2 rotate-90"/>
+          )}
+          <div className=" w-[18ch]  truncate">{props.taskData?.text}</div>
           {props.taskData.mileStone && (
             <img src={DiamondIcon} className="w-3 h-3 mt-2"/>
           )}
-          <div className=" w-[20ch]  truncate">{props.taskData?.text}</div>
         </div>
         <div className="h-0">
           <PercentageCircle percentage={props.taskData.progress ?? 0} />

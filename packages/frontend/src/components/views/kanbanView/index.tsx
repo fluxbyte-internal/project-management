@@ -13,7 +13,7 @@ import { createRoot } from "react-dom/client";
 import TaskShellView from "./taskShellView";
 import { TaskStatusEnumValue } from "@backend/src/schemas/enums";
 import { toast } from "react-toastify";
-import TaskFilter, { FIELDS } from "../TaskFilter";
+import TaskFilter from "../TaskFilter";
 import RulesSetups from "./rulesSetups/rulesSetups";
 import { KanbanColumnType } from "@/api/mutation/useKanbanCreateColumn";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ import RulesForm from "./rulesSetups/rulesForm";
 import CrossIcon from "@/assets/svg/CrossIcon.svg";
 import useAllKanbanColumnQuery from "@/api/query/useAllKanbanColumn";
 import Loader from "@/components/common/Loader";
+import { FIELDS } from "@/api/types/enums";
 export interface columnsRenderData {
   label: string;
   dataField: string;
@@ -80,10 +81,12 @@ function KanbanView(
     setDataSource([]);
     if (allTasks.data?.data.data) {
       allTasks.data?.data.data?.forEach((task) => {
-        setDataSource((prevItems) => [
-          ...(prevItems || []),
-          DataConvertToKanbanDataSource(task),
-        ]);
+        if (!task.milestoneIndicator) {
+          setDataSource((prevItems) => [
+            ...(prevItems || []),
+            DataConvertToKanbanDataSource(task),
+          ]);
+        }
       });
     }
   }, [allTasks.data?.data.data, Columns]);
@@ -92,10 +95,12 @@ function KanbanView(
     setDataSource([]);
     if (filterData) {
       filterData?.forEach((task) => {
-        setDataSource((prevItems) => [
-          ...(prevItems || []),
-          DataConvertToKanbanDataSource(task),
-        ]);
+        if (!task.milestoneIndicator) {
+          setDataSource((prevItems) => [
+            ...(prevItems || []),
+            DataConvertToKanbanDataSource(task),
+          ]);
+        }
       });
     }
   }, [filterData]);
@@ -103,7 +108,10 @@ function KanbanView(
   const taskStatusUpdateMutation = useUpdateTaskMutation();
   const statusUpdate = (e: (Event & CustomEvent) | undefined) => {
     taskStatusUpdateMutation.mutate(
-      { completionPecentage: Number(e?.detail.value.status), id: e?.detail.value.id },
+      {
+        completionPecentage: Number(e?.detail.value.status),
+        id: e?.detail.value.id,
+      },
       {
         onSuccess() {
           allTasks.refetch();
@@ -185,23 +193,23 @@ function KanbanView(
     root.render(<TaskShellView taskData={data} />);
   };
 
-  const onColumnHeaderRender = (
-    data: { dataField: keyof typeof TaskStatusEnumValue }
-  ) => {
+  const onColumnHeaderRender = (data: {
+    dataField: keyof typeof TaskStatusEnumValue;
+  }) => {
     const className = "";
     switch (data.dataField) {
-      case TaskStatusEnumValue.PLANNED:
-        className.concat("!bg-rose-500/20");
-        break;
-      case TaskStatusEnumValue.TODO:
-        className.concat("!bg-slate-500/20");
-        break;
-      case TaskStatusEnumValue.IN_PROGRESS:
-        className.concat("!bg-primary-500/20");
-        break;
-      case TaskStatusEnumValue.DONE:
-        className.concat("!bg-green-500/20");
-        break;
+    case TaskStatusEnumValue.PLANNED:
+      className.concat("!bg-rose-500/20");
+      break;
+    case TaskStatusEnumValue.TODO:
+      className.concat("!bg-slate-500/20");
+      break;
+    case TaskStatusEnumValue.IN_PROGRESS:
+      className.concat("!bg-primary-500/20");
+      break;
+    case TaskStatusEnumValue.DONE:
+      className.concat("!bg-green-500/20");
+      break;
     }
     // header.classList.add(...className.split(" "));
   };
@@ -217,8 +225,6 @@ function KanbanView(
     setColumns(column);
   };
   const onDragging = (e: (Event & CustomEvent) | undefined) => {
-    console.log(e?.detail.data.ItemData );
-    
     if (e?.detail.data.ItemData.subTask > 0) {
       e?.preventDefault();
     }
@@ -249,6 +255,7 @@ function KanbanView(
                 FIELDS.FLAGS,
                 FIELDS.OVERDUEDAYS,
                 FIELDS.TODAYDUEDAYS,
+                FIELDS.TASK,
               ]}
               tasks={allTasks.data?.data.data}
               filteredData={(task) => setFilterData(task)}

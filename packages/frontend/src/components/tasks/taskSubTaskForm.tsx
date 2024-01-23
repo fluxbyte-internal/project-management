@@ -61,7 +61,7 @@ type Props = {
   projectId: string | undefined;
   taskId: string | undefined;
   close: () => void;
-  initialValues?:{startDate:Date|undefined}
+  initialValues?: { startDate: Date | undefined };
 };
 
 function TaskSubTaskForm(props: Props) {
@@ -116,7 +116,7 @@ function TaskSubTaskForm(props: Props) {
       taskName: "",
       taskDescription: "",
       startDate: new Date(),
-      duration: 0.0,
+      duration: 1.0,
     },
     validationSchema: toFormikValidationSchema(createTaskSchema),
     onSubmit: (values) => {
@@ -179,14 +179,14 @@ function TaskSubTaskForm(props: Props) {
       taskName: subTask,
       taskDescription: "",
       startDate: new Date(),
-      duration: 0,
+      duration: 1,
       assginedToUserId: [currantUser.user?.userId ?? ""],
       milestoneIndicator: false,
     };
     taskCreateMutation.mutate(value, {
       onSuccess(data) {
         refetch();
-        setSubtask('');
+        setSubtask("");
         toast.success(data.data.message);
       },
       onError(error) {
@@ -258,7 +258,7 @@ function TaskSubTaskForm(props: Props) {
     } else {
       setProgressError("");
       taskUpdateMutation.mutate(
-        { completionPecentage:Number(val)??0 },
+        { completionPecentage: Number(val) ?? 0 },
         {
           onSuccess() {
             refetch();
@@ -386,7 +386,7 @@ function TaskSubTaskForm(props: Props) {
                       <Button
                         variant={"secondary"}
                         className="flex justify-between items-center w-full"
-                        onClick={() =>  setTaskId(task.taskId)}
+                        onClick={() => setTaskId(task.taskId)}
                       >
                         <div className="flex gap-2">
                           <img src={Folder} />
@@ -501,7 +501,12 @@ function TaskSubTaskForm(props: Props) {
                                 tasks?.assignedUsers.some(
                                   (u) => u.user.userId == data.user.userId
                                 )
-                                  ? removeMembers( tasks?.assignedUsers.find(id => id.user.userId == data.user.userId)?.taskAssignUsersId ?? '')
+                                  ? removeMembers(
+                                    tasks?.assignedUsers.find(
+                                      (id) =>
+                                        id.user.userId == data.user.userId
+                                    )?.taskAssignUsersId ?? ""
+                                  )
                                   : submitMembers(data);
                               }}
                             >
@@ -567,9 +572,7 @@ function TaskSubTaskForm(props: Props) {
                     >
                       <div className="flex w-full gap-3 justify-start">
                         <img src={CalendarIcon} className="w-3.5" />
-                        {tasks?.startDate
-                          ? dateFormater(new Date(taskFormik.values.startDate ))
-                          : "StartDate"}
+                        {dateFormater(new Date(taskFormik.values.startDate))}
                       </div>
                     </Button>
                   </PopoverTrigger>
@@ -578,10 +581,12 @@ function TaskSubTaskForm(props: Props) {
                       mode="single"
                       selected={new Date(taskFormik.values.startDate ?? "")}
                       onSelect={(e) => {
-                        {taskFormik.setFieldValue(
-                          "startDate",
-                          e ? e : undefined
-                        );}
+                        {
+                          taskFormik.setFieldValue(
+                            "startDate",
+                            e ? e : undefined
+                          );
+                        }
                       }}
                       className="rounded-md border"
                     />
@@ -782,7 +787,7 @@ function TaskSubTaskForm(props: Props) {
                   ) : (
                     <div className="flex items-center">
                       <div className="text-sm  text-gray-300">
-                        {tasks?.completionPecentage}%
+                        {tasks?.completionPecentage ?? 0}%
                       </div>{" "}
                       {tasks && tasks.subtasks?.length === 0 && (
                         <div>

@@ -4,8 +4,9 @@ import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Scheduler, SchedulerEvent } from "smart-webcomponents-react/scheduler";
-import TaskFilter, { FIELDS } from "../TaskFilter";
+import TaskFilter from "../TaskFilter";
 import { useUser } from "@/hooks/useUser";
+import { FIELDS } from "@/api/types/enums";
 
 function CalendarView() {
   const { projectId } = useParams();
