@@ -224,8 +224,6 @@ function KanbanView(
     setColumns(column);
   };
   const onDragging = (e: (Event & CustomEvent) | undefined) => {
-    console.log(e?.detail.data.ItemData);
-
     if (e?.detail.data.ItemData.subTask > 0) {
       e?.preventDefault();
     }

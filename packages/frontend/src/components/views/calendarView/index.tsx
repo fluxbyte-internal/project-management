@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 import { Scheduler, SchedulerEvent } from "smart-webcomponents-react/scheduler";
 import TaskFilter, { FIELDS } from "../TaskFilter";
 import { useUser } from "@/hooks/useUser";
-
+import "./index.css";
 function CalendarView() {
   const { projectId } = useParams();
   const allTasks = useAllTaskQuery(projectId);
@@ -34,7 +34,7 @@ function CalendarView() {
         return DataConvertToScheduler(d);
       })
     );
-  }, [allTasks.data?.data.data]);
+  }, [allTasks.data?.data.data,allTasks.dataUpdatedAt]);
 
   useEffect(() => {
     setDataSource(
@@ -59,12 +59,12 @@ function CalendarView() {
         task.flag == "Green"
           ? "#22C55E80"
           : task.flag == "Red"
-            ? "#EF444480"
-            : task.flag == "Orange"
-              ? "#F9980780"
-              : "#88888880",
-      disableDrag:true,
-      disableResize:true,
+          ? "#EF444480"
+          : task.flag == "Orange"
+          ? "#F9980780"
+          : "#88888880",
+      disableDrag: true,
+      disableResize: true,
     };
   };
   const days = [
@@ -86,6 +86,7 @@ function CalendarView() {
     return nonworkingDays;
   };
   const close = () => {
+    allTasks.refetch();
     setDialogRendered(undefined);
     setIsTaskShow(false);
     setStartDate(undefined);
@@ -113,7 +114,7 @@ function CalendarView() {
         nonworkingDays={nonWorkingDays()}
         draggable={false}
         hideNonworkingWeekdays={true}
-        className="h-full"
+        className="h-[95%] scheduler"
         onEditDialogOpening={(e) =>
           onItemClick(e as (Event & CustomEvent) | undefined)
         }

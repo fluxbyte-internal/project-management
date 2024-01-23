@@ -2,7 +2,7 @@ import { useState } from "react";
 import KanbanView from "./kanbanView";
 import SideBar from "../layout/SideBar";
 import BackgroundImage from "../layout/BackgroundImage";
-// import CalendarView from "./calendarView";
+import CalendarView from "./calendarView";
 // import RulesSetups from "./kanbanView/rulesSetups/rulesSetups";
 import Tasks from "@/pages/tasks";
 import Select  from "react-select";
@@ -16,6 +16,7 @@ function TaskViews() {
   const selectOption = [
     {label:"Table",value:"Table"},
     {label:"Kanban",value:"Kanban"},
+    {label:"Calendar",value:"Calendar"},
   ];
   const reactSelectStyle = {
     control: (
@@ -51,11 +52,11 @@ function TaskViews() {
             </div>
             <Select defaultValue={selectOption[0]} styles={reactSelectStyle} options={selectOption} onChange={(val)=>setViews(val?.value ?? '')}/>
           </div>
-          {/* <CalendarView /> */}
           {/* <RulesSetups/> */}
           <div className="h-full px-2">
-            {views == "Kanban"&&<KanbanView />}
-            {views == "Table"&&<Tasks/>}
+            {views === "Kanban"&&<KanbanView />}
+            {views === "Table"&&<Tasks/>}
+            {views === "Calendar"&&<CalendarView/>}
           </div>
           {/* <Tasks/> */}
         </div>

@@ -28,33 +28,38 @@ function RulesForm(props: Props) {
     },
     validationSchema: toFormikValidationSchema(createKanbanSchema),
     onSubmit: (values) => {
-      kanbanColumnMutation.mutate(values, {
-        onSuccess() {
-          kanbanColumnFormik.resetForm();
-          if (props?.close) {
-            props?.close();
-          }
-          if (props.refatch) {
-            props.refatch();
-          }
-        },
-        onError(err) {
-          toast.error(err.response?.data.message);
-        },
-      });
+      if (setPercentage(values.percentage)) {
+        kanbanColumnMutation.mutate(values, {
+          onSuccess() {
+            kanbanColumnFormik.resetForm();
+            if (props?.close) {
+              props?.close();
+            }
+            if (props.refatch) {
+              props.refatch();
+            }
+          },
+          onError(err) {
+            toast.error(err.response?.data.message);
+          },
+        });
+      }
     },
   });
   const handleSave = () => {
     kanbanColumnFormik.submitForm();
   };
-  const setError = (value: string) => {
-    if (props.reules?.find((d) => d.percentage === Number(value))) {
-      kanbanColumnFormik.setFieldError(
-        "percentage",
-        "Rule already exists. Choose a unique one."
-      );
+  const setPercentage = (value: number) => {
+    if (props.reules?.some((d) => d.percentage === Number(value))) {
+      kanbanColumnFormik.setErrors({
+        percentage: "Rule already exists. Choose a unique one.",
+      });
+      return false;
+    } else {
+      return true;
     }
   };
+
   return (
     <div className="border rounded-lg flex flex-col justify-between gap-2 px-2.5 py-1.5 bg-white">
       <div>
@@ -77,7 +82,7 @@ function RulesForm(props: Props) {
           min={0}
           max={100}
           onChange={(e) => {
-            kanbanColumnFormik.handleChange(e), setError(e.target.value);
+            kanbanColumnFormik.handleChange(e);
           }}
           value={kanbanColumnFormik.values.percentage}
         />

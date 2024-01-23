@@ -115,7 +115,9 @@ function TaskSubTaskForm(props: Props) {
     initialValues: {
       taskName: "",
       taskDescription: "",
-      startDate: new Date(),
+      startDate: props.initialValues?.startDate
+        ? new Date(props.initialValues?.startDate)
+        : new Date(),
       duration: 0.0,
     },
     validationSchema: toFormikValidationSchema(createTaskSchema),
@@ -827,7 +829,7 @@ function TaskSubTaskForm(props: Props) {
             <Button
               variant={"primary"}
               onClick={() => {
-                taskFormik.submitForm(), props.close();
+                taskFormik.submitForm();
               }}
             >
               Submit
