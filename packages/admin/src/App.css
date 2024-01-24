@@ -8,6 +8,7 @@ input[type='number'] {
 
 .select>div {
     @apply focus:!border-primary-800 ;
+<<<<<<< HEAD
 }
 input[type="date"]::-webkit-datetime-edit-text,
 input[type="date"]::-webkit-datetime-edit-month-field,
@@ -21,4 +22,12 @@ input[type="date"]::-webkit-datetime-edit-year-field {
   background-repeat: no-repeat;
   background-position-y: -10px;
   
+=======
+}
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+  @apply text-gray-500
+>>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
 }

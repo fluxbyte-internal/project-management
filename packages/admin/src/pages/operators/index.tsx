@@ -28,10 +28,13 @@ import {
 } from "@backend/src/schemas/enums";
 import useOperatorDeleteMutation from "@/api/mutation/useOperatorsDeleteMutation";
 import { toast } from "react-toastify";
+<<<<<<< HEAD
 import Blocked from "../../assets/svg/Blocked.svg";
 import Active from "../../assets/svg/Active.svg";
 import Delete from "../../assets/svg/Delete.svg";
 import OperartorBackground from "../../assets/operatorHomePageImage.jpg";
+=======
+>>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
 
 function OperatorsList() {
   const [data, setData] = useState<operatorDataType[]>([]);
@@ -167,7 +170,11 @@ function OperatorsList() {
         ) : (
           <>
             {data ? (
+<<<<<<< HEAD
               <div style={{ backgroundImage: `url(${OperartorBackground})` }}  className=" py-5 p-4 lg:p-14 w-full h-full flex flex-col gap-5 bg-no-repeat bg-cover">
+=======
+              <div className=" py-5 p-4 lg:p-14 w-full h-full flex flex-col gap-5 bg-[url('./src/assets/operatorHomePageImage.jpg')] bg-no-repeat bg-cover">
+>>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                 <div className="flex justify-between items-center">
                   <h2 className="font-medium text-3xl leading-normal text-gray-600">
                     Operators
@@ -190,7 +197,11 @@ function OperatorsList() {
                           onClick={() => toggleActiveOperatorData()}
                         >
                           Active
+<<<<<<< HEAD
                           <img src={Active} alt="" />
+=======
+                          <img src="./src/assets/svg/Active.svg" alt="" />
+>>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                         </button>
 
                         <button  type="button"
@@ -198,7 +209,11 @@ function OperatorsList() {
                           onClick={() => toggleBlockedOperatorData()}
                         >
                           Blocked
+<<<<<<< HEAD
                           <img src={Blocked} alt="" />
+=======
+                          <img src="./src/assets/svg/Blocked.svg" alt="" />
+>>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                         </button>
                       </div>
                    
@@ -246,7 +261,11 @@ function OperatorsList() {
                                               >
                                                 <img
                                                   className="mr-2 h-4 w-4 text-[#44546F]"
+<<<<<<< HEAD
                                                   src={Blocked}
+=======
+                                                  src="./src/assets/svg/Blocked.svg"
+>>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                                                 />
                                                 <span className="p-0 font-normal h-auto">
                                                   Block
@@ -263,7 +282,11 @@ function OperatorsList() {
                                               >
                                                 <img
                                                   className="mr-2 h-4 w-4 text-[#44546F]"
+<<<<<<< HEAD
                                                   src={Active}
+=======
+                                                  src="./src/assets/svg/Active.svg"
+>>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                                                 />
                                                 <span className="p-0 font-normal h-auto">
                                                   Retrieve
@@ -277,7 +300,11 @@ function OperatorsList() {
                                       >
                                         <img
                                           className="mr-2 h-4 w-4 text-[#44546F]"
+<<<<<<< HEAD
                                           src={Delete}
+=======
+                                          src="./src/assets/svg/Delete.svg"
+>>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                                         />
                                         <span className="p-0 font-normal h-auto">
                                           Delete
@@ -298,7 +325,11 @@ function OperatorsList() {
                                     {
                                       key: "avatar",
                                       header: "Avatar",
+<<<<<<< HEAD
                                       onCellRender: (res) => (
+=======
+                                      onCellRender: (res: any) => (
+>>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                                         <>
                                           <div className="w-1/2 h-fit items-center rounded-full p-2">
                                             <UserAvatar
@@ -312,7 +343,11 @@ function OperatorsList() {
                                     {
                                       key: "user",
                                       header: "Full Name",
+<<<<<<< HEAD
                                       onCellRender: (res) => (
+=======
+                                      onCellRender: (res: any) => (
+>>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                                         <>
                                           {res.firstName
                                             ? res.firstName
@@ -325,14 +360,22 @@ function OperatorsList() {
                                     {
                                       key: "email",
                                       header: "Email",
+<<<<<<< HEAD
                                       onCellRender: (res) => (
+=======
+                                      onCellRender: (res: any) => (
+>>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                                         <>{res.email}</>
                                       ),
                                     },
                                     {
                                       key: "Action",
                                       header: "Action",
+<<<<<<< HEAD
                                       onCellRender: (res) => (
+=======
+                                      onCellRender: (res: any) => (
+>>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                                         <>
                                           <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -352,7 +395,11 @@ function OperatorsList() {
                                               >
                                                 <img
                                                   className="mr-2 h-4 w-4 text-[#44546F]"
+<<<<<<< HEAD
                                                   src={Blocked}
+=======
+                                                  src="./src/assets/svg/Blocked.svg"
+>>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                                                 />
                                                 <span className="p-0 font-normal h-auto">
                                                   Block
@@ -369,7 +416,11 @@ function OperatorsList() {
                                               >
                                                 <img
                                                   className="mr-2 h-4 w-4 text-[#44546F]"
+<<<<<<< HEAD
                                                   src={Active}
+=======
+                                                  src="./src/assets/svg/Active.svg"
+>>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                                                 />
                                                 <span className="p-0 font-normal h-auto">
                                                   Retrieve{selectedTableData}
@@ -385,7 +436,11 @@ function OperatorsList() {
                                               >
                                                 <img
                                                   className="mr-2 h-4 w-4 text-[#44546F]"
+<<<<<<< HEAD
                                                   src={Delete}
+=======
+                                                  src="./src/assets/svg/Delete.svg"
+>>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                                                 />
                                                 <span className="p-0 font-normal h-auto">
                                                   Delete
@@ -424,7 +479,11 @@ function OperatorsList() {
             )}
             {isOpenPopUp && (
               <div className="fixed z-50 w-full h-full top-0 bg-black/40 flex items-center align-center justify-center">
+<<<<<<< HEAD
                 <div   className="operatorForm-background-image h-1/3 min-h-fit py-2 lg:w-2/6 w-4/5 flex flex-col justify-evenly lg:gap-1 gap-1 rounded-lg bg-white px-3 bg-no-repeat bg-cover">
+=======
+                <div className="h-1/3 min-h-fit py-2 lg:w-2/6 w-4/5 flex flex-col justify-evenly lg:gap-1 gap-1 rounded-lg bg-white px-3 bg-[url('./src/assets/operatorForm.jpg')] bg-no-repeat bg-cover">
+>>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                   <div className="flex justify-between lg:py-5 py-2">
                     <div className="text-2xl lg:text-3xl font-bold text-gray-500 lg:px-4 px-4">
                       Add Operator

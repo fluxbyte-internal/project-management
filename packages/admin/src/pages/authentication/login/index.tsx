@@ -36,7 +36,11 @@ function Login() {
       setIsLoading(true);
       loginMutation.mutate(values, {
         onSuccess(data) {
+<<<<<<< HEAD
           login(); 
+=======
+          login(data);
+>>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
           toast.success(data.data.message);
         },
         onError(error) {
