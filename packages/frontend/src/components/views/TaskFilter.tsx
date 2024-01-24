@@ -214,7 +214,7 @@ function TaskFilter(props: Filter) {
     <div>
       <div className="flex w-full justify-between items-center gap-2">
         <div className="flex justify-between w-full gap-2 text-gray-500">
-          <div className="flex justify-between items-center gap-6 px-3 w-full z-[3]">
+          <div className="flex justify-between items-center gap-6 px-3 w-full ">
             <div className="w-full">
               <InputText
                 className="mt-0 h-10 w-56"

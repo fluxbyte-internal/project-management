@@ -1,45 +1,37 @@
 import { useEffect, useState } from "react";
 import KanbanView from "./kanbanView";
 import SideBar from "../layout/SideBar";
-// import CalendarView from "./calendarView";
-// import RulesSetups from "./kanbanView/rulesSetups/rulesSetups";
+import CalendarView from "./calendarView";
 import Tasks from "@/pages/tasks";
-import Select from "react-select";
 import useProjectDetail from "@/api/query/useProjectDetailQuery";
 import { useParams } from "react-router-dom";
 import { ProjectDefaultViewEnumValue } from "@backend/src/schemas/enums";
+import kanaban from "../../assets/svg/KanbanView.svg";
+// import gantt from "../../assets/svg/Gantt.svg";
+import calendar from "../../assets/svg/Calendar.svg";
+import list from "../../assets/svg/List.svg";
 function TaskViews() {
-
-  const selectOption = [
+  const viewOption = [
     {
-      label: ProjectDefaultViewEnumValue.LIST,
+      icon: list,
       value: ProjectDefaultViewEnumValue.LIST,
     },
     {
-      label: ProjectDefaultViewEnumValue.KANBAN,
+      icon: kanaban,
       value: ProjectDefaultViewEnumValue.KANBAN,
     },
+    {
+      icon: calendar,
+      value: ProjectDefaultViewEnumValue.CALENDAR,
+    },
+    // {
+    //   icon: gantt,
+    //   value: ProjectDefaultViewEnumValue.GANTT,
+    // },
   ];
-  const reactSelectStyle = {
-    control: (
-      provided: Record<string, unknown>,
-      state: { isFocused: boolean }
-    ) => ({
-      ...provided,
-      border: "1px solid #E7E7E7",
-      paddingTop: "0.2rem",
-      paddingBottom: "0.2rem",
-      outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
-      boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
-      "&:hover": {
-        outline: state.isFocused ? "1px solid #943B0C" : "1px solid #E7E7E7",
-        boxShadow: "0px 0px 0px #943B0C",
-      },
-    }),
-  };
 
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
-  const [views, setViews] = useState<string>(selectOption[0].value);
+  const [views, setViews] = useState<string>(viewOption[0].value);
 
   const toggleSidebar = () => {
     setSidebarExpanded(!isSidebarExpanded);
@@ -51,7 +43,7 @@ function TaskViews() {
       setViews(projectQuery.data.data.data.defaultView);
     }
   }, [projectQuery.data?.data.data]);
-  
+
   return (
     <>
       <div className="relative h-full overflow-hidden">
@@ -66,17 +58,29 @@ function TaskViews() {
         >
           <div className="flex justify-between px-4 py-2 items-center">
             <div className="text-xl font-semibold text-gray-400">Task View</div>
-            <Select
-              defaultValue={selectOption.find(e => e.value == views)}
-              styles={reactSelectStyle}
-              options={selectOption}
-              onChange={(val) => setViews(val?.value ?? "")}
-            />
+            <div className="overflow-hidden rounded-xl border border-gray-100  p-0.5">
+              <ul className="flex items-center gap-2 text-sm font-medium">
+                {viewOption.map((item) => {
+                  return (
+                    <li className="flex-1">
+                      <button
+                        onClick={() => setViews(item.value)}
+                        className={`text-gra relative flex items-center justify-center px-4 py-0.5 h-fit gap-2 rounded-lg  shadow hover:bg-white hover:text-gray-700 ${
+                          item.value == views ? "bg-white" : "bg-gray-50"
+                        }`}
+                      >
+                        <img src={item.icon} className="w-8 h-8" />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
           </div>
-          {/* <CalendarView /> */}
           <div className="h-full overflow-hidden px-2">
             {views == ProjectDefaultViewEnumValue.KANBAN && <KanbanView />}
             {views == ProjectDefaultViewEnumValue.LIST && <Tasks />}
+            {views == ProjectDefaultViewEnumValue.CALENDAR && <CalendarView />}
           </div>
         </div>
       </div>
