@@ -39,8 +39,11 @@ function TaskViews() {
   };
 
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
-  const [views, setViews] = useState<string>(selectOption[0].value);
-
+  const [views, setViews] = useState<string>();
+  const [defaultValue, setDefultValue] = useState<{
+    label: string;
+    value: string;
+  }>();
   const toggleSidebar = () => {
     setSidebarExpanded(!isSidebarExpanded);
   };
@@ -49,6 +52,11 @@ function TaskViews() {
   useEffect(() => {
     if (projectQuery.data?.data.data) {
       setViews(projectQuery.data.data.data.defaultView);
+      setDefultValue(
+        selectOption.find(
+          (e) => e.value == projectQuery.data.data.data.defaultView
+        )
+      );
     }
   }, [projectQuery.data?.data.data]);
   
@@ -66,14 +74,15 @@ function TaskViews() {
         >
           <div className="flex justify-between px-4 py-2 items-center">
             <div className="text-xl font-semibold text-gray-400">Task View</div>
-            <Select
-              defaultValue={selectOption.find(e => e.value == views)}
-              styles={reactSelectStyle}
-              options={selectOption}
-              onChange={(val) => setViews(val?.value ?? "")}
-            />
+            {defaultValue && (
+              <Select
+                defaultValue={defaultValue}
+                styles={reactSelectStyle}
+                options={selectOption}
+                onChange={(val) => setViews(val?.value ?? "")}
+              />
+            )}
           </div>
-          {/* <CalendarView /> */}
           <div className="h-full overflow-hidden px-2">
             {views == ProjectDefaultViewEnumValue.KANBAN && <KanbanView />}
             {views == ProjectDefaultViewEnumValue.LIST && <Tasks />}
