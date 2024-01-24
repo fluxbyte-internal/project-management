@@ -92,8 +92,8 @@ function OperatorsList() {
     onSubmit: (values, helper) => {
       addOperatorsMutation.mutate(values, {
         onSuccess(data) {
-          formik.resetForm();
           fetchData();
+          formik.resetForm();
           setIsOpenPopUp(false);
           toast.success(data.data.message);
         },
@@ -118,13 +118,11 @@ function OperatorsList() {
   });
   const handleData = () => {
     setData(operatorsQuery.data?.data?.data || []);
-    // Reset previous data
     setActiveOperators([]);
     setBlockedOperators([]);
     operatorsQuery.data?.data?.data?.forEach((res) => {
       if (res.status === UserStatusEnumValue.ACTIVE) {
         setActiveOperators((current) => [...current, res]);
-
       } else if (res.status === UserStatusEnumValue.INACTIVE) {
         setBlockedOperators((current) => [...current, res]);
       }
@@ -152,7 +150,7 @@ function OperatorsList() {
 
   useEffect(() => {
     handleData();
-  }, [data, selectedTableData]);
+  }, [data, operatorsQuery.data?.data.data, selectedTableData]);
 
   const close = () => {
     setIsOpenPopUp(false);
