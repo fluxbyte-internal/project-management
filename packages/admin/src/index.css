@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ol,
+ul {
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+}
+
+body {
+  min-height: 100vh;
+}
+
+ol,
+ul {
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+:focus {
+  outline-color: #943b0c;
+}
+
+/* Scrollbar css */
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  @apply bg-primary-50;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  @apply bg-primary-400;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary-500;
+}
+
+.Toastify__progress-bar--success {
+  @apply bg-primary-500;
+
+}
+.Toastify__toast-theme--colored.Toastify__toast--success {
+  @apply bg-primary-500;
+
+}
+
+:root {
+  --toastify-color-progress-success: theme('colors.primary.500');
+  --toastify-icon-color-success: theme('colors.primary.500');
+}
