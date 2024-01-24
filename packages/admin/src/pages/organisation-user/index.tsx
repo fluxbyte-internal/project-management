@@ -11,13 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLocation } from "react-router-dom";
-<<<<<<< HEAD
-
-=======
-import useOrganisationsListQuery, {
-  OrganisationsType,
-} from "@/api/query/organisationListQuery";
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
 import {
   UserRoleEnumValue,
   UserStatusEnumValue,
@@ -25,7 +18,6 @@ import {
 import useUserStatusMutation from "@/api/mutation/userUserStatusMutation";
 import { toast } from "react-toastify";
 import useUserRoleUpdateMutation from "@/api/mutation/useUserRoleUpdateMutation";
-<<<<<<< HEAD
 import useGetusersOrganisationsQuery, { OrganisationUserType } from "@/api/query/useGetUsersOrganisationMemberList";
 import Dialog from "@/components/common/Dialog";
 import useAssignAdministratorMutation from "@/api/mutation/useAssignAdministratorMutation";
@@ -35,17 +27,10 @@ import Active from "../../assets/svg/Active.svg";
 import CrossIcon from "../../assets/svg/CrossIcon.svg";
 import OperartorBackground from "../../assets/operatorHomePageImage.jpg";
 import Dropdown from "../../assets/svg/Dropdown.svg"
-=======
-import useGetusersOrganisationsQuery from "@/api/query/useGetUsersOrganisationMemberList";
-import Dialog from "@/components/common/Dialog";
-import useAssignAdministratorMutation from "@/api/mutation/useAssignAdministratorMutation";
-
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
 
 function OrganisationUsers() {
   const location = useLocation();
   const state = location.state;
-<<<<<<< HEAD
   const [data, setData] = useState<OrganisationUserType[]>();
   const [currentAdminId, setCurrentAdminId] = useState<string>("");
   const [newAdminId, setAdminId] = useState<string>("");
@@ -54,17 +39,6 @@ function OrganisationUsers() {
   const [filterData, setFilterData] = useState<OrganisationUserType[]>();
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
   const [isAdminConfirmOpenPopUp, setIsAdminConfirmOpenPopUp] = useState(false);
-=======
-  const [data, setData] = useState<any[]>();
-  const [currentAdminId, setCurrentAdminId] = useState<string>("");
-  const [newAdminId, setAdminId] = useState<string>("");
-  const [userList, setUserList] = useState<any>();
-  const [adminAlert, setadminAlert] = useState(false);
-  const [filterData, setFilterData] = useState<OrganisationsType[]>();
-  const [isOpenPopUp, setIsOpenPopUp] = useState(false);
-  const [isAdminConfirmOpenPopUp, setIsAdminConfirmOpenPopUp] = useState(false);
-  const organisationQuery = useOrganisationsListQuery();
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
   const userStatusMutation = useUserStatusMutation();
   const userRoleUpdateMutation = useUserRoleUpdateMutation();
   const assignAdministratorMutation = useAssignAdministratorMutation();
@@ -73,20 +47,12 @@ function OrganisationUsers() {
   );
   useEffect(() => {
     setData(usersOrganisationsQuery.data?.data?.data);
-<<<<<<< HEAD
-=======
-    console.log()
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
     setFilterData(usersOrganisationsQuery.data?.data?.data);
   }, [usersOrganisationsQuery.data?.data?.data]);
 
   useEffect(() => {
     const adminUser = data?.find(
-<<<<<<< HEAD
       (res) =>
-=======
-      (res: any) =>
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
         res.role === UserRoleEnumValue.ADMINISTRATOR &&
         res.user.status === UserStatusEnumValue.ACTIVE
     );
@@ -200,14 +166,8 @@ function OrganisationUsers() {
     userRoleUpdateMutation.mutate(
       { organisationId, userOrganisationId, role },
       {
-<<<<<<< HEAD
         onSuccess(data) {
           fetchData();
-=======
-        onSuccess(data: any) {
-          fetchData();
-
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
           toast.success(data.data.message);
         },
         onError(err) {
@@ -223,11 +183,7 @@ function OrganisationUsers() {
     {
       key: "avatar",
       header: "Avatar",
-<<<<<<< HEAD
       onCellRender: (item) => (
-=======
-      onCellRender: (item: any) => (
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
         <>
           <div className="w-1/2 h-fit items-center rounded-full p-2">
             <UserAvatar user={item.user} />
@@ -238,11 +194,7 @@ function OrganisationUsers() {
     {
       key: "user",
       header: "Full Name",
-<<<<<<< HEAD
       onCellRender: (item) => (
-=======
-      onCellRender: (item: any) => (
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
         <div className="">
           {(item.user.firstName ? item.user.firstName : "") +
             " " +
@@ -253,20 +205,12 @@ function OrganisationUsers() {
     {
       key: "email",
       header: "Email",
-<<<<<<< HEAD
       onCellRender: (item) => <>{item.user.email}</>,
-=======
-      onCellRender: (item: any) => <>{item.user.email}</>,
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
     },
     {
       key: "status",
       header: "Status",
-<<<<<<< HEAD
       onCellRender: (item) => (
-=======
-      onCellRender: (item: any) => (
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
         <>
           <div
             className={`w-32 h-8 px-3 py-1.5 ${
@@ -290,11 +234,7 @@ function OrganisationUsers() {
     {
       key: "Action",
       header: "Action",
-<<<<<<< HEAD
       onCellRender: (item) => (
-=======
-      onCellRender: (item: any) => (
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
         <>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -318,11 +258,7 @@ function OrganisationUsers() {
                   >
                     <img
                       className="mr-2 h-4 w-4 text-[#44546F]"
-<<<<<<< HEAD
                       src={Blocked}
-=======
-                      src="./src/assets/svg/Blocked.svg"
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                     />
                     <span className="p-0 font-normal h-auto">Block</span>
                   </DropdownMenuItem>
@@ -339,11 +275,7 @@ function OrganisationUsers() {
                   >
                     <img
                       className="mr-2 h-4 w-4 text-[#44546F]"
-<<<<<<< HEAD
                       src={Active}
-=======
-                      src="./src/assets/svg/Active.svg"
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                     />
                     <span
                       className={`${
@@ -366,23 +298,14 @@ function OrganisationUsers() {
   ];
   return (
     <>
-<<<<<<< HEAD
       <div style={{ backgroundImage: `url(${OperartorBackground})` }} className="w-full h-full relative bg-no-repeat bg-cover">
         {usersOrganisationsQuery.isLoading ? (
-=======
-      <div className="w-full h-full relative bg-[url('./src/assets/operatorHomePageImage.jpg')] bg-no-repeat bg-cover">
-        {organisationQuery.isLoading ? (
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
           <Loader />
         ) : (
           <>
             {usersOrganisationsQuery.data?.data?.data &&
             usersOrganisationsQuery.data?.data?.data.length > 0 ? (
-<<<<<<< HEAD
               <div style={{ backgroundImage: `url(${OperartorBackground})` }} className="h-full py-5 p-4 lg:p-14 w-full flex flex-col gap-5 bg-no-repeat bg-cover">
-=======
-              <div className="h-full py-5 p-4 lg:p-14 w-full flex flex-col gap-5 bg-[url('./src/assets/operatorHomePageImage.jpg')] bg-no-repeat bg-cover">
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                 <div className="flex lg:flex-row flex-col gap-4 lg:gap-0 justify-between items-center">
                   <h2 className="font-medium text-3xl leading-normal text-gray-600">
                     Organisation's User
@@ -394,11 +317,7 @@ function OrganisationUsers() {
                     >
                       <img
                         className="h-[20px] w-[20px] text-[#44546F]"
-<<<<<<< HEAD
                         src={Alert}
-=======
-                        src="./src/assets/svg/Alert.svg"
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                       ></img>
                       <h2 className="font-medium lg:text-lg text-md text-red-500 leading-normal ">
                         Organisation must have an Administrator
@@ -406,11 +325,7 @@ function OrganisationUsers() {
                       <button>
                         <img
                           className="w-[20px] h-[20px]"
-<<<<<<< HEAD
                           src={Dropdown}
-=======
-                          src="./src/assets/svg/Dropdown.svg"
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                         ></img>
                       </button>
                     </div>
@@ -437,11 +352,7 @@ function OrganisationUsers() {
             )}
             {isOpenPopUp && (
               <Dialog
-<<<<<<< HEAD
                 modalClass="operatorForm-background-image rounded-lg w-4/5 h-4/5 p-5"
-=======
-                modalClass="rounded-lg w-4/5 h-4/5 p-5 bg-[url('./src/assets/operatorForm.jpg')] bg-no-repeat bg-cover"
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                 isOpen={isOpenPopUp}
                 onClose={() => setIsOpenPopUp(isOpenPopUp)}
               >
@@ -451,11 +362,7 @@ function OrganisationUsers() {
                   </h4>
                 </div>
                 <div className="mt-12">
-<<<<<<< HEAD
                   {userList?.map((data, index) => {
-=======
-                  {userList?.map((data: any, index: any) => {
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                     return (
                       <div
                         onClick={() => {
@@ -514,11 +421,7 @@ function OrganisationUsers() {
                             setIsAdminConfirmOpenPopUp(false);
                           }}
                         >
-<<<<<<< HEAD
                           <img src={CrossIcon}></img>
-=======
-                          <img src="./src/assets/svg/CrossIcon.svg"></img>
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                         </button>
                       </div>
                     </Dialog>
@@ -531,11 +434,7 @@ function OrganisationUsers() {
                       setIsOpenPopUp(false);
                     }}
                   >
-<<<<<<< HEAD
                     <img src={CrossIcon}></img>
-=======
-                    <img src="./src/assets/svg/CrossIcon.svg"></img>
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                   </button>
                 </div>
               </Dialog>

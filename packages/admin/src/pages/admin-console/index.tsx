@@ -27,14 +27,11 @@ import useOrganisationStatusMutation from "@/api/mutation/useOrganisationStatusM
 import { OrgStatusEnumValue } from "@backend/src/schemas/enums";
 import { toast } from "react-toastify";
 import useDeleteOrganisationMutation from "@/api/mutation/useDeleteOrganisationDeleteMutation";
-<<<<<<< HEAD
 import Alert from "../../assets/svg/Alert.svg";
 import Blocked from "../../assets/svg/Blocked.svg";
 import Active from "../../assets/svg/Active.svg";
 import Delete from "../../assets/svg/Delete.svg";
 import OperartorBackground from "../../assets/operatorHomePageImage.jpg";
-=======
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
 
 type Options = { label: string; value: string };
 
@@ -92,11 +89,7 @@ const handleDelete = (organisationId:string) =>{
     );
   };
   const industry = (): Options[] | undefined => {
-<<<<<<< HEAD
     const industryData: Options[] | undefined = [
-=======
-    const industryData: any[] | undefined = [
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
       { label: "Select industry", value: "" },
     ];
     data?.forEach((item) => {
@@ -136,13 +129,8 @@ const handleDelete = (organisationId:string) =>{
     {
       key: "organisationName",
       header: "Organisation Name",
-<<<<<<< HEAD
       onCellRender: (userData) => {
         const adminUser = userData.userOrganisation.find((res: { role: string; user: { status: string; }; }) => res.role === "ADMINISTRATOR" && res.user.status === "ACTIVE");
-=======
-      onCellRender: (userData: any) => {
-        const adminUser = userData.userOrganisation.find((res: any) => res.role === "ADMINISTRATOR" && res.user.status === "ACTIVE");
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
         return (
           <>
             {adminUser ? (<>  <Link
@@ -160,11 +148,7 @@ const handleDelete = (organisationId:string) =>{
               state={userData.userOrganisation}
             >
               {userData.organisationName}<img   className="h-[20px] w-[20px] text-[#44546F]"
-<<<<<<< HEAD
               src={Alert}></img>
-=======
-              src="./src/assets/svg/Alert.svg"></img>
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
             </Link>
             )}
           </>
@@ -174,11 +158,7 @@ const handleDelete = (organisationId:string) =>{
     {
       key: "status",
       header: "Status",
-<<<<<<< HEAD
       onCellRender: (item) => (
-=======
-      onCellRender: (item: any) => (
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
         <>
          <div
             className={`w-32 h-8 px-3 py-1.5 ${
@@ -200,11 +180,7 @@ const handleDelete = (organisationId:string) =>{
       key: "joinDate",
       header: "Joining Date",
 
-<<<<<<< HEAD
       onCellRender: (item) => (
-=======
-      onCellRender: (item: any) => (
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
         <>{dateFormatter(new Date(item.createdAt))}</>
       ),
     },
@@ -215,11 +191,7 @@ const handleDelete = (organisationId:string) =>{
     {
       key: "Action",
       header: "Action",
-<<<<<<< HEAD
       onCellRender: (item) => (
-=======
-      onCellRender: (item: any) => (
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
         <>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -234,11 +206,7 @@ const handleDelete = (organisationId:string) =>{
               >
                 <img
                   className="mr-2 h-4 w-4 text-[#44546F]"
-<<<<<<< HEAD
                   src={Blocked}
-=======
-                  src="./src/assets/svg/Blocked.svg"
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                 />
                 <span className="p-0 font-normal h-auto">Block</span>
               </DropdownMenuItem>
@@ -252,11 +220,7 @@ const handleDelete = (organisationId:string) =>{
               >
                 <img
                   className="mr-2 h-4 w-4 text-[#44546F]"
-<<<<<<< HEAD
                   src={Active}
-=======
-                  src="./src/assets/svg/Active.svg"
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                 />
                 <span className="p-0 font-normal h-auto">Retrieve</span>
               </DropdownMenuItem>
@@ -268,11 +232,7 @@ const handleDelete = (organisationId:string) =>{
               >
                 <img
                   className="mr-2 h-4 w-4 text-[#44546F]"
-<<<<<<< HEAD
                   src={Delete}
-=======
-                  src="./src/assets/svg/Delete.svg"
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                 />
                 <span className="p-0 font-normal h-auto">Delete</span>
               </DropdownMenuItem>
@@ -315,18 +275,10 @@ const handleDelete = (organisationId:string) =>{
         );
       });
     } else if (filter && filter.industry && filter.industry.value) {
-<<<<<<< HEAD
-=======
-      console.log(filter);
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
       filteredData = filteredData?.filter(
         (d) => d.industry === filter.industry?.value
       );
     } else if (filter && filter.country && filter.country.value) {
-<<<<<<< HEAD
-=======
-      console.log(filter);
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
       filteredData = filteredData?.filter(
         (d) => d.country === filter.country?.value
       );
@@ -354,21 +306,13 @@ const fetchData=()=>{
 
   return (
     <>
-<<<<<<< HEAD
       <div style={{ backgroundImage: `url(${OperartorBackground})` }} className="w-full h-full relative bg-no-repeat bg-cover">
-=======
-      <div className="w-full h-full relative bg-[url('./src/assets/operatorHomePageImage.jpg')] bg-no-repeat bg-cover">
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
         {organisationQuery.isLoading ? (
           <Loader />
         ) : (
           <>
             {data && data.length > 0 ? (
-<<<<<<< HEAD
               <div style={{ backgroundImage: `url(${OperartorBackground})` }} className="h-full py-5 p-4 lg:p-14 w-full flex flex-col gap-5 bg-no-repeat bg-cover">
-=======
-              <div className="h-full py-5 p-4 lg:p-14 w-full flex flex-col gap-5 bg-[url('./src/assets/operatorHomePageImage.jpg')] bg-no-repeat bg-cover">
->>>>>>> 8c5818bb7fd918c6cd870ad09c51bd4a32c5607d
                 <div className="flex justify-between items-center">
                   <h2 className="font-medium text-3xl leading-normal text-gray-600">
                     Organisations
