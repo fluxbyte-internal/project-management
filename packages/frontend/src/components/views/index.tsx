@@ -43,7 +43,7 @@ function TaskViews() {
       setViews(projectQuery.data.data.data.defaultView);
     }
   }, [projectQuery.data?.data.data]);
-  
+
   return (
     <>
       <div className="relative h-full overflow-hidden">
@@ -65,7 +65,9 @@ function TaskViews() {
                     <li className="flex-1">
                       <button
                         onClick={() => setViews(item.value)}
-                        className={`text-gra relative flex items-center justify-center px-4 py-0.5 h-fit gap-2 rounded-lg  shadow hover:bg-white hover:text-gray-700 ${item.value == views?"bg-white":'bg-gray-50'}`}
+                        className={`text-gra relative flex items-center justify-center px-4 py-0.5 h-fit gap-2 rounded-lg  shadow hover:bg-white hover:text-gray-700 ${
+                          item.value == views ? "bg-white" : "bg-gray-50"
+                        }`}
                       >
                         <img src={item.icon} className="w-8 h-8" />
                       </button>
@@ -75,7 +77,6 @@ function TaskViews() {
               </ul>
             </div>
           </div>
-          {/* <CalendarView /> */}
           <div className="h-full overflow-hidden px-2">
             {views == ProjectDefaultViewEnumValue.KANBAN && <KanbanView />}
             {views == ProjectDefaultViewEnumValue.LIST && <Tasks />}

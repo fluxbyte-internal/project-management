@@ -16,7 +16,7 @@ type Props = {
   projectId: string;
   refatch?: () => void;
   close?: () => void;
-  reules?: KanbanColumnType[];
+  rules?: KanbanColumnType[];
 };
 
 function RulesForm(props: Props) {
@@ -50,7 +50,7 @@ function RulesForm(props: Props) {
     kanbanColumnFormik.submitForm();
   };
   const setPercentage = (value: number) => {
-    if (props.reules?.some((d) => d.percentage === Number(value))) {
+    if (props.rules?.some((d) => d.percentage === Number(value))) {
       kanbanColumnFormik.setErrors({
         percentage: "Rule already exists. Choose a unique one.",
       });
