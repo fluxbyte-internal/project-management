@@ -59,7 +59,7 @@ function KanbanView(
   const [isColumnsOpen, setIsColumnsOpen] = useState<boolean>(false);
   const [Columns, setColumns] = useState<KanbanColumn[]>();
   const [closePopup, setClosePopup] = useState<boolean>(false);
-  const [rawData, setRawData] = useState<KanbanColumnType[]>()
+  const [rawData, setRawData] = useState<KanbanColumnType[]>();
 
   useEffect(() => {
     if (allKanbanColumn.status == "success") {
