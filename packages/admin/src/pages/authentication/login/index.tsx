@@ -36,7 +36,7 @@ function Login() {
       setIsLoading(true);
       loginMutation.mutate(values, {
         onSuccess(data) {
-          login(data);
+          login(); 
           toast.success(data.data.message);
         },
         onError(error) {

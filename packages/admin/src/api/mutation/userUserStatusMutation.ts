@@ -8,7 +8,7 @@ import {
 import ApiRequest from "../ApiRequest";
 import { userStatuSchema } from "@backend/src/schemas/userSchema";
 
-export type OperatorStatusApiResponse = ResponseType<{}>;
+export type OperatorStatusApiResponse = ResponseType<null>;
 function useUserStatusMutation() {
   const mutation = useMutation<
     AxiosResponseAndError<OperatorStatusApiResponse>["response"],

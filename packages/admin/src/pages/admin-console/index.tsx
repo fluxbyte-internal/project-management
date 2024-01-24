@@ -27,6 +27,11 @@ import useOrganisationStatusMutation from "@/api/mutation/useOrganisationStatusM
 import { OrgStatusEnumValue } from "@backend/src/schemas/enums";
 import { toast } from "react-toastify";
 import useDeleteOrganisationMutation from "@/api/mutation/useDeleteOrganisationDeleteMutation";
+import Alert from "../../assets/svg/Alert.svg";
+import Blocked from "../../assets/svg/Blocked.svg";
+import Active from "../../assets/svg/Active.svg";
+import Delete from "../../assets/svg/Delete.svg";
+import OperartorBackground from "../../assets/operatorHomePageImage.jpg";
 
 type Options = { label: string; value: string };
 
@@ -84,7 +89,7 @@ const handleDelete = (organisationId:string) =>{
     );
   };
   const industry = (): Options[] | undefined => {
-    const industryData: any[] | undefined = [
+    const industryData: Options[] | undefined = [
       { label: "Select industry", value: "" },
     ];
     data?.forEach((item) => {
@@ -124,8 +129,8 @@ const handleDelete = (organisationId:string) =>{
     {
       key: "organisationName",
       header: "Organisation Name",
-      onCellRender: (userData: any) => {
-        const adminUser = userData.userOrganisation.find((res: any) => res.role === "ADMINISTRATOR" && res.user.status === "ACTIVE");
+      onCellRender: (userData) => {
+        const adminUser = userData.userOrganisation.find((res: { role: string; user: { status: string; }; }) => res.role === "ADMINISTRATOR" && res.user.status === "ACTIVE");
         return (
           <>
             {adminUser ? (<>  <Link
@@ -143,7 +148,7 @@ const handleDelete = (organisationId:string) =>{
               state={userData.userOrganisation}
             >
               {userData.organisationName}<img   className="h-[20px] w-[20px] text-[#44546F]"
-              src="./src/assets/svg/Alert.svg"></img>
+              src={Alert}></img>
             </Link>
             )}
           </>
@@ -153,7 +158,7 @@ const handleDelete = (organisationId:string) =>{
     {
       key: "status",
       header: "Status",
-      onCellRender: (item: any) => (
+      onCellRender: (item) => (
         <>
          <div
             className={`w-32 h-8 px-3 py-1.5 ${
@@ -175,7 +180,7 @@ const handleDelete = (organisationId:string) =>{
       key: "joinDate",
       header: "Joining Date",
 
-      onCellRender: (item: any) => (
+      onCellRender: (item) => (
         <>{dateFormatter(new Date(item.createdAt))}</>
       ),
     },
@@ -186,7 +191,7 @@ const handleDelete = (organisationId:string) =>{
     {
       key: "Action",
       header: "Action",
-      onCellRender: (item: any) => (
+      onCellRender: (item) => (
         <>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -201,7 +206,7 @@ const handleDelete = (organisationId:string) =>{
               >
                 <img
                   className="mr-2 h-4 w-4 text-[#44546F]"
-                  src="./src/assets/svg/Blocked.svg"
+                  src={Blocked}
                 />
                 <span className="p-0 font-normal h-auto">Block</span>
               </DropdownMenuItem>
@@ -215,7 +220,7 @@ const handleDelete = (organisationId:string) =>{
               >
                 <img
                   className="mr-2 h-4 w-4 text-[#44546F]"
-                  src="./src/assets/svg/Active.svg"
+                  src={Active}
                 />
                 <span className="p-0 font-normal h-auto">Retrieve</span>
               </DropdownMenuItem>
@@ -227,7 +232,7 @@ const handleDelete = (organisationId:string) =>{
               >
                 <img
                   className="mr-2 h-4 w-4 text-[#44546F]"
-                  src="./src/assets/svg/Delete.svg"
+                  src={Delete}
                 />
                 <span className="p-0 font-normal h-auto">Delete</span>
               </DropdownMenuItem>
@@ -270,12 +275,10 @@ const handleDelete = (organisationId:string) =>{
         );
       });
     } else if (filter && filter.industry && filter.industry.value) {
-      console.log(filter);
       filteredData = filteredData?.filter(
         (d) => d.industry === filter.industry?.value
       );
     } else if (filter && filter.country && filter.country.value) {
-      console.log(filter);
       filteredData = filteredData?.filter(
         (d) => d.country === filter.country?.value
       );
@@ -303,13 +306,13 @@ const fetchData=()=>{
 
   return (
     <>
-      <div className="w-full h-full relative bg-[url('./src/assets/operatorHomePageImage.jpg')] bg-no-repeat bg-cover">
+      <div style={{ backgroundImage: `url(${OperartorBackground})` }} className="w-full h-full relative bg-no-repeat bg-cover">
         {organisationQuery.isLoading ? (
           <Loader />
         ) : (
           <>
             {data && data.length > 0 ? (
-              <div className="h-full py-5 p-4 lg:p-14 w-full flex flex-col gap-5 bg-[url('./src/assets/operatorHomePageImage.jpg')] bg-no-repeat bg-cover">
+              <div style={{ backgroundImage: `url(${OperartorBackground})` }} className="h-full py-5 p-4 lg:p-14 w-full flex flex-col gap-5 bg-no-repeat bg-cover">
                 <div className="flex justify-between items-center">
                   <h2 className="font-medium text-3xl leading-normal text-gray-600">
                     Organisations

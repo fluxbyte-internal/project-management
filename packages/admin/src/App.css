@@ -15,3 +15,10 @@ input[type="date"]::-webkit-datetime-edit-day-field,
 input[type="date"]::-webkit-datetime-edit-year-field {
   @apply text-gray-500
 }
+.operatorForm-background-image {
+  background-image: url('./assets/operatorForm.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position-y: -10px;
+  
+}

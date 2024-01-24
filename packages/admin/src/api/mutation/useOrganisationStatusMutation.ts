@@ -5,15 +5,15 @@ import {
   AxiosResponseAndError,
   ResponseType,
 } from "@/api/types/axiosResponseType";
-import { organisationStatusSchema } from "@backend/src/schemas/organisationSchema";
+import { organisationStatuSchema } from "@backend/src/schemas/organisationSchema";
 import ApiRequest from "../ApiRequest";
 
-export type OrganisationStatusApiResponse = ResponseType<{}>;
+export type OrganisationStatusApiResponse = ResponseType<null>;
 function useOrganisationStatusMutation() {
   const mutation = useMutation<
     AxiosResponseAndError<OrganisationStatusApiResponse>["response"],
     AxiosResponseAndError<OrganisationStatusApiResponse>["error"],
-    z.infer<typeof organisationStatusSchema> & { OrganisationId: string }
+    z.infer<typeof organisationStatuSchema> & { OrganisationId: string }
   >({
     mutationFn: (data) =>
     ApiRequest.put<OrganisationStatusApiResponse>(

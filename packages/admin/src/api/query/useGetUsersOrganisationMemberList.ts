@@ -6,33 +6,27 @@ import {
   ResponseType,
 } from "../../api/types/axiosResponseType";
 import ApiRequest from "../../api/ApiRequest";
-import { OperatorStatusEnumValue, UserRoleEnumValue } from "@backend/src/schemas/enums";
 
-export type organisationDataType = {
-  avatarImg: null;
-  createdAt: Date;
-  email: string;
-  firstName: string;
-  isVerified: boolean;
-  lastName: string;
-  role: keyof typeof UserRoleEnumValue;
-  status: keyof typeof OperatorStatusEnumValue;
-  updatedAt: Date;
-  userId: string;
-};
-export type OrganisationsListApiType = {
-  userOrganisationId: string;
-  jobTitle?: string;
-  role?: keyof typeof UserRoleEnumValue;
-  user: {
-    userId: string;
-    email: string;
-    firstName?: string;
-    lastName?: string;
-    avatarImg?: string;
-  };
-};
-type OrganisationsMemberListApiResponse = ResponseType<any[]>;
+export interface OrganisationUserType {
+  userOrganisationId: string
+  userId: string
+  organisationId: string
+  role: string
+  jobTitle?: string
+  taskColour?: string
+  createdAt: string
+  updatedAt: string
+  user: User
+}
+
+export interface User {
+  avatarImg: string
+  email: string
+  lastName: string
+  firstName: string
+  status: string
+}
+type OrganisationsMemberListApiResponse = ResponseType<OrganisationUserType[]>;
 
 function useGetusersOrganisationsQuery(organisationId:string) {
   return useQuery<

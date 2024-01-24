@@ -128,7 +128,6 @@ function AccountSettings() {
     if (userProfileHasChanges) {
       userProfileForm.handleSubmit();
     }
-console.log(e)
   };
   return (
     <div className="overflow-auto w-full">

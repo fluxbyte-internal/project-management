@@ -11,9 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLocation } from "react-router-dom";
-import useOrganisationsListQuery, {
-  OrganisationsType,
-} from "@/api/query/organisationListQuery";
+
 import {
   UserRoleEnumValue,
   UserStatusEnumValue,
@@ -21,23 +19,27 @@ import {
 import useUserStatusMutation from "@/api/mutation/userUserStatusMutation";
 import { toast } from "react-toastify";
 import useUserRoleUpdateMutation from "@/api/mutation/useUserRoleUpdateMutation";
-import useGetusersOrganisationsQuery from "@/api/query/useGetUsersOrganisationMemberList";
+import useGetusersOrganisationsQuery, { OrganisationUserType } from "@/api/query/useGetUsersOrganisationMemberList";
 import Dialog from "@/components/common/Dialog";
 import useAssignAdministratorMutation from "@/api/mutation/useAssignAdministratorMutation";
-
+import Alert from "../../assets/svg/Alert.svg";
+import Blocked from "../../assets/svg/Blocked.svg";
+import Active from "../../assets/svg/Active.svg";
+import CrossIcon from "../../assets/svg/CrossIcon.svg";
+import OperartorBackground from "../../assets/operatorHomePageImage.jpg";
+import Dropdown from "../../assets/svg/Dropdown.svg"
 
 function OrganisationUsers() {
   const location = useLocation();
   const state = location.state;
-  const [data, setData] = useState<any[]>();
+  const [data, setData] = useState<OrganisationUserType[]>();
   const [currentAdminId, setCurrentAdminId] = useState<string>("");
   const [newAdminId, setAdminId] = useState<string>("");
-  const [userList, setUserList] = useState<any>();
+  const [userList, setUserList] = useState<OrganisationUserType[]>();
   const [adminAlert, setadminAlert] = useState(false);
-  const [filterData, setFilterData] = useState<OrganisationsType[]>();
+  const [filterData, setFilterData] = useState<OrganisationUserType[]>();
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
   const [isAdminConfirmOpenPopUp, setIsAdminConfirmOpenPopUp] = useState(false);
-  const organisationQuery = useOrganisationsListQuery();
   const userStatusMutation = useUserStatusMutation();
   const userRoleUpdateMutation = useUserRoleUpdateMutation();
   const assignAdministratorMutation = useAssignAdministratorMutation();
@@ -46,13 +48,12 @@ function OrganisationUsers() {
   );
   useEffect(() => {
     setData(usersOrganisationsQuery.data?.data?.data);
-    console.log()
     setFilterData(usersOrganisationsQuery.data?.data?.data);
   }, [usersOrganisationsQuery.data?.data?.data]);
 
   useEffect(() => {
     const adminUser = data?.find(
-      (res: any) =>
+      (res) =>
         res.role === UserRoleEnumValue.ADMINISTRATOR &&
         res.user.status === UserStatusEnumValue.ACTIVE
     );
@@ -166,9 +167,8 @@ function OrganisationUsers() {
     userRoleUpdateMutation.mutate(
       { organisationId, userOrganisationId, role },
       {
-        onSuccess(data: any) {
+        onSuccess(data) {
           fetchData();
-
           toast.success(data.data.message);
         },
         onError(err) {
@@ -184,7 +184,7 @@ function OrganisationUsers() {
     {
       key: "avatar",
       header: "Avatar",
-      onCellRender: (item: any) => (
+      onCellRender: (item) => (
         <>
           <div className="w-1/2 h-fit items-center rounded-full p-2">
             <UserAvatar user={item.user} />
@@ -195,7 +195,7 @@ function OrganisationUsers() {
     {
       key: "user",
       header: "Full Name",
-      onCellRender: (item: any) => (
+      onCellRender: (item) => (
         <div className="">
           {(item.user.firstName ? item.user.firstName : "") +
             " " +
@@ -206,12 +206,12 @@ function OrganisationUsers() {
     {
       key: "email",
       header: "Email",
-      onCellRender: (item: any) => <>{item.user.email}</>,
+      onCellRender: (item) => <>{item.user.email}</>,
     },
     {
       key: "status",
       header: "Status",
-      onCellRender: (item: any) => (
+      onCellRender: (item) => (
         <>
           <div
             className={`w-32 h-8 px-3 py-1.5 ${
@@ -235,7 +235,7 @@ function OrganisationUsers() {
     {
       key: "Action",
       header: "Action",
-      onCellRender: (item: any) => (
+      onCellRender: (item) => (
         <>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -259,7 +259,7 @@ function OrganisationUsers() {
                   >
                     <img
                       className="mr-2 h-4 w-4 text-[#44546F]"
-                      src="./src/assets/svg/Blocked.svg"
+                      src={Blocked}
                     />
                     <span className="p-0 font-normal h-auto">Block</span>
                   </DropdownMenuItem>
@@ -276,7 +276,7 @@ function OrganisationUsers() {
                   >
                     <img
                       className="mr-2 h-4 w-4 text-[#44546F]"
-                      src="./src/assets/svg/Active.svg"
+                      src={Active}
                     />
                     <span
                       className={`${
@@ -299,14 +299,14 @@ function OrganisationUsers() {
   ];
   return (
     <>
-      <div className="w-full h-full relative bg-[url('./src/assets/operatorHomePageImage.jpg')] bg-no-repeat bg-cover">
-        {organisationQuery.isLoading ? (
+      <div style={{ backgroundImage: `url(${OperartorBackground})` }} className="w-full h-full relative bg-no-repeat bg-cover">
+        {usersOrganisationsQuery.isLoading ? (
           <Loader />
         ) : (
           <>
             {usersOrganisationsQuery.data?.data?.data &&
             usersOrganisationsQuery.data?.data?.data.length > 0 ? (
-              <div className="h-full py-5 p-4 lg:p-14 w-full flex flex-col gap-5 bg-[url('./src/assets/operatorHomePageImage.jpg')] bg-no-repeat bg-cover">
+              <div style={{ backgroundImage: `url(${OperartorBackground})` }} className="h-full py-5 p-4 lg:p-14 w-full flex flex-col gap-5 bg-no-repeat bg-cover">
                 <div className="flex lg:flex-row flex-col gap-4 lg:gap-0 justify-between items-center">
                   <h2 className="font-medium text-3xl leading-normal text-gray-600">
                     Organisation's User
@@ -318,7 +318,7 @@ function OrganisationUsers() {
                     >
                       <img
                         className="h-[20px] w-[20px] text-[#44546F]"
-                        src="./src/assets/svg/Alert.svg"
+                        src={Alert}
                       ></img>
                       <h2 className="font-medium lg:text-lg text-md text-red-500 leading-normal ">
                         Organisation must have an Administrator
@@ -326,7 +326,7 @@ function OrganisationUsers() {
                       <button>
                         <img
                           className="w-[20px] h-[20px]"
-                          src="./src/assets/svg/Dropdown.svg"
+                          src={Dropdown}
                         ></img>
                       </button>
                     </div>
@@ -353,7 +353,7 @@ function OrganisationUsers() {
             )}
             {isOpenPopUp && (
               <Dialog
-                modalClass="rounded-lg w-4/5 h-4/5 p-5 bg-[url('./src/assets/operatorForm.jpg')] bg-no-repeat bg-cover"
+                modalClass="operatorForm-background-image rounded-lg w-4/5 h-4/5 p-5"
                 isOpen={isOpenPopUp}
                 onClose={() => setIsOpenPopUp(isOpenPopUp)}
               >
@@ -363,7 +363,7 @@ function OrganisationUsers() {
                   </h4>
                 </div>
                 <div className="mt-12">
-                  {userList?.map((data: any, index: any) => {
+                  {userList?.map((data, index) => {
                     return (
                       <div
                         onClick={() => {
@@ -422,7 +422,7 @@ function OrganisationUsers() {
                             setIsAdminConfirmOpenPopUp(false);
                           }}
                         >
-                          <img src="./src/assets/svg/CrossIcon.svg"></img>
+                          <img src={CrossIcon}></img>
                         </button>
                       </div>
                     </Dialog>
@@ -435,7 +435,7 @@ function OrganisationUsers() {
                       setIsOpenPopUp(false);
                     }}
                   >
-                    <img src="./src/assets/svg/CrossIcon.svg"></img>
+                    <img src={CrossIcon}></img>
                   </button>
                 </div>
               </Dialog>

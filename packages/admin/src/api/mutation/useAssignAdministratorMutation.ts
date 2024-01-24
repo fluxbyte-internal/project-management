@@ -8,7 +8,7 @@ import {
 import ApiRequest from "../ApiRequest";
 import { blockAndReassignAdministatorSchema } from "@backend/src/schemas/consoleSchema";
 
-export type OperatorStatusApiResponse = ResponseType<{}>;
+export type OperatorStatusApiResponse = ResponseType<null>;
 function useAssignAdministratorMutation() {
   const mutation = useMutation<
     AxiosResponseAndError<OperatorStatusApiResponse>["response"],

@@ -3,7 +3,6 @@ export const baseURL = import.meta.env.VITE_API_BASE_URL;
 export const requestURLs = {
   rootAuth: `${baseURL}/auth/root-auth`,
   login: `${baseURL}/console/login`,
-  signup: `${baseURL}/auth/sign-up`,
   project: `${baseURL}/project`,
   organisationStatus: `${baseURL}/console/organisation/status`,
   operators: `${baseURL}/console/operator`,
@@ -20,4 +19,5 @@ export const requestURLs = {
   task:`${baseURL}/task/`,
   fileUpload:`${baseURL}/console/profile`,
   changePassword:`${baseURL}/console/change-password`,
+  logOut:`${baseURL}/auth/logOut`,
 };
