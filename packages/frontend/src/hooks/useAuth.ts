@@ -1,33 +1,27 @@
+import useLogOutMutation from "@/api/mutation/useLogOutMutation";
 import { AuthContext } from "@/context/AuthContext";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { Cookies } from "react-cookie";
-const TOKEN_KEY = "token";
-
+import { toast } from "react-toastify";
 export function useAuth() {
-  const cookies = new Cookies();
   const navigate = useNavigate();
   const { setAuthUser } = useContext(AuthContext);
-  const [token, setToken] = useState<string | null>(cookies.get(TOKEN_KEY));
+  const logOutMutation = useLogOutMutation();
 
   const logout = () => {
-    cookies.remove("token");
-    cookies.remove("refresh-token");
+    logOutMutation.mutate({} as unknown as void, {
+      onSuccess(data) {
+        toast.success(data.data.message);
+      },
+    });
+
     setAuthUser(null);
-    setToken(null);
     navigate("/login");
   };
 
   const login = () => {
-    const token = cookies.get("token");
-    if (token) {
-      setToken(token);
-      navigate("/");
-    } else {
-      logout();
-    }
+    navigate("/");
   };
 
-
-  return { login, logout, token };
+  return { login, logout };
 }

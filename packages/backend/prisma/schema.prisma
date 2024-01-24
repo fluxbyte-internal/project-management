@@ -16,8 +16,16 @@ enum UserRoleEnum {
   ADMINISTRATOR
   PROJECT_MANAGER
   TEAM_MEMBER
+}
+
+enum ConsoleRoleEnum {
   SUPER_ADMIN
   OPERATOR
+}
+
+enum ConsoleStatusEnum {
+  ACTIVE
+  INACTIVE
 }
 
 enum UserStatusEnum {
@@ -46,21 +54,32 @@ enum ProjectOverAllTrackEnum {
   STORMY
 }
 
-enum TaskStatusEnum {
+enum MilestoneIndicatorStatusEnum {
   NOT_STARTED
   COMPLETED
+}
+
+enum TaskStatusEnum {
+  PLANNED
+  TODO
+  IN_PROGRESS
+  DONE
 }
 
 enum TaskDependenciesEnum {
   BLOCKING
   WAITING_ON
-  NO_DEPENDENCIES
 }
 
 enum UserProviderTypeEnum {
   EMAIL
   GOOGLE
 }
+enum HistoryTypeEnum {
+  TASK
+  PROJECT
+}
+
 model User {
   userId     String         @id @default(uuid()) @map("user_id")
   email      String         @unique @map("email")
@@ -87,9 +106,15 @@ model User {
 
   provider    UserProvider?
 
-  createdTask     Task[]            @relation("createdByUser")
-  updatedTask     Task[]            @relation("updatedByUser")
-  taskAssignUsers TaskAssignUsers[]
+  createdTask         Task[]            @relation("createdByUser")
+  updatedTask         Task[]            @relation("updatedByUser")
+  taskAssignUsers     TaskAssignUsers[]
+  createdKanbanColumn KanbanColumn[]    @relation("createdByUser")
+  updatedKanbanColumn KanbanColumn[]    @relation("updatedByUser")
+
+  history            History[]
+  uploadedAttachment TaskAttachment[]
+  addedDependencies  TaskDependencies[]
 
 
   @@index([userId, email])
@@ -106,6 +131,25 @@ model UserProvider {
   updatedAt    DateTime             @updatedAt @map("updated_at")
 
   @@unique([userId, providerType])
+}
+
+model ConsoleUser {
+  userId     String            @id @default(uuid()) @map("user_id")
+  email      String            @unique @map("email")
+  password   String            @map("password")
+  status     ConsoleStatusEnum @map("status")
+  role       ConsoleRoleEnum   @map("role")
+  firstName  String?           @map("first_name")
+  lastName   String?           @map("last_name")
+  avatarImg  String?           @map("avatar_img")
+  country    String?           @map("country")
+  timezone   String?           @map("time_zone")
+  isVerified Boolean           @default(false) @map("is_verified")
+  createdAt  DateTime          @default(now()) @map("created_at")
+  updatedAt  DateTime          @updatedAt @map("updated_at")
+
+  @@unique([email, password])
+  @@index([userId, email])
 }
 
 model UserOTP {
@@ -172,7 +216,7 @@ model UserOrganisation {
   createdAt          DateTime     @default(now()) @map("created_at")
   updatedAt          DateTime     @updatedAt @map("updated_at")
 
-  organisation Organisation? @relation(fields: [organisationId], references: [organisationId])
+  organisation Organisation? @relation(fields: [organisationId], references: [organisationId], onDelete: Cascade)
   user         User?         @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@unique([userId, organisationId])
@@ -180,65 +224,66 @@ model UserOrganisation {
 }
 
 model Project {
-  projectId             String                  @id @unique @default(uuid()) @map("project_id")
-  organisationId        String                  @map("organisation_id")
-  organisation          Organisation            @relation(fields: [organisationId], references: [organisationId])
-  projectName           String                  @map("project_name")
-  projectDescription    String                  @map("project_description") @db.VarChar(500)
-  startDate             DateTime                @map("start_date")
-  estimatedEndDate      DateTime                @map("estimated_end_date")
-  status                ProjectStatusEnum       @default(NOT_STARTED) @map("status")
-  defaultView           ProjectDefaultViewEnum  @default(LIST) @map("default_view")
-  timeTrack             String?                 @map("time_track")
-  budgetTrack           String?                 @map("budget_track")
-  currency              String                  @map("currency")
-  overallTrack          ProjectOverAllTrackEnum @default(SUNNY) @map("overall_track")
-  estimatedBudget       String                  @map("estimated_budget")
-  actualCost            String?                 @map("actual_cost")
-  progressionPercentage String?                 @map("progression_percentage")
-  createdByUserId       String                  @map("created_by_user_id")
-  createdByUser         User                    @relation("createdByUser", fields: [createdByUserId], references: [userId])
-  updatedByUserId       String?                 @map("updated_by_user_id")
-  updatedByUser         User?                   @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
-  createdAt             DateTime                @default(now()) @map("created_at")
-  updatedAt             DateTime                @updatedAt @map("updated_at")
+  projectId          String                  @id @unique @default(uuid()) @map("project_id")
+  organisationId     String                  @map("organisation_id")
+  organisation       Organisation            @relation(fields: [organisationId], references: [organisationId])
+  projectName        String                  @map("project_name")
+  projectDescription String                  @map("project_description") @db.VarChar(500)
+  startDate          DateTime                @map("start_date")
+  estimatedEndDate   DateTime                @map("estimated_end_date")
+  status             ProjectStatusEnum       @default(NOT_STARTED) @map("status")
+  defaultView        ProjectDefaultViewEnum  @default(LIST) @map("default_view")
+  timeTrack          String?                 @map("time_track")
+  budgetTrack        String?                 @map("budget_track")
+  currency           String                  @map("currency")
+  overallTrack       ProjectOverAllTrackEnum @default(SUNNY) @map("overall_track")
+  estimatedBudget    String                  @map("estimated_budget")
+  actualCost         String?                 @map("actual_cost")
+  createdByUserId    String                  @map("created_by_user_id")
+  createdByUser      User                    @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  updatedByUserId    String?                 @map("updated_by_user_id")
+  updatedByUser      User?                   @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  createdAt          DateTime                @default(now()) @map("created_at")
+  updatedAt          DateTime                @updatedAt @map("updated_at")
 
-  tasks Task[]
+  tasks         Task[]
+  kanbanColumns KanbanColumn[]
 
+  @@unique([organisationId, projectName])
   @@index([projectId, organisationId])
 }
 
 model Task {
-  taskId              String               @id @default(uuid()) @map("task_id")
-  projectId           String               @map("project_id")
-  project             Project              @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
-  taskName            String               @map("task_name")
-  taskDescription     String?              @map("task_description")
-  startDate           DateTime             @map("start_date")
-  duration            Int                  @map("duration")
-  completionPecentage String?              @map("completion_percentage")
-  status              TaskStatusEnum       @map("status")
-  dependencies        TaskDependenciesEnum @default(NO_DEPENDENCIES) @map("dependecies")
-  milestoneIndicator  Boolean              @default(false)@map("milestone_indicator")
-  dueDate             DateTime?            @map("due_date")
-  createdByUserId     String               @map("created_by_user_id")
-  createdByUser       User                 @relation("createdByUser", fields: [createdByUserId], references: [userId])
-  updatedByUserId     String?              @map("updated_by_user_id")
-  updatedByUser       User?                @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
-  createdAt           DateTime             @default(now()) @map("created_at")
-  updatedAt           DateTime             @updatedAt @map("updated_at")
+  taskId              String                       @id @default(uuid()) @map("task_id")
+  projectId           String                       @map("project_id")
+  project             Project                      @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  taskName            String                       @map("task_name")
+  taskDescription     String?                      @map("task_description")
+  startDate           DateTime                     @map("start_date")
+  status              TaskStatusEnum               @default(PLANNED) @map("status")
+  milestoneIndicator  Boolean                      @default(false) @map("milestone_indicator")
+  milestoneStatus     MilestoneIndicatorStatusEnum @default(NOT_STARTED) @map("milestone_status")
+  dueDate             DateTime?                    @map("due_date")
+  createdByUserId     String                       @map("created_by_user_id")
+  createdByUser       User                         @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  updatedByUserId     String?                      @map("updated_by_user_id")
+  updatedByUser       User?                        @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  createdAt           DateTime                     @default(now()) @map("created_at")
+  updatedAt           DateTime                     @updatedAt @map("updated_at")
+
+  duration            Float          @map("duration")
+  completionPecentage Float?         @map("completion_percentage")
 
   subtasks            Task[]            @relation("parentTask")
-  dependenciesTask    Task?             @relation("dependant")
   comments            Comments[]
+  histories           History[]
   documentAttachments TaskAttachment[]
   assignedUsers       TaskAssignUsers[]
 
-  parentTaskId String? @map("parent_task_id")
-  parent       Task?   @relation("parentTask", fields: [parentTaskId], references: [taskId])
-
-  dependantTaskId String? @unique @map("dependant_task_id")
-  dependant       Task?   @relation("dependant", fields: [dependantTaskId], references: [taskId])
+  parentTaskId    String?            @map("parent_task_id")
+  parent          Task?              @relation("parentTask", fields: [parentTaskId], references: [taskId], onDelete: Cascade)
+  dependencies    TaskDependencies[] @relation("dependencies")
+  dependentOnTask TaskDependencies[] @relation("dependentOnTask")
 
   @@index([taskId, projectId])
 }
@@ -255,6 +300,22 @@ model TaskAssignUsers {
   @@unique([taskId, assginedToUserId])
 }
 
+model TaskDependencies {
+  taskDependenciesId      String               @id @default(uuid()) @map("dependencies_id")
+  dependentTaskId         String               @map("dependent_task_id")
+  dependentTask           Task                 @relation("dependencies", fields: [dependentTaskId], references: [taskId], onDelete: Cascade)
+  dependentType           TaskDependenciesEnum @map("dependent_type")
+  dependendentOnTaskId    String               @map("dependent_on_task_id")
+  dependentOnTask         Task                 @relation("dependentOnTask", fields: [dependendentOnTaskId], references: [taskId], onDelete: Cascade)
+  createdAt               DateTime             @default(now()) @map("created_at")
+  updatedAt               DateTime             @updatedAt @map("updated_at")
+  dependenciesAddedBy     String               @map("dependencies_added_by")
+  dependenciesAddedByUser User                 @relation(fields: [dependenciesAddedBy], references: [userId], onDelete: Cascade)
+
+  @@unique([dependentTaskId, dependentType, dependendentOnTaskId])
+  @@index([dependentTaskId, dependentType, dependendentOnTaskId])
+}
+
 model TaskAttachment {
   attachmentId String   @id @default(uuid()) @map("attachment_id")
   name         String   @map("name")
@@ -263,6 +324,9 @@ model TaskAttachment {
   task         Task     @relation(fields: [taskId], references: [taskId], onDelete: Cascade)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
+
+  uploadedBy     String @map("uploaded_by")
+  uploadedByUser User   @relation(fields: [uploadedBy], references: [userId], onDelete: Cascade)
 
   @@index([taskId])
 }
@@ -279,4 +343,37 @@ model Comments {
   commentByUser User @relation(fields: [commentByUserId], references: [userId], onDelete: Cascade)
 
   @@index([commentId, commentByUserId])
+}
+
+model KanbanColumn {
+  kanbanColumnId String @id @default(uuid()) @map("kanban_column_id")
+
+  projectId String  @map("project_id")
+  project   Project @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+
+  name            String  @map("name")
+  percentage      Float?  @map("percentage")
+  createdByUserId String  @map("created_by_user_id")
+  createdByUser   User    @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  updatedByUserId String? @map("updated_by_user_id")
+  updatedByUser   User?   @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([kanbanColumnId, projectId])
+}
+model History {
+  historyId     String          @id @default(uuid()) @map("history_id")
+  referenceId   String          @map("reference_id")
+  task          Task            @relation(fields: [referenceId], references: [taskId], onDelete: Cascade)
+  type          HistoryTypeEnum @map("type")
+  data          Json            @map("data")
+  message       String          @map("message")
+  createdBy     String          @map("created_by")
+  createdByUser User            @relation(fields: [createdBy], references: [userId], onDelete: Cascade)
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+
+  @@index([referenceId, createdBy])
 }

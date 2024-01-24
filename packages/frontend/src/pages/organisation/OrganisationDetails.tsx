@@ -9,22 +9,26 @@ import { useEffect, useState } from "react";
 import FormLabel from "@/components/common/FormLabel";
 import InputEmail from "@/components/common/InputEmail";
 import InputSelect from "@/components/common/InputSelect";
-import useOrganisationDetailsQuery from "@/api/query/useOrganisationDetailsQuery";
+import useOrganisationDetailsQuery, { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
 import Loader from "@/components/common/Loader";
 import CrossIcon from "../../assets/svg/CrossIcon.svg";
 import { useFormik } from "formik";
 import { z } from "zod";
-import { addOrganisationMemberSchema } from "@backend/src/schemas/organisationSchema";
+import { addOrganisationMemberSchema, memberRoleSchema } from "@backend/src/schemas/organisationSchema";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { isAxiosError } from "axios";
 import useAddOrganisationMemberMutation from "@/api/mutation/useAddOrganisationMemberMutation";
 import { useUser } from "@/hooks/useUser";
 import InputText from "@/components/common/InputText";
 import useDebounce from "@/hooks/useDebounce";
-import Setting from "../../assets/svg/Setting.svg";
+// import Setting from "../../assets/svg/Setting.svg";
 import OrganisationForm from "./organisationForm";
 import { OrganisationType } from "@/api/mutation/useOrganisationMutation";
 import { toast } from "react-toastify";
+import OrganisationNoPopUpForm from "./organisationForm/organisationNoPopupForm";
+import TrashCan from "../../assets/svg/TrashCan.svg";
+import useOrganisationRemoveMemberMutation from "@/api/mutation/useOrganisationRemoveMemberMutation";
+import useUpdateOrganisationMemberMutation from "@/api/mutation/useUpdateOrganisationMemberMutation";
 const memberRoleOptions = [
   {
     value: UserRoleEnumValue.PROJECT_MANAGER,
@@ -37,48 +41,92 @@ const memberRoleOptions = [
 ];
 
 function OrganisationDetails() {
+  const [editData, setEditData] = useState<OrganisationType>();
+  const [UpdateData, setUpdateData] = useState<UserOrganisationType | undefined>();
+  const [isAddOrgMemberSubmitting, setIsAddOrgMemberSubmitting] =
+    useState(false);
   const organisationId = useParams().organisationId!;
-
   const addOrganisationMemberMutation =
     useAddOrganisationMemberMutation(organisationId);
+  const removeOrganisationMemberMutation = useOrganisationRemoveMemberMutation();
+  const updateOrganisationMemberMutation = useUpdateOrganisationMemberMutation();
 
   const addOrgMemberForm = useFormik<
     z.infer<typeof addOrganisationMemberSchema>
   >({
     initialValues: {
-      email: "",
-      role: "TEAM_MEMBER",
+      email: UpdateData?.user.email ?? "",
+      role: UpdateData?.role ?? "TEAM_MEMBER",
     },
-    validationSchema: toFormikValidationSchema(addOrganisationMemberSchema),
+    validationSchema: UpdateData
+      ? toFormikValidationSchema(memberRoleSchema)
+      : toFormikValidationSchema(addOrganisationMemberSchema),
     onSubmit: (values, helper) => {
-      setIsAddOrgMemberSubmitting(true);
-      addOrganisationMemberMutation.mutate(values, {
-        onSuccess(data) {
-          toast.success(data.data.message);
-          setIsAddOrgMemberSubmitting(false);
-          closeAddMember();
-          refetch();
-        },
-        onError(error) {
-          if (isAxiosError(error)) {
-            if (
-              error.response?.status === 400 &&
-              error.response.data?.errors &&
-              Array.isArray(error.response?.data.errors)
-            ) {
-              error.response.data.errors.forEach((item) => {
-                helper.setFieldError(item.path[0], item.message);
-              });
-            }
-            if (!Array.isArray(error.response?.data.errors)) {
-              toast.error(
-                error.response?.data?.message ?? "An unexpected error occurred."
-              );
-            }
+      if (UpdateData && UpdateData.user.userId) {
+        updateOrganisationMemberMutation.mutate(
+          { ...values, userId: UpdateData?.userOrganisationId },
+          {
+            onSuccess(data) {
+              refetch();
+              setIsAddOrgMemberSubmitting(false);
+              closeAddMember();
+              toast.success(data.data.message);
+            },
+
+            onError(error) {
+              if (isAxiosError(error)) {
+                if (
+                  error.response?.status === 400 &&
+                  error.response.data?.errors &&
+                  Array.isArray(error.response?.data.errors)
+                ) {
+                  error.response.data.errors.forEach((item) => {
+                    helper.setFieldError(item.path[0], item.message);
+                  });
+                }
+                if (!Array.isArray(error.response?.data.errors)) {
+                  toast.error(
+                    error.response?.data?.message ??
+                    "An unexpected error occurred."
+                  );
+                }
+              }
+              setIsAddOrgMemberSubmitting(false);
+            },
           }
-          setIsAddOrgMemberSubmitting(false);
-        },
-      });
+
+        );
+      } else {
+        setIsAddOrgMemberSubmitting(true);
+        addOrganisationMemberMutation.mutate(values, {
+          onSuccess(data) {
+            toast.success(data.data.message);
+            setIsAddOrgMemberSubmitting(false);
+            closeAddMember();
+            refetch();
+          },
+          onError(error) {
+            if (isAxiosError(error)) {
+              if (
+                error.response?.status === 400 &&
+                error.response.data?.errors &&
+                Array.isArray(error.response?.data.errors)
+              ) {
+                error.response.data.errors.forEach((item) => {
+                  helper.setFieldError(item.path[0], item.message);
+                });
+              }
+              if (!Array.isArray(error.response?.data.errors)) {
+                toast.error(
+                  error.response?.data?.message ??
+                  "An unexpected error occurred."
+                );
+              }
+            }
+            setIsAddOrgMemberSubmitting(false);
+          },
+        });
+      }
     },
   });
   const { data, isLoading, status, refetch } =
@@ -88,8 +136,6 @@ function OrganisationDetails() {
 
   const [isOpen, setIsOpen] = useState(false);
   const [filterString, setFilterString] = useDebounce("", 400);
-  const [isAddOrgMemberSubmitting, setIsAddOrgMemberSubmitting] =
-    useState(false);
   const [selectedRole, setSelectedRole] =
     useState<SingleValue<(typeof memberRoleOptions)[number]>>(null);
 
@@ -97,26 +143,31 @@ function OrganisationDetails() {
     organisation?.userOrganisation ?? []
   );
   const [organisationForm, setOrganisationForm] = useState(false);
-  const [editData, setEditData] = useState<OrganisationType>();
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
   const closeAddMember = () => {
     addOrgMemberForm.setValues({
-      email: "",
-      role: "TEAM_MEMBER",
+      email: UpdateData?.user.email ?? "",
+      role: UpdateData?.role ?? "TEAM_MEMBER",
     });
     setIsOpen(false);
+    setUpdateData(undefined);
   };
 
   useEffect(() => {
-    setSelectedRole(
-      () => memberRoleOptions.find((m) => m.value === "TEAM_MEMBER")!
-    );
     addOrgMemberForm.setValues({
-      email: "",
-      role: "TEAM_MEMBER",
+      email: UpdateData?.user.email ?? "",
+      role: UpdateData?.role ?? "TEAM_MEMBER",
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    const defaultRole = memberRoleOptions.find(
+      (m) => m.value === UpdateData?.role
+    );
+
+    if (defaultRole) {
+      setSelectedRole(defaultRole);
+    }
+  }, [UpdateData]);
 
   useEffect(() => {
     if (!organisation?.userOrganisation) return;
@@ -134,20 +185,6 @@ function OrganisationDetails() {
     } else {
       setFilteredOrganisationUsers(organisation.userOrganisation);
     }
-  }, [filterString, organisation?.userOrganisation]);
-
-  if (isLoading) return <Loader/>;
-  if (status === "error" || !organisation)
-    return (
-      <div className="text-red-500 text-lg text-center">
-        Organisation with id "{organisationId}" not found
-      </div>
-    );
-
-  const currentUserIsAdmin =
-    user?.userOrganisation.find((org) => org.organisationId === organisationId)
-      ?.role === "ADMINISTRATOR";
-  const organisationFormOpen = () => {
     if (organisation) {
       setEditData({
         country: organisation.country,
@@ -158,31 +195,78 @@ function OrganisationDetails() {
         organisationName: data?.data.data.organisationName,
         tenantId: organisation.tenantId,
         createdByUserId: organisation.createdBy,
-        createdAt:organisation.createdAt,
-        updatedAt:organisation.updatedAt,
+        createdAt: organisation.createdAt,
+        updatedAt: organisation.updatedAt,
       });
     }
-    setOrganisationForm(true);
-  };
+  }, [filterString, organisation?.userOrganisation, organisation]);
+
+  if (isLoading) return <Loader />;
+  if (status === "error" || !organisation)
+    return (
+      <div className="text-red-500 text-lg text-center">
+        Organisation with id "{organisationId}" not found
+      </div>
+    );
+
+  const currentUserIsAdmin =
+    user?.userOrganisation.find((org) => org.organisationId === organisationId)
+      ?.role === "ADMINISTRATOR";
+  // const organisationFormOpen = () => {
+  //   if (organisation) {
+  //     setEditData({
+  //       country: organisation.country,
+  //       industry: organisation.industry,
+  //       organisationId: organisation.organisationId,
+  //       nonWorkingDays: organisation.nonWorkingDays,
+  //       status: organisation.status,
+  //       organisationName: data?.data.data.organisationName,
+  //       tenantId: organisation.tenantId,
+  //       createdByUserId: organisation.createdBy,
+  //       createdAt:organisation.createdAt,
+  //       updatedAt:organisation.updatedAt,
+  //     });
+  //   }
+  //   setOrganisationForm(true);
+  // };
   const organisationFormClose = () => {
     setEditData(undefined);
     refetch();
     setOrganisationForm(false);
+  };
+  const handleRemoveMember = (id: string) => {
+    removeOrganisationMemberMutation.mutate(id, {
+      onSuccess(data) {
+        setShowConfirmDelete(false);
+        refetch();
+        toast.success(data.data.message);
+      },
+      onError(error) {
+        toast.error(error.response?.data.message);
+      },
+    });
   };
   return (
     <>
       <div className="overflow-auto w-full">
         <div className="max-w-5xl mx-auto p-4 pb-5">
           <div className="flex justify-between items-center">
-            <div className="text-4xl">{organisation.organisationName}</div>
-            <div>
+            <div className="text-4xl my-2">{organisation.organisationName}</div>
+            {/* <div>
               <Button
                 onClick={organisationFormOpen}
                 variant={"outline"}
               >
                 <img src={Setting} />
               </Button>
-            </div>
+            </div> */}
+          </div>
+          <div>
+            {data&& <OrganisationNoPopUpForm
+              editData={editData}
+              viewOnly={currentUserIsAdmin ? false : true}
+              refetch ={refetch}
+            />}
           </div>
           <div className="text-2xl mt-5 mb-3">Members</div>
           <div className="border rounded-lg min-h-[300px]">
@@ -204,35 +288,98 @@ function OrganisationDetails() {
                 </Button>
               )}
             </div>
-            <div className="">
+            <div key={"filteredOrganisationUsers"}>
               {filteredOrganisationUsers.map((userOrg) => (
-                <div
-                  key={userOrg.userOrganisationId}
-                  className="flex flex-wrap md:flex-nowrap items-center border-b px-2 py-1.5 sm:px-5 sm:py-3 gap-2"
-                >
-                  <div className="flex w-full sm:w-auto gap-2 items-center grow">
-                    <UserAvatar user={userOrg.user}></UserAvatar>
-                    <div className="text-sm">
-                      <div className="text-slate-800 font-medium">
-                        {userOrg.user.firstName ?? ""}{" "}
-                        {userOrg.user.lastName ?? ""}
-                      </div>
-                      <div className="text-gray-400">{userOrg.user.email}</div>
-                    </div>
-                  </div>
-                  <div className="capitalize text-gray-700 text-sm">
-                    {userOrg.role?.toLowerCase().replaceAll("_", " ")}
-                  </div>
-                  {currentUserIsAdmin && (
-                    <Button
-                      variant="primary_outline"
-                      disabled={userOrg.role === "ADMINISTRATOR"}
-                      className="ml-auto text-danger border-danger hover:bg-danger hover:bg-opacity-10 hover:text-danger py-1.5 h-auto"
+                <>
+                  <div
+                    key={userOrg.userOrganisationId}
+                    className="flex flex-wrap md:flex-nowrap items-center px-2 py-1.5 sm:px-5 sm:py-3 gap-2"
+                  >
+
+                    <div
+                      className={`flex w-full sm:w-auto gap-2 items-center grow ${
+                        currentUserIsAdmin ? "cursor-pointer" : ""
+                      }`}
+
+                      onClick={() => {
+                        setUpdateData(userOrg), setIsOpen(true);
+                      }}
                     >
-                      Remove
-                    </Button>
-                  )}
-                </div>
+                      <UserAvatar user={userOrg.user}></UserAvatar>
+                      <div className="text-sm">
+                        <div className="text-slate-800 font-medium">
+                          {userOrg.user.firstName ?? ""}{" "}
+                          {userOrg.user.lastName ?? ""}
+                        </div>
+                        <div className="text-gray-400">
+                          {userOrg.user.email}
+                        </div>
+                      </div>
+                      <div className="w-full h-full">
+                        <div className="flex bg-primary-200 h-8 w-8 rounded-full justify-center items-center text-primary-800 text-sm font-bold">
+                          {userOrg.user.firstName
+                            ? userOrg.user.lastName
+                              ? `${userOrg.user.firstName.charAt(0)}${userOrg.user.lastName.charAt(0)}`.toUpperCase()
+                              : `${userOrg.user.firstName.charAt(0)}${userOrg.user.firstName.charAt(1)}`.toUpperCase()
+                            : `${userOrg.user.email.charAt(0)}${userOrg.user.email.charAt(1)}`.toUpperCase()}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="capitalize text-gray-700 text-sm">
+                      {userOrg.role?.toLowerCase().replaceAll("_", " ")}
+                    </div>
+                    {currentUserIsAdmin && (
+                      <Button
+                        variant="primary_outline"
+                        disabled={userOrg.role === "ADMINISTRATOR"}
+                        className="ml-auto text-danger border-danger hover:bg-danger hover:bg-opacity-10 hover:text-danger py-1.5 h-auto"
+                        onClick={() => {
+                          setShowConfirmDelete(true);
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    )}
+                    <Dialog
+                      isOpen={showConfirmDelete}
+                      onClose={() => { }}
+                      modalClass="rounded-lg"
+                    >
+                      <div className="flex flex-col gap-2 p-6 ">
+                        <img src={TrashCan} className="w-12 m-auto" /> Are you sure you want
+                        to delete ?
+                        <div className="flex gap-2 ml-auto">
+                          <Button
+                            variant={"outline"}
+                            isLoading={
+                              removeOrganisationMemberMutation.isPending
+                            }
+                            disabled={
+                              removeOrganisationMemberMutation.isPending
+                            }
+                            onClick={() => setShowConfirmDelete(false)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            variant={"primary"}
+                            // onClick={removeTask}
+                            isLoading={
+                              removeOrganisationMemberMutation.isPending
+                            }
+                            disabled={
+                              removeOrganisationMemberMutation.isPending
+                            }
+                            onClick={() => handleRemoveMember(userOrg.userOrganisationId)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    </Dialog>
+                  </div>
+                  <hr className="h-px w-[98%] my-8 mx-auto bg-gray-200 border-0 " />
+                </>
               ))}
             </div>
           </div>
@@ -246,7 +393,7 @@ function OrganisationDetails() {
           modalClass="sm:rounded-lg p-4 h-full md:h-auto w-full max-w-md"
         >
           <div>
-            <div className="text-xl">Add member</div>
+            <div className="text-xl">{UpdateData ? "Update Member" : "Add Member"}</div>
             <Button
               onClick={() => closeAddMember()}
               variant={"ghost"}
@@ -264,6 +411,7 @@ function OrganisationDetails() {
                   placeholder="Enter member email"
                   value={addOrgMemberForm.values.email}
                   onChange={addOrgMemberForm.handleChange}
+                  disabled={UpdateData ? true : false}
                 />
                 <ErrorMessage>
                   {addOrgMemberForm.touched.email &&
@@ -301,7 +449,7 @@ function OrganisationDetails() {
                   isLoading={isAddOrgMemberSubmitting}
                   disabled={isAddOrgMemberSubmitting}
                 >
-                  Add
+                  {UpdateData ? "Update" : "Add"}
                 </Button>
               </div>
             </form>

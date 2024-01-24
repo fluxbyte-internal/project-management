@@ -14,5 +14,10 @@ export const requestURLs = {
   resendVerifyEmailOtp: `${baseURL}/user/resend-otp`,
   forgotPassword:`${baseURL}/auth/forgot-password`,
   resetPassword:`${baseURL}/auth/reset-password`,
+  task:`${baseURL}/task/`,
   fileUpload:`${baseURL}/user/avatarImg-update`,
+  changePassword:`${baseURL}/project/change-password`,
+  kanbanColumn:`${baseURL}/project/kanban-column/`,
+  logOut:`${baseURL}/auth/logOut`,
+
 };

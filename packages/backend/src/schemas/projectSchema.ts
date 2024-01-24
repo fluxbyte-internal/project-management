@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ProjectDefaultViewEnumValue, ProjectStatusEnumValue, ZodErrorMessageEnumValue } from "./enums.js";
+import { OverAllTrackEnumValue, ProjectDefaultViewEnumValue, ProjectStatusEnumValue, ZodErrorMessageEnumValue } from "./enums.js";
 
 
 export const createProjectSchema = z.object({
@@ -24,10 +24,22 @@ export const updateProjectSchema = z.object({
   budgetTrack: z.string().min(1).optional(),
   timeTrack: z.string().min(1).optional(),
   currency: z.string().min(1).optional(),
+  overallTrack:z.nativeEnum(OverAllTrackEnumValue).optional(),
+  status:z.nativeEnum(ProjectStatusEnumValue).optional()
 });
 
 export const projectIdSchema = z.string().uuid();
 
 export const projectStatusSchema = z.object({
   status: z.nativeEnum(ProjectStatusEnumValue),
+});
+
+export const createKanbanSchema = z.object({
+  name: z.string({ required_error: ZodErrorMessageEnumValue.REQUIRED }),
+  percentage: z.number().min(0).max(100).multipleOf(0.01),
+});
+
+export const updateKanbanSchema = z.object({
+  name: z.string({ required_error: ZodErrorMessageEnumValue.REQUIRED }),
+  percentage: z.number().min(0).max(100).multipleOf(0.01).optional(),
 });

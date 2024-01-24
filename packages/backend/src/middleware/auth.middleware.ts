@@ -4,11 +4,11 @@ import { InternalServerError, UnAuthorizedError } from '../config/apiError.js';
 import { settings } from '../config/settings.js';
 
 export const authMiddleware = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const token = req.cookies[settings.jwt.tokenCookieKey];
+  const token = req.cookies[settings.jwt.tokenCookieKey] 
+  if (!token) {
+    throw new UnAuthorizedError();
+  };
   try {
-    if (!token) {
-      throw new UnAuthorizedError();
-    };
     const decoded = verifyJwtToken(token);
     req.userId = decoded.userId;
     req.tenantId = decoded.tenantId;

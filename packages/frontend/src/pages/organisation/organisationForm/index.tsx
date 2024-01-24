@@ -138,6 +138,12 @@ function OrganisationForm(props: Props) {
         organisationName: editData.organisationName,
         status: editData?.status,
       });
+      if (editData.industry) {
+        setIndustryValue({
+          value: editData.industry,
+          label: editData.industry,
+        });
+      }
       const country = countries.find((item) => {
         if (editData.country === item.isoCode) {
           return { label: item.name, value: item.isoCode };

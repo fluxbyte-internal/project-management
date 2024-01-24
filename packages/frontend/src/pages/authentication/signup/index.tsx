@@ -14,7 +14,7 @@ import InputEmail from "@/components/common/InputEmail";
 import { toast } from "react-toastify";
 import SignUp from "../../../assets/svg/signup.svg";
 import Google from "../../../assets/svg/google.svg";
-import Facebook from "../../../assets/svg/facebook.svg";
+// import Facebook from "../../../assets/svg/facebook.svg";
 import { baseURL } from "../../../Environment";
 
 function Signup() {
@@ -36,6 +36,7 @@ function Signup() {
     country: string;
     timeZone: string;
     jobTitle: string;
+    privacyPolicy:boolean
   };
 
   const formik = useFormik<FormValues>({
@@ -48,6 +49,7 @@ function Signup() {
       country: "",
       timeZone: "",
       jobTitle: "",
+      privacyPolicy:false,
     },
     validationSchema: toFormikValidationSchema(authSignUpSchema),
     onSubmit: (values, helper) => {
@@ -239,6 +241,14 @@ function Signup() {
                 </ErrorMessage>
               </div>
             </div>
+            <div className="flex gap-2 items-center mb-1">
+              <input
+                name="privacyPolicy"
+                type="checkbox"
+                onChange={formik.handleChange}
+              />
+              <div>I agree to the <a className="text-primary-500" href="#"> term of use </a>and <a href="#" className="text-primary-500">privacy policy</a>.</div>
+            </div>
             <div className="flex items-center">
               <Button
                 type="submit"
@@ -276,7 +286,7 @@ function Signup() {
                 Google
               </span>
             </Button>
-            <Button
+            {/* <Button
               type="button"
               variant={"secondary"}
               isLoading={isLoading}
@@ -287,7 +297,7 @@ function Signup() {
               <span>
                 Facebook
               </span>
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>

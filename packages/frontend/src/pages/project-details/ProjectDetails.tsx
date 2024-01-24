@@ -1,40 +1,37 @@
 import SideBar from "@/components/layout/SideBar";
 import { useState } from "react";
-import cloudProjectDeatil from "../../assets/svg/CloudProjectDetail.svg";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
+import Cloudy from "../../assets/svg/cloudy.svg";
+import Stormy from "../../assets/svg/stormy.svg";
+import Sunny from "../../assets/svg/sunny.svg";
+import Rainy from "../../assets/svg/Rainy.svg";
 import useProjectDetail from "../../api/query/useProjectDetailQuery";
-import { useParams } from "react-router-dom";
-import ClockProjectDetail from "../../assets/svg/ClockProjectDetail.svg";
+import { useNavigate, useParams } from "react-router-dom";
+// import ClockProjectDetail from "../../assets/svg/ClockProjectDetail.svg";
 
-import InfoCircle from "../../assets/svg/Info circle.svg";
-import {
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Tooltip } from "@radix-ui/react-tooltip";
-import dateFormater from "@/helperFuntions/dateFormater";
+// import InfoCircle from "../../assets/svg/Info circle.svg";
+// import {
+//   TooltipContent,
+//   TooltipProvider,
+//   TooltipTrigger,
+// } from "@/components/ui/tooltip";
+// import { Tooltip } from "@radix-ui/react-tooltip";
+// import dateFormater from "@/helperFuntions/dateFormater";
 import Loader from "@/components/common/Loader";
+import CreateProjectNoPopUpForm from "@/components/project/CreateProjectNoPopupForm";
+import { Project } from "@/api/query/useProjectQuery";
+import { useUser } from "@/hooks/useUser";
 
 function ProjectDetails() {
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
-
+  const navigate = useNavigate();
   const toggleSidebar = () => {
     setSidebarExpanded(!isSidebarExpanded);
   };
   const { id } = useParams();
   const projectDetailQuery = useProjectDetail(id);
-
-  const labelstyle = "text-base font-medium text-gray-700";
-  const inputstyle = "mt-2.5 text-base font-normal text-[#9CA3AF]";
+  // const labelstyle = "text-base font-medium text-gray-700";
+  // const inputstyle = "mt-2.5 text-base font-normal text-[#9CA3AF]";
+  const { user } = useUser();
 
   const HandleStatus = () => {
     switch (projectDetailQuery.data?.data.data.status) {
@@ -52,20 +49,27 @@ function ProjectDetails() {
   };
 
 
-  const HandleOverallTrack = (value: string) => {
-    switch (value) {
+  const HandleOverallTrack = () => {
+    switch (projectDetailQuery.data?.data.data.overallTrack) {
     case "STORMY":
-      return <img src={cloudProjectDeatil} className="h-full w-full" />;
+      return <img src={Stormy} className="h-full w-full" />;
     case "CLOUDY":
-      return <img src={cloudProjectDeatil} className="h-full w-full" />;
+      return <img src={Cloudy} className="h-full w-full" />;
     case "SUNNY":
-      return <img src={cloudProjectDeatil} className="h-full w-full" />;
+      return <img src={Sunny} className="h-full w-full" />;
+    case "RAINY":
+      return <img src={Rainy} className="h-full w-full" />;
 
     default:
-      return <img src={cloudProjectDeatil} className="h-full w-full" />;
+      return <img src={Sunny} className="h-full w-full" />;
     }
   };
 
+  const handleProjectClick = () => {
+    navigate("/projects");
+  };
+  const currentUserIsAdmin =
+  user?.userOrganisation[0]?.role ===  "PROJECT_MANAGER";
   return (
     <div className="w-full relative h-full">
       {projectDetailQuery.isLoading ? (
@@ -83,92 +87,55 @@ function ProjectDetails() {
           >
             <div className="sm:px-10 px-3">
               <div>
-                <div className="flex sm:gap-9 gap-2 items-center flex-wrap justify-evenly sm:justify-normal">
+                <div>
+                  <div className="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+                    <div className="inline-flex items-center">
+                      <div
+                        onClick={handleProjectClick}
+                        className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white cursor-pointer"
+                      >
+                        Project
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center">
+                        <svg
+                          className="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 6 10"
+                        >
+                          <path
+                            stroke="currentColor"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="m1 9 4-4-4-4"
+                          />
+                        </svg>
+                        <span className="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">
+                          {projectDetailQuery.data?.data.data.projectName}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex sm:gap-5 gap-2 items-center flex-wrap justify-evenly sm:justify-normal sm:mt-5 mt-2 ">
                   <div className="sm:text-3xl text-xl  font-semibold">
                     Project Detail
                   </div>
                   <div className="h-10 w-12">
-                    {HandleOverallTrack("STORMY")}
+                    {HandleOverallTrack()}
                   </div>
                   <div className="bg-[#227D9B] sm:px-4  text-white text-sm font-normal rounded-md py-0.5 px-4">
                     {HandleStatus()}
                   </div>
                 </div>
                 <div className="my-4 border border-[#E2E8F0] rounded-lg sm:px-8 px-4 py-6">
+                  <CreateProjectNoPopUpForm viewOnly={currentUserIsAdmin?false:true} refetch={projectDetailQuery.refetch} editData={projectDetailQuery.data?.data.data as unknown as Project}/>
                   <div>
-                    <div className="text-base font-medium text-[#44546F]">
-                      Description
-                    </div>
-                    <p className="text-base font-normal text-[#9CA3AF] mt-2.5 mb-[20px] line-clamp-4">
-                      {projectDetailQuery.data?.data.data.projectDescription}
-                    </p>
-                  </div>
-                  <div>
-                    <form>
-                      <div className="sm:flex gap-8">
-                        <div className="sm:w-[50%] w-full">
-                          <div className={labelstyle}>Status</div>
-                          <Select disabled>
-                            <SelectTrigger className="w-full mt-2.5">
-                              <SelectValue
-                                className="text-gray-300 text-base font-normal"
-                                placeholder={
-                                  projectDetailQuery.data?.data.data.status ===
-                              "NOT_STARTED"
-                                    ? "Not Started"
-                                    : projectDetailQuery.data?.data.data.status ===
-                                  "ACTIVE"
-                                      ? "Active"
-                                      : projectDetailQuery.data?.data.data.status ===
-                                  "ON_HOLD"
-                                        ? "On Hold"
-                                        : projectDetailQuery.data?.data.data.status ===
-                                  "CLOSED"
-                                          ? "Closed"
-                                          : "Not Started"
-                                }
-                              ></SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectItem value="NOT_STARTED">
-                                  Not started
-                                </SelectItem>
-                                <SelectItem value="IN_REVIEW">
-                                  In Review
-                                </SelectItem>
-                                <SelectItem value="IN_PROGRESS">
-                                  In Progress
-                                </SelectItem>
-                                <SelectItem value="COMPLETED">
-                                  Completed
-                                </SelectItem>
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="sm:w-[50%] w-full mt-2 sm:mt-0">
-                          <div className={labelstyle}>Overall track</div>
-                          <Select disabled>
-                            <SelectTrigger className="w-full mt-2.5">
-                              <SelectValue
-                                placeholder="Stormy"
-                                className="text-gray-300 text-base font-normal"
-                              />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                <SelectItem value="Test 1">Test 1</SelectItem>
-                                <SelectItem value="Test 2">Test 2</SelectItem>
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </form>
-
-                    <div className="border-b-2 border-gray-100 my-3.5" />
-
+                    {/* <div className="border-b-2 border-gray-100 my-3.5" />
                     <div className="sm:flex gap-8">
                       <div className="sm:w-[50%] w-full mt-2 sm:mt-0">
                         <div className={labelstyle}>Start Date</div>
@@ -300,15 +267,11 @@ function ProjectDetails() {
                       </div>
                     </div>
                     <div className="border-b-2 border-gray-100 my-3.5" />
-
                     <div className="sm:flex gap-8">
                       <div className="sm:w-[50%] w-full">
                         <div className={labelstyle}>Project Budget</div>
 
                         <div className={inputstyle}>
-                          {/* {projectDetailQuery.data?.data.data.projectBudget
-    ? projectDetailQuery.data?.data.data.projectBudget
-    : 0} */}
                           0
                         </div>
                       </div>
@@ -325,27 +288,19 @@ function ProjectDetails() {
                     <div className="sm:flex gap-8 mt-3.5">
                       <div className="sm:w-[50%] w-full mt-2 sm:mt-0">
                         <div className={labelstyle}>Schedule Trend</div>
-
                         <div className={inputstyle}>
-                          {/* {projectDetailQuery.data?.data.data.ScheduleTrend
-    ? projectDetailQuery.data?.data.data.ScheduleTrend
-    : "lorem ipsum"} */}
                           lorem ipsum
                         </div>
                       </div>
                       <div className="sm:w-[50%] w-full mt-2 sm:mt-0">
                         <div className={labelstyle}>Cost Trend</div>
-
                         <div className={inputstyle}>
-                          {/* {projectDetailQuery.data?.data.data.CostTrend
-    ? projectDetailQuery.data?.data.data.CostTrend
-    : "lorem ipsum"} */}
                           lorem ipsum
                         </div>
                       </div>
-                    </div>
+                    </div> */}
 
-                    <div className="border-b-2 border-gray-100 my-6" />
+                    {/* <div className="border-b-2 border-gray-100 my-6" />
 
                     <div className="sm:grid grid-cols-2 gap-3.5">
                       <div className="mt-4 sm:mt-0">
@@ -382,7 +337,7 @@ function ProjectDetails() {
                           />
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>

@@ -25,6 +25,7 @@ export type Settings = {
     region: string;
   };
   appURL: string;
+  adminURL: string;
   user: {
     username: string;
     password: string;
@@ -60,7 +61,8 @@ const {
   AWS_ACCESS_KEY_ID,
   AWS_SECRET_ACCESS_KEY,
   AWS_BUCKET_NAME,
-  ENV_NAME
+  ENV_NAME,
+  ADMIN_URL
 } = process.env;
 
 if (!PRIVATE_KEY_FOR_JWT) {
@@ -103,6 +105,10 @@ if (!ENV_NAME) {
   throw Error('Missing ENV_NAME in .env');
 };
 
+if (!ADMIN_URL) {
+  throw Error('Missing ADMIN_URL in .env');
+};
+
 export const settings: Settings = {
   port: PORT! ?? 8000,
   jwt: {
@@ -121,6 +127,7 @@ export const settings: Settings = {
     region: EMAIL_REGION
   },
   appURL: APP_URL,
+  adminURL: ADMIN_URL,
   user: {
     username: ROOT_USER_USERNAME ?? "",
     password: ROOT_USER_PASSWORD ?? "",
