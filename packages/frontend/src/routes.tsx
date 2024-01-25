@@ -13,6 +13,7 @@ import Verification from "./pages/authentication/verification";
 import ForgotPassword from "./pages/authentication/forgot-password";
 import ResetPassword from "./pages/authentication/forgot-password/reset-password";
 import TaskViews from "./components/views";
+import Dashboard from "./pages/dashboard";
 
 export const router = createBrowserRouter([
   {
@@ -53,7 +54,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/dashboard",
-        element: <div>Dashboard</div>,
+        element:<Dashboard/>,
       },
       {
         path: "/account-settings",
