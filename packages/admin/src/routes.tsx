@@ -51,7 +51,7 @@ export const router = createBrowserRouter([
         element: <AdminConsole />,
       },
       {
-        path: "/organisationUsers",
+        path: "/organisationUsers/:organisationId",
         element: <OrganisationUsers />,
       },
       {

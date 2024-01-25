@@ -62,7 +62,7 @@ const handleDelete = (organisationId:string) =>{
     {
       onSuccess(data) {
         fetchData();
-        toast.success(data.data.message);
+        toast.success(data?.data?.message);
       },
       onError(err) {
         toast.error(
@@ -78,7 +78,7 @@ const handleDelete = (organisationId:string) =>{
       {
         onSuccess(data) {
           fetchData();
-          toast.success(data.data.message);
+          toast.success(data?.data?.message);
         },
         onError(err) {
           toast.error(
@@ -93,8 +93,8 @@ const handleDelete = (organisationId:string) =>{
       { label: "Select industry", value: "" },
     ];
     data?.forEach((item) => {
-      const val = item.industry;
-      if (!industryData.some((i) => i.value == item.industry)) {
+      const val = item?.industry;
+      if (!industryData.some((i) => i.value == item?.industry)) {
         industryData.push({ label: val, value: val });
       }
     });
@@ -105,8 +105,8 @@ const handleDelete = (organisationId:string) =>{
       { label: "Select Country", value: "" },
     ];
     data?.forEach((item) => {
-      const val = item.country;
-      if (!countryData.some((i) => i.value == item.country)) {
+      const val = item?.country;
+      if (!countryData.some((i) => i.value == item?.country)) {
         countryData.push({ label: val, value: val });
       }
     });
@@ -117,8 +117,8 @@ const handleDelete = (organisationId:string) =>{
       { label: "Select status", value: "" },
     ];
     data?.forEach((item) => {
-      if (!statusData.some((i) => i.value == item.status)) {
-        statusData.push({ label: item.status, value: item.status });
+      if (!statusData.some((i) => i.value == item?.status)) {
+        statusData.push({ label: item?.status, value: item?.status });
       }
     });
 
@@ -130,24 +130,24 @@ const handleDelete = (organisationId:string) =>{
       key: "organisationName",
       header: "Organisation Name",
       onCellRender: (userData) => {
-        const adminUser = userData.userOrganisation.find((res: { role: string; user: { status: string; }; }) => res.role === "ADMINISTRATOR" && res.user.status === "ACTIVE");
+        const adminUser = userData?.userOrganisation?.find((res: { role: string; user: { status: string; }; }) => res?.role === "ADMINISTRATOR" && res?.user?.status === "ACTIVE");
+        
         return (
           <>
             {adminUser ? (<>  <Link
-              to={"/organisationUsers"}
+              to={"/organisationUsers/"+userData?.organisationId}
               className=""
-              state={userData.userOrganisation}
             >
-              {userData.organisationName}
+              {userData?.organisationName}
             </Link></>
             ) : (
               
                <Link
-              to={"/organisationUsers"}
+              to={"/organisationUsers/"+userData?.organisationId}
               className="flex gap-3 items-center text-center"
-              state={userData.userOrganisation}
+             
             >
-              {userData.organisationName}<img   className="h-[20px] w-[20px] text-[#44546F]"
+              {userData?.organisationName}<img   className="h-[20px] w-[20px] text-[#44546F]"
               src={Alert}></img>
             </Link>
             )}
@@ -202,7 +202,7 @@ const handleDelete = (organisationId:string) =>{
             <DropdownMenuContent className="w-11 flex flex-col gap-1">
              {(item.status === "ACTIVE") && (
               <> <DropdownMenuItem
-                onClick={() => handleView(item.organisationId, "DEACTIVE")}
+                onClick={() => handleView(item?.organisationId, "DEACTIVE")}
               >
                 <img
                   className="mr-2 h-4 w-4 text-[#44546F]"
@@ -216,7 +216,7 @@ const handleDelete = (organisationId:string) =>{
               {(item.status === "DEACTIVE") && (
                 <>
                       <DropdownMenuItem
-                onClick={() => handleView(item.organisationId, "ACTIVE")}
+                onClick={() => handleView(item?.organisationId, "ACTIVE")}
               >
                 <img
                   className="mr-2 h-4 w-4 text-[#44546F]"
@@ -228,7 +228,7 @@ const handleDelete = (organisationId:string) =>{
                 </>
               )}
               <DropdownMenuItem
-                onClick={() => handleDelete(item.organisationId)}
+                onClick={() => handleDelete(item?.organisationId)}
               >
                 <img
                   className="mr-2 h-4 w-4 text-[#44546F]"
@@ -262,29 +262,28 @@ const handleDelete = (organisationId:string) =>{
 
   let filteredData = data;
   useEffect(() => {
-    setFilterData(filteredData);
     if (filter && filter.status && filter.status.value) {
-      filteredData = filteredData?.filter(
+      filteredData = data?.filter(
         (d) => d.status === filter.status?.value
       );
-    } else if (filter && filter.date?.from && filter.date?.to) {
+    }
+     if (filter && filter.date?.from && filter.date?.to) {
       filteredData = filteredData?.filter((d) => {
         return (
           new Date(d.createdAt) >= (filter.date?.from ?? new Date()) &&
           new Date(d.createdAt) <= (filter.date?.to ?? new Date())
         );
       });
-    } else if (filter && filter.industry && filter.industry.value) {
+    }
+     if (filter && filter.industry && filter.industry.value) {
       filteredData = filteredData?.filter(
         (d) => d.industry === filter.industry?.value
       );
-    } else if (filter && filter.country && filter.country.value) {
+    }  if (filter && filter.country && filter.country.value) {
       filteredData = filteredData?.filter(
         (d) => d.country === filter.country?.value
       );
-    } else {
-      setFilterData(data);
-    }
+    } 
     setFilterData(filteredData);
   }, [filter, data]);
 

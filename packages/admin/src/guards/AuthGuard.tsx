@@ -7,9 +7,9 @@ import { PropsWithChildren } from "react";
 const AuthGuard = (props: PropsWithChildren) => {
   const { user } = useUser();
   const { logout } = useAuth();
-  const { error } = useCurrentUserQuery();
+  const { error ,isSuccess ,isFetched } = useCurrentUserQuery();
   const { children } = props;
-  if (!user) {
+  if (!user && isFetched && isSuccess) {
     if (error) {
       logout();
       return "Invalid session";

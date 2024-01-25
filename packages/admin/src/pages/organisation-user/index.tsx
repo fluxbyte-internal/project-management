@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useLocation } from "react-router-dom";
+import {  useParams } from "react-router-dom";
 import {
   UserRoleEnumValue,
   UserStatusEnumValue,
@@ -29,8 +29,7 @@ import OperartorBackground from "../../assets/operatorHomePageImage.jpg";
 import Dropdown from "../../assets/svg/Dropdown.svg"
 
 function OrganisationUsers() {
-  const location = useLocation();
-  const state = location.state;
+  const organisationId = useParams().organisationId!;
   const [data, setData] = useState<OrganisationUserType[]>();
   const [currentAdminId, setCurrentAdminId] = useState<string>("");
   const [newAdminId, setAdminId] = useState<string>("");
@@ -43,7 +42,7 @@ function OrganisationUsers() {
   const userRoleUpdateMutation = useUserRoleUpdateMutation();
   const assignAdministratorMutation = useAssignAdministratorMutation();
   const usersOrganisationsQuery = useGetusersOrganisationsQuery(
-    state[0].organisationId
+    organisationId
   );
   useEffect(() => {
     setData(usersOrganisationsQuery.data?.data?.data);
@@ -53,8 +52,8 @@ function OrganisationUsers() {
   useEffect(() => {
     const adminUser = data?.find(
       (res) =>
-        res.role === UserRoleEnumValue.ADMINISTRATOR &&
-        res.user.status === UserStatusEnumValue.ACTIVE
+        res?.role === UserRoleEnumValue.ADMINISTRATOR &&
+        res?.user?.status === UserStatusEnumValue.ACTIVE
     );
 
     if (adminUser) {
@@ -94,7 +93,7 @@ function OrganisationUsers() {
   const handleAdministratorReassign = () => {
     if (adminAlert) {
       handleUserRoleUpdate(
-        data ? data[0].organisationId : "",
+        data ? data[0]?.organisationId : "",
         newAdminId,
         UserRoleEnumValue.ADMINISTRATOR
       );
