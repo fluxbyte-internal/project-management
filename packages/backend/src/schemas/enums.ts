@@ -5,7 +5,10 @@ import type {
   TaskStatusEnum,
   OrgStatusEnum,
   UserRoleEnum,
-  ProjectOverAllTrackEnum
+  ProjectOverAllTrackEnum,
+  UserStatusEnum,
+  ConsoleStatusEnum,
+  HistoryTypeEnum
 } from "@prisma/client";
 import type { EnumStringValueObj } from "../types/enumStringValueObject.js";
 
@@ -29,8 +32,10 @@ export const TaskDependenciesEnumValue: EnumStringValueObj<TaskDependenciesEnum>
 };
 
 export const TaskStatusEnumValue: EnumStringValueObj<TaskStatusEnum> = {
-  NOT_STARTED: 'NOT_STARTED',
-  COMPLETED: 'COMPLETED',
+  DONE: "DONE",
+  IN_PROGRESS: "IN_PROGRESS",
+  PLANNED: "PLANNED",
+  TODO: "TODO"
 };
 
 export const OrgStatusEnumValue: EnumStringValueObj<OrgStatusEnum> = {
@@ -38,16 +43,29 @@ export const OrgStatusEnumValue: EnumStringValueObj<OrgStatusEnum> = {
   DEACTIVE: 'DEACTIVE',
 };
 
+export const UserStatusEnumValue: EnumStringValueObj<UserStatusEnum> = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+};
+
+export const OperatorStatusEnumValue: EnumStringValueObj<ConsoleStatusEnum> = {
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+};
+
 export const UserRoleEnumValue: EnumStringValueObj<UserRoleEnum> = {
   ADMINISTRATOR: 'ADMINISTRATOR',
-  OPERATOR: 'OPERATOR',
   PROJECT_MANAGER: 'PROJECT_MANAGER',
-  SUPER_ADMIN: 'SUPER_ADMIN',
   TEAM_MEMBER: 'TEAM_MEMBER',
 }
 
 export const ZodErrorMessageEnumValue= {
   REQUIRED : 'Required*'
+};
+
+export const HistoryTypeEnumValue: EnumStringValueObj<HistoryTypeEnum> = {
+  PROJECT: "PROJECT",
+  TASK: "TASK",
 };
 
 export const OverAllTrackEnumValue: EnumStringValueObj<ProjectOverAllTrackEnum> = {

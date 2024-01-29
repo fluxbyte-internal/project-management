@@ -56,7 +56,7 @@ const Dialog = (
     <>
       {isOpen && (
         <div
-          className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-50 bg-black bg-opacity-50 overflow-hidden"
+          className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-50 bg-black bg-opacity-10 overflow-hidden"
           tabIndex={-1}
           ref={dialogModalRef}
           onClick={handleBackdropClick}
