@@ -2,8 +2,6 @@ import { NotificationTypeEnum, PrismaClient, Task } from "@prisma/client";
 import { RegisterSocketServices } from "../services/socket.services.js";
 import {
   HistoryTypeEnum,
-  PrismaClient,
-  Task,
   UserRoleEnum,
   UserStatusEnum,
 } from "@prisma/client";
@@ -93,8 +91,6 @@ function generatePrismaClient(datasourceUrl?: string) {
           return responseNotification;
         },
       },
-    },
-  });
       history: {
         async createHistory(
           userId: string,
@@ -335,7 +331,7 @@ function generatePrismaClient(datasourceUrl?: string) {
         },
       },
     },
-    });
+  });
   return client;
 }
 
