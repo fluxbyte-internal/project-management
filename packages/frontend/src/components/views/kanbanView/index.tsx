@@ -65,6 +65,7 @@ function KanbanView(
   }, [allKanbanColumn.status == "success"]);
 
   useEffect(() => {
+    allTasks.refetch();
     refetch();
   }, [projectId]);
   
@@ -274,7 +275,7 @@ function KanbanView(
               </Button>
             </div>
           </div>
-          <Kanban
+          {projectId&&<Kanban
             ref={childRef}
             {...props}
             columns={Columns}
@@ -295,7 +296,7 @@ function KanbanView(
               statusUpdate(e as (Event & CustomEvent) | undefined)
             }
             onColumnHeaderRender={onColumnHeaderRender}
-          />
+          />}
         </div>
       )}
       {(dialogRendered || isTaskShow) && (
