@@ -52,7 +52,7 @@ function KanbanView(
   const { projectId } = useParams();
   const allKanbanColumn = useAllKanbanColumnQuery(projectId);
   const allTasks = useAllTaskQuery(projectId);
-
+  const { refetch} = useAllKanbanColumnQuery(projectId);
   const [dataSource, setDataSource] = useState<ExtendedKanbanDataSource[]>();
   const [filterData, setFilterData] = useState<Task[]>();
   const [isColumnsOpen, setIsColumnsOpen] = useState<boolean>(false);
@@ -64,6 +64,10 @@ function KanbanView(
     }
   }, [allKanbanColumn.status == "success"]);
 
+  useEffect(() => {
+    refetch();
+  }, [projectId]);
+  
   const close = () => {
     setDialogRendered(undefined);
     setIsTaskShow(false);
