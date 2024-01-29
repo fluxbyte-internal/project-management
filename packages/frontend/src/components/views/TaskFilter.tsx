@@ -150,12 +150,12 @@ function TaskFilter(props: Filter) {
             arr?.push(data);
           }
           else{
-            arr =  arr?.filter(u => u.taskId !== data.taskId)
+            arr =  arr?.filter(u => u.taskId !== data.taskId);
           }
         });
       });
       if (arr) {
-        filteredData = arr
+        filteredData = arr;
       }
     }
 
@@ -190,7 +190,7 @@ function TaskFilter(props: Filter) {
       }
     }
 
-    let applyFilter = Object.keys(filter).filter(
+    const applyFilter = Object.keys(filter).filter(
       (key) => filter[key as keyof FilterField]
     ).length;
 
