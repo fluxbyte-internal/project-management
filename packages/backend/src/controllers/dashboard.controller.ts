@@ -2,7 +2,11 @@ import { Request, Response } from "express";
 import { BadRequestError, SuccessResponse } from "../config/apiError.js";
 import { StatusCodes } from "http-status-codes";
 import { getClientByTenantId } from "../config/db.js";
-import { ProjectOverAllTrackEnum, ProjectStatusEnum } from "@prisma/client";
+import {
+  ProjectOverAllTrackEnum,
+  ProjectStatusEnum,
+  TaskStatusEnum,
+} from "@prisma/client";
 import { StatusCounts } from "../types/statusCount.js";
 import { uuidSchema } from "../schemas/commonSchema.js";
 
@@ -47,6 +51,7 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
     data: Object.values(overallSituationCounts),
   };
 
+  // TODO: Deley calculation as per SPI logic
   const response = {
     projectManagersProjects,
     statusChartData,
@@ -106,6 +111,7 @@ export const administartorProjects = async (req: Request, res: Response) => {
     data: Object.values(overallSituationCounts),
   };
 
+  // TODO: Deley calculation as per SPI logic
   const response = {
     orgCreatedByUser,
     statusChartData,
@@ -188,7 +194,11 @@ export const projectDashboardByprojectId = async (
       projectId,
     },
     include: {
-      tasks: true,
+      tasks: {
+        include: {
+          assignedUsers: true,
+        },
+      },
     },
   });
 
@@ -201,9 +211,65 @@ export const projectDashboardByprojectId = async (
     0
   );
 
+  const projectBudgetTrend = projectWithTasks.budgetTrack;
+  const projectOverAllSituation = projectWithTasks.overallTrack;
+
+  // Project Date's
+  const projectDates = {
+    startDate: projectWithTasks.startDate,
+    estimatedEndDate: projectWithTasks.estimatedEndDate,
+  };
+
+  // Todo: Need to handle KPI-SPI-CPI
+  // TODO: Schedule trend
+  // TODO: Risks severity
+
+  // Calculate Number of Portfolio Projects per Overall Situation
+  const statusCounts: StatusCounts = projectWithTasks.tasks.reduce(
+    (acc, task) => {
+      const status = task.status as TaskStatusEnum;
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    },
+    {} as StatusCounts
+  );
+
+  // Data for the task status chart
+  const taskStatusChartData = {
+    labels: Object.keys(statusCounts),
+    data: Object.values(statusCounts),
+  };
+
+  // Calculate TPI and Deley for each task in the project
+  const taskDelayChartDataPromises = projectWithTasks.tasks.map(async (task) => {
+    const tpiObj = prisma.task.tpiCalculation(task);
+    return {
+      taskId: task.taskId,
+      taskName: task.taskName,
+      tpiValue: tpiObj.tpiValue,
+      tpiFlag: tpiObj.tpiFlag,
+    };
+  });
+  const taskDelayChartData = await Promise.all(taskDelayChartDataPromises);
+
+  // Collect unique user IDs from assigned users of tasks
+  const assignedUsersSet = new Set<string>();
+  projectWithTasks.tasks.forEach((task) => {
+    task.assignedUsers.forEach((assignUser) => {
+      assignedUsersSet.add(assignUser.assginedToUserId);
+    });
+  });
+  const numTeamMembersWorkingOnTasks = assignedUsersSet.size;
+
   const response = {
     numTasks,
     numMilestones,
+    projectDates,
+    projectBudgetTrend,
+    taskStatusChartData,
+    taskDelayChartData,
+    numTeamMembersWorkingOnTasks,
+    projectOverAllSituation,
   };
   return new SuccessResponse(
     StatusCodes.OK,

@@ -22,4 +22,9 @@ router.get(
   DashboardController.allOrganisationsProjects
 );
 
+router.get(
+  "/dashboardByProjectId/:projectId",
+  DashboardController.projectDashboardByprojectId
+);
+
 export default router;
