@@ -76,6 +76,11 @@ enum NotificationTypeEnum {
   TASK
 }
 
+enum HistoryTypeEnum {
+  PROJECT
+  TASK
+}
+
 model User {
   userId     String         @id @default(uuid()) @map("user_id")
   email      String         @unique @map("email")
@@ -110,6 +115,8 @@ model User {
   history            History[]
   uploadedAttachment TaskAttachment[]
   addedDependencies  TaskDependencies[]
+  sentNotifications     Notification[] @relation("sentNotificationBy")
+  receivedNotifications Notification[] @relation("sentNotificationTo")
 
   @@unique([email, password])
   @@index([userId, email])
@@ -130,8 +137,6 @@ model ConsoleUser {
   createdAt  DateTime          @default(now()) @map("created_at")
   updatedAt  DateTime          @updatedAt @map("updated_at")
 
-  sentNotifications     Notification[] @relation("sentNotificationBy")
-  receivedNotifications Notification[] @relation("sentNotificationTo")
 
   @@unique([email, password])
   @@index([userId, email])
