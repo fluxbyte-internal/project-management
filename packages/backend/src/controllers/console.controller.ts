@@ -498,6 +498,23 @@ export const deleteOrganisation = async (
     where: {
       organisationId,
     },
+    include: {
+      userOrganisation: true,
+      projects: {
+        include: {
+          tasks: {
+            include: {
+              assignedUsers: true,
+              comments: true,
+              dependencies: true,
+              documentAttachments: true,
+              histories: true,
+              notifications: true
+            }
+          }
+        }
+      }
+    }
   });
   return new SuccessResponse(
     StatusCodes.OK,

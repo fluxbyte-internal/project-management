@@ -234,7 +234,7 @@ model UserOrganisation {
 model Project {
   projectId          String                  @id @unique @default(uuid()) @map("project_id")
   organisationId     String                  @map("organisation_id")
-  organisation       Organisation            @relation(fields: [organisationId], references: [organisationId])
+  organisation       Organisation            @relation(fields: [organisationId], references: [organisationId], onDelete: Cascade)
   projectName        String                  @map("project_name")
   projectDescription String                  @map("project_description") @db.VarChar(500)
   startDate          DateTime                @map("start_date")
