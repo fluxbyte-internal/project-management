@@ -2,7 +2,7 @@ import express from 'express';
 import { getClientByTenantId } from '../config/db.js';
 import { BadRequestError, NotFoundError, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
-import { createKanbanSchema, createProjectSchema, projectIdSchema, projectStatusSchema, updateKanbanSchema, updateProjectSchema } from '../schemas/projectSchema.js';
+import { consumedBudgetSchema, createKanbanSchema, createProjectSchema, projectIdSchema, projectStatusSchema, updateKanbanSchema, updateProjectSchema } from '../schemas/projectSchema.js';
 import { ProjectStatusEnum, TaskStatusEnum } from '@prisma/client';
 import { uuidSchema } from '../schemas/commonSchema.js';
 
@@ -253,4 +253,23 @@ export const deleteKanbanColumn = async (
       "kanban column deleted successfully"
     ).send(res);
   }
+};
+
+export const addConsumedBudgetToProject = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!");
+  }
+  const projectId = uuidSchema.parse(req.params.projectId);
+  const { consumedBudget } = consumedBudgetSchema.parse(req.body);
+  const prisma = await getClientByTenantId(req.tenantId);
+  const projectUpdate = await prisma.project.update({
+    where: { projectId: projectId },
+    data: { 
+      consumedBudget
+     },
+  });
+  return new SuccessResponse(StatusCodes.OK, projectUpdate, 'consumed budget updated successfully').send(res);
 };
