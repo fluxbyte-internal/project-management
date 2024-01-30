@@ -245,13 +245,15 @@ function Tasks() {
 
   const subTableRender = (task: Task) => {
     return (
-      <div className="shadow-md w-[95%]">
+      <div className="shadow-md w-[99%]">
         {task.subtasks.length > 0 && (
           <Table
             data={task.subtasks}
             columnDef={columnDef}
             onAccordionRender={(task) => task.subtasks.length > 0 ? subTableRender(task) : <></>}
-            className="pt-9 !px-2 pb-1 sm:pb-7"
+            className="!py-1 border-0"
+            hidePagination={true}
+            hideHeaders={true}
           />
         )}
       </div>

@@ -1,10 +1,7 @@
 .scroll {
     --smart-scroll-bar-thumb-background-active: theme('colors.primary.500');
-    ;
     --smart-scroll-bar-thumb-background-hover: theme('colors.primary.400');
-    ;
     --smart-scroll-bar-thumb-background: theme('colors.primary.400');
-    ;
     --smart-scroll-bar-size: 10px;
     --smart-scroll-bar-default-width: 10px;
     --smart-scroll-bar-thumb-border-top-right-radius: 10px;

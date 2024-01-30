@@ -103,9 +103,8 @@ function TaskFilter(props: Filter) {
   };
 
   function isDateSevenDays(inputDate: Date): boolean {
-    const currentDate: Date = new Date();
-    const sevenDaysAgo: Date = new Date(currentDate);
-    sevenDaysAgo.setDate(currentDate.getDate() + 7);
+    const sevenDaysAgo: Date = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     return new Date(inputDate) <= sevenDaysAgo;
   }
 
@@ -116,7 +115,7 @@ function TaskFilter(props: Filter) {
 
   function isDueTodayDays(inputDate: Date): boolean {
     const currentDate: Date = new Date();
-    return new Date(inputDate) === currentDate;
+    return dateFormater(new Date(inputDate)) === dateFormater(currentDate);
   }
 
   const removeDuplicatesById = (arr: Task[]) => {
@@ -127,86 +126,81 @@ function TaskFilter(props: Filter) {
   };
 
   const ApplyFilter = () => {
-    let filteredData: Task[] = [];
+    let filteredData: Task[] | undefined = tasks;
     if (filter && filter.flag && filter.flag.value) {
-      const val = tasks?.filter((d) => d.flag === filter.flag?.value);
-      if (val) {
-        filteredData = filteredData.concat(val);
-      }
+      filteredData = filteredData?.filter(
+        (d) => d.flag === filter?.flag?.value
+      );
     }
+
     if (filter && filter.date?.from && filter.date?.to) {
-      const val = tasks?.filter((d) => {
+      filteredData = filteredData?.filter((d) => {
         return (
-          new Date(d.startDate ?? "") >= (filter.date?.from ?? new Date()) &&
-          new Date(d.startDate ?? "") <= (filter.date?.to ?? new Date())
+          new Date(d.startDate ?? "") >= (filter?.date?.from ?? new Date()) &&
+          new Date(d.startDate ?? "") <= (filter?.date?.to ?? new Date())
         );
       });
-      if (val) {
-        filteredData = filteredData.concat(val);
-      }
     }
+
     if (filter && filter.assigned && filter.assigned.value) {
-      const arr: Task[] = [];
-      tasks?.forEach((data) => {
+      let arr: Task[] | undefined = filteredData;
+      filteredData?.forEach((data) => {
         data.assignedUsers.forEach((u: Task["assignedUsers"][number]) => {
-          if (u.user.email === filter.assigned?.value) {
-            arr.push(data);
+          if (u.user.email === filter?.assigned?.value) {
+            arr?.push(data);
+          }
+          else{
+            arr =  arr?.filter(u => u.taskId !== data.taskId);
           }
         });
       });
       if (arr) {
-        filteredData.push(...arr);
+        filteredData = arr;
       }
     }
+
     if (filter && filter.dueSevenDays) {
-      const val = tasks?.filter((data) =>
-        isDateSevenDays(data.dueDate ?? new Date())
+      filteredData = filteredData?.filter((data) =>
+        isDateSevenDays(data.endDate)
       );
-      if (val) {
-        filteredData = filteredData.concat(val);
-      }
     }
+
     if (filter && filter.overdueDays) {
-      const val = tasks?.filter((data) =>
-        isOverDueDays(data.dueDate ?? new Date())
+      filteredData = filteredData?.filter((data) =>
+        isOverDueDays(data.endDate)
       );
-      if (val) {
-        filteredData = filteredData.concat(val);
-      }
     }
+
     if (filter && filter.todayDueDays) {
-      const val = tasks?.filter((data) =>
-        isDueTodayDays(data.dueDate ?? new Date())
+      filteredData = filteredData?.filter((data) =>
+        isDueTodayDays(data.endDate)
       );
-      if (val) {
-        filteredData = filteredData.concat(val);
-      }
     }
+
     if (filter && filter.tasks) {
       let val;
-      if (filter.tasks.value == "1") {
-        val = tasks?.filter((data) => !data.parentTaskId);
+      if (filter.tasks.value === "1") {
+        val = filteredData?.filter((data) => !data.parentTaskId);
       }
-      if (filter.tasks.value == "2") {
-        val = tasks?.filter((data) => !!data.parentTaskId);
+      if (filter.tasks.value === "2") {
+        val = filteredData?.filter((data) => !!data.parentTaskId);
       }
-      if (val) {
-        filteredData = filteredData.concat(val);
+      if (val && val.length > 0) {
+        filteredData = filteredData?.concat(val);
       }
     }
-    let applyFilter = 0;
-    Object.keys(filter).forEach((element) => {
-      const key = element as keyof FilterField;
-      if (filter[key]) {
-        applyFilter++;
-      }
-    });
-    if (applyFilter !== 0) {
+
+    const applyFilter = Object.keys(filter).filter(
+      (key) => filter[key as keyof FilterField]
+    ).length;
+
+    if (applyFilter !== 0 && filteredData) {
       filteredData = removeDuplicatesById(filteredData);
       props.filteredData(filteredData);
     } else {
       props.filteredData(tasks);
     }
+
     setPopOverCLose(false);
   };
 
@@ -214,7 +208,7 @@ function TaskFilter(props: Filter) {
     <div>
       <div className="flex w-full justify-between items-center gap-2">
         <div className="flex justify-between w-full gap-2 text-gray-500">
-          <div className="flex justify-between items-center gap-6 px-3 w-full z-[3]">
+          <div className="flex justify-between items-center gap-6 px-3 w-full ">
             <div className="w-full">
               <InputText
                 className="mt-0 h-10 w-56"
