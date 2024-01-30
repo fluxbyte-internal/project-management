@@ -78,9 +78,9 @@ function NavBar() {
   const { user } = useUser();
   const [notifications, setNotifications] = useState<NotificationType[]>();
   const useAllNotification = useAllNotificationQuery();
-     const [readAll, setReadAll] = useState<boolean>(true);
+
   const useReadAllNotification = useReadAllNotificationMutation();
-    const useAllNotification =useAllNotificationQuery()
+  
   const [isOpenPopUpRead, setisOpenPopUpRead] = useState(false);
   const handleOpenPopUp = () => {
     setisOpenPopUp(!isOpenPopUp);
@@ -91,9 +91,7 @@ function NavBar() {
   const openOrganisationSettings = () => {
     navigate("/organisation/" + user?.userOrganisation[0]?.organisationId);
   };
-    const handleReadAll = () => {
-  setReadAll(!readAll);
-};
+ 
   useEffect(() => {
     setNotifications(useAllNotification.data?.data.data ?? []);
     const socket = io("http://localhost:8000", {
@@ -401,10 +399,6 @@ function NavBar() {
             </Dialog>
           )}
           {notifications && notifications.length > 0 && (
-
-          </DropdownMenu>
-          {notifications.length > 0 && (
-
             <div
               className=" w-6 h-6 rounded-full bg-red-700 
             absolute bottom-5 left-5 text-xs p-2 flex justify-center items-center text-white"
@@ -412,7 +406,6 @@ function NavBar() {
               {notifications.length <= 99 ? notifications.length : "99+"}
             </div>
           )}
-
           <Button className="relative w-8 h-8 aspect-square rounded-full bg-transparent active:bg-primary-100 hover:bg-primary-100 md:block hidden cursor-pointer">
             <img src={Information} className="absolute top-0 left-0" />
           </Button>
@@ -440,16 +433,16 @@ function NavBar() {
               </DropdownMenuItem>
               {user?.userOrganisation[0] &&
                 user?.userOrganisation[0].organisationId && (
-                  <DropdownMenuItem onClick={openOrganisationSettings}>
-                    <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
-                    <Button
-                      className="p-0 font-normal h-auto"
-                      variant={"ghost"}
-                    >
+                <DropdownMenuItem onClick={openOrganisationSettings}>
+                  <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
+                  <Button
+                    className="p-0 font-normal h-auto"
+                    variant={"ghost"}
+                  >
                       Organisations Settings
-                    </Button>
-                  </DropdownMenuItem>
-                )}
+                  </Button>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4 text-[#44546F]" />
                 <Button className="p-0 font-normal h-auto" variant={"ghost"}>
