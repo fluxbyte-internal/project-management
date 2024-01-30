@@ -14,7 +14,32 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
   const prisma = await getClientByTenantId(req.tenantId);
   const tasks = await prisma.task.findMany({
     where: { projectId: projectId },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },include: {
+      assignedUsers: {
+        select: {
+          taskAssignUsersId: true,
+          user:{
+            select: {
+              userId: true,
+              avatarImg: true, 
+              email: true,
+              firstName: true,
+              lastName: true
+            }
+          }
+        }
+      },
+      subtasks: {
+        include: {
+          subtasks: {
+            include: {
+              subtasks: true,
+            },
+          },
+        },
+      },
+      dependencies: true
+    },
   });
   return new SuccessResponse(StatusCodes.OK, tasks, 'get all task successfully').send(res);
 };
@@ -414,6 +439,7 @@ export const removeDependencies = async (
   if (!req.userId) {
     throw new BadRequestError("userId not found!!");
   }
+  console.log({uuid: req.params.taskDependenciesId})
   const taskDependenciesId = uuidSchema.parse(req.params.taskDependenciesId);
   const prisma = await getClientByTenantId(req.tenantId);
   await prisma.taskDependencies.delete({
