@@ -83,6 +83,7 @@ export const createProject = async (req: express.Request, res: express.Response)
       projectDescription: projectDescription,
       startDate: startDate,
       estimatedEndDate: estimatedEndDate,
+      actualEndDate: estimatedEndDate,
       status: ProjectStatusEnum.NOT_STARTED,
       estimatedBudget: estimatedBudget,
       defaultView: defaultView,
