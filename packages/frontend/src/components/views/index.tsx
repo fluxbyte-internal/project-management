@@ -31,7 +31,6 @@ function TaskViews() {
   ];
 
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
-
   const [views, setViews] = useState<string>(viewOption[0].value);
 
   const toggleSidebar = () => {
@@ -42,11 +41,6 @@ function TaskViews() {
   useEffect(() => {
     if (projectQuery.data?.data.data) {
       setViews(projectQuery.data.data.data.defaultView);
-      setDefultValue(
-        selectOption.find(
-          (e) => e.value == projectQuery.data.data.data.defaultView
-        )
-      );
     }
   }, [projectQuery.data?.data.data]);
 
