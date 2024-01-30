@@ -208,7 +208,7 @@ function RulesSetups(props: Props) {
             })}
             <RulesForm
               projectId={projectId ?? ""}
-              refatch={() => allKanbanColumn.refetch()}
+              refetch={() => allKanbanColumn.refetch()}
               rules={rules}
             />
           </div>

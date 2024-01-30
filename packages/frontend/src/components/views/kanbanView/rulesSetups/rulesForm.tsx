@@ -14,7 +14,7 @@ import { toFormikValidationSchema } from "zod-formik-adapter";
 
 type Props = {
   projectId: string;
-  refatch?: () => void;
+  refetch?: () => void;
   close?: () => void;
   rules?: KanbanColumnType[];
 };
@@ -35,8 +35,8 @@ function RulesForm(props: Props) {
             if (props?.close) {
               props?.close();
             }
-            if (props.refatch) {
-              props.refatch();
+            if (props.refetch) {
+              props.refetch();
             }
           },
           onError(err) {

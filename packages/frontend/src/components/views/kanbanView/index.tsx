@@ -336,7 +336,7 @@ function KanbanView(
         </div>
         <RulesForm
           projectId={projectId ?? ""}
-          refatch={() => allKanbanColumn.refetch()}
+          refetch={() => allKanbanColumn.refetch()}
           close={() => setIsColumnsOpen(false)}
           rules={rawData}
         />
