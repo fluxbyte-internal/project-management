@@ -33,6 +33,7 @@ import { uuidSchema } from "../schemas/commonSchema.js";
 import { organisationStatuSchema } from "../schemas/organisationSchema.js";
 import { ZodError } from "zod";
 import { AwsUploadService } from "../services/aws.services.js";
+import { cookieConfig } from "../utils/setCookies.js";
 
 export const me = async (req: express.Request, res: express.Response) => {
   const prisma = await getClientByTenantId(req.tenantId);
@@ -72,16 +73,21 @@ export const loginConsole = async (
     };
     const token = createJwtToken(tokenPayload);
     const refreshToken = createJwtToken(tokenPayload, true);
+    
+    res.cookie(settings.jwt.tokenCookieKey, token, {
+      ...cookieConfig,
+      maxAge: cookieConfig.maxAgeToken
+    });
+
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      secure: true,
+      ...cookieConfig,
+      maxAge: cookieConfig.maxAgeRefreshToken
     });
     const { password, ...infoWithoutPassword } = user;
 
     return new SuccessResponse(
       StatusCodes.OK,
-      { user: infoWithoutPassword, token },
+      { user: infoWithoutPassword },
       "Login successfully"
     ).send(res);
   }
@@ -130,7 +136,7 @@ export const createSuperAdmin = async (
   req: express.Request,
   res: express.Response
 ) => {
-  const prisma = await getClientByTenantId(req.tenantId);
+  const prisma = await getClientByTenantId("root");
   const { firstName, lastName, email, password } = req.body;
   const hashedPassword = await encrypt(password);
   await prisma.consoleUser.create({
@@ -193,7 +199,7 @@ export const createOperator = async (
     const bodyMessage = `
       You are invited in console
       
-      URL: ${settings.appURL}/login
+      URL: ${settings.adminURL}/login
       PASSWORD: ${randomPassword}
       `;
     await EmailService.sendEmail(newUser.email, subjectMessage, bodyMessage);
@@ -342,10 +348,9 @@ export const changeUserStatus = async (
     },
     where: { userId: userId },
   });
-  const { password, ...infoWithoutPassword } = user;
   return new SuccessResponse(
     StatusCodes.OK,
-    infoWithoutPassword,
+    user,
     "User status updated successfully"
   ).send(res);
 };

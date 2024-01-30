@@ -71,6 +71,11 @@ enum TaskDependenciesEnum {
   WAITING_ON
 }
 
+enum UserProviderTypeEnum {
+  EMAIL
+  GOOGLE
+}
+
 enum NotificationTypeEnum {
   PROJECT
   TASK
@@ -84,7 +89,6 @@ enum HistoryTypeEnum {
 model User {
   userId     String         @id @default(uuid()) @map("user_id")
   email      String         @unique @map("email")
-  password   String         @map("password")
   status     UserStatusEnum @map("status")
   firstName  String?        @map("first_name")
   lastName   String?        @map("last_name")
@@ -106,6 +110,8 @@ model User {
   createdProject Project[] @relation("createdByUser")
   updatedProject Project[] @relation("updatedByUser")
 
+  provider    UserProvider?
+
   createdTask         Task[]            @relation("createdByUser")
   updatedTask         Task[]            @relation("updatedByUser")
   taskAssignUsers     TaskAssignUsers[]
@@ -118,8 +124,21 @@ model User {
   sentNotifications     Notification[] @relation("sentNotificationBy")
   receivedNotifications Notification[] @relation("sentNotificationTo")
 
-  @@unique([email, password])
+
   @@index([userId, email])
+}
+
+model UserProvider {
+  userProviderId String @id @default(uuid()) @map("user_provider_id")
+  userId         String @unique @map("user_id")
+  user           User   @relation(fields: [userId], references: [userId])
+
+  idOrPassword String               @map("id_or_password")
+  providerType UserProviderTypeEnum @map("provider_type")
+  createdAt    DateTime             @default(now()) @map("created_at")
+  updatedAt    DateTime             @updatedAt @map("updated_at")
+
+  @@unique([userId, providerType])
 }
 
 model ConsoleUser {
