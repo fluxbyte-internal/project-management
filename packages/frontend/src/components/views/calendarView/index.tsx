@@ -70,10 +70,10 @@ function CalendarView() {
         task.flag == "Green"
           ? "#22C55E80"
           : task.flag == "Red"
-            ? "#EF444480"
-            : task.flag == "Orange"
-              ? "#F9980780"
-              : "#88888880",
+          ? "#EF444480"
+          : task.flag == "Orange"
+          ? "#F9980780"
+          : "#88888880",
       disableDrag: true,
       disableResize: true,
     };
