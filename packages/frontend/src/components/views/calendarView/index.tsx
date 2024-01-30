@@ -6,17 +6,27 @@ import { useParams } from "react-router-dom";
 import { Scheduler, SchedulerEvent } from "smart-webcomponents-react/scheduler";
 import TaskFilter from "../TaskFilter";
 import { useUser } from "@/hooks/useUser";
+import "./index.css";
+import Dialog from "@/components/common/Dialog";
+import TrashCan from "../../../assets/svg/TrashCan.svg";
+import { Button } from "@/components/ui/button";
+import useRemoveTaskMutation from "@/api/mutation/useTaskRemove";
+import { toast } from "react-toastify";
 import { FIELDS } from "@/api/types/enums";
 
 function CalendarView() {
   const { projectId } = useParams();
   const allTasks = useAllTaskQuery(projectId);
+  const removeTaskMutation = useRemoveTaskMutation();
   const { user } = useUser();
   const [dataSource, setDataSource] = useState<SchedulerEvent[]>();
   const [filterData, setFilterData] = useState<Task[]>();
   const [startDate, setStartDate] = useState<Date>();
   const [dialogRendered, setDialogRendered] = useState<string | undefined>(
     undefined
+  );
+  const [showConfirmDelete, setShowConfirmDelete] = useState<string | null>(
+    null
   );
   const [isTaskShow, setIsTaskShow] = useState<boolean>(false);
   const onItemClick = (e: (Event & CustomEvent) | undefined) => {
@@ -35,7 +45,7 @@ function CalendarView() {
         return DataConvertToScheduler(d);
       })
     );
-  }, [allTasks.data?.data.data]);
+  }, [allTasks.data?.data.data, allTasks.dataUpdatedAt, !showConfirmDelete]);
 
   useEffect(() => {
     setDataSource(
@@ -60,12 +70,12 @@ function CalendarView() {
         task.flag == "Green"
           ? "#22C55E80"
           : task.flag == "Red"
-            ? "#EF444480"
-            : task.flag == "Orange"
-              ? "#F9980780"
-              : "#88888880",
-      disableDrag:true,
-      disableResize:true,
+          ? "#EF444480"
+          : task.flag == "Orange"
+          ? "#F9980780"
+          : "#88888880",
+      disableDrag: true,
+      disableResize: true,
     };
   };
   const days = [
@@ -86,48 +96,100 @@ function CalendarView() {
     });
     return nonworkingDays;
   };
+
   const close = () => {
+    allTasks.refetch();
     setDialogRendered(undefined);
     setIsTaskShow(false);
     setStartDate(undefined);
   };
-
+  const onItemRemove = (e: (Event & CustomEvent) | undefined) => {
+    e?.preventDefault();
+    setShowConfirmDelete(e?.detail.item.id);
+  };
+  const removeTask = () => {
+    if (showConfirmDelete) {
+      removeTaskMutation.mutate(showConfirmDelete, {
+        onSuccess(data) {
+          setShowConfirmDelete(null);
+          allTasks.refetch();
+          toast.success(data.data.message);
+        },
+        onError(error) {
+          toast.error(error.response?.data.message);
+        },
+      });
+    }
+  };
   return (
-    <div className="h-full flex flex-col gap-2">
-      <TaskFilter
-        fieldToShow={[
-          FIELDS.ASSIGNED,
-          FIELDS.DATE,
-          FIELDS.DUESEVENDAYS,
-          FIELDS.FLAGS,
-          FIELDS.OVERDUEDAYS,
-          FIELDS.TODAYDUEDAYS,
-        ]}
-        tasks={allTasks.data?.data.data}
-        filteredData={(task) => setFilterData(task)}
-      />
-      <Scheduler
-        // ref={scheduler}
-        id="scheduler"
-        dataSource={dataSource}
-        view="month"
-        nonworkingDays={nonWorkingDays()}
-        draggable={false}
-        hideNonworkingWeekdays={true}
-        className="h-full"
-        onEditDialogOpening={(e) =>
-          onItemClick(e as (Event & CustomEvent) | undefined)
-        }
-      ></Scheduler>
-      {(dialogRendered || isTaskShow) && (
-        <TaskSubTaskForm
-          close={close}
-          taskId={dialogRendered ?? undefined}
-          projectId={projectId}
-          initialValues={{ startDate: startDate }}
+    <>
+      <div className="h-full flex flex-col gap-2">
+        <TaskFilter
+          fieldToShow={[
+            FIELDS.ASSIGNED,
+            FIELDS.DATE,
+            FIELDS.DUESEVENDAYS,
+            FIELDS.FLAGS,
+            FIELDS.OVERDUEDAYS,
+            FIELDS.TODAYDUEDAYS,
+          ]}
+          tasks={allTasks.data?.data.data}
+          filteredData={(task) => setFilterData(task)}
         />
-      )}
-    </div>
+        <Scheduler
+          // ref={scheduler}
+          id="scheduler"
+          dataSource={dataSource}
+          view="month"
+          nonworkingDays={nonWorkingDays()}
+          draggable={false}
+          hideNonworkingWeekdays={true}
+          className="h-[95%] scheduler"
+          onItemRemove={(e) =>
+            onItemRemove(e as (Event & CustomEvent) | undefined)
+          }
+          onEditDialogOpening={(e) =>
+            onItemClick(e as (Event & CustomEvent) | undefined)
+          }
+        ></Scheduler>
+        {(dialogRendered || isTaskShow) && (
+          <TaskSubTaskForm
+            close={close}
+            taskId={dialogRendered ?? undefined}
+            projectId={projectId}
+            initialValues={{ startDate: startDate }}
+          />
+        )}
+      </div>
+      <Dialog
+        isOpen={Boolean(showConfirmDelete)}
+        onClose={() => {}}
+        modalClass="rounded-lg"
+      >
+        <div className="flex flex-col gap-2 p-6 ">
+          <img src={TrashCan} className="w-12 m-auto" /> Are you sure you want
+          to delete ?
+          <div className="flex gap-2 ml-auto">
+            <Button
+              variant={"outline"}
+              isLoading={removeTaskMutation.isPending}
+              disabled={removeTaskMutation.isPending}
+              onClick={() => setShowConfirmDelete(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant={"primary"}
+              onClick={removeTask}
+              isLoading={removeTaskMutation.isPending}
+              disabled={removeTaskMutation.isPending}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+    </>
   );
 }
 

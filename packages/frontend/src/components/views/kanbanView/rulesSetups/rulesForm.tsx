@@ -59,6 +59,7 @@ function RulesForm(props: Props) {
       return true;
     }
   };
+
   return (
     <div className="border rounded-lg flex flex-col justify-between gap-2 px-2.5 py-1.5 bg-white">
       <div>

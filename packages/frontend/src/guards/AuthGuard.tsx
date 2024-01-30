@@ -3,15 +3,13 @@ import Loader from "@/components/common/Loader";
 import { useAuth } from "@/hooks/useAuth";
 import { useUser } from "@/hooks/useUser";
 import { PropsWithChildren } from "react";
-import { Navigate } from "react-router";
 
 const AuthGuard = (props: PropsWithChildren) => {
-  const { token, logout } = useAuth();
   const { user } = useUser();
-  const { error } = useCurrentUserQuery();
+  const { logout } = useAuth();
+  const { error ,isSuccess ,isFetched } = useCurrentUserQuery();
   const { children } = props;
-  if (!token) return <Navigate to="/login"></Navigate>;
-  if (!user) {
+  if (!user && isFetched && isSuccess) {
     if (error) {
       logout();
       return "Invalid session";

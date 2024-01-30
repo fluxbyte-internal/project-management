@@ -14,8 +14,8 @@ import InputEmail from "@/components/common/InputEmail";
 import { toast } from "react-toastify";
 import SignUp from "../../../assets/svg/signup.svg";
 import Google from "../../../assets/svg/google.svg";
-import Facebook from "../../../assets/svg/facebook.svg";
-
+// import Facebook from "../../../assets/svg/facebook.svg";
+import { baseURL } from "../../../Environment";
 
 export type LoginValues = {
   email: string;
@@ -41,7 +41,7 @@ function Login() {
       setIsLoading(true);
       loginMutation.mutate(values, {
         onSuccess(data) {
-          login(data);
+          login();
           toast.success(data.data.message);
         },
         onError(error) {
@@ -69,6 +69,10 @@ function Login() {
 
   const handleShowPassword = () => {
     setShowPassword((old) => !old);
+  };
+
+  const google = () => {
+    window.open(`${baseURL}/auth/google`, "_self");
   };
 
   return (
@@ -171,14 +175,13 @@ function Login() {
               variant={"outline"}
               isLoading={isLoading}
               disabled={isLoading}
+              onClick={google}
               className="w-full flex py-2.5 mt-1.5 rounded-md gap-2.5 hover:bg-opacity-80 disabled:bg-opacity-50"
             >
               <img src={Google} />
-              <span>
-                Google
-              </span>
+              <span>Sign in with Google</span>
             </Button>
-            <Button
+            {/* <Button
               type="button"
               variant={"secondary"}
               isLoading={isLoading}
@@ -189,7 +192,7 @@ function Login() {
               <span>
                 Facebook
               </span>
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>
