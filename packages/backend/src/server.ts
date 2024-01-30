@@ -11,6 +11,7 @@ import ConsoleRoutes from "./routers/console.routes.js";
 import OrganisationRoutes from "./routers/organisation.routes.js";
 import ProjectRoutes from "./routers/project.routes.js";
 import TaskRoutes from "./routers/task.routes.js";
+import NotificationRoutes from "./routers/notification.routes.js";
 import { authMiddleware } from "./middleware/auth.middleware.js";
 import { defualtHeaderMiddleware } from "./middleware/header.middleware.js";
 import { ErrorHandlerMiddleware } from "./middleware/error.middleware.js";
@@ -18,9 +19,15 @@ import morgan from "morgan";
 import passport from "passport";
 import "./services/passport.services.js";
 import fileUpload from "express-fileupload";
+import http from "http";
+import { RegisterSocketServices } from "./services/socket.services.js";
+import { CronService } from "./services/cron.services.js";
 // import compression from 'compression';
 
 const app: Application = express();
+
+const server = http.createServer(app);
+RegisterSocketServices.register(server); // Socket
 
 // compression
 // app.use(compression());
@@ -63,6 +70,7 @@ app.use("/api/user", authMiddleware, UserRoutes);
 app.use("/api/organisation", authMiddleware, OrganisationRoutes);
 app.use("/api/project", authMiddleware, ProjectRoutes);
 app.use("/api/task", authMiddleware, TaskRoutes);
+app.use("/api/notification", authMiddleware, NotificationRoutes);
 
 app.get("/", async (req: Request, res: Response) => {
   return res.status(200).send({ ok: true });
@@ -73,9 +81,12 @@ app.use("*", (req: Request, res: Response) => {
   return res.status(404).send({ error: "Route not found" });
 });
 
+// Send notification and Email if Due date today
+CronService.sendNotificationAndEmailToTaskDueDate();
+
 // Error handling middleware
 app.use(ErrorHandlerMiddleware.handler);
 
-app.listen(settings.port, () =>
+server.listen(settings.port, () =>
   console.log(`Server is listening on port ${settings.port}!`)
 );

@@ -1,7 +1,7 @@
+import { NotificationTypeEnum, PrismaClient, Task } from "@prisma/client";
+import { RegisterSocketServices } from "../services/socket.services.js";
 import {
   HistoryTypeEnum,
-  PrismaClient,
-  Task,
   UserRoleEnum,
   UserStatusEnum,
 } from "@prisma/client";
@@ -86,6 +86,29 @@ function generatePrismaClient(datasourceUrl?: string) {
       },
     },
     model: {
+      notification: {
+        async sendNotification(
+          notificationType: NotificationTypeEnum,
+          details: string,
+          sentTo: string,
+          sentBy: string,
+          referenceId: string
+        ) {
+          const responseNotification = await client.notification.create({
+            data: {
+              type: notificationType,
+              details: details,
+              sentTo: sentTo,
+              sentBy: sentBy,
+              referenceId: referenceId,
+            },
+          });
+          RegisterSocketServices.io
+            .in(responseNotification.sentTo)
+            .emit("notification", responseNotification);
+          return responseNotification;
+        },
+      },
       history: {
         async createHistory(
           userId: string,
@@ -370,7 +393,7 @@ function generatePrismaClient(datasourceUrl?: string) {
         },
       },
     },
-    });
+  });
   return client;
 }
 

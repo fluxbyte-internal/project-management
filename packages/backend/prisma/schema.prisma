@@ -75,9 +75,15 @@ enum UserProviderTypeEnum {
   EMAIL
   GOOGLE
 }
-enum HistoryTypeEnum {
-  TASK
+
+enum NotificationTypeEnum {
   PROJECT
+  TASK
+}
+
+enum HistoryTypeEnum {
+  PROJECT
+  TASK
 }
 
 model User {
@@ -115,6 +121,8 @@ model User {
   history            History[]
   uploadedAttachment TaskAttachment[]
   addedDependencies  TaskDependencies[]
+  sentNotifications     Notification[] @relation("sentNotificationBy")
+  receivedNotifications Notification[] @relation("sentNotificationTo")
 
 
   @@index([userId, email])
@@ -147,6 +155,7 @@ model ConsoleUser {
   isVerified Boolean           @default(false) @map("is_verified")
   createdAt  DateTime          @default(now()) @map("created_at")
   updatedAt  DateTime          @updatedAt @map("updated_at")
+
 
   @@unique([email, password])
   @@index([userId, email])
@@ -285,6 +294,8 @@ model Task {
   dependencies    TaskDependencies[] @relation("dependencies")
   dependentOnTask TaskDependencies[] @relation("dependentOnTask")
 
+  notifications Notification[]
+
   @@index([taskId, projectId])
 }
 
@@ -345,6 +356,26 @@ model Comments {
   @@index([commentId, commentByUserId])
 }
 
+model Notification {
+  notificationId String               @id @default(uuid()) @map("notification_id")
+  type           NotificationTypeEnum @map("type")
+  referenceId    String               @map("reference_id")
+  task           Task?                @relation(fields: [referenceId], references: [taskId], onDelete: Cascade, map: "task_notification")
+
+  sentBy             String @map("sent_by")
+  sentNotificationBy User   @relation("sentNotificationBy", fields: [sentBy], references: [userId], onDelete: Cascade)
+
+  sentTo             String @map("sent_to")
+  sentNotificationTo User   @relation("sentNotificationTo", fields: [sentTo], references: [userId], onDelete: Cascade)
+
+  details   String?  @map("details")
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+  ReadAt    DateTime @updatedAt @map("read_at")
+
+  @@index([sentBy, sentTo, referenceId])
+}
+
 model KanbanColumn {
   kanbanColumnId String @id @default(uuid()) @map("kanban_column_id")
 
@@ -363,6 +394,7 @@ model KanbanColumn {
 
   @@unique([kanbanColumnId, projectId])
 }
+
 model History {
   historyId     String          @id @default(uuid()) @map("history_id")
   referenceId   String          @map("reference_id")
