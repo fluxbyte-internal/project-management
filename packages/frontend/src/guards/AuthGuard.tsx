@@ -5,11 +5,11 @@ import { useUser } from "@/hooks/useUser";
 import { PropsWithChildren } from "react";
 
 const AuthGuard = (props: PropsWithChildren) => {
-  const { logout } = useAuth();
   const { user } = useUser();
-  const { error } = useCurrentUserQuery();
+  const { logout } = useAuth();
+  const { error ,isSuccess ,isFetched } = useCurrentUserQuery();
   const { children } = props;
-  if (!user) {
+  if (!user && isFetched && isSuccess) {
     if (error) {
       logout();
       return "Invalid session";
