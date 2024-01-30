@@ -17,4 +17,5 @@ export const requestURLs = {
   fileUpload:`${baseURL}/user/avatarImg-update`,
   changePassword:`${baseURL}/user/change-password`,
   notification:`${baseURL}/notification/`,
+  kanbanColumn:`${baseURL}/project/kanban-column/`,
 };

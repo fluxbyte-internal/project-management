@@ -15,7 +15,7 @@ function PercentageCircle(props: Props) {
     if (per > 50 && per < 75) {
       color = "#060fff8f";
     }
-    if (per > 75 && per < 100) {
+    if (per > 75 && per <= 100) {
       color = "#15A687";
     }
   }
@@ -33,7 +33,7 @@ function PercentageCircle(props: Props) {
             background: `radial-gradient(closest-side, white 79%, transparent 80% 100%), conic-gradient(${color} ${per}%, #cecece 0)`,
           }}
         >
-          <div className="m-1">{per}%</div>
+          <div className="m-1">{per.toFixed()}%</div>
         </div>
       </div>
     </>

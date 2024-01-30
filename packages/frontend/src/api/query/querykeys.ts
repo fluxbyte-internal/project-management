@@ -7,4 +7,5 @@ export const QUERY_KEYS = {
   taskMamber:"taskMamber",
   allTask:"allTask",
   allNotification:"allNotification",
+  allKanbanColumn:"allKanbanColumn",
 } as const;
