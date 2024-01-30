@@ -124,7 +124,6 @@ model User {
   sentNotifications     Notification[] @relation("sentNotificationBy")
   receivedNotifications Notification[] @relation("sentNotificationTo")
 
-
   @@index([userId, email])
 }
 

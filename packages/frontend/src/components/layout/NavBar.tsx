@@ -19,22 +19,29 @@ import { useUser } from "@/hooks/useUser";
 import UserAvatar from "../ui/userAvatar";
 import io from "socket.io-client";
 import timeAgo from "@/helperFuntions/notificationFormatter";
-import useAllNotificationQuery from "@/api/query/useAllNotificationQuery";
+import useAllNotificationQuery, {
+  NotificationType,
+} from "@/api/query/useAllNotificationQuery";
+import useReadAllNotificationMutation from "@/api/mutation/useReadAllNotificationMutation";
+import { toast } from "react-toastify";
+import useSingleReadNotificationMutation from "@/api/mutation/useSingleReadNotificationMutation";
+import Dialog from "../common/Dialog";
+
 type NavItemType =
   | {
-      id: number;
-      name: string;
-      link: string;
-    }
+    id: number;
+    name: string;
+    link: string;
+  }
   | {
+    id: number;
+    name: string;
+    dropDown: Array<{
       id: number;
-      name: string;
-      dropDown: Array<{
-        id: number;
-        contentName: string;
-        contentLink: string;
-      }>;
-    };
+      contentName: string;
+      contentLink: string;
+    }>;
+  };
 
 function hasSubItem(
   item: NavItemType
@@ -63,73 +70,112 @@ const navbarData: NavItemType[] = [
   },
 ] as NavItemType[];
 
-const notification = [
-  {
-    id: 1,
-    message: "hey",
-    timestamp: new Date(),
-  },
-  {
-    id: 2,
-    message: "how's",
-    timestamp: new Date(),
-  },
-  {
-    id: 3,
-    message: "you",
-    timestamp: new Date(),
-  },
-];
+
 function NavBar() {
   const navigate = useNavigate();
   const [isOpenPopUp, setisOpenPopUp] = useState(false);
   const { logout } = useAuth();
   const { user } = useUser();
-  const [notifications, setNotifications] = useState(notification);
-  const [readAll, setReadAll] = useState<boolean>(true);
+  const [notifications, setNotifications] = useState<NotificationType[]>();
+  const useAllNotification = useAllNotificationQuery();
+
+  const useReadAllNotification = useReadAllNotificationMutation();
+  
+  const [isOpenPopUpRead, setisOpenPopUpRead] = useState(false);
   const handleOpenPopUp = () => {
     setisOpenPopUp(!isOpenPopUp);
   };
-const useAllNotification =useAllNotificationQuery()
-const openAccountSettings = () => {
-  navigate("/account-settings");
-};
-const openOrganisationSettings = () => {
-  navigate("/organisation/" + user?.userOrganisation[0]?.organisationId);
-};
-
-const handleReadAll = () => {
-  setReadAll(!readAll);
-};
-useEffect(() => {
-    console.log(useAllNotification.data?.data,"useAllNotification");
+  const openAccountSettings = () => {
+    navigate("/account-settings");
+  };
+  const openOrganisationSettings = () => {
+    navigate("/organisation/" + user?.userOrganisation[0]?.organisationId);
+  };
+ 
+  useEffect(() => {
+    setNotifications(useAllNotification.data?.data.data ?? []);
     const socket = io("http://localhost:8000", {
       path: "/socket.io",
       forceNew: true,
       reconnectionAttempts: 3,
       timeout: 2000,
-      query:{
-        roomName: user?.userId
-      }
+      query: {
+        roomName: user?.userId,
+      },
     });
     socket.emit("join", user?.userId);
     socket.on("notification", (notificationObject) => {
-      console.log(notificationObject, "notificationObject");
-
       setNotifications((prevNotifications) => [
-        ...prevNotifications,
+        ...(prevNotifications ? prevNotifications : []),
         {
-          id: notificationObject.notificationId,
-          message: notificationObject.details,
-          timestamp: new Date(),
+          notificationId: notificationObject.notificationId,
+          type: notificationObject.type,
+          referenceId: notificationObject.referenceId,
+          sentBy: notificationObject.sentBy,
+          sentTo: notificationObject.sentTo,
+          details: notificationObject.details,
+          isRead: notificationObject.isRead,
+          createdAt: notificationObject.createdAt,
+          ReadAt: notificationObject.ReadAt,
+          sentNotificationBy: notificationObject.sentNotificationBy,
+          sentNotificationTo: notificationObject.sentNotificationTo,
+          task: notificationObject.task,
         },
       ]);
     });
-
     return () => {
       socket.off("notification");
     };
-  }, []);
+  }, [
+    useAllNotification.data?.data,
+    useAllNotification.data?.data.data,
+    user?.userId,
+  ]);
+
+  const handleReadAll = () => {
+    const updatedNotifications = notifications?.map((notification) => ({
+      ...notification,
+      isRead: true,
+    }));
+   
+
+    if (updatedNotifications) {
+
+      useReadAllNotification.mutate(updatedNotifications as unknown as NotificationType, {
+        onSuccess(data) {
+          toast.success(data.data.message);
+          setNotifications([]);
+        },
+        onError(error) {
+          toast.error(error.response?.data.message);
+        },
+      });
+    }
+  };
+
+  const singleReadNotificationMutation = useSingleReadNotificationMutation();
+
+  const handleSingleReadNotification = (notificationData: NotificationType) => {
+    singleReadNotificationMutation.mutate(
+      { ...notificationData, isRead: true },
+      {
+        onSuccess: (data) => {
+          toast.success(data.data.message);
+          setNotifications((prevNotifications) => {
+            if (prevNotifications) {
+              return prevNotifications.filter(
+                (n) => n.notificationId !== notificationData.notificationId
+              );
+            }
+            return prevNotifications;
+          });
+        },
+        onError: (error) => {
+          toast.error(error.response?.data.message);
+        },
+      }
+    );
+  };
   return (
     <div className="w-full h-14 z-10 fixed border-b-2 border-[#E2E8F0] flex items-center flex-col bg-white">
       <div className="flex items-center w-full h-full justify-between sm:px-3 px-2">
@@ -269,6 +315,8 @@ useEffect(() => {
           )}
         </div>
         <div className="flex gap-5  items-center relative">
+
+          {!isOpenPopUpRead && 
           <DropdownMenu>
             <DropdownMenuTrigger>
               <Button className="relative w-8 h-8 aspect-square rounded-full bg-transparent active:bg-primary-100 hover:bg-primary-100  cursor-pointer">
@@ -283,24 +331,31 @@ useEffect(() => {
                   </DropdownMenuLabel>
                 </div>
 
+                {notifications && notifications.length > 0 &&
                 <CheckCheck
-                  onClick={handleReadAll}
+                  onClick={()=>setisOpenPopUpRead(true)}
                   className="flex justify-center items-center"
                 />
+                }
               </div>
               <DropdownMenuSeparator />
-              {notifications.length > 0 ? (
-                notifications.map(({ id, message, timestamp }) => (
+              {notifications && notifications.length > 0 ? (
+                notifications.map((notification) => (
                   <>
-                    <DropdownMenuItem key={id}>
-                      <div className="w-full">
+                    <DropdownMenuItem key={notification.notificationId}>
+                      <div className="w-full"
+                        onClick={() =>
+                          handleSingleReadNotification(notification)
+                        }
+                      >
                         <div className="flex justify-between w-full">
                           <div className="text-md font-semibold break-all">
-                            {message}
+                            {notification.details}
                           </div>
                         </div>
                         <div className="text-gray-300 ">
-                          {timeAgo(timestamp)}
+                          {timeAgo(new Date(notification.createdAt))}
+
                         </div>
                       </div>
                     </DropdownMenuItem>
@@ -311,8 +366,39 @@ useEffect(() => {
                 <div className="p-2">No notification Found</div>
               )}
             </DropdownMenuContent>
-          </DropdownMenu>
-          {notifications.length > 0 && (
+
+          </DropdownMenu>}
+          {isOpenPopUpRead && (
+            <Dialog
+              isOpen={isOpenPopUpRead}
+              onClose={() => {}}
+              modalClass="rounded-lg"
+            >
+              <div className="flex flex-col gap-2 p-6 ">
+           Are you sure you want
+          to Read All Notifications ?
+                <div className="flex gap-2 ml-auto">
+                  <Button
+                    variant={"outline"}
+                    isLoading={useReadAllNotification.isPending}
+                    disabled={useReadAllNotification.isPending}
+                    onClick={() => setisOpenPopUpRead(false)}
+                  >
+              Cancel
+                  </Button>
+                  <Button
+                    variant={"primary"}
+                    onClick={()=>{handleReadAll();setisOpenPopUpRead(false);}}
+                    isLoading={useReadAllNotification.isPending}
+                    disabled={useReadAllNotification.isPending}
+                  >
+              Yes
+                  </Button>
+                </div>
+              </div>
+            </Dialog>
+          )}
+          {notifications && notifications.length > 0 && (
             <div
               className=" w-6 h-6 rounded-full bg-red-700 
             absolute bottom-5 left-5 text-xs p-2 flex justify-center items-center text-white"
@@ -320,7 +406,6 @@ useEffect(() => {
               {notifications.length <= 99 ? notifications.length : "99+"}
             </div>
           )}
-
           <Button className="relative w-8 h-8 aspect-square rounded-full bg-transparent active:bg-primary-100 hover:bg-primary-100 md:block hidden cursor-pointer">
             <img src={Information} className="absolute top-0 left-0" />
           </Button>
@@ -348,16 +433,16 @@ useEffect(() => {
               </DropdownMenuItem>
               {user?.userOrganisation[0] &&
                 user?.userOrganisation[0].organisationId && (
-                  <DropdownMenuItem onClick={openOrganisationSettings}>
-                    <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
-                    <Button
-                      className="p-0 font-normal h-auto"
-                      variant={"ghost"}
-                    >
+                <DropdownMenuItem onClick={openOrganisationSettings}>
+                  <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
+                  <Button
+                    className="p-0 font-normal h-auto"
+                    variant={"ghost"}
+                  >
                       Organisations Settings
-                    </Button>
-                  </DropdownMenuItem>
-                )}
+                  </Button>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4 text-[#44546F]" />
                 <Button className="p-0 font-normal h-auto" variant={"ghost"}>

@@ -2,7 +2,7 @@ import axios from "axios";
 import { baseURL } from "@/Environment";
 
 const ApiRequest = axios.create({
-  baseURL
+  baseURL,
 });
 
 ApiRequest.interceptors.request.use((config) => {
