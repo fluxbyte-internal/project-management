@@ -245,8 +245,26 @@ export const updateTask = async (
       documentAttachments: true,
       assignedUsers: true,
       dependencies: true,
+      project: true
     },
   });
+
+  // Project End Date  -  If any task's end date will be greater then It's own
+  const maxEndDate = await prisma.task.findMaxEndDateAmongTasks(
+    taskUpdateDB.projectId
+  );
+  if (
+    maxEndDate 
+  ) {
+    await prisma.project.update({
+      where: {
+        projectId: taskUpdateDB.project.projectId,
+      },
+      data: {
+        estimatedEndDate: maxEndDate,
+      },
+    });
+  };
 
   // History-Manage
   const updatedValueWithoutOtherTable = removeProperties(

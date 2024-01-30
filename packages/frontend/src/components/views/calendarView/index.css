@@ -1,0 +1,12 @@
+.scheduler {
+    --smart-ui-state-active: theme('colors.primary.400');
+    --smart-primary: theme('colors.primary.400');
+    --smart-surface: theme('colors.white/00');
+    --smart-background: @apply bg-transparent;
+    --smart-scheduler-timeline-weekend-color: @apply bg-transparent;
+    @apply rounded-xl;
+
+    .smart-scheduler-event-content {
+        @apply rounded-full
+    }
+}

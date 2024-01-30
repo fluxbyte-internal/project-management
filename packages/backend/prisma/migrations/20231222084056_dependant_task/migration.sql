@@ -16,7 +16,9 @@ DROP INDEX `Task_task_id_project_id_assgined_to_user_id_idx` ON `task`;
 ALTER TABLE `task` DROP COLUMN `assgined_to_user_id`,
     DROP COLUMN `flag`,
     ADD COLUMN `dependant_task_id` VARCHAR(191) NULL,
-    MODIFY `dependecies` ENUM('BLOCKING', 'WAITING_ON') NULL;
+    ADD COLUMN `due_date` DATETIME(3) NULL,
+    MODIFY `dependecies` ENUM('BLOCKING', 'WAITING_ON', 'NO_DEPENDENCIES') NOT NULL DEFAULT 'NO_DEPENDENCIES',
+    MODIFY `milestone_indicator` BOOLEAN NOT NULL DEFAULT false;
 
 -- CreateTable
 CREATE TABLE `TaskAssignUsers` (
@@ -26,6 +28,7 @@ CREATE TABLE `TaskAssignUsers` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `TaskAssignUsers_task_id_assgined_to_user_id_key`(`task_id`, `assgined_to_user_id`),
     PRIMARY KEY (`task_assign_users_id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

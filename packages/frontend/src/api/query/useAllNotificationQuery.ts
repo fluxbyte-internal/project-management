@@ -58,12 +58,6 @@ export interface TaskType {
   flag: string
 }
 
-
-
-
-
-
-
 export type NotificationResponse = ResponseType<NotificationType[]>;
 
 function useAllNotificationQuery() {

@@ -49,7 +49,7 @@ function AccountSettings() {
   const avatarImg = useRef<HTMLInputElement>(null);
   const useFileUpload = useFileUploadMutation();
   const orgSettingsUpdateMutation = useOrgSettingsUpdateMutation(
-    user?.userOrganisation[0].userOrganisationId ?? ""
+    user?.userOrganisation[0]?.userOrganisationId ?? ""
   );
   const navigate = useNavigate();
 
@@ -95,9 +95,9 @@ function AccountSettings() {
     z.infer<typeof userOrgSettingsUpdateSchema>
   >({
     initialValues: {
-      jobTitle: user?.userOrganisation[0].jobTitle ?? "",
+      jobTitle: user?.userOrganisation[0]?.jobTitle ?? "",
       taskColour:
-        user?.userOrganisation[0].taskColour ?? TaskColorPaletteEnum.BLACK,
+        user?.userOrganisation[0]?.taskColour ?? TaskColorPaletteEnum.BLACK,
     },
     validationSchema: toFormikValidationSchema(userOrgSettingsUpdateSchema),
     onSubmit: (values, helper) => {
@@ -223,7 +223,7 @@ function AccountSettings() {
                       <Spinner className="h-10 w-36" color="#F99807"></Spinner>
                     </div>
                   ) : (
-                    <UserAvatar className="w-full h-full" fontClass="text-8xl" user={user}></UserAvatar>
+                    <UserAvatar className="w-full h-full" fontClass="!text-7xl" user={user}></UserAvatar>
                   )}
                 </div>
               )}
@@ -336,7 +336,7 @@ function AccountSettings() {
                   </div>
                 </div>
               </div>
-              <div>
+              {user?.userOrganisation[0]?.organisationId&& <div>
                 <FormLabel htmlFor="jobTitle">Job Title</FormLabel>
                 <InputText
                   name="jobTitle"
@@ -351,8 +351,8 @@ function AccountSettings() {
                       userOrgSettingForm.errors.jobTitle}
                   </ErrorMessage>
                 </div>
-              </div>
-              <div className="flex items-center @2xl:col-span-2 mt-4">
+              </div>}
+              <div className="flex items-center @2xl:col-span-2 my-4">
                 <Button
                   isLoading={isUserProfileSubmitting || isJobTitleSubmitting}
                   variant={"primary"}

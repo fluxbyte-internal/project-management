@@ -21,6 +21,7 @@ import useUpdateTaskMutation from "@/api/mutation/useTaskUpdateMutation";
 import Dialog from "@/components/common/Dialog";
 import RulesForm from "./rulesSetups/rulesForm";
 import CrossIcon from "@/assets/svg/CrossIcon.svg";
+import SettingIcon from "@/assets/svg/Setting.svg";
 import useAllKanbanColumnQuery from "@/api/query/useAllKanbanColumn";
 import Loader from "@/components/common/Loader";
 import { FIELDS } from "@/api/types/enums";
@@ -52,12 +53,14 @@ function KanbanView(
   const { projectId } = useParams();
   const allKanbanColumn = useAllKanbanColumnQuery(projectId);
   const allTasks = useAllTaskQuery(projectId);
-
+  const { refetch} = useAllKanbanColumnQuery(projectId);
   const [dataSource, setDataSource] = useState<ExtendedKanbanDataSource[]>();
   const [filterData, setFilterData] = useState<Task[]>();
   const [isColumnsOpen, setIsColumnsOpen] = useState<boolean>(false);
   const [Columns, setColumns] = useState<KanbanColumn[]>();
   const [closePopup, setClosePopup] = useState<boolean>(false);
+  const [rawData, setRawData] = useState<KanbanColumnType[]>();
+
   useEffect(() => {
     if (allKanbanColumn.status == "success") {
       setOpen();
@@ -69,6 +72,11 @@ function KanbanView(
     setIsTaskShow(false);
     allTasks.refetch();
   };
+  
+  useEffect(() => {
+    refetch();
+  }, [projectId]);
+  
   useEffect(() => {
     if (allKanbanColumn.data?.data.data) {
       allKanbanColumn.data?.data.data.sort(
@@ -214,6 +222,7 @@ function KanbanView(
     // header.classList.add(...className.split(" "));
   };
   const handleColumn = (data: KanbanColumnType[]) => {
+    setRawData(data);
     const column: KanbanColumn[] = data.map((d) => {
       return {
         label: d.name.toUpperCase(),
@@ -260,7 +269,16 @@ function KanbanView(
               tasks={allTasks.data?.data.data}
               filteredData={(task) => setFilterData(task)}
             />
-            <div>
+            <div className="flex w-full justify-between">
+              <div>
+                <Button
+                  variant={"ghost"}
+                  size={"sm"}
+                  onClick={() => setClosePopup(true)}
+                >
+                  <img src={SettingIcon} className="h-4 w-4" />
+                </Button>
+              </div>
               <Button
                 variant={"primary"}
                 value={"Create Columns"}
@@ -276,7 +294,6 @@ function KanbanView(
             columns={Columns}
             dataSource={dataSource}
             addNewButton
-            onColumnClick={() => setClosePopup(true)}
             className="!h-[92%] !w-full kanban"
             taskCustomFields={taskCustomFields}
             onTaskRender={onTaskRender}
@@ -326,6 +343,7 @@ function KanbanView(
           projectId={projectId ?? ""}
           refatch={() => allKanbanColumn.refetch()}
           close={() => setIsColumnsOpen(false)}
+          rules={rawData}
         />
       </Dialog>
     </div>
