@@ -28,6 +28,7 @@ import useRemoveTaskDependenciesMutation from "@/api/mutation/useTaskRemoveDepen
 
 type Props = {
   task: Task;
+  endTask?: string;
   refetch: () => void;
 };
 
@@ -51,14 +52,19 @@ const reactSelectStyle = {
 
 function TaskDependencies(props: Props) {
   const allTask = useAllTaskQuery(props.task.projectId);
-  const [dependenciesShow, setDependenciesShow] = useState<boolean>(false);
+  const [dependenciesShow, setDependenciesShow] = useState<boolean>(
+    Boolean(props.endTask) ?? false
+  );
   const [showConfirmDelete, setShowConfirmDelete] = useState("");
   const taskDependenciesMutation = useTaskDependenciesMutation(
     props.task.taskId
   );
   const removeTaskDependenciesMutation = useRemoveTaskDependenciesMutation();
+  const val = allTask.data?.data.data.find((d) => d.taskId == props.endTask);
 
-  const [defaultsValue, setDefaultsValue] = useState<Options>();
+  const [defaultsValue, setDefaultsValue] = useState<Options>(
+    val ? { label: val?.taskName, value: val?.taskId } : ({} as Options)
+  );
   const dependencies = (): Options[] => {
     const dependenciesArr: Options[] = [{ label: "select", value: "" }];
     allTask.data?.data.data.forEach((task) => {
@@ -88,7 +94,7 @@ function TaskDependencies(props: Props) {
   const dependenciesFormik = useFormik<z.infer<typeof dependenciesTaskSchema>>({
     initialValues: {
       dependentType: TaskDependenciesEnumValue.BLOCKING,
-      dependendentOnTaskId: "",
+      dependendentOnTaskId: props.endTask ? defaultsValue.value :"",
     },
     validationSchema: toFormikValidationSchema(dependenciesTaskSchema),
     onSubmit: (values) => {
@@ -194,8 +200,8 @@ function TaskDependencies(props: Props) {
                   placeholder="Select tasks"
                   styles={reactSelectStyle}
                   defaultValue={{
-                    label: dependency.dependentOnTask.taskName,
-                    value: dependency.dependentOnTask.taskId,
+                    label: dependency.dependentOnTask?.taskName,
+                    value: dependency.dependentOnTask?.taskId,
                   }}
                 />
               </div>
@@ -280,6 +286,7 @@ function TaskDependencies(props: Props) {
                 defaultValue={defaultsValue}
                 options={dependencies()}
                 onChange={handleDependencies}
+                isDisabled={Boolean(props.endTask)}
               />
             </div>
           </div>

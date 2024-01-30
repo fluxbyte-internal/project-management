@@ -10,13 +10,19 @@ import "../../SmartElement.css";
 import useUpdateTaskMutation from "@/api/mutation/useTaskUpdateMutation";
 import { toast } from "react-toastify";
 import { useUser } from "@/hooks/useUser";
-
+import TaskDependencies from "../tasks/taskDependencies";
+import { Task } from "@/api/mutation/useTaskCreateMutation";
+import Dialog from "../common/Dialog";
+import CrossSvg from "@/assets/svg/CrossIcon.svg";
+import { Button } from "../ui/button";
 export interface Options {
   label: string;
   value: string;
 }
 
-function GanttView(props: GanttChartProps) {
+function GanttView(
+  props: GanttChartProps & { taskId: string | undefined; close: () => void }
+) {
   const treeSize = "30%";
   const durationUnit = "hour";
   const sortMode = "one";
@@ -39,7 +45,7 @@ function GanttView(props: GanttChartProps) {
   useEffect(() => {
     const users: Options[] = [];
     if (allTaskQuery.data?.data.data) {
-      allTaskQuery.data.data.data.forEach((task) => {
+      allTaskQuery.data?.data.data.forEach((task) => {
         task.assignedUsers?.forEach((assignedUser) => {
           if (!users.some((u) => u.value === assignedUser.user.email)) {
             users.push({
@@ -57,17 +63,24 @@ function GanttView(props: GanttChartProps) {
       setViewUserData(users);
     }
     // refetch();
-  }, [allTaskQuery.data]);
+    ganttChart.current?.refresh();
+  }, [allTaskQuery.data?.data.data]);
 
-  const handlePopUp = (e: any) => {
+  const handlePopUp = (e: (Event & CustomEvent) | undefined) => {
+    
     e?.preventDefault();
-    e?.stopPropagation()
-    console.log(e.detail.target._target.id, "e.Detail.values");
-    setIsOpenTask(e.detail.target._target.id);
+    if (
+      e?.detail.target &&
+      e?.detail.target._target &&
+      e?.detail.target._target.id
+    ) {
+      setIsOpenTask(e?.detail.target._target.id);
+    }
   };
+
   const tooltip = {
-		enabled: true
-	};
+    enabled: true,
+  };
 
   const viewData: Options[] = [
     { label: "Day", value: "day" },
@@ -85,10 +98,11 @@ function GanttView(props: GanttChartProps) {
       setFilterUser(val.value);
     }
   };
-  const updateTaskFromGanttView = (e: { detail: { dateStart: Date; dateEnd: Date; }; }) => {
-  
-    const workingDays = dateDiffrence(e.detail.dateStart, e.detail.dateEnd);
-  
+  const updateTaskFromGanttView = (e: {
+    detail: { dateStart: Date; dateEnd: Date };
+  }) => {
+    const workingDays = dateDifference(e.detail.dateStart, e.detail.dateEnd);
+
     taskUpdateMutation.mutate(
       {
         startDate: e.detail.dateStart,
@@ -104,26 +118,25 @@ function GanttView(props: GanttChartProps) {
       }
     );
   };
-  const dateDiffrence = (startDate: Date, endDate: Date) => {
-    const date1:any = new Date(startDate);
-    const date2:any = new Date(endDate);
+  const dateDifference = (startDate: Date, endDate: Date) => {
+    const date1: any = new Date(startDate);
+    const date2: any = new Date(endDate);
     const diffTime = Math.abs(date2 - date1);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     const nonWorkingDays = HandleNonWorkingDays();
-  
+
     let nonWorkingDaysCount = 0;
     for (let i = 0; i < diffDays; i++) {
       const currentDate = new Date(date1);
       currentDate.setDate(date1.getDate() + i);
-  
+
       if (nonWorkingDays.find((day: number) => day === currentDate.getDay())) {
         nonWorkingDaysCount++;
       }
-      
     }
-  
+
     const workingDays = diffDays - nonWorkingDaysCount;
-  
+
     return workingDays;
   };
 
@@ -148,45 +161,63 @@ function GanttView(props: GanttChartProps) {
       user?.userOrganisation.map((org) => org.organisation.nonWorkingDays) ||
       [];
 
-
     const mapDayToNumber = (day: string) => {
       switch (day) {
-      case "SUN":
-        return 0;
-      case "MON":
-        return 1;
-      case "TUE":
-        return 2;
-      case "WED":
-        return 3;
-      case "THU":
-        return 4;
-      case "FRI":
-        return 5;
-      case "SAT":
-        return 6;
-      default:
-        return 0;
+        case "SUN":
+          return 0;
+        case "MON":
+          return 1;
+        case "TUE":
+          return 2;
+        case "WED":
+          return 3;
+        case "THU":
+          return 4;
+        case "FRI":
+          return 5;
+        case "SAT":
+          return 6;
+        default:
+          return 0;
       }
     };
 
-    const result: any = [];
-
+    const result: number[] = [];
     nonWorkingDays.forEach((days) => {
       days.forEach((day) => {
         result.push(mapDayToNumber(day));
       });
     });
-
     return result;
   };
-
-  
+  const taskrender = (
+    task: any,
+    segment: any,
+    taskElement: Element,
+    segmentElement: Element,
+    labelElement: Element
+  ) => {
+    if (task.value == "false" && segment.value == "false") {
+      taskElement.classList.add("hidden");
+      segmentElement.classList.add("hidden");
+      labelElement.classList.add("hidden");
+    }
+  };
+  const [task, setTask] = useState<Task>();
+  const [endTask, setEndTask] = useState();
+  const onConnection = (e: (Event & CustomEvent) | undefined) => {
+    setTask(
+      allTaskQuery.data?.data.data.find(
+        (t) => t.taskId === e?.detail.startTaskId
+      )
+    );
+    setEndTask(e?.detail.endTaskId);
+  };
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full flex flex-col py-5">
       <div className="flex justify-between">
         <div className="flex justify-center items-center gap-2 my-2 ">
-          <label className="flex justify-center itmes-center">Filter by:</label>
+          <label className="flex justify-center items-center">Filter by:</label>
           <Select
             options={viewUserData}
             onChange={handleUserAssignee}
@@ -196,7 +227,7 @@ function GanttView(props: GanttChartProps) {
           />
         </div>
         <div className="flex justify-end items-center gap-2 my-2 ">
-          <label className="flex justify-center itmes-center">Filter by:</label>
+          <label className="flex justify-center items-center">Filter by:</label>
           <Select
             options={viewData}
             onChange={handleView}
@@ -206,7 +237,6 @@ function GanttView(props: GanttChartProps) {
           />
         </div>
       </div>
-
       <GanttChart
         ref={ganttChart}
         dataSource={props.dataSource}
@@ -214,10 +244,12 @@ function GanttView(props: GanttChartProps) {
         treeSize={treeSize}
         durationUnit={durationUnit}
         nonworkingDays={HandleNonWorkingDays()}
-        monthScale="day"
-        monthFormat="firstTwoLetters"
-        id="gantt"
-        onOpen={(e) => handlePopUp(e)}
+        monthScale="week"
+        monthFormat="2-digit"
+        onOpen={(e) => {
+          handlePopUp(e as (Event & CustomEvent) | undefined);
+        }}
+        disableSelection
         view={filterUnit}
         sortMode={sortMode}
         taskFiltering={taskFiltering}
@@ -225,26 +257,52 @@ function GanttView(props: GanttChartProps) {
         onResizeEnd={(e: any) => {
           setUpdateUser(e?.detail.id), updateTaskFromGanttView(e);
         }}
+        onConnectionEnd={(e) =>
+          onConnection(e as (Event & CustomEvent) | undefined)
+        }
+        className="h-full"
         hideResourcePanel
         infiniteTimeline
         horizontalScrollBarVisibility="visible"
         verticalScrollBarVisibility="visible"
         showProgressLabel={showProgressLabel}
-        // for past day clr
-        // shadeUntilCurrentTime
-        // snap to nearest value
-        snapToNearest 
-        // showBaseline={showBaseline}
+        snapToNearest
         autoSchedule
-        
+        onItemClick={props.onItemClick}
+        onTaskRender={taskrender}
       ></GanttChart>
       {Boolean(isOpenTask) && (
         <TaskSubTaskForm
           projectId={projectId}
           taskId={isOpenTask}
-          close={() => setIsOpenTask("")}
+          close={() => {
+            setIsOpenTask(""), close();
+          }}
         />
       )}
+      <Dialog
+        isOpen={Boolean(endTask && task)}
+        onClose={() => {}}
+        modalClass="rounded-lg w-4/5  h-1/3"
+      >
+        <div className="w-full p-6">
+          <div className="flex justify-between">
+            <div className="text-lg">
+              {task?.taskName}
+            </div>
+            <Button variant={"none"} onClick={()=>setEndTask(undefined)}>
+              <img src={CrossSvg} />
+            </Button>
+          </div>
+          {task && (
+            <TaskDependencies
+              endTask={endTask}
+              task={task}
+              refetch={() => {allTaskQuery.refetch(),setEndTask(undefined)}}
+            />
+          )}
+        </div>
+      </Dialog>
     </div>
   );
 }

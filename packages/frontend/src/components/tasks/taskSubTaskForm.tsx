@@ -51,8 +51,10 @@ import useRemoveTaskMutation from "@/api/mutation/useTaskRemove";
 
 type Props = {
   projectId: string | undefined;
-  taskId: string | undefined;
+  taskId?: string | undefined;
   close: () => void;
+  initialValues?: { startDate: Date | undefined; taskId: string };
+  createSubtask?: string;
 };
 
 function TaskSubTaskForm(props: Props) {
@@ -75,7 +77,7 @@ function TaskSubTaskForm(props: Props) {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const taskCreateMutation = useCreateTaskMutation(
     props.projectId,
-    taskId
+    props.createSubtask ? props.createSubtask : taskId ? taskId : ""
   );
   const taskAddUpdateMilestoneMutation =
     useTaskAddUpdateMilestoneMutation(taskId);
@@ -613,16 +615,18 @@ function TaskSubTaskForm(props: Props) {
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          {taskId&& <div>
-            <Button
-              variant={"destructive"}
-              onClick={() => {
-                setShowConfirmDelete(true);
-              }}
-            >
-              Delete
-            </Button>
-          </div>}
+          {taskId && (
+            <div>
+              <Button
+                variant={"destructive"}
+                onClick={() => {
+                  setShowConfirmDelete(true);
+                }}
+              >
+                Delete
+              </Button>
+            </div>
+          )}
           <div>
             <Button variant={"primary"} onClick={taskFormik.submitForm}>
               submit
