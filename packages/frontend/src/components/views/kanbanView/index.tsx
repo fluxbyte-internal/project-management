@@ -53,7 +53,7 @@ function KanbanView(
   const { projectId } = useParams();
   const allKanbanColumn = useAllKanbanColumnQuery(projectId);
   const allTasks = useAllTaskQuery(projectId);
-
+  const { refetch} = useAllKanbanColumnQuery(projectId);
   const [dataSource, setDataSource] = useState<ExtendedKanbanDataSource[]>();
   const [filterData, setFilterData] = useState<Task[]>();
   const [isColumnsOpen, setIsColumnsOpen] = useState<boolean>(false);
@@ -72,6 +72,11 @@ function KanbanView(
     setIsTaskShow(false);
     allTasks.refetch();
   };
+  
+  useEffect(() => {
+    refetch();
+  }, [projectId]);
+  
   useEffect(() => {
     if (allKanbanColumn.data?.data.data) {
       allKanbanColumn.data?.data.data.sort(
@@ -336,7 +341,7 @@ function KanbanView(
         </div>
         <RulesForm
           projectId={projectId ?? ""}
-          refatch={() => allKanbanColumn.refetch()}
+          refetch={() => allKanbanColumn.refetch()}
           close={() => setIsColumnsOpen(false)}
           rules={rawData}
         />

@@ -4,9 +4,11 @@ import { BadRequestError, NotFoundError, SuccessResponse, UnAuthorizedError } fr
 import { StatusCodes } from 'http-status-codes';
 import { projectIdSchema } from '../schemas/projectSchema.js';
 import { createCommentTaskSchema, createTaskSchema, attachmentTaskSchema, taskStatusSchema, updateTaskSchema, assginedToUserIdSchema, dependenciesTaskSchema, milestoneTaskSchema } from '../schemas/taskSchema.js';
-import { MilestoneIndicatorStatusEnum, TaskStatusEnum } from '@prisma/client';
+import { NotificationTypeEnum, TaskStatusEnum } from '@prisma/client';
 import { AwsUploadService } from '../services/aws.services.js';
 import { uuidSchema } from '../schemas/commonSchema.js';
+import { RegisterSocketServices } from '../services/socket.services.js';
+import { MilestoneIndicatorStatusEnum } from '@prisma/client';
 import { HistoryTypeEnumValue } from '../schemas/enums.js';
 import { removeProperties } from "../types/removeProperties.js";
 
@@ -243,8 +245,26 @@ export const updateTask = async (
       documentAttachments: true,
       assignedUsers: true,
       dependencies: true,
+      project: true
     },
   });
+
+  // Project End Date  -  If any task's end date will be greater then It's own
+  const maxEndDate = await prisma.task.findMaxEndDateAmongTasks(
+    taskUpdateDB.projectId
+  );
+  if (
+    maxEndDate 
+  ) {
+    await prisma.project.update({
+      where: {
+        projectId: taskUpdateDB.project.projectId,
+      },
+      data: {
+        estimatedEndDate: maxEndDate,
+      },
+    });
+  };
 
   // History-Manage
   const updatedValueWithoutOtherTable = removeProperties(
@@ -638,6 +658,7 @@ export const addMemberToTask = async (
   if (!req.userId) {
     throw new BadRequestError("userId not found!!");
   }
+
   const taskId = uuidSchema.parse(req.params.taskId);
   const prisma = await getClientByTenantId(req.tenantId);
   const action = await prisma.task.canEditOrDelete(taskId, req.userId);
@@ -658,6 +679,16 @@ export const addMemberToTask = async (
       },
     },
   });
+
+  //Send notification 
+  const message = `Task assigned to you`;
+  await prisma.notification.sendNotification(
+    NotificationTypeEnum.TASK,
+    message,
+    assginedToUserId,
+    req.userId,
+    taskId
+  );
 
   // History-Manage
   const historyMessage = "Task's assignee was added";

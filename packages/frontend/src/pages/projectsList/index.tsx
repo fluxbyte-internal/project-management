@@ -59,16 +59,18 @@ function ProjectsList() {
     setEditData(undefined);
   };
 
-  const handleView = (id:string) => {
+  const handleView = (id: string) => {
     navigate("/project-details/" + id);
   };
   const projectManager = (): Options[] | undefined => {
     const projectManagerData: Options[] | undefined = [
       { label: "Select manager", value: "" },
     ];
-    data?.forEach(item=>{
+    data?.forEach((item) => {
       const val = item.createdByUser.email;
-      if (!projectManagerData.some(i=> i.value == item.createdByUser.email)) {
+      if (
+        !projectManagerData.some((i) => i.value == item.createdByUser.email)
+      ) {
         projectManagerData.push({ label: val, value: val });
       }
     });
@@ -79,8 +81,8 @@ function ProjectsList() {
     const statusData: Options[] | undefined = [
       { label: "Select status", value: "" },
     ];
-    data?.forEach(item=>{
-      if (!statusData.some(i=> i.value == item.status)) {
+    data?.forEach((item) => {
+      if (!statusData.some((i) => i.value == item.status)) {
         statusData.push({ label: item.status, value: item.status });
       }
     });
@@ -94,7 +96,7 @@ function ProjectsList() {
       header: "Manager",
       onCellRender: (item: Project) => (
         <>
-          <UserAvatar user={item.createdByUser}/>
+          <UserAvatar user={item.createdByUser} />
         </>
       ),
     },
@@ -123,7 +125,10 @@ function ProjectsList() {
       key: "actualEndDate",
       header: "End Date",
       onCellRender: (item: Project) => (
-        <>{item.estimatedEndDate && dateFormatter(new Date(item.estimatedEndDate))}</>
+        <>
+          {item.estimatedEndDate &&
+            dateFormatter(new Date(item.estimatedEndDate))}
+        </>
       ),
     },
     {
@@ -141,7 +146,7 @@ function ProjectsList() {
     {
       key: "Action",
       header: "Action",
-      onCellRender: (item:Project) => (
+      onCellRender: (item: Project) => (
         <>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -156,12 +161,10 @@ function ProjectsList() {
                   Edit
                 </span>
               </DropdownMenuItem> */}
-              <DropdownMenuSeparator className="mx-1"/>
+              <DropdownMenuSeparator className="mx-1" />
               <DropdownMenuItem onClick={() => handleView(item.projectId)}>
                 <ScrollText className="mr-2 h-4 w-4 text-[#44546F]" />
-                <span className="p-0 font-normal h-auto" >
-                   View Detail
-                </span>
+                <span className="p-0 font-normal h-auto">View Detail</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -194,22 +197,21 @@ function ProjectsList() {
 
   useEffect(() => {
     let filteredData = data;
-    setFilterData(filteredData);
     if (filter && filter.status && filter.status.value) {
       filteredData = data?.filter((d) => d.status === filter.status?.value);
-    } else if (filter && filter.date?.from && filter.date?.to) {
-      filteredData = data?.filter((d) => {
+    }
+    if (filter && filter.date?.from && filter.date?.to) {
+      filteredData = filteredData?.filter((d) => {
         return (
           new Date(d.estimatedEndDate) >= (filter.date?.from ?? new Date()) &&
           new Date(d.estimatedEndDate) <= (filter.date?.to ?? new Date())
         );
       });
-    } else if (filter && filter.projectManager && filter.projectManager.value) {
-      filteredData = data?.filter(
+    }
+    if (filter && filter.projectManager && filter.projectManager.value) {
+      filteredData = filteredData?.filter(
         (d) => d.createdByUser.email == filter.projectManager?.value
       );
-    } else {
-      setFilterData(data);
     }
     setFilterData(filteredData);
   }, [filter, data]);
@@ -227,7 +229,7 @@ function ProjectsList() {
     <div className="w-full h-full relative">
       <BackgroundImage />
       {projectQuery.isLoading ? (
-        <Loader/>
+        <Loader />
       ) : (
         <>
           {data && data.length > 0 ? (
@@ -252,7 +254,12 @@ function ProjectsList() {
                   <div className="w-1/4">
                     <Select
                       className="p-0 z-40"
-                      value={filter.projectManager || { label: "Select manager", value: "" }}
+                      value={
+                        filter.projectManager || {
+                          label: "Select manager",
+                          value: "",
+                        }
+                      }
                       options={projectManager()}
                       onChange={(e) =>
                         setFilter((prev) => ({ ...prev, projectManager: e }))
@@ -263,7 +270,9 @@ function ProjectsList() {
                   </div>
                   <div className="w-1/4">
                     <Select
-                      value={filter.status ||{ label: "Select status", value: "" } }
+                      value={
+                        filter.status || { label: "Select status", value: "" }
+                      }
                       className="p-0 z-40"
                       options={status()}
                       onChange={(e) =>
