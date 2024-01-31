@@ -236,7 +236,7 @@ model Project {
   organisationId     String                  @map("organisation_id")
   organisation       Organisation            @relation(fields: [organisationId], references: [organisationId])
   projectName        String                  @map("project_name")
-  projectDescription String                  @map("project_description") @db.VarChar(500)
+  projectDescription String?                  @map("project_description") @db.VarChar(500)
   startDate          DateTime                @map("start_date")
   estimatedEndDate   DateTime                @map("estimated_end_date")
   status             ProjectStatusEnum       @default(NOT_STARTED) @map("status")
