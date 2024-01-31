@@ -135,6 +135,26 @@ export const login = async (req: express.Request, res: express.Response) => {
     });
 
     const { provider, ...userWithoutProvider } = user;
+
+    // Generate and save verify otp
+    if(!user.isVerified) {
+      const otpValue = generateOTP();
+      const subjectMessage = `Login OTP`;
+      const expiresInMinutes = 5;
+      const bodyMessage = `Here is your login OTP : ${otpValue}, OTP is valid for ${expiresInMinutes} minutes`;
+      try {
+        await OtpService.saveOTP(
+          otpValue,
+          user.userId,
+          req.tenantId,
+          expiresInMinutes * 60
+        );
+        await EmailService.sendEmail(user.email, subjectMessage, bodyMessage);
+      } catch (error) {
+        console.error('Failed to send otp email', error)
+      }
+    }
+
     return new SuccessResponse(
       StatusCodes.OK,
       { user: userWithoutProvider },
