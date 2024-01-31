@@ -96,27 +96,32 @@ function ProjectsList() {
       header: "Manager",
       onCellRender: (item: Project) => (
         <div className="w-full my-3">
-          <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
-            {item.projectManagerInfo.slice(0, 3).map((item, index) => {
-              const zIndex = Math.abs(index - 2);
-              return (
-                <>
-                  <div key={index} style={{ zIndex: zIndex }}>
-                    <UserAvatar
-                      className={`shadow-sm h-7 w-7`}
-                      user={item.user}
-                    ></UserAvatar>
+          {item.projectManagerInfo?.length > 0 ? (
+            <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
+              {item.projectManagerInfo?.slice(0, 3).map((item, index) => {
+                const zIndex = Math.abs(index - 2);
+                return (
+                  <>
+                    <div key={index} style={{ zIndex: zIndex }}>
+                      <UserAvatar
+                        className={`shadow-sm h-7 w-7`}
+                        user={item.user}
+                      ></UserAvatar>
+                    </div>
+                  </>
+                );
+              })}
+              {item.projectManagerInfo &&
+                item.projectManagerInfo?.length > 3 && (
+                  <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
+                    {`${item.projectManagerInfo?.length - 3}+`}
                   </div>
-                </>
-              );
-            })}
-            {item.projectManagerInfo && item.projectManagerInfo?.length > 3 && (
-              <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
-                {`${item.projectManagerInfo.length - 3}+`}
-              </div>
-            )}
-            {item.projectManagerInfo.length <= 0 ? "N/A" : ""}
-          </div>
+                )}
+              {item.projectManagerInfo?.length <= 0 ? "N/A" : ""}
+            </div>
+          ) : (
+            "NA"
+          )}
         </div>
       ),
     },
