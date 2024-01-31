@@ -41,12 +41,12 @@ function Table(props: Props) {
       }
       setCurrentPage(1);
     }
-  }, [dataSource, height, tableRowHeight]);
+  }, [height, tableRowHeight]);
 
   useEffect(() => {
     setDataSource(data);
   }, [data]);
-
+  
   const nextPage = () => {
     if (currentPage < pages) {
       const newCurrentPage = currentPage + 1;

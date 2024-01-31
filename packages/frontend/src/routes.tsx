@@ -14,6 +14,7 @@ import ForgotPassword from "./pages/authentication/forgot-password";
 import ResetPassword from "./pages/authentication/forgot-password/reset-password";
 import TaskViews from "./components/views";
 import Dashboard from "./pages/dashboard";
+import ProjectDashboard from "./pages/dashboard/projectDashboard";
 
 export const router = createBrowserRouter([
   {
@@ -55,6 +56,10 @@ export const router = createBrowserRouter([
       {
         path: "/dashboard",
         element:<Dashboard/>,
+      },
+      {
+        path: "/projectDashboard/:projectId",
+        element: <ProjectDashboard />,
       },
       {
         path: "/account-settings",
