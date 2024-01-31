@@ -161,7 +161,7 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
           </div>
         </div>
       </div>
-      {isProjectCreate && (
+      {(isProjectCreate && user?.userOrganisation[0].role !== "TEAM_MEMBER") && (
         <CreateUpdateProjectForm
           handleClosePopUp={() => setProjectCreate(false)}
         ></CreateUpdateProjectForm>

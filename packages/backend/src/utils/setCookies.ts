@@ -6,5 +6,5 @@ export const cookieConfig = {
   httpOnly: false,
   secure: true,
   sameSite: "none" as boolean | "none" | "lax" | "strict" | undefined,
-  domain: settings.domain,
+  domain: "192.168.29.227",
 };
