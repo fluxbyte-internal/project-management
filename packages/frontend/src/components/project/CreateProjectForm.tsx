@@ -27,6 +27,7 @@ import { toast } from "react-toastify";
 import countries from "../../assets/json/countries.json";
 import Select, { SingleValue } from "react-select";
 import ErrorMessage from "../common/ErrorMessage";
+import { useNavigate } from "react-router-dom";
 
 type Options = { label: string; value: string };
 
@@ -77,7 +78,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
   const [currencyValue, setCurrencyValue] = useState<SingleValue<Options>>();
 
   const projectQuery = useProjectQuery();
-
+  const navigate = useNavigate();
   const formik = useFormik<z.infer<typeof createProjectSchema>>({
     initialValues: {
       projectName: "",
@@ -101,6 +102,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
             handleClosePopUp();
             setIsSubmitting(false);
             toast.success(data.data.message);
+            navigate("/projects/");
           },
           onError(error) {
             setIsSubmitting(false);
@@ -130,6 +132,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
             formik.resetForm();
             handleClosePopUp();
             toast.success(data.data.message);
+            navigate("/projects/");
           },
           onError(error) {
             setIsSubmitting(false);
