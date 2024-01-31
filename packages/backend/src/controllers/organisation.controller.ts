@@ -14,7 +14,7 @@ import {
   addOrganisationMemberSchema,
   memberRoleSchema,
 } from "../schemas/organisationSchema.js";
-import { UserProviderTypeEnum, UserRoleEnum, UserStatusEnum } from "@prisma/client";
+import { TaskStatusEnum, UserProviderTypeEnum, UserRoleEnum, UserStatusEnum } from "@prisma/client";
 import { encrypt } from "../utils/encryption.js";
 import { uuidSchema } from "../schemas/commonSchema.js";
 import { ZodError } from "zod";
@@ -267,11 +267,53 @@ export const removeOrganisationMember = async (
   }
   const prisma = await getClientByTenantId(req.tenantId);
   const userOrganisationId = uuidSchema.parse(req.params.userOrganisationId);
-  await prisma.userOrganisation.delete({
+  const findUserOrg = await prisma.userOrganisation.findFirstOrThrow({
+    where: { userOrganisationId },
+  });
+  const findAssignedTask = await prisma.task.findMany({
     where: {
-      userOrganisationId: userOrganisationId,
+      status: {
+        notIn: [TaskStatusEnum.DONE],
+      },
+      assignedUsers: {
+        some: {
+          assginedToUserId: findUserOrg.userId,
+        },
+      },
     },
   });
+  if (findAssignedTask.length > 0) {
+    throw new BadRequestError("Pending tasks is already exists for this user!");
+  }
+  await prisma.$transaction([
+    prisma.userOrganisation.delete({
+      where: { userOrganisationId },
+    }),
+    prisma.user.delete({
+      where: { userId: findUserOrg.userId },
+      include: {
+        comment: true,
+        userOrganisation: true,
+        userOtp: true,
+        userResetPassword: true,
+        createdOrganisations: true,
+        updatedOrganisations: true,
+        createdProject: true,
+        updatedProject: true,
+        provider: true,
+        createdTask: true,
+        updatedTask: true,
+        taskAssignUsers: true,
+        createdKanbanColumn: true,
+        updatedKanbanColumn: true,
+        history: true,
+        uploadedAttachment: true,
+        addedDependencies: true,
+        sentNotifications: true,
+        receivedNotifications: true,
+      }
+    })
+  ]);
   return new SuccessResponse(
     StatusCodes.OK,
     null,

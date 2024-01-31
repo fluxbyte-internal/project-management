@@ -130,7 +130,7 @@ model User {
 model UserProvider {
   userProviderId String @id @default(uuid()) @map("user_provider_id")
   userId         String @unique @map("user_id")
-  user           User   @relation(fields: [userId], references: [userId])
+  user           User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   idOrPassword String               @map("id_or_password")
   providerType UserProviderTypeEnum @map("provider_type")
@@ -193,9 +193,9 @@ model Organisation {
   updatedAt        DateTime      @updatedAt @map("updated_at")
   tenantId         String?       @map("tenant_id")
   createdByUserId  String        @map("created_by_user_id")
-  createdByUser    User          @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  createdByUser    User          @relation("createdByUser", fields: [createdByUserId], references: [userId], onDelete: Cascade)
   updatedByUserId  String?       @map("updated_by_user_id")
-  updatedByUser    User?         @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  updatedByUser    User?         @relation("updatedByUser", fields: [updatedByUserId], references: [userId], onDelete: Cascade)
 
   projects         Project[]
   userOrganisation UserOrganisation[]
@@ -249,9 +249,9 @@ model Project {
   consumedBudget     String                  @default("0")@map("consumed_budget")
   actualCost         String?                 @map("actual_cost")
   createdByUserId    String                  @map("created_by_user_id")
-  createdByUser      User                    @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  createdByUser      User                    @relation("createdByUser", fields: [createdByUserId], references: [userId], onDelete: Cascade)
   updatedByUserId    String?                 @map("updated_by_user_id")
-  updatedByUser      User?                   @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  updatedByUser      User?                   @relation("updatedByUser", fields: [updatedByUserId], references: [userId], onDelete: Cascade)
   createdAt          DateTime                @default(now()) @map("created_at")
   updatedAt          DateTime                @updatedAt @map("updated_at")
 
@@ -274,9 +274,9 @@ model Task {
   milestoneStatus    MilestoneIndicatorStatusEnum @default(NOT_STARTED) @map("milestone_status")
   dueDate            DateTime?                    @map("due_date")
   createdByUserId    String                       @map("created_by_user_id")
-  createdByUser      User                         @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  createdByUser      User                         @relation("createdByUser", fields: [createdByUserId], references: [userId], onDelete: Cascade)
   updatedByUserId    String?                      @map("updated_by_user_id")
-  updatedByUser      User?                        @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  updatedByUser      User?                        @relation("updatedByUser", fields: [updatedByUserId], references: [userId], onDelete: Cascade)
   createdAt          DateTime                     @default(now()) @map("created_at")
   updatedAt          DateTime                     @updatedAt @map("updated_at")
 
@@ -385,9 +385,9 @@ model KanbanColumn {
   name            String  @map("name")
   percentage      Float?  @map("percentage")
   createdByUserId String  @map("created_by_user_id")
-  createdByUser   User    @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  createdByUser   User    @relation("createdByUser", fields: [createdByUserId], references: [userId], onDelete: Cascade)
   updatedByUserId String? @map("updated_by_user_id")
-  updatedByUser   User?   @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  updatedByUser   User?   @relation("updatedByUser", fields: [updatedByUserId], references: [userId], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
