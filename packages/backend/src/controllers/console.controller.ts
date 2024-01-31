@@ -200,6 +200,7 @@ export const createOperator = async (
       You are invited in console
       
       URL: ${settings.adminURL}/login
+      EMAIL: ${newUser.email}
       PASSWORD: ${randomPassword}
       `;
     await EmailService.sendEmail(newUser.email, subjectMessage, bodyMessage);
@@ -498,6 +499,23 @@ export const deleteOrganisation = async (
     where: {
       organisationId,
     },
+    include: {
+      userOrganisation: true,
+      projects: {
+        include: {
+          tasks: {
+            include: {
+              assignedUsers: true,
+              comments: true,
+              dependencies: true,
+              documentAttachments: true,
+              histories: true,
+              notifications: true
+            }
+          }
+        }
+      }
+    }
   });
   return new SuccessResponse(
     StatusCodes.OK,

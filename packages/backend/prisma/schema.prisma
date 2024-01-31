@@ -110,7 +110,7 @@ model User {
   createdProject Project[] @relation("createdByUser")
   updatedProject Project[] @relation("updatedByUser")
 
-  provider    UserProvider?
+  provider UserProvider?
 
   createdTask         Task[]            @relation("createdByUser")
   updatedTask         Task[]            @relation("updatedByUser")
@@ -118,11 +118,11 @@ model User {
   createdKanbanColumn KanbanColumn[]    @relation("createdByUser")
   updatedKanbanColumn KanbanColumn[]    @relation("updatedByUser")
 
-  history            History[]
-  uploadedAttachment TaskAttachment[]
-  addedDependencies  TaskDependencies[]
-  sentNotifications     Notification[] @relation("sentNotificationBy")
-  receivedNotifications Notification[] @relation("sentNotificationTo")
+  history               History[]
+  uploadedAttachment    TaskAttachment[]
+  addedDependencies     TaskDependencies[]
+  sentNotifications     Notification[]     @relation("sentNotificationBy")
+  receivedNotifications Notification[]     @relation("sentNotificationTo")
 
   @@index([userId, email])
 }
@@ -154,7 +154,6 @@ model ConsoleUser {
   isVerified Boolean           @default(false) @map("is_verified")
   createdAt  DateTime          @default(now()) @map("created_at")
   updatedAt  DateTime          @updatedAt @map("updated_at")
-
 
   @@unique([email, password])
   @@index([userId, email])
@@ -234,11 +233,12 @@ model UserOrganisation {
 model Project {
   projectId          String                  @id @unique @default(uuid()) @map("project_id")
   organisationId     String                  @map("organisation_id")
-  organisation       Organisation            @relation(fields: [organisationId], references: [organisationId])
+  organisation       Organisation            @relation(fields: [organisationId], references: [organisationId], onDelete: Cascade)
   projectName        String                  @map("project_name")
   projectDescription String                  @map("project_description") @db.VarChar(500)
   startDate          DateTime                @map("start_date")
   estimatedEndDate   DateTime                @map("estimated_end_date")
+  actualEndDate      DateTime                @map("actual_end_date")
   status             ProjectStatusEnum       @default(NOT_STARTED) @map("status")
   defaultView        ProjectDefaultViewEnum  @default(LIST) @map("default_view")
   timeTrack          String?                 @map("time_track")
@@ -246,6 +246,7 @@ model Project {
   currency           String                  @map("currency")
   overallTrack       ProjectOverAllTrackEnum @default(SUNNY) @map("overall_track")
   estimatedBudget    String                  @map("estimated_budget")
+  consumedBudget     String                  @default("0")@map("consumed_budget")
   actualCost         String?                 @map("actual_cost")
   createdByUserId    String                  @map("created_by_user_id")
   createdByUser      User                    @relation("createdByUser", fields: [createdByUserId], references: [userId])
@@ -262,25 +263,25 @@ model Project {
 }
 
 model Task {
-  taskId              String                       @id @default(uuid()) @map("task_id")
-  projectId           String                       @map("project_id")
-  project             Project                      @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
-  taskName            String                       @map("task_name")
-  taskDescription     String?                      @map("task_description")
-  startDate           DateTime                     @map("start_date")
-  status              TaskStatusEnum               @default(PLANNED) @map("status")
-  milestoneIndicator  Boolean                      @default(false) @map("milestone_indicator")
-  milestoneStatus     MilestoneIndicatorStatusEnum @default(NOT_STARTED) @map("milestone_status")
-  dueDate             DateTime?                    @map("due_date")
-  createdByUserId     String                       @map("created_by_user_id")
-  createdByUser       User                         @relation("createdByUser", fields: [createdByUserId], references: [userId])
-  updatedByUserId     String?                      @map("updated_by_user_id")
-  updatedByUser       User?                        @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
-  createdAt           DateTime                     @default(now()) @map("created_at")
-  updatedAt           DateTime                     @updatedAt @map("updated_at")
+  taskId             String                       @id @default(uuid()) @map("task_id")
+  projectId          String                       @map("project_id")
+  project            Project                      @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  taskName           String                       @map("task_name")
+  taskDescription    String?                      @map("task_description")
+  startDate          DateTime                     @map("start_date")
+  status             TaskStatusEnum               @default(PLANNED) @map("status")
+  milestoneIndicator Boolean                      @default(false) @map("milestone_indicator")
+  milestoneStatus    MilestoneIndicatorStatusEnum @default(NOT_STARTED) @map("milestone_status")
+  dueDate            DateTime?                    @map("due_date")
+  createdByUserId    String                       @map("created_by_user_id")
+  createdByUser      User                         @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  updatedByUserId    String?                      @map("updated_by_user_id")
+  updatedByUser      User?                        @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  createdAt          DateTime                     @default(now()) @map("created_at")
+  updatedAt          DateTime                     @updatedAt @map("updated_at")
 
-  duration            Float          @map("duration")
-  completionPecentage Float?         @map("completion_percentage")
+  duration            Float  @map("duration")
+  completionPecentage Float? @map("completion_percentage")
 
   subtasks            Task[]            @relation("parentTask")
   comments            Comments[]

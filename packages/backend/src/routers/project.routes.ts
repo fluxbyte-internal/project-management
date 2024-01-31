@@ -54,4 +54,10 @@ router.put(
   ProjectController.updateProject
 );
 
+router.put(
+  "consumed-budget/:projectId",
+  roleMiddleware([UserRoleEnum.ADMINISTRATOR, UserRoleEnum.PROJECT_MANAGER]),
+  ProjectController.addConsumedBudgetToProject
+);
+
 export default router;
