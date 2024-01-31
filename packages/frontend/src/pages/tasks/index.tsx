@@ -66,10 +66,10 @@ function Tasks() {
             item?.flag == "Green"
               ? "bg-green-500/60 border border-green-500"
               : item?.flag == "Red"
-                ? "bg-red-500/60 border border-red-500/60"
-                : item?.flag == "Orange"
-                  ? "bg-primary-500/60 border border-primary-500/60"
-                  : ""
+              ? "bg-red-500/60 border border-red-500/60"
+              : item?.flag == "Orange"
+              ? "bg-primary-500/60 border border-primary-500/60"
+              : ""
           }`}
         ></div>
       ),
@@ -100,7 +100,10 @@ function Tasks() {
         <>
           <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
             <div className="text-cyan-700 text-xs font-medium leading-tight">
-              {item.status}
+              {item.status
+                .toLowerCase()
+                .replace(/_/g, " ")
+                .replace(/\b\w/g, (char) => char.toUpperCase())}
             </div>
           </div>
         </>
@@ -250,7 +253,9 @@ function Tasks() {
           <Table
             data={task.subtasks}
             columnDef={columnDef}
-            onAccordionRender={(task) => task.subtasks.length > 0 ? subTableRender(task) : <></>}
+            onAccordionRender={(task) =>
+              task.subtasks.length > 0 ? subTableRender(task) : <></>
+            }
             className="!py-1 border-0"
             hidePagination={true}
             hideHeaders={true}
@@ -264,7 +269,7 @@ function Tasks() {
     <div className="h-full overflow-hidden">
       {taskData && taskData.length > 0 ? (
         <>
-          <div className="w-full flex flex-col gap-3 h-[80%]">
+          <div className="w-full flex flex-col gap-3 h-5/6">
             <div className="flex justify-between">
               <TaskFilter
                 fieldToShow={[

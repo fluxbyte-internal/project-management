@@ -56,6 +56,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@radix-ui/react-tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { TaskStatusEnumValue } from "@backend/src/schemas/enums";
+import useTaskStatusUpdateMutation from "@/api/mutation/useTaskStatusUpdateMutation";
 
 type Props = {
   projectId: string | undefined;
@@ -126,7 +133,6 @@ function TaskSubTaskForm(props: Props) {
         taskUpdateMutation.mutate(values, {
           onSuccess(data) {
             toast.success(data.data.message);
-            props.close();
           },
           onError(error) {
             toast.error(error.response?.data.message);
@@ -137,7 +143,6 @@ function TaskSubTaskForm(props: Props) {
           onSuccess(data) {
             setTaskId(data.data.data.taskId);
             toast.success(data.data.message);
-            props.close();
           },
           onError(error) {
             toast.error(error.response?.data.message);
@@ -272,7 +277,20 @@ function TaskSubTaskForm(props: Props) {
       );
     }
   };
-
+  const taskStatusUpdateMutation = useTaskStatusUpdateMutation(taskId);
+  const updateStatus = (status: string) => {
+    taskStatusUpdateMutation.mutate(
+      { status },
+      {
+        onSuccess() {
+          taskQuery.refetch();
+        },
+        onError(error) {
+          toast.error(error.message);
+        },
+      }
+    );
+  };
   return (
     <div className="absolute w-full h-full z-50 top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-gray-900 bg-opacity-50">
       <div className="bg-white rounded-lg text-gray-700 p-6 lg:p-10 w-full md:max-w-[95%] lg:max-w-[80%] h-full md:max-h-[80%] overflow-auto ">
@@ -313,7 +331,10 @@ function TaskSubTaskForm(props: Props) {
                       name="taskName"
                       onChange={taskFormik.handleChange}
                       onClick={taskFormik.handleBlur}
-                      placeholder="Task Name"
+                      placeholder={
+                        "Task Name" +
+                        <span className="text-red-500 text-sm">*</span>
+                      }
                       value={taskFormik.values.taskName}
                     ></InputText>
                   </div>
@@ -330,7 +351,45 @@ function TaskSubTaskForm(props: Props) {
                 <img src={Edit} width={10} height={10} />
               </Button>
             </div>
-            <div className="text-sm font-normal">in list {tasks?.status}</div>
+            <div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="text-sm font-normal cursor-pointer">
+                    {tasks?.status
+                      ? `in list ${tasks?.status
+                          .toLowerCase()
+                          .replace(/_/g, " ")
+                          .replace(/\b\w/g, (char) => char.toUpperCase())}`
+                      : "Select Status"}
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-auto">
+                  {Object.keys(TaskStatusEnumValue).map((status) => {
+                    return (
+                      <div
+                        onClick={() => {
+                          updateStatus(status);
+                        }}
+                        className="cursor-pointer flex px-3 w-44 rounded-md hover:bg-slate-50/80 py-2 justify-between items-center"
+                      >
+                        {status
+                          .toLowerCase()
+                          .replace(/_/g, " ")
+                          .replace(/\b\w/g, (char) => char.toUpperCase())}
+                        <CheckIcon
+                          className={cn(
+                            "ml-auto h-4 w-4",
+                            status === tasks?.status
+                              ? "opacity-100"
+                              : "opacity-0"
+                          )}
+                        />
+                      </div>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
         <div className="flex gap-3 md:gap-8 justify-between md:flex-row flex-col-reverse mt-4 md:mt-0">
@@ -574,7 +633,13 @@ function TaskSubTaskForm(props: Props) {
                     >
                       <div className="flex w-full gap-3 justify-start">
                         <img src={CalendarIcon} className="w-3.5" />
-                        {dateFormater(new Date(taskFormik.values.startDate))}
+                        <div>
+                          Start date{" "}
+                          <span className="text-red-500 text-sm">*</span>
+                        </div>
+                        <div className="text-gray-400 text-sm">
+                          {dateFormater(new Date(taskFormik.values.startDate))}
+                        </div>
                       </div>
                     </Button>
                   </PopoverTrigger>
@@ -709,7 +774,8 @@ function TaskSubTaskForm(props: Props) {
                   <div className="flex flex-col">
                     <div className="flex gap-5">
                       <div className="text-xs font-medium text-gray-400">
-                        Duration:
+                        Duration:{" "}
+                        <span className="text-red-500 text-sm">*</span>
                       </div>
                       <div className="flex items-center justify-center relative">
                         <TooltipProvider>
@@ -827,6 +893,7 @@ function TaskSubTaskForm(props: Props) {
             <Button
               variant={"primary"}
               onClick={() => {
+                props.close();
                 taskFormik.submitForm();
               }}
             >
