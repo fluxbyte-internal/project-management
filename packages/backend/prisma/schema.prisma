@@ -101,7 +101,6 @@ model User {
 
   comment           Comments[]
   userOrganisation  UserOrganisation[]
-  userOtp           UserOTP[]
   userResetPassword ResetPassword[]
 
   createdOrganisations Organisation[] @relation("createdByUser")
@@ -167,7 +166,6 @@ model UserOTP {
   isUsed     Boolean  @map("is_used")
   meta       Json?    @map("meta")
   createdAt  DateTime @default(now()) @map("created_at")
-  user       User?    @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@index([userId, otp])
 }
