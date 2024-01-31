@@ -73,4 +73,10 @@ router.put(
   ConsoleController.updateConsoleUserAvtarImg
 );
 
+router.put(
+  "/verify-otp",
+  authMiddleware,
+  ConsoleController.otpVerifyConsole
+);
+
 export default router;
