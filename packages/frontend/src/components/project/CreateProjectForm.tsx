@@ -27,6 +27,7 @@ import { toast } from "react-toastify";
 import countries from "../../assets/json/countries.json";
 import Select, { SingleValue } from "react-select";
 import ErrorMessage from "../common/ErrorMessage";
+import { useNavigate } from "react-router-dom";
 
 type Options = { label: string; value: string };
 
@@ -77,7 +78,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
   const [currencyValue, setCurrencyValue] = useState<SingleValue<Options>>();
 
   const projectQuery = useProjectQuery();
-
+  const navigate = useNavigate();
   const formik = useFormik<z.infer<typeof createProjectSchema>>({
     initialValues: {
       projectName: "",
@@ -101,6 +102,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
             handleClosePopUp();
             setIsSubmitting(false);
             toast.success(data.data.message);
+            navigate("/projects/");
           },
           onError(error) {
             setIsSubmitting(false);
@@ -130,6 +132,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
             formik.resetForm();
             handleClosePopUp();
             toast.success(data.data.message);
+            navigate("/projects/");
           },
           onError(error) {
             setIsSubmitting(false);
@@ -254,10 +257,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                       </span>
                     </div>
                     <div className="text-left">
-                      <label className={labelStyle}>
-                        Description
-                        <span className="ml-0.5 text-red-500">*</span>
-                      </label>
+                      <label className={labelStyle}>Description</label>
                       <textarea
                         rows={5}
                         cols={30}
@@ -354,7 +354,10 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                         </ErrorMessage>
                       </div>
                       <div className=" w-full">
-                        <label className={labelStyle}>Estimated Budget</label>
+                        <label className={labelStyle}>
+                          Estimated Budget{" "}
+                          <span className="ml-0.5 text-red-500">*</span>
+                        </label>
                         <input
                           type="text"
                           name="estimatedBudget"

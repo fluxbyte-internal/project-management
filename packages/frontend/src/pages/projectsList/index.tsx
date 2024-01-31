@@ -95,9 +95,29 @@ function ProjectsList() {
       key: "createdByUser",
       header: "Manager",
       onCellRender: (item: Project) => (
-        <>
-          <UserAvatar user={item.createdByUser} />
-        </>
+        <div className="w-full my-3">
+          <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
+            {item.projectManagerInfo.slice(0, 3).map((item, index) => {
+              const zIndex = Math.abs(index - 2);
+              return (
+                <>
+                  <div key={index} style={{ zIndex: zIndex }}>
+                    <UserAvatar
+                      className={`shadow-sm h-7 w-7`}
+                      user={item.user}
+                    ></UserAvatar>
+                  </div>
+                </>
+              );
+            })}
+            {item.projectManagerInfo && item.projectManagerInfo?.length > 3 && (
+              <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
+                {`${item.projectManagerInfo.length - 3}+`}
+              </div>
+            )}
+            {item.projectManagerInfo.length <= 0 ? "N/A" : ""}
+          </div>
+        </div>
       ),
     },
     {
@@ -209,10 +229,19 @@ function ProjectsList() {
       });
     }
     if (filter && filter.projectManager && filter.projectManager.value) {
-      filteredData = filteredData?.filter(
-        (d) => d.createdByUser.email == filter.projectManager?.value
-      );
+      let arr: Project[] | undefined = [];
+      filteredData?.forEach((data) => {
+        data.projectManagerInfo.forEach((u) => {
+          if (u.user.email === filter?.projectManager?.value) {
+            arr?.push(data);
+          } else {
+            arr = arr?.filter((u) => u.projectId !== data.projectId);
+          }
+        });
+      });
+      filteredData = arr;
     }
+
     setFilterData(filteredData);
   }, [filter, data]);
 
@@ -233,7 +262,7 @@ function ProjectsList() {
       ) : (
         <>
           {data && data.length > 0 ? (
-            <div className="h-full py-5 p-4 lg:p-14 w-full flex flex-col gap-5">
+            <div className="h-full py-5 p-4  w-full flex flex-col gap-5">
               <div className="flex justify-between items-center">
                 <h2 className="font-medium text-3xl leading-normal text-gray-600">
                   Projects
@@ -292,8 +321,8 @@ function ProjectsList() {
                           <div className="flex justify-between items-center w-full text-gray-400 font-normal">
                             {filter.date
                               ? `${dateFormatter(
-                                filter.date.from ?? new Date()
-                              )}-
+                                  filter.date.from ?? new Date()
+                                )}-
                               ${dateFormatter(filter.date.to ?? new Date())}`
                               : "End date"}
                             <img src={CalendarSvg} width={20} />

@@ -16,7 +16,6 @@ import FilterIcon from "../../assets/svg/Filter.svg";
 import { FIELDS } from "@/api/types/enums";
 type Options = { label: string; value: string };
 
-
 type Filter = {
   tasks: Task[] | undefined;
   fieldToShow: FIELDS[];
@@ -104,7 +103,7 @@ function TaskFilter(props: Filter) {
 
   function isDateSevenDays(inputDate: Date): boolean {
     const sevenDaysAgo: Date = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() + 7);
     return new Date(inputDate) <= sevenDaysAgo;
   }
 
@@ -143,14 +142,13 @@ function TaskFilter(props: Filter) {
     }
 
     if (filter && filter.assigned && filter.assigned.value) {
-      let arr: Task[] | undefined = filteredData;
+      let arr: Task[] | undefined = [];
       filteredData?.forEach((data) => {
         data.assignedUsers.forEach((u: Task["assignedUsers"][number]) => {
           if (u.user.email === filter?.assigned?.value) {
             arr?.push(data);
-          }
-          else{
-            arr =  arr?.filter(u => u.taskId !== data.taskId);
+          } else {
+            arr = arr?.filter((u) => u.taskId !== data.taskId);
           }
         });
       });
@@ -186,14 +184,13 @@ function TaskFilter(props: Filter) {
         val = filteredData?.filter((data) => !!data.parentTaskId);
       }
       if (val && val.length > 0) {
-        filteredData = filteredData?.concat(val);
+        filteredData = val;
       }
     }
 
     const applyFilter = Object.keys(filter).filter(
       (key) => filter[key as keyof FilterField]
     ).length;
-
     if (applyFilter !== 0 && filteredData) {
       filteredData = removeDuplicatesById(filteredData);
       props.filteredData(filteredData);
@@ -317,8 +314,8 @@ function TaskFilter(props: Filter) {
                               <div className="flex justify-between text-base items-center w-full text-gray-950 font-normal">
                                 {filter.date
                                   ? `${dateFormater(
-                                    filter.date.from ?? new Date()
-                                  )}-
+                                      filter.date.from ?? new Date()
+                                    )}-
                           ${dateFormater(filter.date.to ?? new Date())}`
                                   : "Select start date"}
                                 <img src={CalendarSvg} width={20} />

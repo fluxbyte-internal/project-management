@@ -233,7 +233,7 @@ model Project {
   organisationId     String                  @map("organisation_id")
   organisation       Organisation            @relation(fields: [organisationId], references: [organisationId], onDelete: Cascade)
   projectName        String                  @map("project_name")
-  projectDescription String                  @map("project_description") @db.VarChar(500)
+  projectDescription String?                  @map("project_description") @db.VarChar(500)
   startDate          DateTime                @map("start_date")
   estimatedEndDate   DateTime                @map("estimated_end_date")
   actualEndDate      DateTime                @map("actual_end_date")
