@@ -3,7 +3,7 @@ import { getClientByTenantId } from '../config/db.js';
 import { BadRequestError, NotFoundError, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
 import { consumedBudgetSchema, createKanbanSchema, createProjectSchema, projectIdSchema, projectStatusSchema, updateKanbanSchema, updateProjectSchema } from '../schemas/projectSchema.js';
-import { ProjectStatusEnum, TaskStatusEnum } from '@prisma/client';
+import { ProjectStatusEnum, TaskStatusEnum, UserRoleEnum } from '@prisma/client';
 import { uuidSchema } from '../schemas/commonSchema.js';
 
 export const getProjects = async (req: express.Request, res: express.Response) => {
@@ -30,8 +30,30 @@ export const getProjects = async (req: express.Request, res: express.Response) =
   const projectsWithProgression = [];
 
   for (const project of projects) {
-    const progressionPercentage = await prisma.project.projectProgression(project.projectId);
-    const projectWithProgression = { ...project, progressionPercentage };
+    const progressionPercentage = await prisma.project.projectProgression(
+      project.projectId
+    );
+    const projectManagerInfo = await prisma.userOrganisation.findMany({
+      where: {
+        organisationId: req.organisationId,
+        role: UserRoleEnum.PROJECT_MANAGER,
+      },
+      select: {
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+            avatarImg: true,
+          },
+        },
+      },
+    });
+    const projectWithProgression = {
+      ...project,
+      progressionPercentage,
+      projectManagerInfo,
+    };
     projectsWithProgression.push(projectWithProgression);
   }
   return new SuccessResponse(StatusCodes.OK, projectsWithProgression, 'get all project successfully').send(res);
