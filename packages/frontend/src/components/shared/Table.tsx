@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import arrowImg from "../../assets/svg/Arrow.svg";
 import downArrow from "../../assets/svg/DownArrow.svg";
+import Select from "react-select";
 export type ColumeDef = {
   key: string;
   header: string;
@@ -16,12 +17,18 @@ export type Props = {
   onAccordionRender?: (data: any) => JSX.Element;
 };
 
+const pageOptions = [
+  { label: 10, value: 10 },
+  { label: 25, value: 25 },
+  { label: 50, value: 50 },
+  { label: 100, value: 100 },
+];
+
 function Table(props: Props) {
   const { columnDef, data, className } = props;
   const [dataSource, setDataSource] = useState(data);
-  const [height, setHeight] = useState(0);
-  const [tableRowHeight, setTableRowHeight] = useState(0);
-  const [dataPerPage, setDataPerPage] = useState(0);
+
+  const [dataPerPage, setDataPerPage] = useState(pageOptions[0].value);
   const [pages, setPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -29,27 +36,16 @@ function Table(props: Props) {
   const [accordions, setAccordionshow] = useState<number | null>();
   const table = useRef<HTMLDivElement>(null);
   const tableRow = useRef<HTMLTableRowElement>(null);
-  const [tableRendered, setTableRendered] = useState(false);
   useEffect(() => {
     if (!props.hidePagination) {
-      if (table.current && tableRow.current) {
-        setHeight(table.current.offsetHeight);
-        setTableRowHeight(tableRow.current.offsetHeight);
-        const length = parseInt((height / tableRowHeight).toFixed()) - 2;
-        setDataPerPage(length);
-        if (!isNaN(length)) {
-          setDataSource(data.slice(0, length));
-          const count = Math.ceil(data.length / length);
-          setPages(count);
-        }
-        setCurrentPage(1);
-      }
+      setDataSource(data.slice(0, dataPerPage));
+      const count = Math.ceil(data.length / dataPerPage);
+      setPages(count);
+    } else {
+      setDataSource(data);
     }
-  }, [dataSource, height, tableRowHeight]);
-
-  useEffect(() => {
-    setDataSource(data);
-  }, [data]);
+    setCurrentPage(1);
+  }, [data, dataPerPage, props.hidePagination]);
 
   const nextPage = () => {
     if (currentPage < pages) {
@@ -64,6 +60,23 @@ function Table(props: Props) {
       const [startIndex, endIndex] = calculateIndices(newCurrentPage);
       changePage(newCurrentPage, startIndex, endIndex);
     }
+  };
+  const reactSelectStyle = {
+    control: (
+      provided: Record<string, unknown>,
+      state: { isFocused: boolean }
+    ) => ({
+      ...provided,
+      border: "1px solid #E7E7E7",
+      paddingTop: "0.2rem",
+      paddingBottom: "0.2rem",
+      outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
+      boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
+      "&:hover": {
+        outline: state.isFocused ? "1px solid #943B0C" : "1px solid #E7E7E7",
+        boxShadow: "0px 0px 0px #943B0C",
+      },
+    }),
   };
 
   const calculateIndices = useCallback(
@@ -123,9 +136,7 @@ function Table(props: Props) {
   function toggle(index: number) {
     if (index == accordions) {
       setAccordionshow(null);
-      setTableRendered(false);
     } else {
-      setTableRendered(true);
       setAccordionshow(index);
     }
   }
@@ -138,6 +149,7 @@ function Table(props: Props) {
     const [day, month, year] = dateString.split("/").map(Number);
     return [day, month, year];
   }
+  console.log(data);
 
   const sorting = (key: string) => {
     setAccordionshow(null);
@@ -150,119 +162,144 @@ function Table(props: Props) {
     <>
       <div
         ref={table}
-        className={`py-9 sm:pb-9 bg-white px-6 relative border rounded-md text-sm h-full ${
-          tableRendered ? "overflow-y-auto" : "overflow-y-hidden"
-        }  overflow-x-auto  w-full ${className ?? ""}`}
+        className={`py-9 pb-3 flex flex-col justify-between bg-white px-6 border rounded-md text-sm h-full w-full ${
+          className ?? ""
+        }`}
       >
-        <table className="w-full">
-          {!props.hideHeaders && (
-            <thead>
-              <tr className="text-left border-b border-[#D1D1D1] ">
-                {columnDef &&
-                  columnDef.map((item, index) => {
-                    return (
-                      <th
-                        className="py-2.5 px-2 w-fit whitespace-nowrap"
-                        key={index}
-                      >
-                        {item.sorting ? (
-                          <>
-                            <div
-                              className="flex gap-1 items-center cursor-pointer group"
-                              onClick={() => sorting(item.key)}
-                            >
-                              {item.header}
-                              <img
-                                src={downArrow}
-                                className={`${
-                                  !ascendingToggle ? "rotate-180" : ""
-                                } group-hover:opacity-50 opacity-0 `}
-                              />
-                            </div>
-                          </>
-                        ) : (
-                          item.header
-                        )}
-                      </th>
-                    );
-                  })}
-              </tr>
-            </thead>
-          )}
-          <tbody>
-            {dataSource.map((item, index) => {
-              return (
-                <>
-                  <tr
-                    ref={tableRow}
-                    onClick={() => toggle(index)}
-                    className="border-b border-gray-100/50"
-                    key={index}
-                  >
-                    {columnDef &&
-                      columnDef.map((key: ColumeDef) => {
-                        return (
-                          <>
-                            <td
-                              className="px-2 py-2.5 max-md:truncate lg:break-words "
-                              key={key.key}
-                            >
-                              {key.onCellRender && key.key
-                                ? key.onCellRender(item)
-                                : null ?? item[key.key]}
-                            </td>
-                          </>
-                        );
-                      })}
-                  </tr>
-                  {accordions === index && (
-                    <tr>
-                      <td
-                        colSpan={columnDef?.length}
-                       
-                      >
-                        <div  className={`rounded-2xl flex justify-center ${
-                          props.onAccordionRender &&
-                          props.onAccordionRender(item).props.children
-                            ? "py-2 mt-3"
-                            : ""
-                        } `}>
-                          {props.onAccordionRender &&
-                            props.onAccordionRender(item)}
-                        </div>
-                      </td>
+        <div className="overflow-auto">
+          <table className="w-full">
+            {!props.hideHeaders && (
+              <thead>
+                <tr className="text-left border-b border-[#D1D1D1] ">
+                  {columnDef &&
+                    columnDef.map((item, index) => {
+                      return (
+                        <th
+                          className="py-2.5 px-2 w-fit whitespace-nowrap "
+                          key={index}
+                        >
+                          {item.sorting ? (
+                            <>
+                              <div
+                                className="flex gap-1 items-center cursor-pointer group"
+                                onClick={() => sorting(item.key)}
+                              >
+                                {item.header}
+                                <img
+                                  src={downArrow}
+                                  className={`${
+                                    !ascendingToggle ? "rotate-180" : ""
+                                  } group-hover:opacity-50 opacity-0 `}
+                                />
+                              </div>
+                            </>
+                          ) : (
+                            item.header
+                          )}
+                        </th>
+                      );
+                    })}
+                </tr>
+              </thead>
+            )}
+            <tbody>
+              {dataSource.map((item, index) => {
+                return (
+                  <>
+                    <tr
+                      ref={tableRow}
+                      onClick={() => toggle(index)}
+                      className="border-b border-gray-100/50"
+                      key={index}
+                    >
+                      {columnDef &&
+                        columnDef.map((key: ColumeDef) => {
+                          return (
+                            <>
+                              <td
+                                className="px-2 py-2.5 max-md:truncate lg:break-words "
+                                key={key.key}
+                              >
+                                {key.onCellRender && key.key
+                                  ? key.onCellRender(item)
+                                  : null ?? item[key.key]}
+                              </td>
+                            </>
+                          );
+                        })}
                     </tr>
-                  )}
-                </>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      {(dataPerPage < data.length&& !props.hidePagination) && (
-        <div className="mr-10 justify-end items-center mb-2 flex gap-2">
-          <button
-            className="disabled:opacity-50 "
-            onClick={previousPage}
-            disabled={currentPage <= 1}
-          >
-            <img src={arrowImg} className="w-3" />
-          </button>
-          {currentPage}/{pages}
-          <button
-            className="disabled:opacity-50 "
-            onClick={nextPage}
-            disabled={currentPage === pages}
-          >
-            <img
-              src={arrowImg}
-              className="rotate-180 w-3"
-              width={18}
-              height={10}
-            />
-          </button>
+                    {accordions === index && (
+                      <tr>
+                        <td colSpan={columnDef?.length}>
+                          <div
+                            className={`rounded-xl flex justify-center ${
+                              props.onAccordionRender &&
+                              props.onAccordionRender(item).props.children
+                                ? "p-2 py-3  bg-slate-200/30"
+                                : ""
+                            } `}
+                          >
+                            {props.onAccordionRender &&
+                              props.onAccordionRender(item)}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
-      )}
+
+        <div>
+          {!props.hidePagination && (
+            <div className="justify-between items-center mb-2 flex">
+              <div>
+                <Select
+                  className="w-24"
+                  defaultValue={pageOptions.find(
+                    (page) => page.value == dataPerPage
+                  )}
+                  options={pageOptions}
+                  menuPlacement="auto"
+                  styles={reactSelectStyle}
+                  onChange={(e) => setDataPerPage(Number(e?.value))}
+                />
+              </div>
+              <div className="flex gap-2 items-center">
+                <div className="text-gray-400/80 mr-5">
+                  {calculateIndices(currentPage)[0] + 1} -{" "}
+                  {calculateIndices(currentPage)[1] > data.length
+                    ? data.length
+                    : calculateIndices(currentPage)[1]}{" "}
+                  of {data.length}
+                </div>
+                <button
+                  className="disabled:opacity-50 "
+                  onClick={previousPage}
+                  disabled={currentPage <= 1}
+                >
+                  <img src={arrowImg} className="w-3" />
+                </button>
+                {currentPage}/{pages}
+                <button
+                  className="disabled:opacity-50 "
+                  onClick={nextPage}
+                  disabled={currentPage === pages}
+                >
+                  <img
+                    src={arrowImg}
+                    className="rotate-180 w-3"
+                    width={18}
+                    height={10}
+                  />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </>
   );
 }
