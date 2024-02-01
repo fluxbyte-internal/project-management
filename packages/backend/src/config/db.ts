@@ -233,45 +233,6 @@ function generatePrismaClient(datasourceUrl?: string) {
           }
           return count;
         },
-        tpiCalculation(task: Task): {
-          tpiValue: number,
-          tpiFlag: "Red" | "Orange" | "Green"
-        } {
-          let { duration, completionPecentage, startDate, status } = task;
-          if (
-            status === TaskStatusEnum.TODO ||
-            status === TaskStatusEnum.PLANNED
-          ) {
-            return {
-              tpiValue: 0,
-              tpiFlag: "Red"
-            };
-          }
-          const currentDate: Date = new Date();
-          const startDateObj: Date = new Date(startDate);
-          const elapsedDays: number = Math.ceil(
-            (currentDate.getTime() - startDateObj.getTime()) /
-              (1000 * 60 * 60 * 24)
-          );
-
-          const plannedProgress = elapsedDays / duration;
-          if (!completionPecentage) {
-            completionPecentage = 0;
-          }
-          const tpi = completionPecentage / plannedProgress;
-          let flag = "" as "Red" | "Orange" | "Green";
-          if (tpi < 0.8) {
-            flag = "Red";
-          } else if (tpi >= 0.8 && tpi < 0.95) {
-            flag = "Orange";
-          } else {
-            flag = "Green";
-          }
-          return {
-            tpiValue: tpi,
-            tpiFlag: flag
-          };
-
         calculateEndDate(startDate: Date, duration: number) {
           const startDateObj = new Date(startDate);
           const endDate = new Date(startDateObj);
@@ -316,7 +277,45 @@ function generatePrismaClient(datasourceUrl?: string) {
           });
           return maxEndDate;
         },
-      },
+        tpiCalculation(task: Task): {
+          tpiValue: number,
+          tpiFlag: "Red" | "Orange" | "Green"
+        } {
+          let { duration, completionPecentage, startDate, status } = task;
+          if (
+            status === TaskStatusEnum.TODO ||
+            status === TaskStatusEnum.PLANNED
+          ) {
+            return {
+              tpiValue: 0,
+              tpiFlag: "Red"
+            };
+          }
+          const currentDate: Date = new Date();
+          const startDateObj: Date = new Date(startDate);
+          const elapsedDays: number = Math.ceil(
+            (currentDate.getTime() - startDateObj.getTime()) /
+              (1000 * 60 * 60 * 24)
+          );
+
+          const plannedProgress = elapsedDays / duration;
+          if (!completionPecentage) {
+            completionPecentage = 0;
+          }
+          const tpi = completionPecentage / plannedProgress;
+          let flag = "" as "Red" | "Orange" | "Green";
+          if (tpi < 0.8) {
+            flag = "Red";
+          } else if (tpi >= 0.8 && tpi < 0.95) {
+            flag = "Orange";
+          } else {
+            flag = "Green";
+          }
+          return {
+            tpiValue: tpi,
+            tpiFlag: flag
+          };
+      }},
       comments: {
         async canEditOrDelete(commentId: string, userId: string) {
           const comment = await client.comments.findFirstOrThrow({
@@ -414,8 +413,8 @@ function generatePrismaClient(datasourceUrl?: string) {
           return user.userOrganisation.map((org) => org.role);
         },
       },
-    },
-  });
+    }},
+  );
   return client;
 }
 
