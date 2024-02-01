@@ -9,6 +9,7 @@ import {
 } from "@prisma/client";
 import {
   BadRequestError,
+  InternalServerError,
   NotFoundError,
   SuccessResponse,
   UnAuthorizedError,
@@ -34,6 +35,9 @@ import { organisationStatuSchema } from "../schemas/organisationSchema.js";
 import { ZodError } from "zod";
 import { AwsUploadService } from "../services/aws.services.js";
 import { cookieConfig } from "../utils/setCookies.js";
+import { generateOTP } from "../utils/otpHelper.js";
+import { OtpService } from "../services/userOtp.services.js";
+import { verifyEmailOtpSchema } from "../schemas/authSchema.js";
 
 export const me = async (req: express.Request, res: express.Response) => {
   const prisma = await getClientByTenantId(req.tenantId);
@@ -84,7 +88,23 @@ export const loginConsole = async (
       maxAge: cookieConfig.maxAgeRefreshToken
     });
     const { password, ...infoWithoutPassword } = user;
-
+    if(!user.isVerified) {
+      const otpValue = generateOTP();
+      const subjectMessage = `Login OTP`;
+      const expiresInMinutes = 5;
+      const bodyMessage = `Here is your login OTP : ${otpValue}, OTP is valid for ${expiresInMinutes} minutes`;
+      try {
+        await OtpService.saveOTP(
+          otpValue,
+          user.userId,
+          req.tenantId,
+          expiresInMinutes * 60
+        );
+        await EmailService.sendEmail(user.email, subjectMessage, bodyMessage);
+      } catch (error) {
+        console.error('Failed to send otp email', error)
+      }
+    };
     return new SuccessResponse(
       StatusCodes.OK,
       { user: infoWithoutPassword },
@@ -190,7 +210,6 @@ export const createOperator = async (
       lastName: lastName,
       password: hashedPassword,
       status: ConsoleStatusEnum.ACTIVE,
-      isVerified: true,
       role: ConsoleRoleEnum.OPERATOR,
     },
   });
@@ -200,6 +219,7 @@ export const createOperator = async (
       You are invited in console
       
       URL: ${settings.adminURL}/login
+      EMAIL: ${newUser.email}
       PASSWORD: ${randomPassword}
       `;
     await EmailService.sendEmail(newUser.email, subjectMessage, bodyMessage);
@@ -498,6 +518,23 @@ export const deleteOrganisation = async (
     where: {
       organisationId,
     },
+    include: {
+      userOrganisation: true,
+      projects: {
+        include: {
+          tasks: {
+            include: {
+              assignedUsers: true,
+              comments: true,
+              dependencies: true,
+              documentAttachments: true,
+              histories: true,
+              notifications: true
+            }
+          }
+        }
+      }
+    }
   });
   return new SuccessResponse(
     StatusCodes.OK,
@@ -589,4 +626,43 @@ export const blockAndReassignAdministator = async (
     null,
     "Administrator reassgined successfully"
   ).send(res);
+};
+
+export const otpVerifyConsole = async (req: express.Request, res: express.Response) => {
+  const { otp } = verifyEmailOtpSchema.parse(req.body);
+  const checkOtp = await OtpService.verifyOTPForConsole(otp, req.userId!, req.tenantId);
+  if (!checkOtp) { throw new BadRequestError("Invalid OTP") };
+  return new SuccessResponse(StatusCodes.OK, null, 'OTP verified successfully').send(res);
+};
+
+export const resendOTP = async (req: express.Request, res: express.Response) => {
+  const prisma = await getClientByTenantId(req.tenantId);
+  const user = await prisma.consoleUser.findFirst({
+    where: {
+      userId: req.userId
+    }
+  });
+  if (!user) { throw new NotFoundError('User not found') };
+  const findOtp = await prisma.userOTP.findFirst({
+    where: {
+      userId: req.userId,
+      createdAt: {
+        gt: new Date(Date.now() - 60 * 1000)
+      }
+    }
+  });
+  if (findOtp) { throw new BadRequestError('Please try again after 1 minute') };
+  const otpValue = generateOTP();
+  const subjectMessage = `Login OTP`;
+  const expiresInMinutes = 10;
+  const bodyMessage = `Here is your login OTP : ${otpValue}, OTP is valid for ${expiresInMinutes} minutes`;
+  try {
+    await EmailService.sendEmail(user.email, subjectMessage, bodyMessage);
+    await OtpService.saveOTP(
+      otpValue, user.userId, req.tenantId, expiresInMinutes * 60
+    );
+  } catch (error) {
+    throw new InternalServerError();
+  };
+  return new SuccessResponse(StatusCodes.OK, null, 'Resend OTP successfully').send(res);
 };

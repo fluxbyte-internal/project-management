@@ -59,16 +59,18 @@ function ProjectsList() {
     setEditData(undefined);
   };
 
-  const handleView = (id:string) => {
+  const handleView = (id: string) => {
     navigate("/project-details/" + id);
   };
   const projectManager = (): Options[] | undefined => {
     const projectManagerData: Options[] | undefined = [
       { label: "Select manager", value: "" },
     ];
-    data?.forEach(item=>{
+    data?.forEach((item) => {
       const val = item.createdByUser.email;
-      if (!projectManagerData.some(i=> i.value == item.createdByUser.email)) {
+      if (
+        !projectManagerData.some((i) => i.value == item.createdByUser.email)
+      ) {
         projectManagerData.push({ label: val, value: val });
       }
     });
@@ -79,8 +81,8 @@ function ProjectsList() {
     const statusData: Options[] | undefined = [
       { label: "Select status", value: "" },
     ];
-    data?.forEach(item=>{
-      if (!statusData.some(i=> i.value == item.status)) {
+    data?.forEach((item) => {
+      if (!statusData.some((i) => i.value == item.status)) {
         statusData.push({ label: item.status, value: item.status });
       }
     });
@@ -93,9 +95,34 @@ function ProjectsList() {
       key: "createdByUser",
       header: "Manager",
       onCellRender: (item: Project) => (
-        <>
-          <UserAvatar user={item.createdByUser}/>
-        </>
+        <div className="w-full my-3">
+          {item.projectManagerInfo?.length > 0 ? (
+            <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
+              {item.projectManagerInfo?.slice(0, 3).map((item, index) => {
+                const zIndex = Math.abs(index - 2);
+                return (
+                  <>
+                    <div key={index} style={{ zIndex: zIndex }}>
+                      <UserAvatar
+                        className={`shadow-sm h-7 w-7`}
+                        user={item.user}
+                      ></UserAvatar>
+                    </div>
+                  </>
+                );
+              })}
+              {item.projectManagerInfo &&
+                item.projectManagerInfo?.length > 3 && (
+                  <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
+                    {`${item.projectManagerInfo?.length - 3}+`}
+                  </div>
+                )}
+              {item.projectManagerInfo?.length <= 0 ? "N/A" : ""}
+            </div>
+          ) : (
+            "NA"
+          )}
+        </div>
       ),
     },
     {
@@ -123,7 +150,10 @@ function ProjectsList() {
       key: "actualEndDate",
       header: "End Date",
       onCellRender: (item: Project) => (
-        <>{item.estimatedEndDate && dateFormatter(new Date(item.estimatedEndDate))}</>
+        <>
+          {item.estimatedEndDate &&
+            dateFormatter(new Date(item.estimatedEndDate))}
+        </>
       ),
     },
     {
@@ -141,7 +171,7 @@ function ProjectsList() {
     {
       key: "Action",
       header: "Action",
-      onCellRender: (item:Project) => (
+      onCellRender: (item: Project) => (
         <>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -156,12 +186,10 @@ function ProjectsList() {
                   Edit
                 </span>
               </DropdownMenuItem> */}
-              <DropdownMenuSeparator className="mx-1"/>
+              <DropdownMenuSeparator className="mx-1" />
               <DropdownMenuItem onClick={() => handleView(item.projectId)}>
                 <ScrollText className="mr-2 h-4 w-4 text-[#44546F]" />
-                <span className="p-0 font-normal h-auto" >
-                   View Detail
-                </span>
+                <span className="p-0 font-normal h-auto">View Detail</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -194,23 +222,31 @@ function ProjectsList() {
 
   useEffect(() => {
     let filteredData = data;
-    setFilterData(filteredData);
     if (filter && filter.status && filter.status.value) {
       filteredData = data?.filter((d) => d.status === filter.status?.value);
-    } else if (filter && filter.date?.from && filter.date?.to) {
-      filteredData = data?.filter((d) => {
+    }
+    if (filter && filter.date?.from && filter.date?.to) {
+      filteredData = filteredData?.filter((d) => {
         return (
           new Date(d.estimatedEndDate) >= (filter.date?.from ?? new Date()) &&
           new Date(d.estimatedEndDate) <= (filter.date?.to ?? new Date())
         );
       });
-    } else if (filter && filter.projectManager && filter.projectManager.value) {
-      filteredData = data?.filter(
-        (d) => d.createdByUser.email == filter.projectManager?.value
-      );
-    } else {
-      setFilterData(data);
     }
+    if (filter && filter.projectManager && filter.projectManager.value) {
+      let arr: Project[] | undefined = [];
+      filteredData?.forEach((data) => {
+        data.projectManagerInfo.forEach((u) => {
+          if (u.user.email === filter?.projectManager?.value) {
+            arr?.push(data);
+          } else {
+            arr = arr?.filter((u) => u.projectId !== data.projectId);
+          }
+        });
+      });
+      filteredData = arr;
+    }
+
     setFilterData(filteredData);
   }, [filter, data]);
 
@@ -227,11 +263,11 @@ function ProjectsList() {
     <div className="w-full h-full relative">
       <BackgroundImage />
       {projectQuery.isLoading ? (
-        <Loader/>
+        <Loader />
       ) : (
         <>
           {data && data.length > 0 ? (
-            <div className="h-full py-5 p-4 lg:p-14 w-full flex flex-col gap-5">
+            <div className="h-full py-5 p-4  w-full flex flex-col gap-5">
               <div className="flex justify-between items-center">
                 <h2 className="font-medium text-3xl leading-normal text-gray-600">
                   Projects
@@ -252,7 +288,12 @@ function ProjectsList() {
                   <div className="w-1/4">
                     <Select
                       className="p-0 z-40"
-                      value={filter.projectManager || { label: "Select manager", value: "" }}
+                      value={
+                        filter.projectManager || {
+                          label: "Select manager",
+                          value: "",
+                        }
+                      }
                       options={projectManager()}
                       onChange={(e) =>
                         setFilter((prev) => ({ ...prev, projectManager: e }))
@@ -263,7 +304,9 @@ function ProjectsList() {
                   </div>
                   <div className="w-1/4">
                     <Select
-                      value={filter.status ||{ label: "Select status", value: "" } }
+                      value={
+                        filter.status || { label: "Select status", value: "" }
+                      }
                       className="p-0 z-40"
                       options={status()}
                       onChange={(e) =>
@@ -283,8 +326,8 @@ function ProjectsList() {
                           <div className="flex justify-between items-center w-full text-gray-400 font-normal">
                             {filter.date
                               ? `${dateFormatter(
-                                filter.date.from ?? new Date()
-                              )}-
+                                  filter.date.from ?? new Date()
+                                )}-
                               ${dateFormatter(filter.date.to ?? new Date())}`
                               : "End date"}
                             <img src={CalendarSvg} width={20} />

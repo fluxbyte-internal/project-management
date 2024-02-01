@@ -75,9 +75,15 @@ enum UserProviderTypeEnum {
   EMAIL
   GOOGLE
 }
-enum HistoryTypeEnum {
-  TASK
+
+enum NotificationTypeEnum {
   PROJECT
+  TASK
+}
+
+enum HistoryTypeEnum {
+  PROJECT
+  TASK
 }
 
 model User {
@@ -95,7 +101,6 @@ model User {
 
   comment           Comments[]
   userOrganisation  UserOrganisation[]
-  userOtp           UserOTP[]
   userResetPassword ResetPassword[]
 
   createdOrganisations Organisation[] @relation("createdByUser")
@@ -112,10 +117,11 @@ model User {
   createdKanbanColumn KanbanColumn[]    @relation("createdByUser")
   updatedKanbanColumn KanbanColumn[]    @relation("updatedByUser")
 
-  history            History[]
-  uploadedAttachment TaskAttachment[]
-  addedDependencies  TaskDependencies[]
-
+  history               History[]
+  uploadedAttachment    TaskAttachment[]
+  addedDependencies     TaskDependencies[]
+  sentNotifications     Notification[]     @relation("sentNotificationBy")
+  receivedNotifications Notification[]     @relation("sentNotificationTo")
 
   @@index([userId, email])
 }
@@ -160,7 +166,6 @@ model UserOTP {
   isUsed     Boolean  @map("is_used")
   meta       Json?    @map("meta")
   createdAt  DateTime @default(now()) @map("created_at")
-  user       User?    @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@index([userId, otp])
 }
@@ -226,11 +231,12 @@ model UserOrganisation {
 model Project {
   projectId          String                  @id @unique @default(uuid()) @map("project_id")
   organisationId     String                  @map("organisation_id")
-  organisation       Organisation            @relation(fields: [organisationId], references: [organisationId])
+  organisation       Organisation            @relation(fields: [organisationId], references: [organisationId], onDelete: Cascade)
   projectName        String                  @map("project_name")
-  projectDescription String                  @map("project_description") @db.VarChar(500)
+  projectDescription String?                  @map("project_description") @db.VarChar(500)
   startDate          DateTime                @map("start_date")
   estimatedEndDate   DateTime                @map("estimated_end_date")
+  actualEndDate      DateTime                @map("actual_end_date")
   status             ProjectStatusEnum       @default(NOT_STARTED) @map("status")
   defaultView        ProjectDefaultViewEnum  @default(LIST) @map("default_view")
   timeTrack          String?                 @map("time_track")
@@ -238,6 +244,7 @@ model Project {
   currency           String                  @map("currency")
   overallTrack       ProjectOverAllTrackEnum @default(SUNNY) @map("overall_track")
   estimatedBudget    String                  @map("estimated_budget")
+  consumedBudget     String                  @default("0")@map("consumed_budget")
   actualCost         String?                 @map("actual_cost")
   createdByUserId    String                  @map("created_by_user_id")
   createdByUser      User                    @relation("createdByUser", fields: [createdByUserId], references: [userId])
@@ -254,25 +261,25 @@ model Project {
 }
 
 model Task {
-  taskId              String                       @id @default(uuid()) @map("task_id")
-  projectId           String                       @map("project_id")
-  project             Project                      @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
-  taskName            String                       @map("task_name")
-  taskDescription     String?                      @map("task_description")
-  startDate           DateTime                     @map("start_date")
-  status              TaskStatusEnum               @default(PLANNED) @map("status")
-  milestoneIndicator  Boolean                      @default(false) @map("milestone_indicator")
-  milestoneStatus     MilestoneIndicatorStatusEnum @default(NOT_STARTED) @map("milestone_status")
-  dueDate             DateTime?                    @map("due_date")
-  createdByUserId     String                       @map("created_by_user_id")
-  createdByUser       User                         @relation("createdByUser", fields: [createdByUserId], references: [userId])
-  updatedByUserId     String?                      @map("updated_by_user_id")
-  updatedByUser       User?                        @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
-  createdAt           DateTime                     @default(now()) @map("created_at")
-  updatedAt           DateTime                     @updatedAt @map("updated_at")
+  taskId             String                       @id @default(uuid()) @map("task_id")
+  projectId          String                       @map("project_id")
+  project            Project                      @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  taskName           String                       @map("task_name")
+  taskDescription    String?                      @map("task_description")
+  startDate          DateTime                     @map("start_date")
+  status             TaskStatusEnum               @default(PLANNED) @map("status")
+  milestoneIndicator Boolean                      @default(false) @map("milestone_indicator")
+  milestoneStatus    MilestoneIndicatorStatusEnum @default(NOT_STARTED) @map("milestone_status")
+  dueDate            DateTime?                    @map("due_date")
+  createdByUserId    String                       @map("created_by_user_id")
+  createdByUser      User                         @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  updatedByUserId    String?                      @map("updated_by_user_id")
+  updatedByUser      User?                        @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  createdAt          DateTime                     @default(now()) @map("created_at")
+  updatedAt          DateTime                     @updatedAt @map("updated_at")
 
-  duration            Float          @map("duration")
-  completionPecentage Float?         @map("completion_percentage")
+  duration            Float  @map("duration")
+  completionPecentage Float? @map("completion_percentage")
 
   subtasks            Task[]            @relation("parentTask")
   comments            Comments[]
@@ -284,6 +291,8 @@ model Task {
   parent          Task?              @relation("parentTask", fields: [parentTaskId], references: [taskId], onDelete: Cascade)
   dependencies    TaskDependencies[] @relation("dependencies")
   dependentOnTask TaskDependencies[] @relation("dependentOnTask")
+
+  notifications Notification[]
 
   @@index([taskId, projectId])
 }
@@ -345,6 +354,26 @@ model Comments {
   @@index([commentId, commentByUserId])
 }
 
+model Notification {
+  notificationId String               @id @default(uuid()) @map("notification_id")
+  type           NotificationTypeEnum @map("type")
+  referenceId    String               @map("reference_id")
+  task           Task?                @relation(fields: [referenceId], references: [taskId], onDelete: Cascade, map: "task_notification")
+
+  sentBy             String @map("sent_by")
+  sentNotificationBy User   @relation("sentNotificationBy", fields: [sentBy], references: [userId], onDelete: Cascade)
+
+  sentTo             String @map("sent_to")
+  sentNotificationTo User   @relation("sentNotificationTo", fields: [sentTo], references: [userId], onDelete: Cascade)
+
+  details   String?  @map("details")
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+  ReadAt    DateTime @updatedAt @map("read_at")
+
+  @@index([sentBy, sentTo, referenceId])
+}
+
 model KanbanColumn {
   kanbanColumnId String @id @default(uuid()) @map("kanban_column_id")
 
@@ -363,6 +392,7 @@ model KanbanColumn {
 
   @@unique([kanbanColumnId, projectId])
 }
+
 model History {
   historyId     String          @id @default(uuid()) @map("history_id")
   referenceId   String          @map("reference_id")

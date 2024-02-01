@@ -4,7 +4,7 @@ import { OverAllTrackEnumValue, ProjectDefaultViewEnumValue, ProjectStatusEnumVa
 
 export const createProjectSchema = z.object({
   projectName: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}),
-  projectDescription: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}),
+  projectDescription: z.string().optional(),
   startDate: z.coerce.date({required_error:ZodErrorMessageEnumValue.REQUIRED}),
   estimatedEndDate: z.coerce.date({required_error:ZodErrorMessageEnumValue.REQUIRED}),
   estimatedBudget: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}),
@@ -14,7 +14,7 @@ export const createProjectSchema = z.object({
 
 export const updateProjectSchema = z.object({
   projectName: z.string().min(1).optional(),
-  projectDescription: z.string().min(1).optional(),
+  projectDescription: z.string().optional(),
   startDate: z.coerce.date().optional(),
   estimatedEndDate: z.coerce.date().optional(),
   estimatedBudget: z.string().min(1).optional(),
@@ -42,4 +42,10 @@ export const createKanbanSchema = z.object({
 export const updateKanbanSchema = z.object({
   name: z.string({ required_error: ZodErrorMessageEnumValue.REQUIRED }),
   percentage: z.number().min(0).max(100).multipleOf(0.01).optional(),
+});
+
+export const consumedBudgetSchema = z.object({
+  consumedBudget: z.string({
+    required_error: ZodErrorMessageEnumValue.REQUIRED,
+  }),
 });

@@ -21,6 +21,7 @@ import useUpdateTaskMutation from "@/api/mutation/useTaskUpdateMutation";
 import Dialog from "@/components/common/Dialog";
 import RulesForm from "./rulesSetups/rulesForm";
 import CrossIcon from "@/assets/svg/CrossIcon.svg";
+import SettingIcon from "@/assets/svg/Setting.svg";
 import useAllKanbanColumnQuery from "@/api/query/useAllKanbanColumn";
 import Loader from "@/components/common/Loader";
 import { FIELDS } from "@/api/types/enums";
@@ -52,23 +53,35 @@ function KanbanView(
   const { projectId } = useParams();
   const allKanbanColumn = useAllKanbanColumnQuery(projectId);
   const allTasks = useAllTaskQuery(projectId);
-
+  const { refetch } = useAllKanbanColumnQuery(projectId);
   const [dataSource, setDataSource] = useState<ExtendedKanbanDataSource[]>();
   const [filterData, setFilterData] = useState<Task[]>();
   const [isColumnsOpen, setIsColumnsOpen] = useState<boolean>(false);
   const [Columns, setColumns] = useState<KanbanColumn[]>();
   const [closePopup, setClosePopup] = useState<boolean>(false);
+  const [rawData, setRawData] = useState<KanbanColumnType[]>();
+
   useEffect(() => {
     if (allKanbanColumn.status == "success") {
       setOpen();
     }
   }, [allKanbanColumn.status == "success"]);
 
+  useEffect(() => {
+    allTasks.refetch();
+    refetch();
+  }, [projectId]);
+
   const close = () => {
     setDialogRendered(undefined);
     setIsTaskShow(false);
     allTasks.refetch();
   };
+
+  useEffect(() => {
+    refetch();
+  }, [projectId]);
+
   useEffect(() => {
     if (allKanbanColumn.data?.data.data) {
       allKanbanColumn.data?.data.data.sort(
@@ -198,22 +211,26 @@ function KanbanView(
   }) => {
     const className = "";
     switch (data.dataField) {
-    case TaskStatusEnumValue.PLANNED:
-      className.concat("!bg-rose-500/20");
-      break;
-    case TaskStatusEnumValue.TODO:
-      className.concat("!bg-slate-500/20");
-      break;
-    case TaskStatusEnumValue.IN_PROGRESS:
-      className.concat("!bg-primary-500/20");
-      break;
-    case TaskStatusEnumValue.DONE:
-      className.concat("!bg-green-500/20");
-      break;
+      case TaskStatusEnumValue.PLANNED:
+        className.concat("!bg-rose-500/20");
+        break;
+      case TaskStatusEnumValue.TODO:
+        className.concat("!bg-slate-500/20");
+        break;
+      case TaskStatusEnumValue.IN_PROGRESS:
+        className.concat("!bg-primary-500/20");
+        break;
+      case TaskStatusEnumValue.DONE:
+        className.concat("!bg-green-500/20");
+        break;
     }
     // header.classList.add(...className.split(" "));
   };
   const handleColumn = (data: KanbanColumnType[]) => {
+    if (data.length <= 0) {
+      setClosePopup(true);
+    }
+    setRawData(data);
     const column: KanbanColumn[] = data.map((d) => {
       return {
         label: d.name.toUpperCase(),
@@ -260,7 +277,16 @@ function KanbanView(
               tasks={allTasks.data?.data.data}
               filteredData={(task) => setFilterData(task)}
             />
-            <div>
+            <div className="flex w-full justify-between">
+              <div>
+                <Button
+                  variant={"ghost"}
+                  size={"sm"}
+                  onClick={() => setClosePopup(true)}
+                >
+                  <img src={SettingIcon} className="h-4 w-4" />
+                </Button>
+              </div>
               <Button
                 variant={"primary"}
                 value={"Create Columns"}
@@ -270,38 +296,42 @@ function KanbanView(
               </Button>
             </div>
           </div>
-          <Kanban
-            ref={childRef}
-            {...props}
-            columns={Columns}
-            dataSource={dataSource}
-            addNewButton
-            onColumnClick={() => setClosePopup(true)}
-            className="!h-[92%] !w-full kanban"
-            taskCustomFields={taskCustomFields}
-            onTaskRender={onTaskRender}
-            onDragStart={(e) =>
-              onDragging(e as (Event & CustomEvent) | undefined)
-            }
-            onTaskDoubleClick={(e) =>
-              onOpening(e as (Event & CustomEvent) | undefined)
-            }
-            onOpening={(e) => onOpening(e as (Event & CustomEvent) | undefined)}
-            onTaskUpdate={(e) =>
-              statusUpdate(e as (Event & CustomEvent) | undefined)
-            }
-            onColumnHeaderRender={onColumnHeaderRender}
-          />
+          {projectId && (
+            <Kanban
+              ref={childRef}
+              {...props}
+              columns={Columns}
+              dataSource={dataSource}
+              addNewButton
+              onColumnClick={() => setClosePopup(true)}
+              className="!h-[92%] !w-full kanban"
+              taskCustomFields={taskCustomFields}
+              onTaskRender={onTaskRender}
+              onDragStart={(e) =>
+                onDragging(e as (Event & CustomEvent) | undefined)
+              }
+              onTaskDoubleClick={(e) =>
+                onOpening(e as (Event & CustomEvent) | undefined)
+              }
+              onOpening={(e) =>
+                onOpening(e as (Event & CustomEvent) | undefined)
+              }
+              onTaskUpdate={(e) =>
+                statusUpdate(e as (Event & CustomEvent) | undefined)
+              }
+              onColumnHeaderRender={onColumnHeaderRender}
+            />
+          )}
         </div>
       )}
-      {(dialogRendered || isTaskShow) && (
+      {(dialogRendered || isTaskShow) && Boolean(projectId) && (
         <TaskSubTaskForm
           close={close}
           taskId={dialogRendered ?? undefined}
           projectId={projectId}
         />
       )}
-      {closePopup && (
+      {closePopup && projectId && (
         <RulesSetups
           key={"RulesSetups#1"}
           setColumes={(data) => handleColumn(data)}
@@ -324,8 +354,9 @@ function KanbanView(
         </div>
         <RulesForm
           projectId={projectId ?? ""}
-          refatch={() => allKanbanColumn.refetch()}
+          refetch={() => allKanbanColumn.refetch()}
           close={() => setIsColumnsOpen(false)}
+          rules={rawData}
         />
       </Dialog>
     </div>
