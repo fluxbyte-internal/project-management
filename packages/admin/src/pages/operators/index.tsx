@@ -32,11 +32,14 @@ import Blocked from "../../assets/svg/Blocked.svg";
 import Active from "../../assets/svg/Active.svg";
 import Delete from "../../assets/svg/Delete.svg";
 import OperartorBackground from "../../assets/operatorHomePageImage.jpg";
+import Dialog from "@/components/common/Dialog";
 
 function OperatorsList() {
   const [data, setData] = useState<operatorDataType[]>([]);
   const [tableData, setTableData] = useState<operatorDataType[]>([]);
-  const [selectedTableData, setSelectedTableData] = useState<"ACTIVE" | "BLOCKED">("ACTIVE");
+  const [selectedTableData, setSelectedTableData] = useState<
+    "ACTIVE" | "BLOCKED"
+  >("ACTIVE");
   const [activeOperators, setActiveOperators] = useState<operatorDataType[]>(
     []
   );
@@ -45,6 +48,9 @@ function OperatorsList() {
   );
 
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
+  const [isDeleteOpenPopUp, setIsDeleteOpenPopUp] = useState<string>();
+  const [isRetrieveOpenPopUp, setIsRetrieveOpenPopUp] = useState<string>();
+  const [isBlockOpenPopUp, setIsBlockOpenPopUp] = useState<string>();
   const operatorsQuery = useOperatorsListQuery();
   const addOperatorsMutation = useAddOperatorMutation();
   const addOperatorsStatusMutation = useOperatorStatusMutation();
@@ -70,6 +76,15 @@ function OperatorsList() {
     );
   };
 
+  const handleDeleteOperators = (id:string) => {
+    setIsDeleteOpenPopUp(id);
+  };
+  const handleRetrieverOperators = (id:string) => {
+    setIsRetrieveOpenPopUp(id);
+  };
+  const handleBlockedOperators = (id:string) => {
+    setIsBlockOpenPopUp(id);
+  };
   const handleDelete = (id: string) => {
     deleteOperatorsStatusMutation.mutate(id, {
       onSuccess(data) {
@@ -127,25 +142,25 @@ function OperatorsList() {
         setBlockedOperators((current) => [...current, res]);
       }
     });
-    if(selectedTableData==="ACTIVE"){
-            setTableData([...activeOperators]);
-    }else if(selectedTableData==="BLOCKED"){
+    if (selectedTableData === "ACTIVE") {
+      setTableData([...activeOperators]);
+    } else if (selectedTableData === "BLOCKED") {
       setTableData([...blockedOperators]);
     }
   };
   const toggleActiveOperatorData = () => {
     setTableData([...activeOperators]);
-    setSelectedTableData("ACTIVE")
+    setSelectedTableData("ACTIVE");
     return;
   };
   const toggleBlockedOperatorData = () => {
     setTableData([...blockedOperators]);
-    setSelectedTableData("BLOCKED")
+    setSelectedTableData("BLOCKED");
     return;
   };
   const fetchData = async () => {
     operatorsQuery.refetch();
-      handleData();
+    handleData();
   };
 
   useEffect(() => {
@@ -165,7 +180,10 @@ function OperatorsList() {
         ) : (
           <>
             {data ? (
-              <div style={{ backgroundImage: `url(${OperartorBackground})` }}  className=" py-5 p-4 lg:p-14 w-full h-full flex flex-col gap-5 bg-no-repeat bg-cover">
+              <div
+                style={{ backgroundImage: `url(${OperartorBackground})` }}
+                className=" py-5 p-4 lg:p-14 w-full h-full flex flex-col gap-5 bg-no-repeat bg-cover"
+              >
                 <div className="flex justify-between items-center">
                   <h2 className="font-medium text-3xl leading-normal text-gray-600">
                     Operators
@@ -181,25 +199,34 @@ function OperatorsList() {
                 </div>
                 {data && (
                   <div className="h-full lg:overflow-hidden overflow-auto items-center bg-white border-[#E7E7E7] border-2 rounded-md p-2 lg:p-6">
-                    <div className="flex flex-col w-full  gap-5">
+                    <div className="flex flex-col w-full  gap-5 h-full">
                       <div className="w-full flex">
-                        <button type="button"
-                          className={`font-bold hover:text-[#1F845A] focus:bg-gray-200 cursor-pointer w-fit h-8 px-5 py-5 ${selectedTableData==="ACTIVE"?"bg-gray-200" : "bg-white"} border rounded justify-center items-center gap-px inline-flex`}
+                        <button
+                          type="button"
+                          className={`font-bold hover:text-[#1F845A] focus:bg-gray-200 cursor-pointer w-fit h-8 px-5 py-5 ${selectedTableData === "ACTIVE"
+                              ? "bg-gray-200"
+                              : "bg-white"
+                            } border rounded justify-center items-center gap-px inline-flex`}
                           onClick={() => toggleActiveOperatorData()}
                         >
                           Active
                           <img src={Active} alt="" />
                         </button>
 
-                        <button  type="button"
-                          className={`font-bold hover:text-[#C42C2C] focus:bg-gray-200 cursor-pointer w-fit h-8 px-5 py-5 ml-2 ${selectedTableData==="BLOCKED"?"bg-gray-200" : "bg-white"} border rounded justify-center items-center gap-px inline-flex`}
+                        <button
+                          type="button"
+                          className={`font-bold hover:text-[#C42C2C] focus:bg-gray-200 cursor-pointer w-fit h-8 px-5 py-5 ml-2 ${selectedTableData === "BLOCKED"
+                              ? "bg-gray-200"
+                              : "bg-white"
+                            } border rounded justify-center items-center gap-px inline-flex`}
+
                           onClick={() => toggleBlockedOperatorData()}
                         >
                           Blocked
                           <img src={Blocked} alt="" />
                         </button>
                       </div>
-                   
+
                       {tableData.length != 0 ? (
                         <div className="h-full w-full overflow-auto">
                           <div className="lg:visible collapse flex gap-5 h-fit w-full py-2 flex-wrap">
@@ -233,45 +260,41 @@ function OperatorsList() {
                                       </div>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent className="w-11 flex flex-col gap-1">
-                                    {selectedTableData===UserStatusEnumValue.ACTIVE?(
-                                                <DropdownMenuItem
-                                                onClick={() =>
-                                                  handleStatus(
-                                                    res.userId,
-                                                    UserStatusEnumValue.INACTIVE
-                                                  )
-                                                }
-                                              >
-                                                <img
-                                                  className="mr-2 h-4 w-4 text-[#44546F]"
-                                                  src={Blocked}
-                                                />
-                                                <span className="p-0 font-normal h-auto">
-                                                  Block
-                                                </span>
-                                              </DropdownMenuItem>
-                                              ):(
-                                                <DropdownMenuItem
-                                                onClick={() =>
-                                                  handleStatus(
-                                                    res.userId,
-                                                    UserStatusEnumValue.ACTIVE
-                                                  )
-                                                }
-                                              >
-                                                <img
-                                                  className="mr-2 h-4 w-4 text-[#44546F]"
-                                                  src={Active}
-                                                />
-                                                <span className="p-0 font-normal h-auto">
-                                                  Retrieve
-                                                </span>
-                                              </DropdownMenuItem>
-                                              
-                                              )}
+                                      {selectedTableData ===
+                                        UserStatusEnumValue.ACTIVE ? (
+                                        <DropdownMenuItem
+                                          onClick={() =>
+
+                                            handleBlockedOperators(res.userId)
+                                          }
+                                        >
+                                          <img
+                                            className="mr-2 h-4 w-4 text-[#44546F]"
+                                            src={Blocked}
+                                          />
+                                          <span className="p-0 font-normal h-auto">
+                                            Block
+                                          </span>
+                                        </DropdownMenuItem>
+                                      ) : (
+                                        <DropdownMenuItem
+                                          onClick={() =>
+                                            handleRetrieverOperators(res.userId)
+                                          }
+                                        >
+                                          <img
+                                            className="mr-2 h-4 w-4 text-[#44546F]"
+                                            src={Active}
+                                          />
+                                          <span className="p-0 font-normal h-auto">
+                                            Retrieve
+                                          </span>
+                                        </DropdownMenuItem>
+                                      )}
+
                                       <DropdownMenuSeparator className="mx-1" />
                                       <DropdownMenuItem
-                                        onClick={() => handleDelete(res.userId)}
+                                        onClick={()=>handleDeleteOperators(res.userId)}
                                       >
                                         <img
                                           className="mr-2 h-4 w-4 text-[#44546F]"
@@ -283,6 +306,7 @@ function OperatorsList() {
                                       </DropdownMenuItem>
                                     </DropdownMenuContent>
                                   </DropdownMenu>
+
                                 </div>
                               </div>
                             ))}
@@ -315,17 +339,15 @@ function OperatorsList() {
                                           {res.firstName
                                             ? res.firstName
                                             : "" + " " + res.lastName
-                                            ? res.lastName
-                                            : ""}
+                                              ? res.lastName
+                                              : ""}
                                         </>
                                       ),
                                     },
                                     {
                                       key: "email",
                                       header: "Email",
-                                      onCellRender: (res) => (
-                                        <>{res.email}</>
-                                      ),
+                                      onCellRender: (res) => <>{res.email}</>,
                                     },
                                     {
                                       key: "Action",
@@ -339,41 +361,35 @@ function OperatorsList() {
                                               </div>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent className="w-11 flex flex-col gap-1">
-                                              {selectedTableData===UserStatusEnumValue.ACTIVE?(
+                                              {selectedTableData ===
+                                                UserStatusEnumValue.ACTIVE ? (
+                                                <DropdownMenuItem
+                                                  onClick={() =>
+                                                    handleBlockedOperators(res.userId)
+                                                  }
+                                                >
+                                                  <img
+                                                    className="mr-2 h-4 w-4 text-[#44546F]"
+                                                    src={Blocked}
+                                                  />
+                                                  <span className="p-0 font-normal h-auto">
+                                                    Block
+                                                  </span>
+                                                </DropdownMenuItem>
+                                              ) : (
                                                 <DropdownMenuItem
                                                 onClick={() =>
-                                                  handleStatus(
-                                                    res.userId,
-                                                    UserStatusEnumValue.INACTIVE
-                                                  )
+                                                  handleRetrieverOperators(res.userId)
                                                 }
-                                              >
-                                                <img
-                                                  className="mr-2 h-4 w-4 text-[#44546F]"
-                                                  src={Blocked}
-                                                />
-                                                <span className="p-0 font-normal h-auto">
-                                                  Block
-                                                </span>
-                                              </DropdownMenuItem>
-                                              ):(
-                                                <DropdownMenuItem
-                                                onClick={() =>
-                                                  handleStatus(
-                                                    res.userId,
-                                                    UserStatusEnumValue.ACTIVE
-                                                  )
-                                                }
-                                              >
-                                                <img
-                                                  className="mr-2 h-4 w-4 text-[#44546F]"
-                                                  src={Active}
-                                                />
-                                                <span className="p-0 font-normal h-auto">
-                                                  Retrieve{selectedTableData}
-                                                </span>
-                                              </DropdownMenuItem>
-                                              
+                                                >
+                                                  <img
+                                                    className="mr-2 h-4 w-4 text-[#44546F]"
+                                                    src={Active}
+                                                  />
+                                                  <span className="p-0 font-normal h-auto">
+                                                    Retrieve
+                                                  </span>
+                                                </DropdownMenuItem>
                                               )}
                                               <DropdownMenuSeparator className="mx-1" />
                                               <DropdownMenuItem
@@ -422,7 +438,7 @@ function OperatorsList() {
             )}
             {isOpenPopUp && (
               <div className="fixed z-50 w-full h-full top-0 bg-black/40 flex items-center align-center justify-center">
-                <div   className="operatorForm-background-image h-1/3 min-h-fit py-2 lg:w-2/6 w-4/5 flex flex-col justify-evenly lg:gap-1 gap-1 rounded-lg bg-white px-3 bg-no-repeat bg-cover">
+                <div className="operatorForm-background-image h-1/3 min-h-fit py-2 lg:w-2/6 w-4/5 flex flex-col justify-evenly lg:gap-1 gap-1 rounded-lg bg-white px-3 bg-no-repeat bg-cover">
                   <div className="flex justify-between lg:py-5 py-2">
                     <div className="text-2xl lg:text-3xl font-bold text-gray-500 lg:px-4 px-4">
                       Add Operator
@@ -458,6 +474,147 @@ function OperatorsList() {
             )}
           </>
         )}
+          <Dialog
+            isOpen={Boolean(isDeleteOpenPopUp)}
+            onClose={() => {
+              setIsDeleteOpenPopUp("");
+            }}
+            modalClass="rounded-lg !min-w-0"
+          >
+            <div className="flex flex-col gap-4 p-4 ">
+              Are you sure you want to delete ?
+              <div className="flex gap-4 justify-center">
+                <Button
+                  variant={"outline"}
+                  isLoading={
+                    deleteOperatorsStatusMutation.isPending
+                  }
+                  disabled={
+                    deleteOperatorsStatusMutation.isPending
+                  }
+                  onClick={() => {
+                    setIsDeleteOpenPopUp("");
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant={"primary"}
+                  onClick={() => {
+                    handleDelete(isDeleteOpenPopUp??''),
+                      setIsDeleteOpenPopUp("");
+                  }}
+                  isLoading={
+                    deleteOperatorsStatusMutation.isPending
+                  }
+                  disabled={
+                    deleteOperatorsStatusMutation.isPending
+                  }
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+          </Dialog>
+          <Dialog
+            isOpen={Boolean(isRetrieveOpenPopUp)}
+            onClose={() => {
+              setIsRetrieveOpenPopUp("");
+            }}
+            modalClass="rounded-lg !min-w-0"
+          >
+            <div className="flex flex-col gap-4 p-4 ">
+              Are you sure you want to Retrieve User ?
+              <div className="flex gap-4 justify-center">
+                <Button
+                  variant={"outline"}
+                  isLoading={
+                    addOperatorsStatusMutation.isPending
+                  }
+                  disabled={
+                    addOperatorsStatusMutation.isPending
+                  }
+                  onClick={() => {
+                    setIsRetrieveOpenPopUp(
+                      ""
+                    );
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant={"primary"}
+                  onClick={() => {
+                    handleStatus(
+                      isRetrieveOpenPopUp??"",
+                      UserStatusEnumValue.ACTIVE
+                    ),
+                      setIsRetrieveOpenPopUp(
+                        ""
+                      );
+                  }}
+                  isLoading={
+                    addOperatorsStatusMutation.isPending
+                  }
+                  disabled={
+                    addOperatorsStatusMutation.isPending
+                  }
+                >
+                  Yes
+                </Button>
+              </div>
+            </div>
+          </Dialog>
+          <Dialog
+            isOpen={Boolean(isBlockOpenPopUp)}
+            onClose={() => {
+              setIsBlockOpenPopUp('');
+            }}
+            modalClass="rounded-lg !min-w-0"
+          >
+            <div className="flex flex-col gap-4 p-4 ">
+              Are you sure you want to Block User ?
+              <div className="flex gap-4 justify-center">
+                <Button
+                  variant={"outline"}
+                  // isLoading={
+                  //   addOperatorsStatusMutation.isPending
+                  // }
+                  // disabled={
+                  //   addOperatorsStatusMutation.isPending
+                  // }
+                  onClick={() => {
+                    setIsBlockOpenPopUp(
+                      ''
+                    );
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant={"primary"}
+                  onClick={() => {
+                   {isBlockOpenPopUp && handleStatus(
+                      isBlockOpenPopUp,
+                      UserStatusEnumValue.INACTIVE
+                    )}
+                    setIsBlockOpenPopUp(
+                      ''
+                    );
+                  }}
+                // isLoading={
+                //   addOperatorsStatusMutation.isPending
+                // }
+                // disabled={
+                //   addOperatorsStatusMutation.isPending
+                // }
+                >
+                  Block
+                </Button>
+              </div>
+            </div>
+          </Dialog>
+
       </div>
     </>
   );

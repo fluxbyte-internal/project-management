@@ -32,12 +32,17 @@ import Blocked from "../../assets/svg/Blocked.svg";
 import Active from "../../assets/svg/Active.svg";
 import Delete from "../../assets/svg/Delete.svg";
 import OperartorBackground from "../../assets/operatorHomePageImage.jpg";
+import Dialog from "@/components/common/Dialog";
 
 type Options = { label: string; value: string };
 
 function AdminConsole() {
   const [data, setData] = useState<OrganisationsType[]>();
   const [filterData, setFilterData] = useState<OrganisationsType[]>();
+  const [isRetrieveOpenPopUp, setIsRetrieveOpenPopUp] = useState<string>('');
+  const [isBlockOpenPopUp, setIsBlockOpenPopUp] = useState<string>('');
+  const [isDeleteOpenPopUp, setIsDeleteOpenPopUp] = useState<string>('');
+
   const [filter, setFilter] = useState<{
     industry: SingleValue<Options> | null;
     country: SingleValue<Options> | null;
@@ -56,10 +61,8 @@ function AdminConsole() {
     setData(organisationQuery.data?.data?.data);
     setFilterData(organisationQuery.data?.data?.data);
   }, [organisationQuery.data?.data]);
-const handleDelete = (organisationId:string) =>{
-  deleteOrganisationMutation.mutate(
-    organisationId,
-    {
+  const handleDelete = (organisationId: string) => {
+    deleteOrganisationMutation.mutate(organisationId, {
       onSuccess(data) {
         fetchData();
         toast.success(data?.data?.message);
@@ -69,10 +72,11 @@ const handleDelete = (organisationId:string) =>{
           err.response?.data?.message ?? "An unexpected error occurred."
         );
       },
-    }
-  )
-}
+    });
+  };
+
   const handleView = (id: string, status: keyof typeof OrgStatusEnumValue) => {
+    console.log(id, "id")
     useOrganisationStatusApi.mutate(
       { OrganisationId: id, status: status },
       {
@@ -124,32 +128,45 @@ const handleDelete = (organisationId:string) =>{
 
     return statusData;
   };
-
+  const handleRetrieverOperators = (id: string) => {
+    setIsRetrieveOpenPopUp(id);
+  };
+  const handleBlockedOperators = (id: string) => {
+    setIsBlockOpenPopUp(id);
+  };
   const columnDef: ColumeDef[] = [
     {
       key: "organisationName",
       header: "Organisation Name",
       onCellRender: (userData) => {
-        const adminUser = userData?.userOrganisation?.find((res: { role: string; user: { status: string; }; }) => res?.role === "ADMINISTRATOR" && res?.user?.status === "ACTIVE");
-        
+        const adminUser = userData?.userOrganisation?.find(
+          (res: { role: string; user: { status: string } }) =>
+            res?.role === "ADMINISTRATOR" && res?.user?.status === "ACTIVE"
+        );
+
         return (
           <>
-            {adminUser ? (<>  <Link
-              to={"/organisationUsers/"+userData?.organisationId}
-              className=""
-            >
-              {userData?.organisationName}
-            </Link></>
+            {adminUser ? (
+              <>
+                {" "}
+                <Link
+                  to={"/organisationUsers/" + userData?.organisationId}
+                  className=""
+                >
+                  {userData?.organisationName}
+                </Link>
+              </>
             ) : (
-              
-               <Link
-              to={"/organisationUsers/"+userData?.organisationId}
-              className="flex gap-3 items-center text-center"
-             
-            >
-              {userData?.organisationName}<img   className="h-[20px] w-[20px] text-[#44546F]"
-              src={Alert}></img>
-            </Link>
+              <Link
+                to={"/organisationUsers/" + userData?.organisationId}
+                className="flex gap-3 items-center text-center"
+              >
+                {userData?.organisationName}
+                <img
+                  className="h-[20px] w-[20px] text-[#44546F]"
+                  src={Alert}
+                ></img>
+              </Link>
             )}
           </>
         );
@@ -160,10 +177,11 @@ const handleDelete = (organisationId:string) =>{
       header: "Status",
       onCellRender: (item) => (
         <>
-         <div
-            className={`w-32 h-8 px-3 py-1.5 ${
-              item.status === "ACTIVE" ? "bg-cyan-100 text-cyan-700" : "bg-red-500 text-white"
-            } rounded justify-center items-center gap-px inline-flex`}
+          <div
+            className={`w-32 h-8 px-3 py-1.5 ${item.status === "ACTIVE"
+                ? "bg-cyan-100 text-cyan-700"
+                : "bg-red-500 text-white"
+              } rounded justify-center items-center gap-px inline-flex`}
           >
             <div className=" text-xs font-medium leading-tight">
               {item.status}
@@ -180,9 +198,7 @@ const handleDelete = (organisationId:string) =>{
       key: "joinDate",
       header: "Joining Date",
 
-      onCellRender: (item) => (
-        <>{dateFormatter(new Date(item.createdAt))}</>
-      ),
+      onCellRender: (item) => <>{dateFormatter(new Date(item.createdAt))}</>,
     },
     {
       key: "country",
@@ -200,47 +216,42 @@ const handleDelete = (organisationId:string) =>{
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-11 flex flex-col gap-1">
-             {(item.status === "ACTIVE") && (
-              <> <DropdownMenuItem
-                onClick={() => handleView(item?.organisationId, "DEACTIVE")}
-              >
-                <img
-                  className="mr-2 h-4 w-4 text-[#44546F]"
-                  src={Blocked}
-                />
-                <span className="p-0 font-normal h-auto">Block</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="mx-1" />
-              </>
-              )}
-              {(item.status === "DEACTIVE") && (
+              {item.status === "ACTIVE" && (
                 <>
-                      <DropdownMenuItem
-                onClick={() => handleView(item?.organisationId, "ACTIVE")}
-              >
-                <img
-                  className="mr-2 h-4 w-4 text-[#44546F]"
-                  src={Active}
-                />
-                <span className="p-0 font-normal h-auto">Retrieve</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="mx-1" />
+                  {" "}
+                  <DropdownMenuItem onClick={() => handleBlockedOperators(item.organisationId)}>
+                    <img
+                      className="mr-2 h-4 w-4 text-[#44546F]"
+                      src={Blocked}
+                    />
+                    <span className="p-0 font-normal h-auto">Block</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="mx-1" />
+                </>
+              )}
+              {item.status === "DEACTIVE" && (
+                <>
+                  <DropdownMenuItem onClick={() => handleRetrieverOperators(item.organisationId)}>
+                    <img className="mr-2 h-4 w-4 text-[#44546F]" src={Active} />
+                    <span className="p-0 font-normal h-auto">Retrieve</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="mx-1" />
                 </>
               )}
               <DropdownMenuItem
                 onClick={() => handleDelete(item?.organisationId)}
               >
-                <img
-                  className="mr-2 h-4 w-4 text-[#44546F]"
-                  src={Delete}
-                />
+                <img className="mr-2 h-4 w-4 text-[#44546F]" src={Delete} />
                 <span className="p-0 font-normal h-auto">Delete</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+
+
         </>
       ),
-    }
+    },
   ];
   const reactSelectStyle = {
     control: (
@@ -263,11 +274,9 @@ const handleDelete = (organisationId:string) =>{
   let filteredData = data;
   useEffect(() => {
     if (filter && filter.status && filter.status.value) {
-      filteredData = data?.filter(
-        (d) => d.status === filter.status?.value
-      );
+      filteredData = data?.filter((d) => d.status === filter.status?.value);
     }
-     if (filter && filter.date?.from && filter.date?.to) {
+    if (filter && filter.date?.from && filter.date?.to) {
       filteredData = filteredData?.filter((d) => {
         return (
           new Date(d.createdAt) >= (filter.date?.from ?? new Date()) &&
@@ -275,15 +284,16 @@ const handleDelete = (organisationId:string) =>{
         );
       });
     }
-     if (filter && filter.industry && filter.industry.value) {
+    if (filter && filter.industry && filter.industry.value) {
       filteredData = filteredData?.filter(
         (d) => d.industry === filter.industry?.value
       );
-    }  if (filter && filter.country && filter.country.value) {
+    }
+    if (filter && filter.country && filter.country.value) {
       filteredData = filteredData?.filter(
         (d) => d.country === filter.country?.value
       );
-    } 
+    }
     setFilterData(filteredData);
   }, [filter, data]);
 
@@ -297,21 +307,27 @@ const handleDelete = (organisationId:string) =>{
     setFilterData(data);
   };
 
-const fetchData=()=>{
-  organisationQuery.refetch();
-  setData(organisationQuery.data?.data?.data);
-  setFilterData(organisationQuery.data?.data?.data);
-}
+  const fetchData = () => {
+    organisationQuery.refetch();
+    setData(organisationQuery.data?.data?.data);
+    setFilterData(organisationQuery.data?.data?.data);
+  };
 
   return (
     <>
-      <div style={{ backgroundImage: `url(${OperartorBackground})` }} className="w-full h-full relative bg-no-repeat bg-cover">
+      <div
+        style={{ backgroundImage: `url(${OperartorBackground})` }}
+        className="w-full h-full relative bg-no-repeat bg-cover"
+      >
         {organisationQuery.isLoading ? (
           <Loader />
         ) : (
           <>
             {data && data.length > 0 ? (
-              <div style={{ backgroundImage: `url(${OperartorBackground})` }} className="h-full py-5 p-4 lg:p-14 w-full flex flex-col gap-5 bg-no-repeat bg-cover">
+              <div
+                style={{ backgroundImage: `url(${OperartorBackground})` }}
+                className="h-full py-5 p-4 lg:p-14 w-full flex flex-col gap-5 bg-no-repeat bg-cover"
+              >
                 <div className="flex justify-between items-center">
                   <h2 className="font-medium text-3xl leading-normal text-gray-600">
                     Organisations
@@ -377,8 +393,8 @@ const fetchData=()=>{
                             <div className="flex justify-between items-center w-full text-gray-400 font-normal">
                               {filter.date
                                 ? `${dateFormatter(
-                                    filter.date.from ?? new Date()
-                                  )}-
+                                  filter.date.from ?? new Date()
+                                )}-
                               ${dateFormatter(filter.date.to ?? new Date())}`
                                 : "Joining date"}
                               <img src={CalendarSvg} width={20} />
@@ -430,6 +446,120 @@ const fetchData=()=>{
             )}
           </>
         )}
+        <Dialog
+          isOpen={Boolean(isDeleteOpenPopUp)}
+          onClose={() => {
+            setIsDeleteOpenPopUp('');
+          }}
+          modalClass="rounded-lg !min-w-0"
+        >
+          <div className="flex flex-col gap-4 p-4 ">
+            Are you sure you want to delete ?
+            <div className="flex gap-4 justify-center">
+              <Button
+                variant={"outline"}
+                isLoading={deleteOrganisationMutation?.isPending}
+                disabled={deleteOrganisationMutation?.isPending}
+                onClick={() => {
+                  setIsDeleteOpenPopUp('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant={"primary"}
+                onClick={() => {
+                  handleDelete(isDeleteOpenPopUp), setIsDeleteOpenPopUp('');
+                }}
+                isLoading={deleteOrganisationMutation?.isPending}
+                disabled={deleteOrganisationMutation?.isPending}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </Dialog>
+
+
+        <Dialog
+          isOpen={Boolean(isRetrieveOpenPopUp)}
+          onClose={() => {
+            setIsRetrieveOpenPopUp('');
+          }}
+          modalClass="rounded-lg !min-w-0"
+        >
+          <div className="flex flex-col gap-4 p-4 ">
+            Are you sure you want to Retrieve User ?
+            <div className="flex gap-4 justify-center">
+              <Button
+                variant={"outline"}
+                isLoading={useOrganisationStatusApi?.isPending}
+                disabled={useOrganisationStatusApi?.isPending}
+                onClick={() => {
+                  setIsRetrieveOpenPopUp('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant={"primary"}
+                onClick={() => {
+                  handleView(isRetrieveOpenPopUp, OrgStatusEnumValue.ACTIVE),
+                    setIsRetrieveOpenPopUp('');
+                }}
+                isLoading={useOrganisationStatusApi?.isPending}
+                disabled={useOrganisationStatusApi?.isPending}
+              >
+                Yes
+              </Button>
+            </div>
+          </div>
+        </Dialog>
+
+
+        <Dialog
+          isOpen={Boolean(isBlockOpenPopUp)}
+          onClose={() => {
+            setIsBlockOpenPopUp('');
+          }}
+          modalClass="rounded-lg !min-w-0"
+        >
+          <div className="flex flex-col gap-4 p-4 ">
+            Are you sure you want to Block User ?
+            <div className="flex gap-4 justify-center">
+              <Button
+                variant={"outline"}
+                // isLoading={
+                //   addOperatorsStatusMutation.isPending
+                // }
+                // disabled={
+                //   addOperatorsStatusMutation.isPending
+                // }
+                onClick={() => {
+                  setIsBlockOpenPopUp('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant={"primary"}
+                onClick={() => {
+                  console.log(isBlockOpenPopUp, "item?.organisationId")
+                  handleView(isBlockOpenPopUp, OrgStatusEnumValue.DEACTIVE);
+                  setIsBlockOpenPopUp('');
+                }}
+              // isLoading={
+              //   addOperatorsStatusMutation.isPending
+              // }
+              // disabled={
+              //   addOperatorsStatusMutation.isPending
+              // }
+              >
+                Block
+              </Button>
+            </div>
+          </div>
+        </Dialog>
       </div>
     </>
   );

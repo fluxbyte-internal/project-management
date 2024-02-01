@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {  useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   UserRoleEnumValue,
   UserStatusEnumValue,
@@ -30,6 +30,18 @@ import Dropdown from "../../assets/svg/Dropdown.svg"
 
 function OrganisationUsers() {
   const organisationId = useParams().organisationId!;
+
+  const [isRetrieveOpenPopUp, setIsRetrieveOpenPopUp] = useState<{
+    userId: string
+    UserStatusEnumValue: keyof typeof UserStatusEnumValue
+    organisationId: string
+  }>();
+  const [isBlockOpenPopUp, setIsBlockOpenPopUp] = useState<{
+    userId: string
+    UserStatusEnumValue: keyof typeof UserStatusEnumValue
+    organisationId: string,
+    role: keyof typeof UserRoleEnumValue
+  }>();
   const [data, setData] = useState<OrganisationUserType[]>();
   const [currentAdminId, setCurrentAdminId] = useState<string>("");
   const [newAdminId, setAdminId] = useState<string>("");
@@ -212,11 +224,10 @@ function OrganisationUsers() {
       onCellRender: (item) => (
         <>
           <div
-            className={`w-32 h-8 px-3 py-1.5 ${
-              item.user.status === "ACTIVE"
-                ? "bg-cyan-100 text-cyan-700"
-                : "bg-red-500 text-white"
-            } rounded justify-center items-center gap-px inline-flex`}
+            className={`w-32 h-8 px-3 py-1.5 ${item.user.status === "ACTIVE"
+              ? "bg-cyan-100 text-cyan-700"
+              : "bg-red-500 text-white"
+              } rounded justify-center items-center gap-px inline-flex`}
           >
             <div className=" text-xs font-medium leading-tight">
               {item.user.status}
@@ -247,11 +258,13 @@ function OrganisationUsers() {
                   <DropdownMenuItem
                     onClick={() => {
                       setCurrentAdminId(item.userId);
-                      handleBlock(
-                        item.userId,
-                        UserStatusEnumValue.INACTIVE,
-                        item.organisationId,
-                        item.role
+                      setIsBlockOpenPopUp(
+                        {
+                          userId: item.userId,
+                          UserStatusEnumValue: UserStatusEnumValue.INACTIVE,
+                          organisationId: item.organisationId,
+                          role: item.role
+                        }
                       );
                     }}
                   >
@@ -268,7 +281,7 @@ function OrganisationUsers() {
                   <DropdownMenuItem
                     onClick={() => {
                       item.role != UserRoleEnumValue.ADMINISTRATOR
-                        ? handleView(item.userId, "ACTIVE", item.organisationId)
+                        ? setIsRetrieveOpenPopUp({ userId: item.userId, UserStatusEnumValue: UserStatusEnumValue.ACTIVE, organisationId: item.organisationId })
                         : null;
                     }}
                   >
@@ -277,11 +290,10 @@ function OrganisationUsers() {
                       src={Active}
                     />
                     <span
-                      className={`${
-                        item.role === UserRoleEnumValue.ADMINISTRATOR
-                          ? "cursor-not-allowed"
-                          : ""
-                      } p-0 font-normal h-auto`}
+                      className={`${item.role === UserRoleEnumValue.ADMINISTRATOR
+                        ? "cursor-not-allowed"
+                        : ""
+                        } p-0 font-normal h-auto`}
                     >
                       Retrieve
                     </span>
@@ -303,7 +315,7 @@ function OrganisationUsers() {
         ) : (
           <>
             {usersOrganisationsQuery.data?.data?.data &&
-            usersOrganisationsQuery.data?.data?.data.length > 0 ? (
+              usersOrganisationsQuery.data?.data?.data.length > 0 ? (
               <div style={{ backgroundImage: `url(${OperartorBackground})` }} className="h-full py-5 p-4 lg:p-14 w-full flex flex-col gap-5 bg-no-repeat bg-cover">
                 <div className="flex lg:flex-row flex-col gap-4 lg:gap-0 justify-between items-center">
                   <h2 className="font-medium text-3xl leading-normal text-gray-600">
@@ -362,25 +374,32 @@ function OrganisationUsers() {
                 </div>
                 <div className="mt-12">
                   {userList?.map((data, index) => {
+                    
                     return (
-                      <div
-                        onClick={() => {
-                          setIsAdminConfirmOpenPopUp(true);
-                          setAdminId(data.userOrganisationId);
-                        }}
-                        key={index}
-                        className="cursor-pointer flex justify-evenly items-center p-2 px-2 my-1 gap-4 hover:bg-slate-100 rounded-md bg-slate-100/80"
-                      >
-                        <UserAvatar user={data.user} className="rounded-full" />
-                        <div className="flex lg:gap-5 gap-0 lg:justify-between justify-start lg:w-1/2 w-full lg:px-10 px-1">
-                          <div className="text-center overflow-hidden max-w-[300px] max-h-[25px] collapse lg:visible lg:w-fit w-0 text-ellipsis">
-                            {`${data.user?.firstName} ${data.user?.lastName}`}
-                          </div>
-                          <div className="lg:text-sm text-md text-gray-400 text-start overflow-hidden max-w-[300px] self-center lg:w-2/3 w-full text-ellipsis">
-                            {data.user.email}
-                          </div>
-                        </div>
-                      </div>
+                    <>
+                    {data.role!= UserRoleEnumValue.ADMINISTRATOR && 
+                  <div
+                  onClick={() => {
+                    setIsAdminConfirmOpenPopUp(true);
+                    setAdminId(data.userOrganisationId);
+                  }}
+                  key={index}
+                  className="cursor-pointer flex justify-evenly items-center p-2 px-2 my-1 gap-4 hover:bg-slate-100 rounded-md bg-slate-100/80"
+                >
+                  <UserAvatar user={data.user} className="rounded-full" />
+                  <div className="flex lg:gap-5 gap-0 lg:justify-between justify-start lg:w-1/2 w-full lg:px-10 px-1">
+                    <div className="text-center overflow-hidden max-w-[300px] max-h-[25px] collapse lg:visible lg:w-fit w-0 text-ellipsis">
+                      {`${data.user?.firstName} ${data.user?.lastName}`}
+                    </div>
+                    <div className="lg:text-sm text-md text-gray-400 text-start overflow-hidden max-w-[300px] self-center lg:w-2/3 w-full text-ellipsis">
+                      {data.user.email}
+                    </div>
+                  </div>
+                </div>    
+                    }
+                  
+                    </>
+                          
                     );
                   })}
                 </div>
@@ -438,8 +457,98 @@ function OrganisationUsers() {
                 </div>
               </Dialog>
             )}
+
           </>
         )}
+
+        <Dialog
+          isOpen={Boolean(isRetrieveOpenPopUp)}
+          onClose={() => {
+            setIsRetrieveOpenPopUp(undefined);
+          }}
+          modalClass="rounded-lg !min-w-0"
+        >
+          <div className="flex flex-col gap-4 p-4 ">
+            Are you sure you want to Retrieve User ?
+            <div className="flex gap-4 justify-center">
+              <Button
+                variant={"outline"}
+                onClick={() => {
+                  setIsRetrieveOpenPopUp(undefined);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant={"primary"}
+                onClick={() => {
+                  {
+                    isRetrieveOpenPopUp && handleView(
+                      isRetrieveOpenPopUp?.userId,
+                      isRetrieveOpenPopUp?.UserStatusEnumValue,
+                      isRetrieveOpenPopUp?.organisationId,
+                    );
+                  }
+                  setIsRetrieveOpenPopUp(undefined);
+                }}
+              >
+                Yes
+              </Button>
+            </div>
+          </div>
+        </Dialog>
+
+
+        <Dialog
+          isOpen={Boolean(isBlockOpenPopUp)}
+          onClose={() => {
+            setIsBlockOpenPopUp(undefined);
+          }}
+          modalClass="rounded-lg !min-w-0"
+        >
+          <div className="flex flex-col gap-4 p-4 ">
+            Are you sure you want to Block User ?
+            <div className="flex gap-4 justify-center">
+              <Button
+                variant={"outline"}
+                // isLoading={
+                //   addOperatorsStatusMutation.isPending
+                // }
+                // disabled={
+                //   addOperatorsStatusMutation.isPending
+                // }
+                onClick={() => {
+                  setIsBlockOpenPopUp(undefined);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant={"primary"}
+                onClick={() => {
+                  console.log(isBlockOpenPopUp, "item?.organisationId")
+                  {
+                    isBlockOpenPopUp && handleBlock(
+                      isBlockOpenPopUp?.userId,
+                      isBlockOpenPopUp?.UserStatusEnumValue,
+                      isBlockOpenPopUp?.organisationId,
+                      isBlockOpenPopUp?.role
+                    );
+                  }
+                  setIsBlockOpenPopUp(undefined);
+                }}
+              // isLoading={
+              //   addOperatorsStatusMutation.isPending
+              // }
+              // disabled={
+              //   addOperatorsStatusMutation.isPending
+              // }
+              >
+                Block
+              </Button>
+            </div>
+          </div>
+        </Dialog>
       </div>
     </>
   );

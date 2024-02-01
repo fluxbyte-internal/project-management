@@ -14,7 +14,7 @@ function useVerifyEmailMutation() {
     AxiosResponseAndError<VerifyEmailResponse>["error"],
     z.infer<typeof verifyEmailOtpSchema>
   >({
-    mutationFn: (data) => ApiRequest.post<VerifyEmailResponse>(requestURLs.verifyEmail, data),
+    mutationFn: (data) => ApiRequest.put<VerifyEmailResponse>(requestURLs.verifyEmail, data),
   });
 
   return mutation;
