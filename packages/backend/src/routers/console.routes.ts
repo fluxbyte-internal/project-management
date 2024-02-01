@@ -79,4 +79,10 @@ router.put(
   ConsoleController.otpVerifyConsole
 );
 
+router.post(
+  "/resend-otp",
+  authMiddleware,
+  ConsoleController.otpVerifyConsole
+);
+
 export default router;
