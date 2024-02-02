@@ -332,8 +332,7 @@ function TaskSubTaskForm(props: Props) {
                       onChange={taskFormik.handleChange}
                       onClick={taskFormik.handleBlur}
                       placeholder={
-                        "Task Name" +
-                        <span className="text-red-500 text-sm">*</span>
+                        "Task Name *" 
                       }
                       value={taskFormik.values.taskName}
                     ></InputText>
