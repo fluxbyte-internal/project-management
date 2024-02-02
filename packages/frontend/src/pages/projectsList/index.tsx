@@ -67,12 +67,12 @@ function ProjectsList() {
       { label: "Select manager", value: "" },
     ];
     data?.forEach((item) => {
-      const val = item.createdByUser.email;
-      if (
-        !projectManagerData.some((i) => i.value == item.createdByUser.email)
-      ) {
-        projectManagerData.push({ label: val, value: val });
-      }
+      item.projectManagerInfo.forEach((manager) => {
+        const val = manager.user.email;
+        if (!projectManagerData.some((i) => i.value == manager.user.email)) {
+          projectManagerData.push({ label: val, value: val });
+        }
+      });
     });
 
     return projectManagerData;
@@ -120,7 +120,7 @@ function ProjectsList() {
               {item.projectManagerInfo?.length <= 0 ? "N/A" : ""}
             </div>
           ) : (
-            "NA"
+            "N/A"
           )}
         </div>
       ),
