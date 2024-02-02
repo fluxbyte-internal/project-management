@@ -38,12 +38,14 @@ import { cookieConfig } from "../utils/setCookies.js";
 import { generateOTP } from "../utils/otpHelper.js";
 import { OtpService } from "../services/userOtp.services.js";
 import { verifyEmailOtpSchema } from "../schemas/authSchema.js";
+import { selectUserFields } from "../utils/selectedFieldsOfUsers.js";
 
 export const me = async (req: express.Request, res: express.Response) => {
   const prisma = await getClientByTenantId(req.tenantId);
   const user = await prisma.consoleUser.findUniqueOrThrow({
     where: {
       userId: req.userId,
+      deletedAt: null,
     },
   });
   if (user?.status === ConsoleStatusEnum.INACTIVE) {
@@ -64,7 +66,7 @@ export const loginConsole = async (
   const { email, password } = consoleLoginSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
   const user = await prisma.consoleUser.findUnique({
-    where: { email },
+    where: { email, deletedAt: null, },
   });
   if (user?.status === ConsoleStatusEnum.INACTIVE) {
     throw new BadRequestError("User is DEACTIVE");
@@ -126,6 +128,7 @@ export const changePassword = async (
   const findConsoleUser = await prisma.consoleUser.findUniqueOrThrow({
     where: {
       userId: req.userId,
+      deletedAt: null,
     },
   });
   const verifyPassword = await compareEncryption(
@@ -191,6 +194,7 @@ export const createOperator = async (
   const findOperator = await prisma.consoleUser.findUnique({
     where: {
       email: email,
+      deletedAt: null,
     },
   });
   if (findOperator) {
@@ -293,10 +297,13 @@ export const deleteOperator = async (
 
   const userId = uuidSchema.parse(req.params.userId);
   const prisma = await getClientByTenantId(req.tenantId);
-  await prisma.consoleUser.delete({
+  await prisma.consoleUser.update({
     where: {
       userId: userId,
     },
+    data: {
+      deletedAt: new Date()
+    }
   });
   return new SuccessResponse(
     StatusCodes.OK,
@@ -318,6 +325,7 @@ export const getAllOperator = async (
       role: {
         in: [ConsoleRoleEnum.OPERATOR],
       },
+      deletedAt: null,
     },
     orderBy: {
       createdAt: "asc",
@@ -341,7 +349,7 @@ export const changeUserStatus = async (
   const prisma = await getClientByTenantId(req.tenantId);
   const { organisationId, status } = userStatuSchema.parse(req.body);
   const findUser = await prisma.user.findFirstOrThrow({
-    where: { userId },
+    where: { userId, deletedAt: null },
     include: {
       userOrganisation: {
         select: {
@@ -442,6 +450,9 @@ export const getAllOrganisation = async (
   }
   const prisma = await getClientByTenantId(req.tenantId);
   const organisations = await prisma.organisation.findMany({
+    where: {
+      deletedAt: null,
+    },
     orderBy: {
       createdAt: "asc",
     },
@@ -449,13 +460,7 @@ export const getAllOrganisation = async (
       userOrganisation: {
         include: {
           user: {
-            select: {
-              avatarImg: true,
-              email: true,
-              lastName: true,
-              firstName: true,
-              status: true,
-            },
+            select: selectUserFields
           },
         },
       },
@@ -478,16 +483,10 @@ export const organisationsUser = async (
   const organisationId = uuidSchema.parse(req.params.organisationId);
   const prisma = await getClientByTenantId(req.tenantId);
   let userOfOrg = await prisma.userOrganisation.findMany({
-    where: { organisationId },
+    where: { organisationId, deletedAt: null },
     include: {
       user: {
-        select: {
-          avatarImg: true,
-          email: true,
-          lastName: true,
-          firstName: true,
-          status: true,
-        },
+        select: selectUserFields
       },
     },
   });
@@ -514,7 +513,7 @@ export const deleteOrganisation = async (
   }
   const organisationId = uuidSchema.parse(req.params.organisationId);
   const prisma = await getClientByTenantId(req.tenantId);
-  await prisma.organisation.delete({
+  await prisma.organisation.update({
     where: {
       organisationId,
     },
@@ -534,6 +533,9 @@ export const deleteOrganisation = async (
           }
         }
       }
+    },
+    data: {
+      deletedAt: new Date(),
     }
   });
   return new SuccessResponse(
@@ -550,7 +552,7 @@ export const updateConsoleUserAvtarImg = async (
   const files = avatarImgConsoleSchema.parse(req.files);
   const prisma = await getClientByTenantId(req.tenantId);
   const findUser = await prisma.consoleUser.findFirst({
-    where: { userId: req.userId },
+    where: { userId: req.userId, deletedAt: null, },
   });
   if (!findUser) throw new NotFoundError("User not found");
   const avatarImgURL = await AwsUploadService.uploadFileWithContent(
@@ -639,7 +641,8 @@ export const resendOTP = async (req: express.Request, res: express.Response) => 
   const prisma = await getClientByTenantId(req.tenantId);
   const user = await prisma.consoleUser.findFirst({
     where: {
-      userId: req.userId
+      userId: req.userId,
+      deletedAt: null,
     }
   });
   if (!user) { throw new NotFoundError('User not found') };

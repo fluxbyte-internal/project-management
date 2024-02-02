@@ -123,18 +123,22 @@ model User {
   sentNotifications     Notification[]     @relation("sentNotificationBy")
   receivedNotifications Notification[]     @relation("sentNotificationTo")
 
+  deletedAt DateTime? @map("deleted_at")
+
   @@index([userId, email])
 }
 
 model UserProvider {
   userProviderId String @id @default(uuid()) @map("user_provider_id")
   userId         String @unique @map("user_id")
-  user           User   @relation(fields: [userId], references: [userId])
+  user           User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   idOrPassword String               @map("id_or_password")
   providerType UserProviderTypeEnum @map("provider_type")
   createdAt    DateTime             @default(now()) @map("created_at")
   updatedAt    DateTime             @updatedAt @map("updated_at")
+
+  deletedAt DateTime? @map("deleted_at")
 
   @@unique([userId, providerType])
 }
@@ -153,6 +157,8 @@ model ConsoleUser {
   isVerified Boolean           @default(false) @map("is_verified")
   createdAt  DateTime          @default(now()) @map("created_at")
   updatedAt  DateTime          @updatedAt @map("updated_at")
+
+  deletedAt DateTime? @map("deleted_at")
 
   @@unique([email, password])
   @@index([userId, email])
@@ -178,6 +184,8 @@ model ResetPassword {
   expiryTime      DateTime @map("expiry_time")
   createdAt       DateTime @default(now()) @map("created_at")
   user            User?    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  deletedAt DateTime? @map("deleted_at")
 }
 
 model Organisation {
@@ -191,12 +199,14 @@ model Organisation {
   updatedAt        DateTime      @updatedAt @map("updated_at")
   tenantId         String?       @map("tenant_id")
   createdByUserId  String        @map("created_by_user_id")
-  createdByUser    User          @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  createdByUser    User          @relation("createdByUser", fields: [createdByUserId], references: [userId], onDelete: Cascade)
   updatedByUserId  String?       @map("updated_by_user_id")
-  updatedByUser    User?         @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  updatedByUser    User?         @relation("updatedByUser", fields: [updatedByUserId], references: [userId], onDelete: Cascade)
 
   projects         Project[]
   userOrganisation UserOrganisation[]
+
+  deletedAt DateTime? @map("deleted_at")
 
   @@unique([organisationName, industry, createdByUserId])
   @@index([organisationId, tenantId])
@@ -207,6 +217,8 @@ model Tenant {
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
   connectionString String?  @map("connection_string")
+
+  deletedAt DateTime? @map("deleted_at")
 
   @@index([tenantId])
 }
@@ -224,6 +236,8 @@ model UserOrganisation {
   organisation Organisation? @relation(fields: [organisationId], references: [organisationId], onDelete: Cascade)
   user         User?         @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
+  deletedAt DateTime? @map("deleted_at")
+
   @@unique([userId, organisationId])
   @@index([userId, organisationId, role])
 }
@@ -233,7 +247,7 @@ model Project {
   organisationId     String                  @map("organisation_id")
   organisation       Organisation            @relation(fields: [organisationId], references: [organisationId], onDelete: Cascade)
   projectName        String                  @map("project_name")
-  projectDescription String?                  @map("project_description") @db.VarChar(500)
+  projectDescription String?                 @map("project_description") @db.VarChar(500)
   startDate          DateTime                @map("start_date")
   estimatedEndDate   DateTime                @map("estimated_end_date")
   actualEndDate      DateTime                @map("actual_end_date")
@@ -244,17 +258,19 @@ model Project {
   currency           String                  @map("currency")
   overallTrack       ProjectOverAllTrackEnum @default(SUNNY) @map("overall_track")
   estimatedBudget    String                  @map("estimated_budget")
-  consumedBudget     String                  @default("0")@map("consumed_budget")
+  consumedBudget     String                  @default("0") @map("consumed_budget")
   actualCost         String?                 @map("actual_cost")
   createdByUserId    String                  @map("created_by_user_id")
-  createdByUser      User                    @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  createdByUser      User                    @relation("createdByUser", fields: [createdByUserId], references: [userId], onDelete: Cascade)
   updatedByUserId    String?                 @map("updated_by_user_id")
-  updatedByUser      User?                   @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  updatedByUser      User?                   @relation("updatedByUser", fields: [updatedByUserId], references: [userId], onDelete: Cascade)
   createdAt          DateTime                @default(now()) @map("created_at")
   updatedAt          DateTime                @updatedAt @map("updated_at")
 
   tasks         Task[]
   kanbanColumns KanbanColumn[]
+
+  deletedAt DateTime? @map("deleted_at")
 
   @@unique([organisationId, projectName])
   @@index([projectId, organisationId])
@@ -272,9 +288,9 @@ model Task {
   milestoneStatus    MilestoneIndicatorStatusEnum @default(NOT_STARTED) @map("milestone_status")
   dueDate            DateTime?                    @map("due_date")
   createdByUserId    String                       @map("created_by_user_id")
-  createdByUser      User                         @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  createdByUser      User                         @relation("createdByUser", fields: [createdByUserId], references: [userId], onDelete: Cascade)
   updatedByUserId    String?                      @map("updated_by_user_id")
-  updatedByUser      User?                        @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  updatedByUser      User?                        @relation("updatedByUser", fields: [updatedByUserId], references: [userId], onDelete: Cascade)
   createdAt          DateTime                     @default(now()) @map("created_at")
   updatedAt          DateTime                     @updatedAt @map("updated_at")
 
@@ -294,6 +310,8 @@ model Task {
 
   notifications Notification[]
 
+  deletedAt DateTime? @map("deleted_at")
+
   @@index([taskId, projectId])
 }
 
@@ -305,6 +323,8 @@ model TaskAssignUsers {
   user              User     @relation(fields: [assginedToUserId], references: [userId], onDelete: Cascade)
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @updatedAt @map("updated_at")
+
+  deletedAt DateTime? @map("deleted_at")
 
   @@unique([taskId, assginedToUserId])
 }
@@ -320,6 +340,8 @@ model TaskDependencies {
   updatedAt               DateTime             @updatedAt @map("updated_at")
   dependenciesAddedBy     String               @map("dependencies_added_by")
   dependenciesAddedByUser User                 @relation(fields: [dependenciesAddedBy], references: [userId], onDelete: Cascade)
+
+  deletedAt DateTime? @map("deleted_at")
 
   @@unique([dependentTaskId, dependentType, dependendentOnTaskId])
   @@index([dependentTaskId, dependentType, dependendentOnTaskId])
@@ -337,6 +359,8 @@ model TaskAttachment {
   uploadedBy     String @map("uploaded_by")
   uploadedByUser User   @relation(fields: [uploadedBy], references: [userId], onDelete: Cascade)
 
+  deletedAt DateTime? @map("deleted_at")
+
   @@index([taskId])
 }
 
@@ -350,6 +374,8 @@ model Comments {
   task            Task     @relation(fields: [taskId], references: [taskId], onDelete: Cascade)
 
   commentByUser User @relation(fields: [commentByUserId], references: [userId], onDelete: Cascade)
+
+  deletedAt DateTime? @map("deleted_at")
 
   @@index([commentId, commentByUserId])
 }
@@ -371,6 +397,8 @@ model Notification {
   createdAt DateTime @default(now()) @map("created_at")
   ReadAt    DateTime @updatedAt @map("read_at")
 
+  deletedAt DateTime? @map("deleted_at")
+
   @@index([sentBy, sentTo, referenceId])
 }
 
@@ -383,12 +411,14 @@ model KanbanColumn {
   name            String  @map("name")
   percentage      Float?  @map("percentage")
   createdByUserId String  @map("created_by_user_id")
-  createdByUser   User    @relation("createdByUser", fields: [createdByUserId], references: [userId])
+  createdByUser   User    @relation("createdByUser", fields: [createdByUserId], references: [userId], onDelete: Cascade)
   updatedByUserId String? @map("updated_by_user_id")
-  updatedByUser   User?   @relation("updatedByUser", fields: [updatedByUserId], references: [userId])
+  updatedByUser   User?   @relation("updatedByUser", fields: [updatedByUserId], references: [userId], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  deletedAt DateTime? @map("deleted_at")
 
   @@unique([kanbanColumnId, projectId])
 }
@@ -404,6 +434,8 @@ model History {
   createdByUser User            @relation(fields: [createdBy], references: [userId], onDelete: Cascade)
   createdAt     DateTime        @default(now()) @map("created_at")
   updatedAt     DateTime        @updatedAt @map("updated_at")
+
+  deletedAt DateTime? @map("deleted_at")
 
   @@index([referenceId, createdBy])
 }

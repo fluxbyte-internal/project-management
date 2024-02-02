@@ -21,6 +21,7 @@ import { ZodError } from "zod";
 import { EmailService } from "../services/email.services.js";
 import { settings } from "../config/settings.js";
 import { generateRandomPassword } from "../utils/generateRandomPassword.js";
+import { selectUserFields } from "../utils/selectedFieldsOfUsers.js";
 
 export const getOrganisationById = async (
   req: express.Request,
@@ -31,6 +32,7 @@ export const getOrganisationById = async (
   const organisations = await prisma.organisation.findFirstOrThrow({
     where: {
       organisationId: organisationId,
+      deletedAt: null,
     },
     include: {
       userOrganisation: {
@@ -40,13 +42,7 @@ export const getOrganisationById = async (
           role: true,
           taskColour: true,
           user: {
-            select: {
-              userId: true,
-              email: true,
-              firstName: true,
-              lastName: true,
-              avatarImg: true,
-            },
+            select: selectUserFields,
           },
         },
         orderBy: {
@@ -75,7 +71,7 @@ export const createOrganisation = async (
 
   // CASE : One user can create only one organisation
   const findOrganisation = await prisma.userOrganisation.findFirst({
-    where: { userId: req.userId },
+    where: { userId: req.userId, deletedAt: null },
   });
   if (findOrganisation) {
     throw new BadRequestError("Organisation is already created");
@@ -131,6 +127,7 @@ export const updateOrganisation = async (
   const organisation = await prisma.organisation.findFirst({
     where: {
       organisationId: organisationId,
+      deletedAt: null,
     },
     include: {
       userOrganisation: true,
@@ -267,10 +264,23 @@ export const removeOrganisationMember = async (
   }
   const prisma = await getClientByTenantId(req.tenantId);
   const userOrganisationId = uuidSchema.parse(req.params.userOrganisationId);
-  await prisma.userOrganisation.delete({
+  await prisma.userOrganisation.update({
     where: {
       userOrganisationId: userOrganisationId,
     },
+    data: {
+      deletedAt: new Date(),
+      user: {
+        update: {
+          provider: {
+            update: {
+              deletedAt: new Date(),
+            }
+          },
+          deletedAt: new Date(),
+        },
+      }
+    }
   });
   return new SuccessResponse(
     StatusCodes.OK,

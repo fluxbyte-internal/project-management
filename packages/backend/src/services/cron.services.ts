@@ -28,6 +28,7 @@ export class CronService {
           const prisma = await getClientByTenantId("root");
           const tasks = await prisma.task.findMany({
             where: {
+              deletedAt: null,
               dueDate: {
                 equals: new Date(),
               },

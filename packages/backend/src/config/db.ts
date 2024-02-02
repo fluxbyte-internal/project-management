@@ -138,6 +138,7 @@ function generatePrismaClient(datasourceUrl?: string) {
               user: {
                 status: UserStatusEnum.ACTIVE,
               },
+              deletedAt: null,
             },
           });
         },
@@ -149,6 +150,7 @@ function generatePrismaClient(datasourceUrl?: string) {
             where: {
               projectId,
               parentTaskId: null,
+              deletedAt: null,
             },
           });
 
@@ -201,7 +203,7 @@ function generatePrismaClient(datasourceUrl?: string) {
         },
         async getTaskById(taskId: string) {
           return client.task.findFirstOrThrow({
-            where: { taskId },
+            where: { taskId, deletedAt: null, },
             include: {
               assignedUsers: {
                 include: {
@@ -238,7 +240,7 @@ function generatePrismaClient(datasourceUrl?: string) {
           let count = 0;
           while (currentTaskId) {
             const currentTask = (await client.task.findFirst({
-              where: { taskId: currentTaskId },
+              where: { taskId: currentTaskId, deletedAt: null, },
               select: { parentTaskId: true },
             })) as { taskId: string; parentTaskId: string | null };
             if (currentTask) {
@@ -264,7 +266,7 @@ function generatePrismaClient(datasourceUrl?: string) {
         },
         async findMaxEndDateAmongTasks(projectId: string) {
           const tasks = await client.task.findMany({
-            where: { projectId: projectId },
+            where: { projectId: projectId, deletedAt: null, },
             select: {
               startDate: true,
               duration: true,
@@ -298,7 +300,7 @@ function generatePrismaClient(datasourceUrl?: string) {
       comments: {
         async canEditOrDelete(commentId: string, userId: string) {
           const comment = await client.comments.findFirstOrThrow({
-            where: { commentId },
+            where: { commentId, deletedAt: null },
             include: {
               commentByUser: true,
             },
@@ -321,7 +323,7 @@ function generatePrismaClient(datasourceUrl?: string) {
       taskAttachment: {
         async canDelete(attachmentId: string, userId: string) {
           const attachment = await client.taskAttachment.findFirstOrThrow({
-            where: { attachmentId: attachmentId },
+            where: { attachmentId: attachmentId, deletedAt: null },
             include: {
               task: {
                 include: {
@@ -353,6 +355,7 @@ function generatePrismaClient(datasourceUrl?: string) {
           const dependencies = await client.taskDependencies.findFirstOrThrow({
             where: {
               taskDependenciesId: taskDependenciesId,
+              deletedAt: null,
             },
           });
 
@@ -387,6 +390,7 @@ function generatePrismaClient(datasourceUrl?: string) {
             },
             where: {
               userId: userId,
+              deletedAt: null,
             },
           });
           return user.userOrganisation.map((org) => org.role);
