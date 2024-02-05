@@ -68,7 +68,7 @@ type Props = {
   projectId: string | undefined;
   taskId?: string | undefined;
   close: () => void;
-  initialValues?: { startDate: Date | undefined; taskId: string };
+  initialValues?: { startDate: Date | undefined; taskId?: string };
   createSubtask?: string;
 };
 
