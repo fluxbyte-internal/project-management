@@ -1,5 +1,5 @@
 import express from "express";
-import { UserStatusEnum } from "@prisma/client";
+import { UserProviderTypeEnum, UserStatusEnum } from "@prisma/client";
 import { getClientByTenantId } from "../config/db.js";
 import { settings } from "../config/settings.js";
 import { createJwtToken, verifyJwtToken } from "../utils/jwtHelper.js";
@@ -19,7 +19,6 @@ import {
   forgotPasswordSchema,
   resetPasswordTokenSchema,
   resetTokenSchema,
-  verifyEmailOtpSchema,
 } from "../schemas/authSchema.js";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library.js";
 import { PRISMA_ERROR_CODE } from "../constants/prismaErrorCodes.js";
@@ -28,6 +27,7 @@ import { generateOTP } from "../utils/otpHelper.js";
 import { EmailService } from "../services/email.services.js";
 import { OtpService } from "../services/userOtp.services.js";
 import { generateRandomToken } from "../utils/generateRandomToken.js";
+import { cookieConfig } from "../utils/setCookies.js";
 
 export const signUp = async (req: express.Request, res: express.Response) => {
   const { firstName, lastName, email, password } = authSignUpSchema.parse(
@@ -41,8 +41,13 @@ export const signUp = async (req: express.Request, res: express.Response) => {
         firstName: firstName,
         lastName: lastName,
         email: email,
-        password: hashedPassword,
         status: UserStatusEnum.ACTIVE,
+        provider: {
+          create: {
+            idOrPassword: hashedPassword,
+            providerType: UserProviderTypeEnum.EMAIL,
+          },
+        },
       },
     });
     const tokenPayload = {
@@ -68,15 +73,19 @@ export const signUp = async (req: express.Request, res: express.Response) => {
     } catch (error) {
       console.error("Failed to send email", error);
     }
-    res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      secure: true,
+
+    res.cookie(settings.jwt.tokenCookieKey, token, {
+      ...cookieConfig,
+      maxAge: cookieConfig.maxAgeToken
     });
-    const { password: _, ...userInfoWithoutPassword } = user;
+
+    res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
+      ...cookieConfig,
+      maxAge: cookieConfig.maxAgeRefreshToken
+    });
     return new SuccessResponse(
       StatusCodes.CREATED,
-      { user: userInfoWithoutPassword, token },
+      user,
       "Sign up successfully"
     ).send(res);
   } catch (error) {
@@ -101,25 +110,54 @@ export const login = async (req: express.Request, res: express.Response) => {
   const prisma = await getClientByTenantId(req.tenantId);
   const user = await prisma.user.findUnique({
     where: { email },
+    include: { provider: true },
   });
-  if (user && (await compareEncryption(password, user.password))) {
+  if (
+    user &&
+    user.provider?.providerType == UserProviderTypeEnum.EMAIL &&
+    (await compareEncryption(password, user.provider?.idOrPassword!))
+  ) {
     const tokenPayload = {
       userId: user.userId,
       email: email,
       tenantId: req.tenantId ?? "root",
     };
     const token = createJwtToken(tokenPayload);
+    res.cookie(settings.jwt.tokenCookieKey, token, {
+      ...cookieConfig,
+      maxAge: cookieConfig.maxAgeToken
+    });
+
     const refreshToken = createJwtToken(tokenPayload, true);
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      secure: true,
+      ...cookieConfig,
+      maxAge: cookieConfig.maxAgeRefreshToken
     });
-    const { password, ...userInfoWithoutPassword } = user;
+
+    const { provider, ...userWithoutProvider } = user;
+
+    // Generate and save verify otp
+    if(!user.isVerified) {
+      const otpValue = generateOTP();
+      const subjectMessage = `Login OTP`;
+      const expiresInMinutes = 5;
+      const bodyMessage = `Here is your login OTP : ${otpValue}, OTP is valid for ${expiresInMinutes} minutes`;
+      try {
+        await OtpService.saveOTP(
+          otpValue,
+          user.userId,
+          req.tenantId,
+          expiresInMinutes * 60
+        );
+        await EmailService.sendEmail(user.email, subjectMessage, bodyMessage);
+      } catch (error) {
+        console.error('Failed to send otp email', error)
+      }
+    }
 
     return new SuccessResponse(
       StatusCodes.OK,
-      { user: userInfoWithoutPassword, token },
+      { user: userWithoutProvider },
       "Login successfully"
     ).send(res);
   }
@@ -128,7 +166,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 
 export const getAccessToken = (req: express.Request, res: express.Response) => {
   const refreshTokenCookie = authRefreshTokenSchema.parse(
-    req.cookies["refresh-token"]
+    req.cookies[settings.jwt.refreshTokenCookieKey]
   );
 
   const decoded = verifyJwtToken(refreshTokenCookie);
@@ -138,16 +176,19 @@ export const getAccessToken = (req: express.Request, res: express.Response) => {
     tenantId: decoded.tenantId,
   };
   const token = createJwtToken(tokenPayload);
-  const refreshToken = createJwtToken(tokenPayload, true);
+  res.cookie(settings.jwt.tokenCookieKey, token, {
+    ...cookieConfig,
+    maxAge: cookieConfig.maxAgeToken
+  });
 
+  const refreshToken = createJwtToken(tokenPayload, true);
   res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-    httpOnly: true,
-    secure: true,
+    ...cookieConfig,
+    maxAge: cookieConfig.maxAgeRefreshToken
   });
   return new SuccessResponse(
     StatusCodes.OK,
-    { token },
+    null,
     "Access token retrived successfully"
   ).send(res);
 };
@@ -232,7 +273,11 @@ export const resetPassword = async (
       isUsed: true,
       user: {
         update: {
-          password: hashedPassword,
+          provider: {
+            update: {
+              idOrPassword: hashedPassword,
+            },
+          },
         },
       },
     },
@@ -242,4 +287,12 @@ export const resetPassword = async (
     null,
     "Reset password successfully"
   ).send(res);
+};
+
+export const logout = (req: express.Request, res: express.Response) => {
+  res.clearCookie(settings.jwt.tokenCookieKey);
+  res.clearCookie(settings.jwt.refreshTokenCookieKey);
+  return new SuccessResponse(StatusCodes.OK, null, "Logout successfully").send(
+    res
+  );
 };

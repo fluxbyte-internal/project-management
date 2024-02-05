@@ -6,9 +6,10 @@ import {
   ResponseType,
 } from "../types/axiosResponseType";
 import ApiRequest from "../ApiRequest";
-import { ProjectDefaultViewEnumValue } from "@backend/src/schemas/enums";
+import { OverAllTrackEnumValue, ProjectDefaultViewEnumValue } from "@backend/src/schemas/enums";
 
 export type Project = {
+  overallTrack:  keyof typeof OverAllTrackEnumValue;
   projectId: string;
   organisationId: string;
   projectName: string;
@@ -26,6 +27,7 @@ export type Project = {
   updatedAt: string;
   createdByUser: CreatedByUser;
   currency:string;
+  projectManagerInfo:{user:CreatedByUser}[]
 };
 export interface CreatedByUser {
   firstName: string;

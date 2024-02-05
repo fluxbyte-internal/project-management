@@ -12,13 +12,12 @@ import {
   organisationIdSchema,
   updateOrganisationSchema,
   addOrganisationMemberSchema,
+  memberRoleSchema,
 } from "../schemas/organisationSchema.js";
-import { UserRoleEnum, UserStatusEnum } from "@prisma/client";
+import { UserProviderTypeEnum, UserRoleEnum, UserStatusEnum } from "@prisma/client";
 import { encrypt } from "../utils/encryption.js";
 import { uuidSchema } from "../schemas/commonSchema.js";
 import { ZodError } from "zod";
-import { OtpService } from "../services/userOtp.services.js";
-import { generateOTP } from "../utils/otpHelper.js";
 import { EmailService } from "../services/email.services.js";
 import { settings } from "../config/settings.js";
 import { generateRandomPassword } from "../utils/generateRandomPassword.js";
@@ -192,8 +191,13 @@ export const addOrganisationMember = async (
     const newUser = await prisma.user.create({
       data: {
         email: member.email,
-        password: hashedPassword,
         status: UserStatusEnum.ACTIVE,
+        provider: {
+          create: {
+            idOrPassword: hashedPassword, 
+            providerType: UserProviderTypeEnum.EMAIL
+          }
+        },
         userOrganisation: {
           create: {
             role: member.role,
@@ -216,25 +220,12 @@ export const addOrganisationMember = async (
       You are invited in Organisation ${newUserOrg?.organisation?.organisationName}
       
       URL: ${settings.appURL}/login
+      EMAIL: ${newUser.email}
       PASSWORD: ${randomPassword}
       `
       await EmailService.sendEmail(newUser.email, subjectMessage, bodyMessage);
     } catch (error) {
       console.error('Failed to sign up email', error)
-    }
-    // Generate and save verify otp
-    const otpValue = generateOTP();
-    const subjectMessage = `Login OTP`;
-    const expiresInMinutes = 10;
-    const bodyMessage = `Here is your login OTP : ${otpValue}, OTP is valid for ${expiresInMinutes} minutes`;
-    await OtpService.saveOTP(
-      otpValue, newUser.userId, req.tenantId, expiresInMinutes * 60
-    );
-    try {
-      // Send verify otp in email
-      await EmailService.sendEmail(newUser.email, subjectMessage, bodyMessage);
-    } catch (error) {
-      console.error('Failed to otp email', error)
     }
     return new SuccessResponse(200, null).send(res);
   } else {
@@ -265,4 +256,48 @@ export const addOrganisationMember = async (
     });
     return new SuccessResponse(200, null).send(res);
   }
+};
+
+export const removeOrganisationMember = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!");
+  }
+  const prisma = await getClientByTenantId(req.tenantId);
+  const userOrganisationId = uuidSchema.parse(req.params.userOrganisationId);
+  await prisma.userOrganisation.delete({
+    where: {
+      userOrganisationId: userOrganisationId,
+    },
+  });
+  return new SuccessResponse(
+    StatusCodes.OK,
+    null,
+    "Member removed successfully"
+  ).send(res);
+};
+
+export const changeMemberRole = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!");
+  }
+  const userOrganisationId = uuidSchema.parse(req.params.userOrganisationId);
+  const { role } = memberRoleSchema.parse(req.body);
+  const prisma = await getClientByTenantId(req.tenantId);
+  await prisma.userOrganisation.update({
+    where: { userOrganisationId: userOrganisationId },
+    data: {
+      role: role,
+    },
+  }); 
+  return new SuccessResponse(
+    StatusCodes.OK,
+    null,
+    "Member role changed successfully"
+  ).send(res);
 };

@@ -24,19 +24,63 @@ export class OtpService {
       }
     });
     if (!findOtp) return false;
-    await prisma.userOTP.update({
+    await prisma.$transaction([
+      prisma.userOTP.update({
+        where: {
+          otpId: findOtp.otpId,
+          userId: userId,
+        },
+        data: {
+          isUsed: true,
+        },
+      }),
+      prisma.user.update({
+        where: {
+          userId,
+        },
+        data: {
+          isVerified: true,
+        },
+      }),
+    ]);
+    return true;
+  };
+
+  static async verifyOTPForConsole(
+    userOtp: string,
+    userId: string,
+    tanentId: string
+  ) {
+    const prisma = await getClientByTenantId(tanentId);
+    const findOtp = await prisma.userOTP.findFirst({
       where: {
-        otpId: findOtp.otpId, userId: userId
+        userId: userId,
+        otp: userOtp,
+        expiryTime: {
+          gt: new Date(),
+        },
       },
-      data: {
-        isUsed: true,
-        user: {
-          update: {
-            isVerified: true
-          }
-        }
-      }
-    })
+    });
+    if (!findOtp) return false;
+    await prisma.$transaction([
+      prisma.userOTP.update({
+        where: {
+          otpId: findOtp.otpId,
+          userId: userId,
+        },
+        data: {
+          isUsed: true,
+        },
+      }),
+      prisma.consoleUser.update({
+        where: {
+          userId,
+        },
+        data: {
+          isVerified: true,
+        },
+      }),
+    ]);
     return true;
   }
 };

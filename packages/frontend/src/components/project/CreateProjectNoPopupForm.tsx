@@ -145,6 +145,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
         projectName: editData.projectName,
         defaultView: editData.defaultView,
         currency: editData.currency,
+        overallTrack: editData.overallTrack,
       });
       setCurrencyValue({ label: editData.currency, value: editData.currency });
     }
@@ -205,10 +206,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 </span>
               </div>
               <div className="text-left">
-                <label className={labelStyle}>
-                  Description
-                  <span className="ml-0.5 text-red-500">*</span>
-                </label>
+                <label className={labelStyle}>Description</label>
                 <textarea
                   disabled={viewOnly}
                   rows={5}

@@ -27,6 +27,7 @@ import { toast } from "react-toastify";
 import countries from "../../assets/json/countries.json";
 import Select, { SingleValue } from "react-select";
 import ErrorMessage from "../common/ErrorMessage";
+import { useNavigate } from "react-router-dom";
 
 type Options = { label: string; value: string };
 
@@ -66,7 +67,6 @@ function CreateUpdateProjectForm(props: AddProjectType) {
   const { handleClosePopUp, editData } = props;
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-
   const errorStyle = "text-red-400 block text-sm h-1";
   const labelStyle = "font-medium text-base text-gray-700 ";
   const inputStyle =
@@ -78,16 +78,16 @@ function CreateUpdateProjectForm(props: AddProjectType) {
   const [currencyValue, setCurrencyValue] = useState<SingleValue<Options>>();
 
   const projectQuery = useProjectQuery();
-
+  const navigate = useNavigate();
   const formik = useFormik<z.infer<typeof createProjectSchema>>({
     initialValues: {
       projectName: "",
       projectDescription: "",
-      startDate: '' as unknown as Date,
-      estimatedEndDate: '' as unknown as Date,
+      startDate: "" as unknown as Date,
+      estimatedEndDate: "" as unknown as Date,
       estimatedBudget: "",
       defaultView: "KANBAN",
-      currency:"USD",
+      currency: "USD",
     },
     validationSchema:
       editData && editData.projectId
@@ -102,6 +102,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
             handleClosePopUp();
             setIsSubmitting(false);
             toast.success(data.data.message);
+            navigate("/projects/");
           },
           onError(error) {
             setIsSubmitting(false);
@@ -116,7 +117,10 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                 });
               }
               if (!Array.isArray(error.response?.data.errors)) {
-                toast.error(error.response?.data?.message?? "An unexpected error occurred.");
+                toast.error(
+                  error.response?.data?.message ??
+                    "An unexpected error occurred."
+                );
               }
             }
           },
@@ -128,6 +132,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
             formik.resetForm();
             handleClosePopUp();
             toast.success(data.data.message);
+            navigate("/projects/");
           },
           onError(error) {
             setIsSubmitting(false);
@@ -142,7 +147,10 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                 });
               }
               if (!Array.isArray(error.response?.data.errors)) {
-                toast.error(error.response?.data?.message?? "An unexpected error occurred.");
+                toast.error(
+                  error.response?.data?.message ??
+                    "An unexpected error occurred."
+                );
               }
             }
           },
@@ -158,20 +166,22 @@ function CreateUpdateProjectForm(props: AddProjectType) {
         const month = date.getMonth() + 1;
         const day = date.getDate();
 
-        return `${year}-${month
+        return `${year}-${month.toString().padStart(2, "0")}-${day
           .toString()
-          .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+          .padStart(2, "0")}`;
       };
       formik.setValues({
         startDate: formatDate(editData.startDate) as unknown as Date,
-        estimatedEndDate: formatDate(editData.estimatedEndDate)as unknown as Date,
+        estimatedEndDate: formatDate(
+          editData.estimatedEndDate
+        ) as unknown as Date,
         estimatedBudget: editData.estimatedBudget,
         projectDescription: editData.projectDescription,
         projectName: editData.projectName,
         defaultView: editData.defaultView,
         currency: editData.currency,
       });
-      setCurrencyValue({label:editData.currency,value:editData.currency});
+      setCurrencyValue({ label: editData.currency, value: editData.currency });
     }
   }, []);
 
@@ -200,7 +210,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
       },
     }),
   };
-  
+
   const handleCurrency = (val: SingleValue<Options>) => {
     if (val) {
       setCurrencyValue(val);
@@ -247,10 +257,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                       </span>
                     </div>
                     <div className="text-left">
-                      <label className={labelStyle}>
-                        Description
-                        <span className="ml-0.5 text-red-500">*</span>
-                      </label>
+                      <label className={labelStyle}>Description</label>
                       <textarea
                         rows={5}
                         cols={30}
@@ -302,7 +309,8 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                                   />
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p> Estimated End date</p>
+                                  <p> Date will be automatically </p>
+                                  <p>updated after saving a baseline</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
@@ -326,9 +334,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                         </span>
                       </div>
                     </div>
-                    <div
-                      className="text-left flex gap-2 "
-                    >
+                    <div className="text-left flex gap-2 ">
                       <div className="w-36">
                         <label className={labelStyle}>Currency</label>
                         <Select
@@ -348,7 +354,10 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                         </ErrorMessage>
                       </div>
                       <div className=" w-full">
-                        <label className={labelStyle}>Estimated Budget</label>
+                        <label className={labelStyle}>
+                          Estimated Budget{" "}
+                          <span className="ml-0.5 text-red-500">*</span>
+                        </label>
                         <input
                           type="text"
                           name="estimatedBudget"

@@ -212,7 +212,7 @@ function TaskComment(props: Props) {
               </div>
             );
           })}
-          {props.task?.comments.length !== visibleComments.length && (
+          {(props.task?.comments.length !== visibleComments.length&&props.task?.comments.length) && (
             <div>
               <hr className="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700"></hr>
               <div

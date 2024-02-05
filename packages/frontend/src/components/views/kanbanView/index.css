@@ -1,0 +1,53 @@
+.scroll {
+    --smart-scroll-bar-thumb-background-active: theme('colors.primary.500');
+    --smart-scroll-bar-thumb-background-hover: theme('colors.primary.400');
+    --smart-scroll-bar-thumb-background: theme('colors.primary.400');
+    --smart-scroll-bar-size: 10px;
+    --smart-scroll-bar-default-width: 10px;
+    --smart-scroll-bar-thumb-border-top-right-radius: 10px;
+    --smart-scroll-bar-thumb-border-top-left-radius: 10px;
+    --smart-scroll-bar-thumb-border-bottom-left-radius: 10px;
+    --smart-scroll-bar-thumb-border-bottom-right-radius: 10px;
+    --smart-scroll-button-size: 10px;
+    --smart-scroll-bar-button-color: "#ffffff00"
+   
+}
+
+.smart-scroll-button{
+    display: none !important;
+}
+.kanban {
+    --smart-border-width: 0px;
+    --smart-kanban-color-band-width: 0px;
+
+    .smart-kanban-task {
+        @apply p-0;
+        grid-template-rows: auto;
+    }
+   
+}
+.smart-element{
+ @apply !bg-transparent
+}
+
+.smart-kanban .smart-kanban-column-content-tasks .smart-kanban-task[focus] {
+    box-shadow: none !important;
+}
+
+.smart-kanban .smart-kanban-task {
+    @apply bg-white rounded-md
+}
+
+.smart-kanban .smart-kanban-column {
+    @apply bg-transparent rounded-xl p-1.5 border shadow-md;
+}
+
+.smart-kanban .smart-kanban-column-header {
+    @apply text-sm !items-center !uppercase !px-2 !py-0.5 !rounded !text-gray-500 !cursor-pointer !bg-transparent;
+    div > span {
+        @apply  antialiased
+    }
+}
+.smart-kanban-feedback > .smart-kanban-task {
+    @apply kanban p-0 rounded;
+}
