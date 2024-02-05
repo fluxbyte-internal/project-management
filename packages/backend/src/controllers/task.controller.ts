@@ -322,15 +322,6 @@ export const deleteTask = async (req: express.Request, res: express.Response) =>
   if (!action) {
     throw new UnAuthorizedError();
   }
-  // await prisma.task.delete({
-  //   where: { taskId },
-  //   include: {
-  //     comments: true,
-  //     documentAttachments: true,
-  //     subtasks: true,
-  //     dependencies: true,
-  //   },
-  // });
 
   await prisma.task.update({
     where: { taskId },
