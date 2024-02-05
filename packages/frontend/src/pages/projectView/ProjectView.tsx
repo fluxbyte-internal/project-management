@@ -15,6 +15,9 @@ import {
 import PercentageCircle from "@/components/shared/PercentageCircle";
 import addIcon from "@/assets/svg/AddProjectIcon.svg";
 import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
+import TrashCan from "@/assets/svg/TrashCan.svg";
+import Link from "@/assets/svg/Link.svg";
+import { Button } from "@/components/ui/button";
 function ProjectView() {
   const taskColumns: GanttChartTaskColumn[] = [
     {
@@ -26,7 +29,7 @@ function ProjectView() {
               <img src=${addIcon} /> <div>Task</div>
             </div>`;
         } else {
-          return `<div class="flex gap-1 items-center font-semibold text-base rounded-md"> ${item} </div>`;
+          return ReactDOMServer.renderToString(<TitleHover title={item} />);
         }
       },
     },
@@ -49,7 +52,8 @@ function ProjectView() {
                     <>
                       <div key={index} style={{ zIndex: zIndex }}>
                         <UserAvatar
-                          className={`shadow-sm `}
+                          className={`shadow-sm p-0 h-6 w-6`}
+                          fontClass={"text-xs"}
                           user={item.user}
                         ></UserAvatar>
                       </div>
@@ -140,7 +144,7 @@ function ProjectView() {
       return {
         target: dependence.dependendentOnTaskId,
         type: 1,
-        value:dependence.dependentType
+        value: dependence.dependentType,
       };
     });
   };
@@ -171,7 +175,8 @@ function ProjectView() {
     // const gantt = ganttChart.current;
     event?.preventDefault();
     const eventDetails = event?.detail;
-    // const target = eventDetails.originalEvent.target;
+    const target = eventDetails.originalEvent.target;
+    console.log(target);
 
     if (eventDetails.item.value == "false") {
       setTaskId(eventDetails.item.id);
@@ -200,6 +205,37 @@ function ProjectView() {
     //   //Open the Editor to configure
     //   gantt.openWindow(newItemId);
     // }
+  };
+
+  const TitleHover = (props: { title: string }) => {
+    return (
+      <>
+        <div className="group">
+          {props.title}
+          <div className="!mt-2 opacity-0 !flex !gap-1  transition ease-in-out delay-150 absolute group-hover:opacity-100 group-hover:block z-50 bg-gra rounded-lg">
+            <Button
+              id="delete"
+              value={"remove"}
+              variant={"none"}
+              size={"sm"}
+              className="p-0 h-0 "
+            >
+              <img
+                src={TrashCan}
+                id="delete"
+                className="h-4 w-4 mt-1"
+              />
+            </Button>
+            <Button variant={"none"} size={"sm"} className="p-0 h-0">
+              <img
+                src={Link}
+                className="h-4 w-4 mt-1"
+              />
+            </Button>
+          </div>
+        </div>
+      </>
+    );
   };
 
   return (
