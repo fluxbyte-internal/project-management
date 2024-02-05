@@ -46,11 +46,6 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
     setIsSelected(id);
     navigate("/tasks/" + id);
   };
-  const handleProjectView = (id: string) => {
-    setIsSelected(id);
-    navigate("/project-view/" + id);
-  };
-
   const handleSidebarClick = () => {
     if (!isSidebarExpanded) {
       toggleSidebar();
@@ -68,13 +63,15 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
         <button
           onClick={toggleSidebar}
           className={`fixed top-16 w-6 h-6 z-10 text-black bg-primary-100 rounded-full  flex justify-center items-center ${
-            isSidebarExpanded
-              ? "md:left-60 right-6"
-              : "left-1"
+            isSidebarExpanded ? "md:left-60 right-6" : "left-1"
           } `}
         >
-          <img src={RightSide} className={`w-4 h-4 flex items-center ${isSidebarExpanded ? "rotate-180" : "rotate-0"}`} />
-
+          <img
+            src={RightSide}
+            className={`w-4 h-4 flex items-center ${
+              isSidebarExpanded ? "rotate-180" : "rotate-0"
+            }`}
+          />
         </button>
         <div className="py-4 px-2">
           <div className="mt-12 flex justify-between">
@@ -157,12 +154,6 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
                       >
                         Project Task
                       </div>
-                      <div
-                        className="cursor-pointer text-sm font-medium text-gray-700 p-1 rounded-md px-4 hover:bg-slate-100/80"
-                        onClick={() => handleProjectView(item.projectId)}
-                      >
-                        Project View
-                      </div>
                     </div>
                   )}
                 </div>
@@ -171,7 +162,7 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
           </div>
         </div>
       </div>
-      {(isProjectCreate && user?.userOrganisation[0].role !== "TEAM_MEMBER") && (
+      {isProjectCreate && user?.userOrganisation[0].role !== "TEAM_MEMBER" && (
         <CreateUpdateProjectForm
           handleClosePopUp={() => setProjectCreate(false)}
         ></CreateUpdateProjectForm>

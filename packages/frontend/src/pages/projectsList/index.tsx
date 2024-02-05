@@ -113,10 +113,10 @@ function ProjectsList() {
               })}
               {item.projectManagerInfo &&
                 item.projectManagerInfo?.length > 3 && (
-                  <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
-                    {`${item.projectManagerInfo?.length - 3}+`}
-                  </div>
-                )}
+                <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
+                  {`${item.projectManagerInfo?.length - 3}+`}
+                </div>
+              )}
               {item.projectManagerInfo?.length <= 0 ? "N/A" : ""}
             </div>
           ) : (
@@ -326,8 +326,8 @@ function ProjectsList() {
                           <div className="flex justify-between items-center w-full text-gray-400 font-normal">
                             {filter.date
                               ? `${dateFormatter(
-                                  filter.date.from ?? new Date()
-                                )}-
+                                filter.date.from ?? new Date()
+                              )}-
                               ${dateFormatter(filter.date.to ?? new Date())}`
                               : "End date"}
                             <img src={CalendarSvg} width={20} />

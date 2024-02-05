@@ -12,8 +12,8 @@ import OrganisationDetails from "./pages/organisation/OrganisationDetails";
 import Verification from "./pages/authentication/verification";
 import ForgotPassword from "./pages/authentication/forgot-password";
 import ResetPassword from "./pages/authentication/forgot-password/reset-password";
-import ProjectView from "./pages/projectView/ProjectView";
 import TaskViews from "./components/views";
+import Page404 from "./rootAuth/404page";
 
 export const router = createBrowserRouter([
   {
@@ -65,10 +65,6 @@ export const router = createBrowserRouter([
         element: <ProjectDetails />,
       },
       {
-        path: "/project-view/:projectId",
-        element: <ProjectView  />,
-      },
-      {
         path: "/organisation/:organisationId",
         element: <OrganisationDetails />,
       },
@@ -88,5 +84,8 @@ export const router = createBrowserRouter([
       },
      
     ],
+  },{
+    path:"*",
+    element: <Page404 />,
   },
 ]);

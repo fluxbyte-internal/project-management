@@ -7,9 +7,10 @@ import useProjectDetail from "@/api/query/useProjectDetailQuery";
 import { useParams } from "react-router-dom";
 import { ProjectDefaultViewEnumValue } from "@backend/src/schemas/enums";
 import kanaban from "../../assets/svg/KanbanView.svg";
-// import gantt from "../../assets/svg/Gantt.svg";
+import gantt from "../../assets/svg/Gantt.svg";
 import calendar from "../../assets/svg/Calendar.svg";
 import list from "../../assets/svg/List.svg";
+import GanttView from "./ganntView/GanttView";
 function TaskViews() {
   const viewOption = [
     {
@@ -24,10 +25,10 @@ function TaskViews() {
       icon: calendar,
       value: ProjectDefaultViewEnumValue.CALENDAR,
     },
-    // {
-    //   icon: gantt,
-    //   value: ProjectDefaultViewEnumValue.GANTT,
-    // },
+    {
+      icon: gantt,
+      value: ProjectDefaultViewEnumValue.GANTT,
+    },
   ];
 
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
@@ -81,6 +82,7 @@ function TaskViews() {
             {views == ProjectDefaultViewEnumValue.KANBAN && <KanbanView />}
             {views == ProjectDefaultViewEnumValue.LIST && <Tasks />}
             {views == ProjectDefaultViewEnumValue.CALENDAR && <CalendarView />}
+            {views == ProjectDefaultViewEnumValue.GANTT && <GanttView />}
           </div>
         </div>
       </div>

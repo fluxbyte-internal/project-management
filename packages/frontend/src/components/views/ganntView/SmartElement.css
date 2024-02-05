@@ -1,4 +1,18 @@
 
+.scroll {
+  --smart-scroll-bar-thumb-background-active: theme('colors.primary.500');
+  --smart-scroll-bar-thumb-background-hover: theme('colors.primary.400');
+  --smart-scroll-bar-thumb-background: theme('colors.primary.400');
+  --smart-scroll-bar-size: 10px;
+  --smart-scroll-bar-default-width: 10px;
+  --smart-scroll-bar-thumb-border-top-right-radius: 10px;
+  --smart-scroll-bar-thumb-border-top-left-radius: 10px;
+  --smart-scroll-bar-thumb-border-bottom-left-radius: 10px;
+  --smart-scroll-bar-thumb-border-bottom-right-radius: 10px;
+  --smart-scroll-button-size: 10px;
+  --smart-scroll-bar-button-color: "#ffffff00"
+ 
+}
 .smart-gantt-chart {
   --smart-gantt-chart-timeline-task-background-color: rgb(253, 253, 253);
   --smart-gantt-chart-task-default-height: 58px;
