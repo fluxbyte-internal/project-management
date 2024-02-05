@@ -16,9 +16,21 @@ import PercentageCircle from "@/components/shared/PercentageCircle";
 import addIcon from "@/assets/svg/AddProjectIcon.svg";
 import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
 import TrashCan from "@/assets/svg/TrashCan.svg";
-import Link from "@/assets/svg/Link.svg";
+import Edit from "@/assets/svg/EditPen.svg";
 import { Button } from "@/components/ui/button";
+import Dialog from "@/components/common/Dialog";
+import useRemoveTaskMutation from "@/api/mutation/useTaskRemove";
+import { toast } from "react-toastify";
+
+enum BUTTON_EVENT {
+  EDIT = "EDIT",
+  REMOVE = "REMOVE",
+}
+
 function ProjectView() {
+  const [taskRemove, setTaskRemove] = useState("");
+  const [taskEdit, setTaskEdit] = useState("");
+
   const taskColumns: GanttChartTaskColumn[] = [
     {
       label: "Tasks",
@@ -29,7 +41,9 @@ function ProjectView() {
               <img src=${addIcon} /> <div>Task</div>
             </div>`;
         } else {
-          return ReactDOMServer.renderToString(<TitleHover title={item} />);
+          return ReactDOMServer.renderToString(
+            <TitleHover title={item} taskId={task.id} />
+          );
         }
       },
     },
@@ -87,17 +101,6 @@ function ProjectView() {
         }
       },
     },
-    {
-      label: "Action",
-      value: "id",
-      formatFunction: function (item: string, task: GanttChartTask) {
-        if (task.value !== "false") {
-          return item;
-        } else {
-          return "";
-        }
-      },
-    },
   ];
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
   const [taskData, setTaskData] = useState<GanttChartTask[]>();
@@ -124,8 +127,9 @@ function ProjectView() {
         originalTask.dependencies && originalTask.dependencies.length > 0
           ? connections(originalTask)
           : null,
+      type: originalTask.milestoneIndicator ? "milestone" : "task",
     };
-
+    
     if (originalTask.subtasks) {
       convertedTask.tasks = originalTask.subtasks.map((subtask) =>
         convertTask(subtask)
@@ -171,65 +175,57 @@ function ProjectView() {
       setTaskData(convertedData);
     }
   }, [allTaskQuery.data?.data.data, projectId]);
+
   const handleItemClick = async (event: (Event & CustomEvent) | undefined) => {
-    // const gantt = ganttChart.current;
     event?.preventDefault();
     const eventDetails = event?.detail;
     const target = eventDetails.originalEvent.target;
-    console.log(target);
-
     if (eventDetails.item.value == "false") {
       setTaskId(eventDetails.item.id);
       setIsTaskOpen(true);
     }
-    if (eventDetails.item.value !== "false") {
-      // setIsOpenTask(eventDetails.item.id);
+    if (target.id === BUTTON_EVENT.REMOVE) {
+      setTaskRemove(target.alt);
     }
-    // if (target.classList.contains("add-task-button")) {
-    //   const itemPath = await gantt.getItemPath(eventDetails.item);
-    //   const itemIndex = parseInt(itemPath.split(".").slice(-1)[0]) + 1;
-
-    //   const taskProject = await gantt.getTaskProject(eventDetails.item);
-    //   const itemProject = await gantt.getItemPath(taskProject);
-
-    //   //Add a new Task
-    //   const newItemId = await gantt.insertTask(
-    //     {
-    //       label: "New Task",
-    //       dateStart: gantt.dateStart,
-    //     },
-    //     itemProject,
-    //     itemIndex
-    //   );
-
-    //   //Open the Editor to configure
-    //   gantt.openWindow(newItemId);
-    // }
+    if (target.id === BUTTON_EVENT.EDIT) {
+      setTaskEdit(target.alt);
+    }
   };
 
-  const TitleHover = (props: { title: string }) => {
+  const TitleHover = (props: {
+    title: string;
+    taskId: string | undefined | null;
+  }) => {
     return (
       <>
-        <div className="group">
+        <div className="group" title={props.taskId ?? ""}>
           {props.title}
-          <div className="!mt-2 opacity-0 !flex !gap-1  transition ease-in-out delay-150 absolute group-hover:opacity-100 group-hover:block z-50 bg-gra rounded-lg">
+          <div className="!mt-2 opacity-0 !flex !gap-1 transition ease-in-out delay-150 absolute group-hover:opacity-100 group-hover:block z-50 bg-gra rounded-lg">
             <Button
-              id="delete"
+              id={BUTTON_EVENT.REMOVE}
               value={"remove"}
               variant={"none"}
               size={"sm"}
-              className="p-0 h-0 "
+              className="p-0 h-0"
             >
               <img
                 src={TrashCan}
-                id="delete"
+                id={BUTTON_EVENT.REMOVE}
+                alt={props.taskId ?? ""}
                 className="h-4 w-4 mt-1"
               />
             </Button>
-            <Button variant={"none"} size={"sm"} className="p-0 h-0">
+            <Button
+              id={BUTTON_EVENT.EDIT}
+              variant={"none"}
+              size={"sm"}
+              className="p-0 h-0"
+            >
               <img
-                src={Link}
-                className="h-4 w-4 mt-1"
+                src={Edit}
+                id={BUTTON_EVENT.EDIT}
+                className="h-3 w-3 mt-1"
+                alt={props.taskId ?? ""}
               />
             </Button>
           </div>
@@ -237,7 +233,20 @@ function ProjectView() {
       </>
     );
   };
-
+  const removeTaskMutation = useRemoveTaskMutation();
+  const removeTask = (id: string) => {
+    removeTaskMutation.mutate(id, {
+      onSuccess(data) {
+        toast.success(data.data.message);
+        setTaskRemove("");
+        allTaskQuery.refetch();
+      },
+      onError(error) {
+        toast.success(error.message);
+        setTaskRemove("");
+      },
+    });
+  };
   return (
     <div className="w-full relative h-full overflow-hidden">
       {allTaskQuery.isLoading ? (
@@ -277,6 +286,38 @@ function ProjectView() {
             />
           )}
         </>
+      )}
+      <Dialog
+        isOpen={Boolean(taskRemove)}
+        onClose={() => {}}
+        modalClass="rounded-lg"
+      >
+        <div className="flex flex-col gap-2 p-6 ">
+          <img src={TrashCan} className="w-12 m-auto" /> Are you sure you want
+          to delete ?
+          <div className="flex gap-2 ml-auto">
+            <Button variant={"outline"} onClick={() => setTaskRemove("")}>
+              Cancel
+            </Button>
+            <Button
+              variant={"primary"}
+              isLoading={removeTaskMutation.isPending}
+              disabled={removeTaskMutation.isPending}
+              onClick={() => removeTask(taskRemove)}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+      {Boolean(taskEdit) && (
+        <TaskSubTaskForm
+          taskId={taskEdit}
+          projectId={projectId}
+          close={() => {
+            setTaskEdit(""), allTaskQuery.refetch();
+          }}
+        />
       )}
     </div>
   );

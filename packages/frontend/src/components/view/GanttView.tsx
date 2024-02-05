@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import GanttChart, {
   GanttChartProps,
 } from "smart-webcomponents-react/ganttchart";
-import TaskSubTaskForm from "../tasks/taskSubTaskForm";
 import { useParams } from "react-router-dom";
 import Select, { SingleValue } from "react-select";
 import useAllTaskQuery from "@/api/query/useAllTaskQuery";
@@ -32,16 +31,14 @@ function GanttView(
   const showProgressLabel = true;
 
   const { projectId } = useParams();
-  const [isOpenTask, setIsOpenTask] = useState<string>();
   const [filterUnit, setFilterUnit] = useState<string>("week");
   const [filterUser, setFilterUser] = useState<string>();
-  const [UpdateUser, setUpdateUser] = useState<string>();
   const ganttChart = useRef<GanttChart>(null);
   const { user } = useUser();
   console.log(filterUser, "filterUser");
   const allTaskQuery = useAllTaskQuery(projectId);
   const [viewUserData, setViewUserData] = useState<Options[]>([]);
-  const taskUpdateMutation = useUpdateTaskMutation(UpdateUser);
+  const taskUpdateMutation = useUpdateTaskMutation();
   useEffect(() => {
     const users: Options[] = [];
     if (allTaskQuery.data?.data.data) {
@@ -66,18 +63,6 @@ function GanttView(
     ganttChart.current?.refresh();
   }, [allTaskQuery.data?.data.data]);
 
-  const handlePopUp = (e: (Event & CustomEvent) | undefined) => {
-    
-    e?.preventDefault();
-    if (
-      e?.detail.target &&
-      e?.detail.target._target &&
-      e?.detail.target._target.id
-    ) {
-      setIsOpenTask(e?.detail.target._target.id);
-    }
-  };
-
   const tooltip = {
     enabled: true,
   };
@@ -98,15 +83,16 @@ function GanttView(
       setFilterUser(val.value);
     }
   };
-  const updateTaskFromGanttView = (e: {
-    detail: { dateStart: Date; dateEnd: Date };
-  }) => {
-    const workingDays = dateDifference(e.detail.dateStart, e.detail.dateEnd);
-
+  const updateTaskFromGanttView = (e: (Event & CustomEvent) | undefined) => {
+    const  duration  = calculateDuration(
+      e?.detail.dateStart,
+      e?.detail.dateEnd
+    );
     taskUpdateMutation.mutate(
       {
-        startDate: e.detail.dateStart,
-        duration: workingDays,
+        taskId: e?.detail.id,
+        startDate: e?.detail.dateStart,
+        duration: parseFloat(duration),
       },
       {
         onSuccess(data) {
@@ -118,27 +104,16 @@ function GanttView(
       }
     );
   };
-  const dateDifference = (startDate: Date, endDate: Date) => {
-    const date1: any = new Date(startDate);
-    const date2: any = new Date(endDate);
-    const diffTime = Math.abs(date2 - date1);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const nonWorkingDays = HandleNonWorkingDays();
+  function calculateDuration(startDate:Date, endDate:Date) {
+    // Convert the date strings to Date objects
+    const start:number = new Date(startDate).getTime();
+    const end:number = new Date(endDate).getTime();
+    const durationMs = end - start;
 
-    let nonWorkingDaysCount = 0;
-    for (let i = 0; i < diffDays; i++) {
-      const currentDate = new Date(date1);
-      currentDate.setDate(date1.getDate() + i);
+    const durationDays = durationMs / (1000 * 60 * 60 * 24);
 
-      if (nonWorkingDays.find((day: number) => day === currentDate.getDay())) {
-        nonWorkingDaysCount++;
-      }
-    }
-
-    const workingDays = diffDays - nonWorkingDaysCount;
-
-    return workingDays;
-  };
+    return parseFloat(durationDays+'').toFixed(2);
+  }
 
   const reactSelectStyle = {
     control: (
@@ -244,22 +219,28 @@ function GanttView(
         treeSize={treeSize}
         durationUnit={durationUnit}
         nonworkingDays={HandleNonWorkingDays()}
-        monthScale="week"
-        monthFormat="2-digit"
-        onOpen={(e) => {
-          handlePopUp(e as (Event & CustomEvent) | undefined);
-        }}
+        monthScale="day"
+        monthFormat="short"
+        dayFormat="short"
+        weekFormat="long"
+        hourFormat="2-digit"
         disableSelection
         view={filterUnit}
         sortMode={sortMode}
         taskFiltering={taskFiltering}
         tooltip={tooltip}
-        onResizeEnd={(e: any) => {
-          setUpdateUser(e?.detail.id), updateTaskFromGanttView(e);
+        onOpening={(e) => {
+          e?.preventDefault();
+        }}
+        onResizeEnd={(e) => {
+          updateTaskFromGanttView(e as (Event & CustomEvent) | undefined);
         }}
         onConnectionEnd={(e) =>
           onConnection(e as (Event & CustomEvent) | undefined)
         }
+        onDragEnd={(e) => {
+          updateTaskFromGanttView(e as (Event & CustomEvent) | undefined);
+        }}
         className="h-full"
         hideResourcePanel
         infiniteTimeline
@@ -271,15 +252,6 @@ function GanttView(
         onItemClick={props.onItemClick}
         onTaskRender={taskrender}
       ></GanttChart>
-      {Boolean(isOpenTask) && (
-        <TaskSubTaskForm
-          projectId={projectId}
-          taskId={isOpenTask}
-          close={() => {
-            setIsOpenTask(""), close();
-          }}
-        />
-      )}
       <Dialog
         isOpen={Boolean(endTask && task)}
         onClose={() => {}}
@@ -287,10 +259,8 @@ function GanttView(
       >
         <div className="w-full p-6">
           <div className="flex justify-between">
-            <div className="text-lg">
-              {task?.taskName}
-            </div>
-            <Button variant={"none"} onClick={()=>setEndTask(undefined)}>
+            <div className="text-lg">{task?.taskName}</div>
+            <Button variant={"none"} onClick={() => setEndTask(undefined)}>
               <img src={CrossSvg} />
             </Button>
           </div>
@@ -298,7 +268,9 @@ function GanttView(
             <TaskDependencies
               endTask={endTask}
               task={task}
-              refetch={() => {allTaskQuery.refetch(),setEndTask(undefined)}}
+              refetch={() => {
+                allTaskQuery.refetch(), setEndTask(undefined);
+              }}
             />
           )}
         </div>
