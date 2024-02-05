@@ -35,6 +35,7 @@ export class CronService {
             },
             include: {
               assignedUsers: {
+                where: { deletedAt: null },
                 include: {
                   user: true,
                 },

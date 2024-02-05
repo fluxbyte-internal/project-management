@@ -19,6 +19,7 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
     where: { projectId: projectId, deletedAt: null },
     orderBy: { createdAt: 'desc' },include: {
       assignedUsers: {
+        where: { deletedAt: null },
         select: {
           taskAssignUsersId: true,
           user:{
@@ -27,8 +28,10 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
         }
       },
       subtasks: {
+        where: { deletedAt: null },
         include: {
           subtasks: {
+            where: { deletedAt: null },
             include: {
               subtasks: true,
             },
@@ -64,6 +67,7 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
         },
       },
       assignedUsers: {
+        where: { deletedAt: null },
         select: {
           taskAssignUsersId: true,
           user:{
@@ -71,9 +75,14 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
           }
         }
       },
-      documentAttachments: true,
-      subtasks: true,
+      documentAttachments: {
+        where: { deletedAt: null }
+      },
+      subtasks: {
+        where: { deletedAt: null },
+      },
       dependencies: {
+        where: { deletedAt: null },
         include: {
           dependentOnTask: true,
         },

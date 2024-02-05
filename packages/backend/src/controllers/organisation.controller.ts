@@ -36,6 +36,7 @@ export const getOrganisationById = async (
     },
     include: {
       userOrganisation: {
+        where: { deletedAt: null },
         select: {
           userOrganisationId: true,
           jobTitle: true,

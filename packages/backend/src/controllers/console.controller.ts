@@ -352,6 +352,7 @@ export const changeUserStatus = async (
     where: { userId, deletedAt: null },
     include: {
       userOrganisation: {
+        where: { deletedAt: null },
         select: {
           role: true,
         },
@@ -458,6 +459,7 @@ export const getAllOrganisation = async (
     },
     include: {
       userOrganisation: {
+        where: { deletedAt: null },
         include: {
           user: {
             select: selectUserFields

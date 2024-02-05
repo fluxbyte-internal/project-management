@@ -22,8 +22,15 @@ export const me = async (req: express.Request, res: express.Response) => {
   const user = await prisma.user.findUniqueOrThrow({
     where: { userId: req.userId, deletedAt: null },
     include: {
-      userOrganisation: { include: { organisation: true } },
-      provider: { select: { providerType: true }}
+      userOrganisation: {
+        where: { deletedAt: null },
+        include: {
+          organisation: {
+            where: { deletedAt: null },
+          },
+        },
+      },
+      provider: { select: { providerType: true } },
     },
   });
 

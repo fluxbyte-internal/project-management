@@ -59,7 +59,9 @@ export const getProjectById = async (req: express.Request, res: express.Response
   const projects = await prisma.project.findFirstOrThrow({
     where: { organisationId: req.organisationId, projectId: projectId, deletedAt: null, },
     include: {
-      tasks: true,
+      tasks: {
+        where: { deletedAt: null },
+      },
       createdByUser: {
         select: selectUserFields,
       }

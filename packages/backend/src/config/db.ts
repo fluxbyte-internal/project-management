@@ -206,6 +206,7 @@ function generatePrismaClient(datasourceUrl?: string) {
             where: { taskId, deletedAt: null, },
             include: {
               assignedUsers: {
+                where: { deletedAt: null },
                 include: {
                   user: true,
                 },
@@ -328,6 +329,7 @@ function generatePrismaClient(datasourceUrl?: string) {
               task: {
                 include: {
                   assignedUsers: {
+                    where: { deletedAt: null },
                     include: {
                       user: true,
                     },
@@ -383,6 +385,7 @@ function generatePrismaClient(datasourceUrl?: string) {
           const user = await client.user.findFirstOrThrow({
             include: {
               userOrganisation: {
+                where: { deletedAt: null },
                 select: {
                   role: true,
                 },
