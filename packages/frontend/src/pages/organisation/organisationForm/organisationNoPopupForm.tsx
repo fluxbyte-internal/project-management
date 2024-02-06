@@ -15,7 +15,6 @@ import countries from "../../../assets/json/countries.json";
 import ErrorMessage from "@/components/common/ErrorMessage";
 import useOrganisationUpdateMutation from "@/api/mutation/useOrganisationUpdateMutation";
 import { toast } from "react-toastify";
-import FormLabel from "@/components/common/FormLabel";
 import {
   TaskColorPaletteEnum,
   userOrgSettingsUpdateSchema,
@@ -132,17 +131,17 @@ function OrganisationNoPopUpForm(props: Props) {
       });
     },
   });
-  const taskColors = Object.keys(TaskColorPaletteEnum).map((colorPalette) => {
-    const color =
-      TaskColorPaletteEnum[colorPalette as keyof typeof TaskColorPaletteEnum];
-    const colors = color.split(" ");
-    return {
-      colorPalette,
-      color,
-      textColor: colors[0],
-      bgColor: colors[1],
-    };
-  });
+  // const taskColors = Object.keys(TaskColorPaletteEnum).map((colorPalette) => {
+  //   const color =
+  //     TaskColorPaletteEnum[colorPalette as keyof typeof TaskColorPaletteEnum];
+  //   const colors = color.split(" ");
+  //   return {
+  //     colorPalette,
+  //     color,
+  //     textColor: colors[0],
+  //     bgColor: colors[1],
+  //   };
+  // });
 
   useEffect(() => {
     if (editData) {

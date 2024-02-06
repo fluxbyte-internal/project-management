@@ -18,17 +18,17 @@ import { z } from "zod";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { toast } from "react-toastify";
 
-const taskColors = Object.keys(TaskColorPaletteEnum).map((colorPalette) => {
-  const color =
-    TaskColorPaletteEnum[colorPalette as keyof typeof TaskColorPaletteEnum];
-  const colors = color.split(" ");
-  return {
-    colorPalette,
-    color,
-    textColor: colors[0],
-    bgColor: colors[1],
-  };
-});
+// const taskColors = Object.keys(TaskColorPaletteEnum).map((colorPalette) => {
+//   const color =
+//     TaskColorPaletteEnum[colorPalette as keyof typeof TaskColorPaletteEnum];
+//   const colors = color.split(" ");
+//   return {
+//     colorPalette,
+//     color,
+//     textColor: colors[0],
+//     bgColor: colors[1],
+//   };
+// });
 
 function UserOrganisationCard(props: { userOrganisation: UserOrganisationType }) {
   const { userOrganisation } = props;
