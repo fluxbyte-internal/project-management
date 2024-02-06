@@ -26,6 +26,7 @@ import useReadAllNotificationMutation from "@/api/mutation/useReadAllNotificatio
 import { toast } from "react-toastify";
 import useSingleReadNotificationMutation from "@/api/mutation/useSingleReadNotificationMutation";
 import Dialog from "../common/Dialog";
+import Loader from "../common/Loader";
 import { baseURL } from "@/Environment";
 
 type NavItemType =
@@ -76,7 +77,7 @@ function NavBar() {
   const { user } = useUser();
   const [notifications, setNotifications] = useState<NotificationType[]>();
   const useAllNotification = useAllNotificationQuery();
-
+  const singleReadNotificationMutation = useSingleReadNotificationMutation();
   const useReadAllNotification = useReadAllNotificationMutation();
 
   const [isOpenPopUpRead, setisOpenPopUpRead] = useState(false);
@@ -89,6 +90,7 @@ function NavBar() {
   const openOrganisationSettings = () => {
     navigate("/organisation/" + user?.userOrganisation[0]?.organisationId);
   };
+
 
   useEffect(() => {
     setNotifications(useAllNotification.data?.data.data ?? []);
@@ -129,6 +131,18 @@ function NavBar() {
     useAllNotification.data?.data.data,
     user?.userId,
   ]);
+  
+  if (!user?.userId) return <Loader className="bg-white" />;
+
+  const handleOpenPopUp = () => {
+    setisOpenPopUp(!isOpenPopUp);
+  };
+  const openAccountSettings = () => {
+    navigate("/account-settings");
+  };
+  const openOrganisationSettings = () => {
+    navigate("/organisation/" + user?.userOrganisation[0]?.organisationId);
+  };
 
   const handleReadAll = () => {
     const updatedNotifications = notifications?.map((notification) => ({
@@ -151,8 +165,6 @@ function NavBar() {
       );
     }
   };
-
-  const singleReadNotificationMutation = useSingleReadNotificationMutation();
 
   const handleSingleReadNotification = (notificationData: NotificationType) => {
     singleReadNotificationMutation.mutate(
