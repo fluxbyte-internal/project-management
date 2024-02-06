@@ -60,4 +60,16 @@ router.put(
   ProjectController.addConsumedBudgetToProject
 );
 
+router.post(
+  "/add-assignee/:projectId",
+  roleMiddleware([UserRoleEnum.ADMINISTRATOR, UserRoleEnum.PROJECT_MANAGER]),
+  ProjectController.assignedUserToProject
+);
+
+router.delete(
+  "/remove-assignee/:projectAssignUsersId",
+  roleMiddleware([UserRoleEnum.ADMINISTRATOR, UserRoleEnum.PROJECT_MANAGER]),
+  ProjectController.deleteAssignedUserFromProject
+);
+
 export default router;

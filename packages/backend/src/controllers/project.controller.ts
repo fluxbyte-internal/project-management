@@ -3,8 +3,9 @@ import { getClientByTenantId } from '../config/db.js';
 import { BadRequestError, NotFoundError, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
 import { consumedBudgetSchema, createKanbanSchema, createProjectSchema, projectIdSchema, projectStatusSchema, updateKanbanSchema, updateProjectSchema } from '../schemas/projectSchema.js';
-import { ProjectStatusEnum, TaskStatusEnum, UserRoleEnum } from '@prisma/client';
+import { NotificationTypeEnum, ProjectStatusEnum, TaskStatusEnum, UserRoleEnum } from '@prisma/client';
 import { uuidSchema } from '../schemas/commonSchema.js';
+import { assginedToUserIdSchema } from '../schemas/taskSchema.js';
 
 export const getProjects = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) { throw new BadRequestError('organisationId not found!') };
@@ -294,4 +295,72 @@ export const addConsumedBudgetToProject = async (
      },
   });
   return new SuccessResponse(StatusCodes.OK, projectUpdate, 'consumed budget updated successfully').send(res);
+};
+
+
+export const assignedUserToProject = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
+
+  const projectId = uuidSchema.parse(req.params.projectId);
+  const prisma = await getClientByTenantId(req.tenantId);
+
+  const { assginedToUserId } = assginedToUserIdSchema.parse(req.body);
+  const member = await prisma.projectAssignUsers.create({
+    data: {
+      assginedToUserId,
+      projectId,
+    },
+    include: {
+      user: {
+        select: {
+          email: true,
+        },
+      },
+    },
+  });
+
+  //Send notification
+  const message = `Project assigned to you`;
+  await prisma.notification.sendNotification(
+    NotificationTypeEnum.PROJECT,
+    message,
+    assginedToUserId,
+    req.userId,
+    projectId
+  );
+
+  return new SuccessResponse(
+    StatusCodes.CREATED,
+    member,
+    "User assgined successfully"
+  ).send(res);
+};
+
+export const deleteAssignedUserFromProject = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
+  const projectAssignUsersId = uuidSchema.parse(
+    req.params.projectAssignUsersId
+  );
+  const prisma = await getClientByTenantId(req.tenantId);
+  await prisma.projectAssignUsers.delete({
+    where: {
+      projectAssignUsersId,
+    },
+  });
+
+  return new SuccessResponse(
+    StatusCodes.OK,
+    null,
+    "User removed successfully"
+  ).send(res);
 };

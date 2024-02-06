@@ -122,6 +122,7 @@ model User {
   addedDependencies     TaskDependencies[]
   sentNotifications     Notification[]     @relation("sentNotificationBy")
   receivedNotifications Notification[]     @relation("sentNotificationTo")
+  projectAssignUsers    ProjectAssignUsers[]
 
   @@index([userId, email])
 }
@@ -255,9 +256,22 @@ model Project {
 
   tasks         Task[]
   kanbanColumns KanbanColumn[]
+  assignedUsers ProjectAssignUsers[]
 
   @@unique([organisationId, projectName])
   @@index([projectId, organisationId])
+}
+
+model ProjectAssignUsers {
+  projectAssignUsersId String   @id @default(uuid()) @map("project_assign_users_id")
+  projectId            String   @map("project_id")
+  assginedToUserId     String   @map("assgined_to_user_id")
+  project              Project  @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  user                 User     @relation(fields: [assginedToUserId], references: [userId], onDelete: Cascade)
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  @@unique([projectId, assginedToUserId])
 }
 
 model Task {
