@@ -347,12 +347,12 @@ function OrganisationDetails() {
                       }`}
                       onClick={() => {
                         setUpdateData(userOrg),
-                          setIsOpen(true),
-                          setReAssignUser((prev) => ({
-                            oldUserId: userOrg.user.userId ?? "",
-                            newUserId: prev?.newUserId ?? "",
-                            organisationUserId: prev?.organisationUserId ?? "",
-                          }));
+                        setIsOpen(true),
+                        setReAssignUser((prev) => ({
+                          oldUserId: userOrg.user.userId ?? "",
+                          newUserId: prev?.newUserId ?? "",
+                          organisationUserId: prev?.organisationUserId ?? "",
+                        }));
                       }}
                     >
                       <UserAvatar user={userOrg.user}></UserAvatar>
@@ -369,18 +369,18 @@ function OrganisationDetails() {
                         {userOrg.user.firstName
                           ? userOrg.user.lastName
                             ? `${userOrg.user.firstName.charAt(
-                                0
-                              )}${userOrg.user.lastName.charAt(
-                                0
-                              )}`.toUpperCase()
-                            : `${userOrg.user.firstName.charAt(
-                                0
-                              )}${userOrg.user.firstName.charAt(
-                                1
-                              )}`.toUpperCase()
-                          : `${userOrg.user.email.charAt(
                               0
-                            )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
+                            )}${userOrg.user.lastName.charAt(
+                              0
+                            )}`.toUpperCase()
+                            : `${userOrg.user.firstName.charAt(
+                              0
+                            )}${userOrg.user.firstName.charAt(
+                              1
+                            )}`.toUpperCase()
+                          : `${userOrg.user.email.charAt(
+                            0
+                          )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
                       </div>
                     </div>
                     <div className="capitalize text-gray-700 text-sm">
@@ -507,7 +507,7 @@ function OrganisationDetails() {
                         setReAssignUser((prev) => ({
                           oldUserId: prev?.oldUserId ?? "",
                           newUserId: userOrg.user.userId,
-                          organisationUserId: prev?.oldUserId ?? ""
+                          organisationUserId: prev?.oldUserId ?? "",
                         }));
                       }}
                     >
@@ -530,18 +530,18 @@ function OrganisationDetails() {
                           {userOrg.user.firstName
                             ? userOrg.user.lastName
                               ? `${userOrg.user.firstName.charAt(
-                                  0
-                                )}${userOrg.user.lastName.charAt(
-                                  0
-                                )}`.toUpperCase()
-                              : `${userOrg.user.firstName.charAt(
-                                  0
-                                )}${userOrg.user.firstName.charAt(
-                                  1
-                                )}`.toUpperCase()
-                            : `${userOrg.user.email.charAt(
                                 0
-                              )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
+                              )}${userOrg.user.lastName.charAt(
+                                0
+                              )}`.toUpperCase()
+                              : `${userOrg.user.firstName.charAt(
+                                0
+                              )}${userOrg.user.firstName.charAt(
+                                1
+                              )}`.toUpperCase()
+                            : `${userOrg.user.email.charAt(
+                              0
+                            )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
                         </div>
                       </div>
                       <div className="capitalize text-gray-700 text-sm">
