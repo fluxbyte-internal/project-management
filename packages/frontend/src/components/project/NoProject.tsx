@@ -2,12 +2,15 @@ import organisationImage from "../../assets/png/organisation.png";
 import CreateProjectForm from "@/components/project/CreateProjectForm";
 import { useState } from "react";
 import BackgroundImage from "../layout/BackgroundImage";
+import { useUser } from "@/hooks/useUser";
 
 function NoProject() {
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
   const close = () => {
     setIsOpenPopUp(false);
   };
+  const { user } = useUser();
+
   return (
     <>
       <BackgroundImage />
@@ -30,8 +33,9 @@ function NoProject() {
             </div>
             <div className="flex items-center ">
               <button
+                disabled={!(user?.userOrganisation[0].role !== "TEAM_MEMBER")}
                 onClick={() => setIsOpenPopUp(true)}
-                className="w-full mt-3 tracking-wide lg:mt-0 lg:w-fit bg-warning hover:bg-opacity-80 text-lg font-medium text-orange-800 py-3 px-7 rounded-md gap-4"
+                className="disabled:bg-warning/50 w-full mt-3 tracking-wide lg:mt-0 lg:w-fit bg-warning hover:bg-opacity-80 text-lg font-medium text-orange-800 py-3 px-7 rounded-md gap-4"
               >
                 Create
               </button>

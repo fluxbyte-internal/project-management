@@ -27,26 +27,25 @@ import { toast } from "react-toastify";
 import useSingleReadNotificationMutation from "@/api/mutation/useSingleReadNotificationMutation";
 import Dialog from "../common/Dialog";
 import Loader from "../common/Loader";
+import { baseURL } from "@/Environment";
 
 type NavItemType =
   | {
-    id: number;
-    name: string;
-    link: string;
-  }
-  | {
-    id: number;
-    name: string;
-    dropDown: Array<{
       id: number;
-      contentName: string;
-      contentLink: string;
-    }>;
-  };
+      name: string;
+      link: string;
+    }
+  | {
+      id: number;
+      name: string;
+      dropDown: Array<{
+        id: number;
+        contentName: string;
+        contentLink: string;
+      }>;
+    };
 
-function hasSubItem(
-  item: NavItemType
-): item is {
+function hasSubItem(item: NavItemType): item is {
   id: number;
   name: string;
   dropDown: Array<{
@@ -80,11 +79,22 @@ function NavBar() {
   const useAllNotification = useAllNotificationQuery();
   const singleReadNotificationMutation = useSingleReadNotificationMutation();
   const useReadAllNotification = useReadAllNotificationMutation();
+
   const [isOpenPopUpRead, setisOpenPopUpRead] = useState(false);
+  const handleOpenPopUp = () => {
+    setisOpenPopUp(!isOpenPopUp);
+  };
+  const openAccountSettings = () => {
+    navigate("/account-settings");
+  };
+  const openOrganisationSettings = () => {
+    navigate("/organisation/" + user?.userOrganisation[0]?.organisationId);
+  };
+
 
   useEffect(() => {
     setNotifications(useAllNotification.data?.data.data ?? []);
-    const socket = io("http://localhost:8000", {
+    const socket = io(baseURL, {
       path: "/socket.io",
       forceNew: true,
       reconnectionAttempts: 3,
@@ -141,16 +151,18 @@ function NavBar() {
     }));
 
     if (updatedNotifications) {
-
-      useReadAllNotification.mutate(updatedNotifications as unknown as NotificationType, {
-        onSuccess(data) {
-          toast.success(data.data.message);
-          setNotifications([]);
-        },
-        onError(error) {
-          toast.error(error.response?.data.message);
-        },
-      });
+      useReadAllNotification.mutate(
+        updatedNotifications as unknown as NotificationType,
+        {
+          onSuccess(data) {
+            toast.success(data.data.message);
+            setNotifications([]);
+          },
+          onError(error) {
+            toast.error(error.response?.data.message);
+          },
+        }
+      );
     }
   };
 
@@ -314,59 +326,58 @@ function NavBar() {
           )}
         </div>
         <div className="flex gap-5  items-center relative">
+          {!isOpenPopUpRead && (
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Button className="relative w-8 h-8 aspect-square rounded-full bg-transparent active:bg-primary-100 hover:bg-primary-100  cursor-pointer">
+                  <img src={Notification} className="absolute top-1 left-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="!overflow-y-auto !max-h-[600px] !w-64">
+                <div className="flex justify-between">
+                  <div>
+                    <DropdownMenuLabel className="!font-bold">
+                      Notifications
+                    </DropdownMenuLabel>
+                  </div>
 
-          {!isOpenPopUpRead && 
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Button className="relative w-8 h-8 aspect-square rounded-full bg-transparent active:bg-primary-100 hover:bg-primary-100  cursor-pointer">
-                <img src={Notification} className="absolute top-1 left-1" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="!overflow-y-auto !max-h-[600px] !w-64">
-              <div className="flex justify-between">
-                <div>
-                  <DropdownMenuLabel className="!font-bold">
-                    Notifications
-                  </DropdownMenuLabel>
+                  {notifications && notifications.length > 0 && (
+                    <CheckCheck
+                      onClick={() => setisOpenPopUpRead(true)}
+                      className="flex justify-center items-center"
+                    />
+                  )}
                 </div>
-
-                {notifications && notifications.length > 0 &&
-                <CheckCheck
-                  onClick={()=>setisOpenPopUpRead(true)}
-                  className="flex justify-center items-center"
-                />
-                }
-              </div>
-              <DropdownMenuSeparator />
-              {notifications && notifications.length > 0 ? (
-                notifications.map((notification) => (
-                  <>
-                    <DropdownMenuItem key={notification.notificationId}>
-                      <div className="w-full"
-                        onClick={() =>
-                          handleSingleReadNotification(notification)
-                        }
-                      >
-                        <div className="flex justify-between w-full">
-                          <div className="text-md font-semibold break-all">
-                            {notification.details}
+                <DropdownMenuSeparator />
+                {notifications && notifications.length > 0 ? (
+                  notifications.map((notification) => (
+                    <>
+                      <DropdownMenuItem key={notification.notificationId}>
+                        <div
+                          className="w-full"
+                          onClick={() =>
+                            handleSingleReadNotification(notification)
+                          }
+                        >
+                          <div className="flex justify-between w-full">
+                            <div className="text-md font-semibold break-all">
+                              {notification.details}
+                            </div>
+                          </div>
+                          <div className="text-gray-300 ">
+                            {timeAgo(new Date(notification.createdAt))}
                           </div>
                         </div>
-                        <div className="text-gray-300 ">
-                          {timeAgo(new Date(notification.createdAt))}
-
-                        </div>
-                      </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                  </>
-                ))
-              ) : (
-                <div className="p-2">No notification Found</div>
-              )}
-            </DropdownMenuContent>
-
-          </DropdownMenu>}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                    </>
+                  ))
+                ) : (
+                  <div className="p-2">No notification Found</div>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           {isOpenPopUpRead && (
             <Dialog
               isOpen={isOpenPopUpRead}
@@ -374,8 +385,7 @@ function NavBar() {
               modalClass="rounded-lg"
             >
               <div className="flex flex-col gap-2 p-6 ">
-           Are you sure you want
-          to Read All Notifications ?
+                Are you sure you want to Read All Notifications ?
                 <div className="flex gap-2 ml-auto">
                   <Button
                     variant={"outline"}
@@ -383,15 +393,18 @@ function NavBar() {
                     disabled={useReadAllNotification.isPending}
                     onClick={() => setisOpenPopUpRead(false)}
                   >
-              Cancel
+                    Cancel
                   </Button>
                   <Button
                     variant={"primary"}
-                    onClick={()=>{handleReadAll();setisOpenPopUpRead(false);}}
+                    onClick={() => {
+                      handleReadAll();
+                      setisOpenPopUpRead(false);
+                    }}
                     isLoading={useReadAllNotification.isPending}
                     disabled={useReadAllNotification.isPending}
                   >
-              Yes
+                    Yes
                   </Button>
                 </div>
               </div>
@@ -432,16 +445,16 @@ function NavBar() {
               </DropdownMenuItem>
               {user?.userOrganisation[0] &&
                 user?.userOrganisation[0].organisationId && (
-                <DropdownMenuItem onClick={openOrganisationSettings}>
-                  <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
-                  <Button
-                    className="p-0 font-normal h-auto"
-                    variant={"ghost"}
-                  >
+                  <DropdownMenuItem onClick={openOrganisationSettings}>
+                    <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
+                    <Button
+                      className="p-0 font-normal h-auto"
+                      variant={"ghost"}
+                    >
                       Organisations Settings
-                  </Button>
-                </DropdownMenuItem>
-              )}
+                    </Button>
+                  </DropdownMenuItem>
+                )}
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4 text-[#44546F]" />
                 <Button className="p-0 font-normal h-auto" variant={"ghost"}>

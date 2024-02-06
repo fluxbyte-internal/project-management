@@ -27,6 +27,7 @@ export type Project = {
   updatedAt: string;
   createdByUser: CreatedByUser;
   currency:string;
+  projectManagerInfo:{user:CreatedByUser}[]
 };
 export interface CreatedByUser {
   firstName: string;

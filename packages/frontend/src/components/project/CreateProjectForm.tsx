@@ -257,10 +257,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                       </span>
                     </div>
                     <div className="text-left">
-                      <label className={labelStyle}>
-                        Description
-                        <span className="ml-0.5 text-red-500">*</span>
-                      </label>
+                      <label className={labelStyle}>Description</label>
                       <textarea
                         rows={5}
                         cols={30}
@@ -357,7 +354,10 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                         </ErrorMessage>
                       </div>
                       <div className=" w-full">
-                        <label className={labelStyle}>Estimated Budget</label>
+                        <label className={labelStyle}>
+                          Estimated Budget{" "}
+                          <span className="ml-0.5 text-red-500">*</span>
+                        </label>
                         <input
                           type="text"
                           name="estimatedBudget"

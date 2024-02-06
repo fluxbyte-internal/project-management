@@ -77,11 +77,11 @@ function KanbanView(
     setIsTaskShow(false);
     allTasks.refetch();
   };
-  
+
   useEffect(() => {
     refetch();
   }, [projectId]);
-  
+
   useEffect(() => {
     if (allKanbanColumn.data?.data.data) {
       allKanbanColumn.data?.data.data.sort(
@@ -227,6 +227,9 @@ function KanbanView(
     // header.classList.add(...className.split(" "));
   };
   const handleColumn = (data: KanbanColumnType[]) => {
+    if (data.length <= 0) {
+      setClosePopup(true);
+    }
     setRawData(data);
     const column: KanbanColumn[] = data.map((d) => {
       return {
@@ -321,14 +324,14 @@ function KanbanView(
           )}
         </div>
       )}
-      {(dialogRendered || isTaskShow) && (
+      {(dialogRendered || isTaskShow) && Boolean(projectId) && (
         <TaskSubTaskForm
           close={close}
           taskId={dialogRendered ?? undefined}
           projectId={projectId}
         />
       )}
-      {closePopup && (
+      {closePopup && projectId && (
         <RulesSetups
           key={"RulesSetups#1"}
           setColumes={(data) => handleColumn(data)}
