@@ -494,7 +494,7 @@ function OrganisationDetails() {
         modalClass="sm:rounded-lg p-4 h-full md:h-auto w-full max-w-md"
       >
         <div className="flex flex-col">
-          <div className="text-lg font-semibold text-gray-600">Task Assign</div>
+          <div className="text-lg font-semibold text-gray-600">Task reassign to other user</div>
           <div className="border rounded-md border-gray-100 mt-3 ">
             {filteredOrganisationUsers.map((userOrg) => {
               return (
@@ -507,7 +507,7 @@ function OrganisationDetails() {
                         setReAssignUser((prev) => ({
                           oldUserId: prev?.oldUserId ?? "",
                           newUserId: userOrg.user.userId,
-                          organisationUserId: prev?.oldUserId ?? "",
+                          organisationUserId: prev?.organisationUserId ?? "",
                         }));
                       }}
                     >
