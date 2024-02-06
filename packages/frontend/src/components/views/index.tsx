@@ -11,6 +11,7 @@ import gantt from "../../assets/svg/Gantt.svg";
 import calendar from "../../assets/svg/Calendar.svg";
 import list from "../../assets/svg/List.svg";
 import GanttView from "./ganntView/GanttView";
+import BackgroundImage from "../layout/BackgroundImage";
 function TaskViews() {
   const viewOption = [
     {
@@ -48,6 +49,7 @@ function TaskViews() {
   return (
     <>
       <div className="relative h-full overflow-hidden">
+        <BackgroundImage/>
         <SideBar
           toggleSidebar={toggleSidebar}
           isSidebarExpanded={isSidebarExpanded}

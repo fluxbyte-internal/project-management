@@ -146,6 +146,7 @@ function GanttView() {
     { label: "Day", value: "day" },
     { label: "Week", value: "week" },
     { label: "Month", value: "month" },
+    { label: "Year", value: "year" },
   ];
   const taskColumns: GanttChartTaskColumn[] = [
     {
@@ -417,10 +418,8 @@ function GanttView() {
         durationUnit={durationUnit}
         nonworkingDays={HandleNonWorkingDays()}
         monthScale="day"
-        monthFormat="short"
         dayFormat="short"
         weekFormat="long"
-        hourFormat="2-digit"
         disableSelection
         view={filterUnit}
         sortMode={sortMode}
