@@ -347,7 +347,7 @@ function OrganisationNoPopUpForm(props: Props) {
             </ErrorMessage>
           </div>
         </div>
-        <div>
+        {/* <div>
           <FormLabel htmlFor="country">Default color</FormLabel>
           <div className="flex flex-wrap gap-4">
             {taskColors.map((taskColor) => (
@@ -380,7 +380,7 @@ function OrganisationNoPopUpForm(props: Props) {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
         {!viewOnly&&<div className="flex justify-end">
           <Button
             type="submit"

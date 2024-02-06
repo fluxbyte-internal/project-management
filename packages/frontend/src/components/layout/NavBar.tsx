@@ -103,23 +103,25 @@ function NavBar() {
     });
     socket.emit("join", user?.userId);
     socket.on("notification", (notificationObject) => {
-      setNotifications((prevNotifications) => [
-        ...(prevNotifications ? prevNotifications : []),
-        {
-          notificationId: notificationObject.notificationId,
-          type: notificationObject.type,
-          referenceId: notificationObject.referenceId,
-          sentBy: notificationObject.sentBy,
-          sentTo: notificationObject.sentTo,
-          details: notificationObject.details,
-          isRead: notificationObject.isRead,
-          createdAt: notificationObject.createdAt,
-          ReadAt: notificationObject.ReadAt,
-          sentNotificationBy: notificationObject.sentNotificationBy,
-          sentNotificationTo: notificationObject.sentNotificationTo,
-          task: notificationObject.task,
-        },
-      ]);
+      if (notificationObject) {
+        setNotifications((prevNotifications) => [
+          ...(prevNotifications ? prevNotifications : []),
+          {
+            notificationId: notificationObject.notificationId,
+            type: notificationObject.type,
+            referenceId: notificationObject.referenceId,
+            sentBy: notificationObject.sentBy,
+            sentTo: notificationObject.sentTo,
+            details: notificationObject.details,
+            isRead: notificationObject.isRead,
+            createdAt: notificationObject.createdAt,
+            ReadAt: notificationObject.ReadAt,
+            sentNotificationBy: notificationObject.sentNotificationBy,
+            sentNotificationTo: notificationObject.sentNotificationTo,
+            task: notificationObject.task,
+          },
+        ]);
+      }
     });
     return () => {
       socket.off("notification");

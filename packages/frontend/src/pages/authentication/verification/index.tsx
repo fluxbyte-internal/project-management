@@ -40,16 +40,17 @@ function Verification() {
   const [isResending, setIsResending] = useState(false);
   const [resendError, setResendError] = useState("");
   const navigate = useNavigate();
-  const { refetch } = useCurrentUserQuery();
-
+  const { refetch,status } = useCurrentUserQuery();
   useEffect(() => {
-    if (!user) {
-      navigate("/login");
+    if (status === "success") {
+      if (!user?.email) {
+        navigate("/login");
+      }
+      if (user&& user.isVerified) {
+        setOtpVerified(true);
+      }
     }
-    if (user&& user.isVerified) {
-      setOtpVerified(true);
-    }
-  }, [user, navigate]);
+  }, [user]);
   const [otpVerified, setOtpVerified] = useState(false);
   const formik = useFormik<z.infer<typeof verifyEmailOtpSchema>>({
     initialValues: {

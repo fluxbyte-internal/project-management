@@ -123,7 +123,7 @@ function UserOrganisationCard(props: { userOrganisation: UserOrganisationType })
                 </ErrorMessage>
               </div>
             </div>
-            <div>
+            {/* <div>
               <FormLabel htmlFor="country">Default color</FormLabel>
               <div className="flex flex-wrap gap-4">
                 {taskColors.map((taskColor) => (
@@ -155,7 +155,7 @@ function UserOrganisationCard(props: { userOrganisation: UserOrganisationType })
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
           </div>
 
           <div className="flex items-center @2xl:col-span-2">
