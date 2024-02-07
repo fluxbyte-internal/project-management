@@ -20,4 +20,7 @@ export const requestURLs = {
   notification: `${baseURL}/api/notification/`,
   kanbanColumn: `${baseURL}/api/project/kanban-column/`,
   logOut: `${baseURL}/api/auth/logOut`,
+  adminPortfolioDashboardData: `${baseURL}/api/dashboard/administartorProjects`,
+  managerPortfolioDashboardData: `${baseURL}/api/dashboard/projectManagerProjects`,
+  projectDashboardData: `${baseURL}/api/dashboard/dashboardByProjectId`,
 };

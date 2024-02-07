@@ -109,7 +109,7 @@ model User {
   createdProject Project[] @relation("createdByUser")
   updatedProject Project[] @relation("updatedByUser")
 
-  provider UserProvider?
+  provider    UserProvider?
 
   createdTask         Task[]            @relation("createdByUser")
   updatedTask         Task[]            @relation("updatedByUser")
