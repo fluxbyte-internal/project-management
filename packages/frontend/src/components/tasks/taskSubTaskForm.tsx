@@ -331,10 +331,7 @@ function TaskSubTaskForm(props: Props) {
                       name="taskName"
                       onChange={taskFormik.handleChange}
                       onClick={taskFormik.handleBlur}
-                      placeholder={
-                        "Task Name" +
-                        <span className="text-red-500 text-sm">*</span>
-                      }
+                      placeholder="Create new task *"
                       value={taskFormik.values.taskName}
                     ></InputText>
                   </div>
@@ -473,19 +470,19 @@ function TaskSubTaskForm(props: Props) {
                     ></InputText>
                   </div>
                   <div className="flex gap-3 justify-end mt-3">
+                  <Button
+                      variant={"secondary"}
+                      onClick={() => setSubTaskFieldShow(false)}
+                      className="py-2 px-4"
+                    >
+                      Cancel
+                    </Button>
                     <Button
                       variant={"primary_outline"}
                       onClick={createSubTask}
                       className="py-2 px-4"
                     >
                       Create
-                    </Button>
-                    <Button
-                      variant={"secondary"}
-                      onClick={() => setSubTaskFieldShow(false)}
-                      className="py-2 px-4"
-                    >
-                      Cancel
                     </Button>
                   </div>
                 </>
@@ -538,7 +535,7 @@ function TaskSubTaskForm(props: Props) {
                       className="py-1.5 px-3 flex w-full gap-3 justify-start"
                     >
                       <img src={Users} />
-                      Members
+                      Assignees
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-80 focus:outline-none">
@@ -725,6 +722,11 @@ function TaskSubTaskForm(props: Props) {
                                 new Date(milestoneFormik.values.dueDate)
                               )
                             : "Select date"}
+                          <ErrorMessage>
+                            {!milestoneFormik.values.dueDate &&
+                              milestoneFormik.values.milestoneIndicator &&
+                              "Please select due date"}
+                          </ErrorMessage>
                         </div>
                       </PopoverTrigger>
                       <PopoverContent className="p-0">

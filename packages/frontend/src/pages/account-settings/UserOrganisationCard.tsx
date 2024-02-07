@@ -18,17 +18,17 @@ import { z } from "zod";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { toast } from "react-toastify";
 
-const taskColors = Object.keys(TaskColorPaletteEnum).map((colorPalette) => {
-  const color =
-    TaskColorPaletteEnum[colorPalette as keyof typeof TaskColorPaletteEnum];
-  const colors = color.split(" ");
-  return {
-    colorPalette,
-    color,
-    textColor: colors[0],
-    bgColor: colors[1],
-  };
-});
+// const taskColors = Object.keys(TaskColorPaletteEnum).map((colorPalette) => {
+//   const color =
+//     TaskColorPaletteEnum[colorPalette as keyof typeof TaskColorPaletteEnum];
+//   const colors = color.split(" ");
+//   return {
+//     colorPalette,
+//     color,
+//     textColor: colors[0],
+//     bgColor: colors[1],
+//   };
+// });
 
 function UserOrganisationCard(props: { userOrganisation: UserOrganisationType }) {
   const { userOrganisation } = props;
@@ -123,7 +123,7 @@ function UserOrganisationCard(props: { userOrganisation: UserOrganisationType })
                 </ErrorMessage>
               </div>
             </div>
-            <div>
+            {/* <div>
               <FormLabel htmlFor="country">Default color</FormLabel>
               <div className="flex flex-wrap gap-4">
                 {taskColors.map((taskColor) => (
@@ -155,7 +155,7 @@ function UserOrganisationCard(props: { userOrganisation: UserOrganisationType })
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
           </div>
 
           <div className="flex items-center @2xl:col-span-2">
