@@ -133,7 +133,6 @@ export const login = async (req: express.Request, res: express.Response) => {
       ...cookieConfig,
       maxAge: cookieConfig.maxAgeRefreshToken
     });
-
     const { provider, ...userWithoutProvider } = user;
 
     // Generate and save verify otp
@@ -154,7 +153,6 @@ export const login = async (req: express.Request, res: express.Response) => {
         console.error('Failed to send otp email', error)
       }
     }
-
     return new SuccessResponse(
       StatusCodes.OK,
       { user: userWithoutProvider },

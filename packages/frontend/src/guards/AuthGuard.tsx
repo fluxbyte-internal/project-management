@@ -9,6 +9,7 @@ const AuthGuard = (props: PropsWithChildren) => {
   const { logout } = useAuth();
   const { error ,isSuccess ,isFetched } = useCurrentUserQuery();
   const { children } = props;
+
   if (!user && isFetched && isSuccess) {
     if (error) {
       logout();

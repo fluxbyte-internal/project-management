@@ -1,10 +1,5 @@
-import { NotificationTypeEnum, PrismaClient, Task } from "@prisma/client";
+import { NotificationTypeEnum, PrismaClient, Task, TaskStatusEnum, UserStatusEnum, UserRoleEnum, HistoryTypeEnum } from "@prisma/client";
 import { RegisterSocketServices } from "../services/socket.services.js";
-import {
-  HistoryTypeEnum,
-  UserRoleEnum,
-  UserStatusEnum,
-} from "@prisma/client";
 
 const rootPrismaClient = generatePrismaClient();
 const prismaClients: Record<
@@ -62,24 +57,12 @@ function generatePrismaClient(datasourceUrl?: string) {
         flag: {
           needs: { milestoneIndicator: true },
           compute(task: Task): "Red" | "Orange" | "Green" {
-            let { milestoneIndicator, duration, completionPecentage } = task;
-
-            //TODO: Need to change logic here
-            const plannedProgress = duration / duration;
-            if (!completionPecentage) {
-              completionPecentage = 100;
-            }
-            const tpi = completionPecentage / plannedProgress;
+            let { milestoneIndicator } = task;
+            const tpi = client.task.tpiCalculation(task);
             if (milestoneIndicator) {
-              return tpi < 1 ? "Red" : "Green";
+              return tpi.tpiValue < 1 ? "Red" : "Green";
             } else {
-              if (tpi < 0.8) {
-                return "Red";
-              } else if (tpi >= 0.8 && tpi < 0.95) {
-                return "Orange";
-              } else {
-                return "Green";
-              }
+              return tpi.tpiFlag
             }
           },
         },
@@ -297,7 +280,45 @@ function generatePrismaClient(datasourceUrl?: string) {
           });
           return maxEndDate;
         },
-      },
+        tpiCalculation(task: Task): {
+          tpiValue: number,
+          tpiFlag: "Red" | "Orange" | "Green"
+        } {
+          let { duration, completionPecentage, startDate, status } = task;
+          if (
+            status === TaskStatusEnum.TODO ||
+            status === TaskStatusEnum.PLANNED
+          ) {
+            return {
+              tpiValue: 0,
+              tpiFlag: "Red"
+            };
+          }
+          const currentDate: Date = new Date();
+          const startDateObj: Date = new Date(startDate);
+          const elapsedDays: number = Math.ceil(
+            (currentDate.getTime() - startDateObj.getTime()) /
+              (1000 * 60 * 60 * 24)
+          );
+
+          const plannedProgress = elapsedDays / duration;
+          if (!completionPecentage) {
+            completionPecentage = 0;
+          }
+          const tpi = completionPecentage / plannedProgress;
+          let flag = "" as "Red" | "Orange" | "Green";
+          if (tpi < 0.8) {
+            flag = "Red";
+          } else if (tpi >= 0.8 && tpi < 0.95) {
+            flag = "Orange";
+          } else {
+            flag = "Green";
+          }
+          return {
+            tpiValue: tpi,
+            tpiFlag: flag
+          };
+      }},
       comments: {
         async canEditOrDelete(commentId: string, userId: string) {
           const comment = await client.comments.findFirstOrThrow({
@@ -399,8 +420,8 @@ function generatePrismaClient(datasourceUrl?: string) {
           return user.userOrganisation.map((org) => org.role);
         },
       },
-    },
-  });
+    }},
+  );
   return client;
 }
 
