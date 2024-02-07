@@ -9,12 +9,18 @@ import { useEffect, useState } from "react";
 import FormLabel from "@/components/common/FormLabel";
 import InputEmail from "@/components/common/InputEmail";
 import InputSelect from "@/components/common/InputSelect";
-import useOrganisationDetailsQuery, { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
+import useOrganisationDetailsQuery, {
+  UserOrganisationType,
+} from "@/api/query/useOrganisationDetailsQuery";
 import Loader from "@/components/common/Loader";
 import CrossIcon from "../../assets/svg/CrossIcon.svg";
 import { useFormik } from "formik";
 import { z } from "zod";
-import { addOrganisationMemberSchema, memberRoleSchema } from "@backend/src/schemas/organisationSchema";
+import {
+  addOrganisationMemberSchema,
+  memberRoleSchema,
+  reAssginedTaskSchema,
+} from "@backend/src/schemas/organisationSchema";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 import { isAxiosError } from "axios";
 import useAddOrganisationMemberMutation from "@/api/mutation/useAddOrganisationMemberMutation";
@@ -29,6 +35,9 @@ import OrganisationNoPopUpForm from "./organisationForm/organisationNoPopupForm"
 import TrashCan from "../../assets/svg/TrashCan.svg";
 import useOrganisationRemoveMemberMutation from "@/api/mutation/useOrganisationRemoveMemberMutation";
 import useUpdateOrganisationMemberMutation from "@/api/mutation/useUpdateOrganisationMemberMutation";
+import { cn } from "@/lib/utils";
+import { CheckIcon } from "lucide-react";
+import useReAssignTaskMutation from "@/api/mutation/useReAssingTaskMutation";
 const memberRoleOptions = [
   {
     value: UserRoleEnumValue.PROJECT_MANAGER,
@@ -42,7 +51,9 @@ const memberRoleOptions = [
 
 function OrganisationDetails() {
   const [editData, setEditData] = useState<OrganisationType>();
-  const [UpdateData, setUpdateData] = useState<UserOrganisationType | undefined>();
+  const [UpdateData, setUpdateData] = useState<
+    UserOrganisationType | undefined
+  >();
   const [isAddOrgMemberSubmitting, setIsAddOrgMemberSubmitting] =
     useState(false);
   const organisationId = useParams().organisationId!;
@@ -50,7 +61,13 @@ function OrganisationDetails() {
     useAddOrganisationMemberMutation(organisationId);
   const removeOrganisationMemberMutation = useOrganisationRemoveMemberMutation();
   const updateOrganisationMemberMutation = useUpdateOrganisationMemberMutation();
+  const [reAssing, setReAssign] = useState(false);
+  const [reAssingUser, setReAssignUser] = useState<
+    z.infer<typeof reAssginedTaskSchema> & { organisationUserId?: string }
+  >();
 
+  const reAssgingTaskMutation = useReAssignTaskMutation();
+  
   const addOrgMemberForm = useFormik<
     z.infer<typeof addOrganisationMemberSchema>
   >({
@@ -143,7 +160,7 @@ function OrganisationDetails() {
     organisation?.userOrganisation ?? []
   );
   const [organisationForm, setOrganisationForm] = useState(false);
-  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [showConfirmDelete, setShowConfirmDelete] = useState("");
 
   const closeAddMember = () => {
     addOrgMemberForm.setValues({
@@ -237,15 +254,42 @@ function OrganisationDetails() {
   const handleRemoveMember = (id: string) => {
     removeOrganisationMemberMutation.mutate(id, {
       onSuccess(data) {
-        setShowConfirmDelete(false);
+        setShowConfirmDelete("");
         refetch();
         toast.success(data.data.message);
+        setReAssignUser(undefined);
       },
       onError(error) {
         toast.error(error.response?.data.message);
+        if (
+          error.response?.data.message ==
+          "Pending tasks is already exists for this user!"
+        ) {
+          setReAssign(true);
+          setShowConfirmDelete("");
+        }
       },
     });
   };
+  console.log(reAssingUser);
+  const handleReAssign = () => {
+    if (reAssingUser) {
+      reAssgingTaskMutation.mutate(reAssingUser, {
+        onSuccess(data) {
+          if (reAssingUser.organisationUserId) {
+            handleRemoveMember(reAssingUser.organisationUserId);
+          }
+          toast.success(data.data.message);
+          setReAssignUser(undefined);
+          setReAssign(false);
+        },
+        onError(error) {
+          toast.error(error.message);
+        },
+      });
+    }
+  };
+
   return (
     <>
       <div className="overflow-auto w-full">
@@ -262,11 +306,13 @@ function OrganisationDetails() {
             </div> */}
           </div>
           <div>
-            {data&& <OrganisationNoPopUpForm
-              editData={editData}
-              viewOnly={currentUserIsAdmin ? false : true}
-              refetch ={refetch}
-            />}
+            {data && (
+              <OrganisationNoPopUpForm
+                editData={editData}
+                viewOnly={currentUserIsAdmin ? false : true}
+                refetch={refetch}
+              />
+            )}
           </div>
           <div className="text-2xl mt-5 mb-3">Members</div>
           <div className="border rounded-lg min-h-[300px]">
@@ -295,14 +341,18 @@ function OrganisationDetails() {
                     key={userOrg.userOrganisationId}
                     className="flex flex-wrap md:flex-nowrap items-center px-2 py-1.5 sm:px-5 sm:py-3 gap-2"
                   >
-
                     <div
                       className={`flex w-full sm:w-auto gap-2 items-center grow ${
                         currentUserIsAdmin ? "cursor-pointer" : ""
                       }`}
-
                       onClick={() => {
-                        setUpdateData(userOrg), setIsOpen(true);
+                        setUpdateData(userOrg),
+                        setIsOpen(true),
+                        setReAssignUser((prev) => ({
+                          oldUserId: userOrg.user.userId ?? "",
+                          newUserId: prev?.newUserId ?? "",
+                          organisationUserId: prev?.organisationUserId ?? "",
+                        }));
                       }}
                     >
                       <UserAvatar user={userOrg.user}></UserAvatar>
@@ -316,13 +366,21 @@ function OrganisationDetails() {
                         </div>
                       </div>
                       <div className="w-full h-full">
-                        <div className="flex bg-primary-200 h-8 w-8 rounded-full justify-center items-center text-primary-800 text-sm font-bold">
-                          {userOrg.user.firstName
-                            ? userOrg.user.lastName
-                              ? `${userOrg.user.firstName.charAt(0)}${userOrg.user.lastName.charAt(0)}`.toUpperCase()
-                              : `${userOrg.user.firstName.charAt(0)}${userOrg.user.firstName.charAt(1)}`.toUpperCase()
-                            : `${userOrg.user.email.charAt(0)}${userOrg.user.email.charAt(1)}`.toUpperCase()}
-                        </div>
+                        {userOrg.user.firstName
+                          ? userOrg.user.lastName
+                            ? `${userOrg.user.firstName.charAt(
+                              0
+                            )}${userOrg.user.lastName.charAt(
+                              0
+                            )}`.toUpperCase()
+                            : `${userOrg.user.firstName.charAt(
+                              0
+                            )}${userOrg.user.firstName.charAt(
+                              1
+                            )}`.toUpperCase()
+                          : `${userOrg.user.email.charAt(
+                            0
+                          )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
                       </div>
                     </div>
                     <div className="capitalize text-gray-700 text-sm">
@@ -334,51 +392,19 @@ function OrganisationDetails() {
                         disabled={userOrg.role === "ADMINISTRATOR"}
                         className="ml-auto text-danger border-danger hover:bg-danger hover:bg-opacity-10 hover:text-danger py-1.5 h-auto"
                         onClick={() => {
-                          setShowConfirmDelete(true);
+                          setReAssignUser((prev) => ({
+                            oldUserId: userOrg.user.userId,
+                            newUserId: prev?.newUserId ?? "",
+                            organisationUserId: userOrg.userOrganisationId,
+                          }));
+                          setShowConfirmDelete(userOrg.userOrganisationId);
                         }}
                       >
                         Remove
                       </Button>
                     )}
-                    <Dialog
-                      isOpen={showConfirmDelete}
-                      onClose={() => { }}
-                      modalClass="rounded-lg"
-                    >
-                      <div className="flex flex-col gap-2 p-6 ">
-                        <img src={TrashCan} className="w-12 m-auto" /> Are you sure you want
-                        to delete ?
-                        <div className="flex gap-2 ml-auto">
-                          <Button
-                            variant={"outline"}
-                            isLoading={
-                              removeOrganisationMemberMutation.isPending
-                            }
-                            disabled={
-                              removeOrganisationMemberMutation.isPending
-                            }
-                            onClick={() => setShowConfirmDelete(false)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            variant={"primary"}
-                            // onClick={removeTask}
-                            isLoading={
-                              removeOrganisationMemberMutation.isPending
-                            }
-                            disabled={
-                              removeOrganisationMemberMutation.isPending
-                            }
-                            onClick={() => handleRemoveMember(userOrg.userOrganisationId)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </div>
-                    </Dialog>
                   </div>
-                  <hr className="h-px w-[98%] my-8 mx-auto bg-gray-200 border-0 " />
+                  <hr className="h-px w-[98%] my-8 mx-auto bg-gray-200 border-0" />
                 </>
               ))}
             </div>
@@ -393,7 +419,9 @@ function OrganisationDetails() {
           modalClass="sm:rounded-lg p-4 h-full md:h-auto w-full max-w-md"
         >
           <div>
-            <div className="text-xl">{UpdateData ? "Update Member" : "Add Member"}</div>
+            <div className="text-xl">
+              {UpdateData ? "Update Member" : "Add Member"}
+            </div>
             <Button
               onClick={() => closeAddMember()}
               variant={"ghost"}
@@ -459,6 +487,139 @@ function OrganisationDetails() {
       {organisationForm && (
         <OrganisationForm editData={editData} close={organisationFormClose} />
       )}
+      <Dialog
+        isOpen={reAssing}
+        onClose={() => closeAddMember()}
+        hasEscClose={true}
+        modalClass="sm:rounded-lg p-4 h-full md:h-auto w-full max-w-md"
+      >
+        <div className="flex flex-col">
+          <div className="text-lg font-semibold text-gray-600">Task reassign to other user</div>
+          <div className="border rounded-md border-gray-100 mt-3 ">
+            {filteredOrganisationUsers.map((userOrg) => {
+              return (
+                reAssingUser?.oldUserId != userOrg.user.userId && (
+                  <>
+                    <div
+                      key={userOrg.userOrganisationId}
+                      className="flex flex-wrap md:flex-nowrap items-center px-2 py-1.5 sm:px-5 sm:py-3 gap-9 hover:bg-slate-50"
+                      onClick={() => {
+                        setReAssignUser((prev) => ({
+                          oldUserId: prev?.oldUserId ?? "",
+                          newUserId: userOrg.user.userId,
+                          organisationUserId: prev?.organisationUserId ?? "",
+                        }));
+                      }}
+                    >
+                      <div
+                        className={`flex w-full sm:w-auto gap-2 items-center grow ${
+                          currentUserIsAdmin ? "cursor-pointer" : ""
+                        }`}
+                      >
+                        <UserAvatar user={userOrg.user}></UserAvatar>
+                        <div className="text-sm">
+                          <div className="text-slate-800 font-medium">
+                            {userOrg.user.firstName ?? ""}{" "}
+                            {userOrg.user.lastName ?? ""}
+                          </div>
+                          <div className="text-gray-400">
+                            {userOrg.user.email}
+                          </div>
+                        </div>
+                        <div className="w-full h-full">
+                          {userOrg.user.firstName
+                            ? userOrg.user.lastName
+                              ? `${userOrg.user.firstName.charAt(
+                                0
+                              )}${userOrg.user.lastName.charAt(
+                                0
+                              )}`.toUpperCase()
+                              : `${userOrg.user.firstName.charAt(
+                                0
+                              )}${userOrg.user.firstName.charAt(
+                                1
+                              )}`.toUpperCase()
+                            : `${userOrg.user.email.charAt(
+                              0
+                            )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
+                        </div>
+                      </div>
+                      <div className="capitalize text-gray-700 text-sm">
+                        {userOrg.role?.toLowerCase().replaceAll("_", " ")}
+                      </div>
+                      <div>
+                        <CheckIcon
+                          className={cn(
+                            "ml-auto h-4 w-4",
+                            userOrg.user.userId === reAssingUser?.newUserId
+                              ? "opacity-100"
+                              : "opacity-0"
+                          )}
+                        />
+                      </div>
+                    </div>
+                    <hr className="h-px w-[98%] my-1 mx-auto bg-gray-200 border-0 " />
+                  </>
+                )
+              );
+            })}
+          </div>
+          <div className="text-sm text-gray-400">
+            The user has pending tasks. Please assign these tasks to someone
+            else before deleting the user.
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              size={"sm"}
+              variant={"destructive"}
+              onClick={() => {
+                setReAssign(false);
+                setReAssignUser(undefined);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              size={"sm"}
+              variant={"primary"}
+              onClick={() => handleReAssign()}
+            >
+              Submit
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+      <Dialog
+        isOpen={Boolean(showConfirmDelete)}
+        onClose={() => {}}
+        modalClass="rounded-lg"
+      >
+        <div className="flex flex-col gap-2 p-6 ">
+          <img src={TrashCan} className="w-12 m-auto" /> Are you sure you want
+          to delete ?
+          <div className="flex gap-2 ml-auto">
+            <Button
+              variant={"outline"}
+              isLoading={removeOrganisationMemberMutation.isPending}
+              disabled={removeOrganisationMemberMutation.isPending}
+              onClick={() => setShowConfirmDelete("")}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant={"primary"}
+              // onClick={removeTask}
+              isLoading={removeOrganisationMemberMutation.isPending}
+              disabled={removeOrganisationMemberMutation.isPending}
+              onClick={() => {
+                handleRemoveMember(showConfirmDelete);
+              }}
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </>
   );
 }

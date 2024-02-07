@@ -65,3 +65,8 @@ export const memberRoleSchema = z.object({
   ),
 });
 
+export const reAssginedTaskSchema = z.object({
+  oldUserId: z.string().uuid(),
+  newUserId: z.string().uuid(),
+});
+

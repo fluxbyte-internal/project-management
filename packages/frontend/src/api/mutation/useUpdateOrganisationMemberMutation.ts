@@ -18,7 +18,7 @@ function useUpdateOrganisationMemberMutation() {
   >({
     mutationFn: (data) =>
       ApiRequest.put<OrgAddMemberResponseType>(
-        `${requestURLs.organisation}/${data.userId}`,
+        `${requestURLs.organisation}/change-role/${data.userId}`,
         data
       ),
   });
