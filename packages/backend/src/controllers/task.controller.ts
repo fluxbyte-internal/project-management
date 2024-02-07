@@ -626,13 +626,14 @@ export const taskAssignToUser = async (
   if (!req.organisationId) {
     throw new BadRequestError("organisationId not found!");
   }
+  const projectId = uuidSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
-  const usersOfOrganisation = await prisma.userOrganisation.findMany({
-    where: { organisationId: req.organisationId },
+  const usersOfOrganisation = await prisma.projectAssignUsers.findMany({
+    where: { projectId },
     select: {
-      jobTitle: true,
-      organisationId: true,
-      role: true,
+      projectId: true,
+      assginedToUserId: true,
+      projectAssignUsersId: true,
       user: {
         select: {
           userId: true,
@@ -647,7 +648,7 @@ export const taskAssignToUser = async (
   return new SuccessResponse(
     StatusCodes.OK,
     usersOfOrganisation,
-    "Get organisation's users successfully"
+    "Get project's users successfully"
   ).send(res);
 };
 

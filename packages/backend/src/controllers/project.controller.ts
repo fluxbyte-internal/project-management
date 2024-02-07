@@ -364,3 +364,36 @@ export const deleteAssignedUserFromProject = async (
     "User removed successfully"
   ).send(res);
 };
+
+export const projectAssignToUser = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.organisationId) {
+    throw new BadRequestError("organisationId not found!");
+  }
+  const prisma = await getClientByTenantId(req.tenantId);
+  const usersOfOrganisation = await prisma.userOrganisation.findMany({
+    where: { organisationId: req.organisationId },
+    select: {
+      role: true,
+      organisationId: true,
+      userOrganisationId: true,
+      user: {
+        select: {
+          userId: true,
+          avatarImg: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
+  });
+
+  return new SuccessResponse(
+    StatusCodes.OK,
+    usersOfOrganisation,
+    "Get organisation's users successfully"
+  ).send(res);
+};
