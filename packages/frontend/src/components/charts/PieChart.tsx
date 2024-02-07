@@ -35,7 +35,7 @@ const PieChart:  React.FC<PieChartProps> = ({ chartProps }) =>{
       },
       series: [
         {
-          name: 'Access From',
+          name: '',
           type: 'pie',
           radius: ['0%', '80%'],
           avoidLabelOverlap: false,

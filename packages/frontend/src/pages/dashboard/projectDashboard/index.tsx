@@ -173,7 +173,7 @@ function ProjectDashboard() {
               className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabGradient} ${selectedStatusTheme?.colors.tabTexts} border-l-[12px]  rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter   ${selectedStatusTheme?.colors.tabBorders}  `}
             >
               <div className="text-lg ">No. of Team Members</div>
-              <div className="text-4xl font-semibold">58</div>
+              <div className="text-4xl font-semibold">{data.numTeamMembersWorkingOnTasks}</div>
               <div className="absolute right-3 bottom-3">oo</div>
             </div>
 
@@ -181,21 +181,21 @@ function ProjectDashboard() {
               className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter  ${selectedStatusTheme?.colors.tabBorders}`}
             >
               <div className="text-lg ">No. of Tasks</div>
-              <div className="text-4xl font-semibold">58</div>
+              <div className="text-4xl font-semibold">{data.numTasks}</div>
               <div className="absolute right-3 bottom-3">oo</div>
             </div>
             <div
               className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter  ${selectedStatusTheme?.colors.tabBorders}`}
             >
               <div className="text-lg ">No. of Milestones</div>
-              <div className="text-4xl font-semibold">58</div>
+              <div className="text-4xl font-semibold">{data.numMilestones}</div>
               <div className="absolute right-3 bottom-3">oo</div>
             </div>
             <div
               className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter  ${selectedStatusTheme?.colors.tabBorders}`}
             >
               <div className="text-lg ">No. of Risks</div>
-              <div className="text-4xl font-semibold">58</div>
+              <div className="text-4xl font-semibold">0</div>
               <div className="absolute right-3 bottom-3">oo</div>
             </div>
           </div>
