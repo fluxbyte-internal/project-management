@@ -67,12 +67,12 @@ function ProjectsList() {
       { label: "Select manager", value: "" },
     ];
     data?.forEach((item) => {
-      const val = item.createdByUser.email;
-      if (
-        !projectManagerData.some((i) => i.value == item.createdByUser.email)
-      ) {
-        projectManagerData.push({ label: val, value: val });
-      }
+      item.projectManagerInfo.forEach((element) => {
+        const val = element.user.email;
+        if (!projectManagerData.some((i) => i.value == element.user.email)) {
+          projectManagerData.push({ label: val, value: val });
+        }
+      });
     });
 
     return projectManagerData;
@@ -113,10 +113,10 @@ function ProjectsList() {
               })}
               {item.projectManagerInfo &&
                 item.projectManagerInfo?.length > 3 && (
-                <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
-                  {`${item.projectManagerInfo?.length - 3}+`}
-                </div>
-              )}
+                  <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
+                    {`${item.projectManagerInfo?.length - 3}+`}
+                  </div>
+                )}
               {item.projectManagerInfo?.length <= 0 ? "N/A" : ""}
             </div>
           ) : (
@@ -326,8 +326,8 @@ function ProjectsList() {
                           <div className="flex justify-between items-center w-full text-gray-400 font-normal">
                             {filter.date
                               ? `${dateFormatter(
-                                filter.date.from ?? new Date()
-                              )}-
+                                  filter.date.from ?? new Date()
+                                )}-
                               ${dateFormatter(filter.date.to ?? new Date())}`
                               : "End date"}
                             <img src={CalendarSvg} width={20} />

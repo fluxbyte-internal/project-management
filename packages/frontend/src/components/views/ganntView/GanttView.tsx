@@ -57,7 +57,7 @@ function GanttView() {
   const sortMode = "one";
   const showProgressLabel = true;
   const { projectId } = useParams();
-  const [filterUnit, setFilterUnit] = useState<string>("week");
+  const [filterUnit, setFilterUnit] = useState<string>("month");
   const ganttChart = useRef<GanttChart>(null);
   const { user } = useUser();
   const allTaskQuery = useAllTaskQuery(projectId);
@@ -406,7 +406,7 @@ function GanttView() {
             onChange={handleView}
             placeholder="Select Filter"
             styles={reactSelectStyle}
-            defaultValue={{ label: "Week", value: "week" }}
+            defaultValue={{ label: "month", value: "month" }}
           />
         </div>
       </div>
