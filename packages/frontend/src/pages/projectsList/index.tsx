@@ -67,12 +67,12 @@ function ProjectsList() {
       { label: "Select manager", value: "" },
     ];
     data?.forEach((item) => {
-      const val = item.createdByUser.email;
-      if (
-        !projectManagerData.some((i) => i.value == item.createdByUser.email)
-      ) {
-        projectManagerData.push({ label: val, value: val });
-      }
+      item.projectManagerInfo.forEach((element) => {
+        const val = element.user.email;
+        if (!projectManagerData.some((i) => i.value == element.user.email)) {
+          projectManagerData.push({ label: val, value: val });
+        }
+      });
     });
 
     return projectManagerData;

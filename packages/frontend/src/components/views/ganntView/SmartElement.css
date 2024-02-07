@@ -1,0 +1,65 @@
+
+.scroll {
+  --smart-scroll-bar-thumb-background-active: theme('colors.primary.500');
+  --smart-scroll-bar-thumb-background-hover: theme('colors.primary.400');
+  --smart-scroll-bar-thumb-background: theme('colors.primary.400');
+  --smart-scroll-bar-size: 10px;
+  --smart-scroll-bar-default-width: 10px;
+  --smart-scroll-bar-thumb-border-top-right-radius: 10px;
+  --smart-scroll-bar-thumb-border-top-left-radius: 10px;
+  --smart-scroll-bar-thumb-border-bottom-left-radius: 10px;
+  --smart-scroll-bar-thumb-border-bottom-right-radius: 10px;
+  --smart-scroll-button-size: 10px;
+  --smart-scroll-bar-button-color: "#ffffff00"
+ 
+}
+.smart-gantt-chart {
+  --smart-gantt-chart-timeline-task-background-color: rgb(253, 253, 253);
+  --smart-gantt-chart-task-default-height: 58px;
+  --smart-gantt-chart-default-width:100%;
+  --smart-gantt-chart-project-default-color: #38a238;
+  --smart-gantt-chart-project-progress-default-color: #008000;
+  --smart-gantt-chart-task-default-color: #6495ed;
+  --smart-gantt-chart-task-progress-default-color: #2d75f5;
+  --smart-gantt-chart-task-label-color: white;
+  --smart-gantt-chart-task-color:theme('colors.primary.500');
+  --smart-gantt-chart-timeline-nonworking-color:  theme('colors.primary.100');
+  --smart-gantt-chart-header-placeholder:"-";
+  --smart-box-height: 40px;
+  --smart-gantt-chart-project-label-color: white;
+  --smart-gantt-chart-timeline-task-progress-height:70%;
+  --smart-gantt-chart-task-fill-border-radius:5px;
+  --smart-table-indent:10px
+}
+.smart-timeline-row{
+  --smart-border:theme("colors.transparent")
+}
+.smart-gantt-chart .smart-timeline-task-fill {
+  border-radius: var(--smart-gantt-chart-task-fill-border-radius);
+  padding: 5px;
+}
+
+.smart-table tbody tr {
+  height: 0px !important;
+}
+.smart-table .outline-level-1.tree-leaf {
+  padding-left: 15px !important;
+}
+.smart-table thead th .sort-by:before {
+
+  content: var(--smart-icon-up);
+  width: 100%;
+  height: 100%;
+  font-weight: 400;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+align-content: center;
+}
+
+.smart-gantt-chart .smart-task-connection::after{
+  content: var(--smart-gantt-chart-task-color) !important;
+  background-color: transparent;
+}

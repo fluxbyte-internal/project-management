@@ -307,6 +307,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 </div>
                 <div className=" w-full">
                   <label className={labelStyle}>Estimated Budget</label>
+                  <span className="ml-0.5 text-red-500">*</span>
                   <input
                     disabled={viewOnly}
                     type="text"

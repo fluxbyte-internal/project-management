@@ -38,6 +38,7 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
           },
         },
       },
+      dependencies: true
     },
   });
   const finalArray = tasks.map((task) => {
@@ -799,6 +800,7 @@ export const removeDependencies = async (
   if (!req.userId) {
     throw new BadRequestError("userId not found!!");
   }
+  console.log({uuid: req.params.taskDependenciesId})
   const taskDependenciesId = uuidSchema.parse(req.params.taskDependenciesId);
   const prisma = await getClientByTenantId(req.tenantId);
   const action = await prisma.taskDependencies.canDelete(
