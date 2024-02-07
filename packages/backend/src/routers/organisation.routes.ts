@@ -7,6 +7,12 @@ let router = express.Router();
 
 router.get("/:organisationId", OrganisationControlller.getOrganisationById);
 
+router.put(
+  "/re-assigned-task/",
+  roleMiddleware([UserRoleEnum.ADMINISTRATOR]),
+  OrganisationControlller.reassignTasks
+);
+
 router.post("/", OrganisationControlller.createOrganisation);
 
 router.post(

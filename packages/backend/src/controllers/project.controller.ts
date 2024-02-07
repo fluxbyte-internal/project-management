@@ -5,22 +5,19 @@ import { StatusCodes } from 'http-status-codes';
 import { consumedBudgetSchema, createKanbanSchema, createProjectSchema, projectIdSchema, projectStatusSchema, updateKanbanSchema, updateProjectSchema } from '../schemas/projectSchema.js';
 import { ProjectStatusEnum, TaskStatusEnum, UserRoleEnum } from '@prisma/client';
 import { uuidSchema } from '../schemas/commonSchema.js';
+import { selectUserFields } from '../utils/selectedFieldsOfUsers.js';
 
 export const getProjects = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) { throw new BadRequestError('organisationId not found!') };
   const prisma = await getClientByTenantId(req.tenantId);
   const projects = await prisma.project.findMany({
     where: {
-      organisationId: req.organisationId
+      organisationId: req.organisationId,
+      deletedAt: null,
     },
     include: {
       createdByUser: {
-        select: {
-          firstName: true,
-          lastName: true,
-          email: true,
-          avatarImg: true
-        }
+        select: selectUserFields,
       }
     },
     orderBy: { createdAt: 'desc' }
@@ -37,15 +34,11 @@ export const getProjects = async (req: express.Request, res: express.Response) =
       where: {
         organisationId: req.organisationId,
         role: UserRoleEnum.PROJECT_MANAGER,
+        deletedAt: null
       },
       select: {
         user: {
-          select: {
-            firstName: true,
-            lastName: true,
-            email: true,
-            avatarImg: true,
-          },
+          select: selectUserFields,
         },
       },
     });
@@ -64,16 +57,13 @@ export const getProjectById = async (req: express.Request, res: express.Response
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const projects = await prisma.project.findFirstOrThrow({
-    where: { organisationId: req.organisationId, projectId: projectId },
+    where: { organisationId: req.organisationId, projectId: projectId, deletedAt: null, },
     include: {
-      tasks: true,
+      tasks: {
+        where: { deletedAt: null },
+      },
       createdByUser: {
-        select: {
-          firstName: true,
-          lastName: true,
-          email: true,
-          avatarImg: true
-        }
+        select: selectUserFields,
       }
     }
   });
@@ -121,10 +111,19 @@ export const deleteProject = async (req: express.Request, res: express.Response)
   if (!req.organisationId) { throw new BadRequestError('organisationId not found!') };
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
-  const findProject = await prisma.project.findFirstOrThrow({ where: { projectId: projectId, organisationId: req.organisationId } });
+  const findProject = await prisma.project.findFirstOrThrow({ where: { projectId: projectId, organisationId: req.organisationId, deletedAt: null, } });
   if (findProject) {
-    await prisma.project.delete({ where: { projectId } });
-    return new SuccessResponse(StatusCodes.OK, {}, 'project deleted successfully').send(res);
+    await prisma.project.update({
+      where: { projectId },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+    return new SuccessResponse(
+      StatusCodes.OK,
+      null,
+      "project deleted successfully"
+    ).send(res);
   }
 };
 
@@ -137,7 +136,8 @@ export const updateProject = async (req: express.Request, res: express.Response)
   const findProject = await prisma.project.findFirstOrThrow({
     where: {
       projectId: projectId,
-      organisationId: req.organisationId
+      organisationId: req.organisationId,
+      deletedAt: null,
     }
   });
   if (!findProject) throw new NotFoundError('Project not found');
@@ -156,7 +156,7 @@ export const getKanbanColumnById = async (
   const projectId = uuidSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const kanbanColumn = await prisma.kanbanColumn.findMany({
-    where: { projectId },
+    where: { projectId, deletedAt: null },
   });
   return new SuccessResponse(
     StatusCodes.OK,
@@ -171,11 +171,12 @@ export const statusChangeProject = async (req: express.Request, res: express.Res
   const { status } = projectStatusSchema.parse(req.body);
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
-  const findProject = await prisma.project.findFirstOrThrow({ where: { projectId: projectId, organisationId: req.organisationId } });
+  const findProject = await prisma.project.findFirstOrThrow({ where: { projectId: projectId, organisationId: req.organisationId, deletedAt: null, } });
   if (findProject) {
     const findTaskWithIncompleteTask = await prisma.task.findMany({
       where: {
         projectId: projectId,
+        deletedAt: null,
         status: {
           in: [
             TaskStatusEnum.TODO,
@@ -241,6 +242,7 @@ export const updatekanbanColumn = async (
   const findKanbanColumn = await prisma.kanbanColumn.findFirstOrThrow({
     where: {
       kanbanColumnId,
+      deletedAt: null
     },
   });
   let updateObj = { ...kanbanColumnUpdateValue, updatedByUserId: req.userId };
@@ -265,10 +267,15 @@ export const deleteKanbanColumn = async (
   const kanbanColumnId = uuidSchema.parse(req.params.kanbanColumnId);
   const prisma = await getClientByTenantId(req.tenantId);
   const findKanbanColumn = await prisma.kanbanColumn.findFirstOrThrow({
-    where: { kanbanColumnId },
+    where: { kanbanColumnId, deletedAt: null },
   });
   if (findKanbanColumn) {
-    await prisma.kanbanColumn.delete({ where: { kanbanColumnId } });
+    await prisma.kanbanColumn.update({
+      where: { kanbanColumnId },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
     return new SuccessResponse(
       StatusCodes.OK,
       null,
