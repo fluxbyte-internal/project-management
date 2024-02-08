@@ -12,7 +12,12 @@ export const getProjects = async (req: express.Request, res: express.Response) =
   const prisma = await getClientByTenantId(req.tenantId);
   const projects = await prisma.project.findMany({
     where: {
-      organisationId: req.organisationId
+      organisationId: req.organisationId,
+      OR: [
+        { assignedUsers: { some: { user: { userOrganisation: { some: { role: UserRoleEnum.ADMINISTRATOR } } } } } },
+        { assignedUsers: { some: { user: { userOrganisation: { some: { role: UserRoleEnum.PROJECT_MANAGER } } } } } },
+        { assignedUsers: { some: { user: { userOrganisation: { some: { role: UserRoleEnum.TEAM_MEMBER } } } } } }
+      ]
     },
     include: {
       createdByUser: {
