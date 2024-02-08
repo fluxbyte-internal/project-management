@@ -416,8 +416,8 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
               </div>
             </div>
           </div>
-          <div className="sm:flex gap-16 my-3">
-            <div className="sm:w-[50%] w-full">
+          <div className="lg:flex lg:flex-row flex-col  gap-16 lg:my-3">
+            <div className="lg:w-[50%] w-full my-6 lg:my-0">
               <Popover>
                 <PopoverTrigger className="w-full">
                   <Button
@@ -432,7 +432,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 <PopoverContent className="w-80 focus:outline-none">
                   <div className="grid gap-4">
                     <div className="space-y-2">
-                      <h4 className="font-medium leading-none">Assign</h4>
+                      <h4 className="font-medium leading-none">Project Manager</h4>
                     </div>
                     <div>
                       {projectMemberListQuery.data?.data.data.map(
@@ -493,7 +493,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="sm:w-[50%] w-full">
+            <div className="lg:w-[50%] w-full">
               <Popover>
                 <PopoverTrigger className="w-full">
                   <Button
@@ -508,7 +508,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 <PopoverContent className="w-80 focus:outline-none">
                   <div className="grid gap-4">
                     <div className="space-y-2">
-                      <h4 className="font-medium leading-none">Assign</h4>
+                      <h4 className="font-medium leading-none">Team Member</h4>
                     </div>
                     <div>
                       {projectMemberListQuery.data?.data.data.map(
