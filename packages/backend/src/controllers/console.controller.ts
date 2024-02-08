@@ -529,7 +529,6 @@ export const deleteOrganisation = async (
               dependencies: true,
               documentAttachments: true,
               histories: true,
-              notifications: true
             }
           }
         }
