@@ -419,7 +419,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
           <div className="lg:flex lg:flex-row flex-col  gap-16 lg:my-3">
             <div className="lg:w-[50%] w-full my-6 lg:my-0">
               <Popover>
-                <PopoverTrigger className="w-full">
+                <PopoverTrigger className="w-full" disabled={viewOnly}>
                   <Button
                     variant={"secondary"}
                     type="button"
@@ -495,7 +495,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
             </div>
             <div className="lg:w-[50%] w-full">
               <Popover>
-                <PopoverTrigger className="w-full">
+                <PopoverTrigger className="w-full" disabled={viewOnly}>
                   <Button
                     variant={"secondary"}
                     type="button"

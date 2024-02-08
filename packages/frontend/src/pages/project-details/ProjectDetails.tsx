@@ -68,8 +68,28 @@ function ProjectDetails() {
   const handleProjectClick = () => {
     navigate("/projects");
   };
-  const currentUserIsAdmin =
-  user?.userOrganisation[0]?.role ===  "PROJECT_MANAGER";
+  // console.log('projectDetailQuery.data?.data.data',projectDetailQuery.data?.data.data);
+
+  const verification = () => {
+    if (user?.userOrganisation[0].role === "ADMINISTRATOR") {
+      return true;
+    } else {
+      const projectMenager =
+        projectDetailQuery.data?.data.data.assignedUsers.filter((item) => {
+          if (item.user.userOrganisation[0].role === "PROJECT_MANAGER") {
+            return item;
+          }
+        });
+      const manager = projectMenager?.find(
+        (manager) => manager?.user.userId === user?.userId
+      );
+      if (manager?.user.userId) {
+        return true;
+      }
+    }
+    return false;
+  };
+  const currentUserIsAdmin = verification();
   return (
     <div className="w-full relative h-full">
       {projectDetailQuery.isLoading ? (
