@@ -93,7 +93,7 @@ function ProjectsList() {
     { key: "projectName", header: "Project Name", sorting: true },
     {
       key: "createdByUser",
-      header: "Manager",
+      header: "Project Manager",
       onCellRender: (item: Project) => (
         <div className="w-full my-3">
           {item.projectManagerInfo?.length > 0 ? (
@@ -113,15 +113,66 @@ function ProjectsList() {
               })}
               {item.projectManagerInfo &&
                 item.projectManagerInfo?.length > 3 && (
-                  <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
-                    {`${item.projectManagerInfo?.length - 3}+`}
-                  </div>
-                )}
+                <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
+                  {`${item.projectManagerInfo?.length - 3}+`}
+                </div>
+              )}
               {item.projectManagerInfo?.length <= 0 ? "N/A" : ""}
             </div>
           ) : (
             "NA"
           )}
+        </div>
+      ),
+    },
+    {
+      key: "createdByUser",
+      header: "Team Member",
+      onCellRender: (item: Project) => (
+        <div className="w-full my-3">
+          {item.assignedUsers.filter(
+            (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER"
+          )?.length > 0 ? (
+              <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
+                {item.assignedUsers
+                  ?.filter(
+                    (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER"
+                  )
+                  .slice(0, 3)
+                  .map((item, index) => {
+                    const zIndex = Math.abs(index - 2);
+                    return (
+                      <>
+                        <div key={index} style={{ zIndex: zIndex }}>
+                          <UserAvatar
+                            className={`shadow-sm h-7 w-7`}
+                            user={item.user}
+                          ></UserAvatar>
+                        </div>
+                      </>
+                    );
+                  })}
+                {item.projectManagerInfo &&
+                item.assignedUsers.filter(
+                  (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER"
+                )?.length > 3 && (
+                  <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
+                    {`${
+                      item.assignedUsers.filter(
+                        (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER"
+                      )?.length - 3
+                    }+`}
+                  </div>
+                )}
+                {item.assignedUsers.filter(
+                  (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER"
+                )?.length <= 0
+                  ? "N/A"
+                  : ""}
+              </div>
+            ) : (
+              "NA"
+            )}
         </div>
       ),
     },
@@ -326,8 +377,8 @@ function ProjectsList() {
                           <div className="flex justify-between items-center w-full text-gray-400 font-normal">
                             {filter.date
                               ? `${dateFormatter(
-                                  filter.date.from ?? new Date()
-                                )}-
+                                filter.date.from ?? new Date()
+                              )}-
                               ${dateFormatter(filter.date.to ?? new Date())}`
                               : "End date"}
                             <img src={CalendarSvg} width={20} />

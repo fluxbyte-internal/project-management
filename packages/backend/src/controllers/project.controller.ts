@@ -22,7 +22,29 @@ export const getProjects = async (req: express.Request, res: express.Response) =
           email: true,
           avatarImg: true
         }
-      }
+      },
+      organisation: {
+        include: {
+          userOrganisation: {
+            include: {
+              user: true,
+            },
+          },
+        },
+      },
+      assignedUsers: {
+        include: {
+          user: {
+            include: {
+              userOrganisation: {
+                select: {
+                  role: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
     orderBy: { createdAt: 'desc' }
   });
@@ -34,22 +56,36 @@ export const getProjects = async (req: express.Request, res: express.Response) =
     const progressionPercentage = await prisma.project.projectProgression(
       project.projectId
     );
-    const projectManagerInfo = await prisma.userOrganisation.findMany({
+    const projectManager = await prisma.projectAssignUsers.findMany({
       where: {
-        organisationId: req.organisationId,
-        role: UserRoleEnum.PROJECT_MANAGER,
-      },
-      select: {
+        projectId: project.projectId,
         user: {
-          select: {
-            firstName: true,
-            lastName: true,
-            email: true,
-            avatarImg: true,
+          userOrganisation: {
+            some: {
+              role: {
+                in: [UserRoleEnum.PROJECT_MANAGER],
+              },
+            },
           },
         },
       },
+      select: {
+        user: true,
+      },
     });
+    const projectAdministartor = await prisma.userOrganisation.findMany({
+      where: {
+        role: {
+          in: [UserRoleEnum.ADMINISTRATOR],
+        },
+        organisationId: req.organisationId,
+      },
+      include: {
+        user: true,
+      },
+    });
+    const projectManagerInfo =
+      projectManager.length !== 0 ? projectManager : projectAdministartor;
     const projectWithProgression = {
       ...project,
       progressionPercentage,
@@ -78,10 +114,18 @@ export const getProjectById = async (req: express.Request, res: express.Response
       },
       assignedUsers: {
         include: {
-          user: true
-        }
-      }
-    }
+          user: {
+            include: {
+              userOrganisation: {
+                select: {
+                  role: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   });
 
   const progressionPercentage = await prisma.project.projectProgression(projectId);

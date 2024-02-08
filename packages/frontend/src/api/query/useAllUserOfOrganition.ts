@@ -8,20 +8,20 @@ import {
 import ApiRequest from "../ApiRequest";
 import { UserOrganisationType } from "./useOrganisationDetailsQuery";
 
-type TaskMemberListApiResponse = ResponseType<UserOrganisationType[]>;
+type ProjectMemberListApiResponse = ResponseType<UserOrganisationType[]>;
 
-function useTaskMemberListQuery(projectId:string) {
+function useProjectMemberListQuery() {
   return useQuery<
-    AxiosResponseAndError<TaskMemberListApiResponse>["response"],
-    AxiosResponseAndError<TaskMemberListApiResponse>["error"]
+    AxiosResponseAndError<ProjectMemberListApiResponse>["response"],
+    AxiosResponseAndError<ProjectMemberListApiResponse>["error"]
   >({
-    queryKey: [QUERY_KEYS.taskMamber],
+    queryKey: [QUERY_KEYS.ProjectMember],
     queryFn: async () =>
-      await ApiRequest.get(`${requestURLs.task}/taskAssignUsers/${projectId}`, {
+      await ApiRequest.get(`${requestURLs.project}/org-users`, {
         headers: { "organisation-id": localStorage.getItem("organisation-id") },
       }),
     enabled: true,
   });
 }
 
-export default useTaskMemberListQuery;
+export default useProjectMemberListQuery;

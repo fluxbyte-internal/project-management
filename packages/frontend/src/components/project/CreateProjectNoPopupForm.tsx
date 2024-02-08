@@ -26,6 +26,15 @@ import {
   OverAllTrackEnumValue,
   ProjectStatusEnumValue,
 } from "@backend/src/schemas/enums";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import UsersIcon from "@/assets/svg/Users.svg";
+import UserAvatar from "../ui/userAvatar";
+import useProjectMemberListQuery from "@/api/query/useAllUserOfOrganition";
+import { CheckIcon } from "lucide-react";
+import useProjectAddMembersMutation from "@/api/mutation/useAddMemberProject";
+import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
+import { cn } from "@/lib/utils";
+import useRemoveProjectMemberMutation from "@/api/mutation/useRemoveMemberProject";
 
 type Options = { label: string; value: string };
 
@@ -63,6 +72,7 @@ const RADIO_BUTTON_OPTIONS = [
 ];
 
 function CreateProjectNoPopUpForm(props: AddProjectType) {
+  const projectMemberListQuery = useProjectMemberListQuery();
   const { editData, refetch, viewOnly } = props;
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const errorStyle = "text-red-400 block text-sm h-1";
@@ -75,7 +85,11 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
   const [currencyValue, setCurrencyValue] = useState<SingleValue<Options>>();
 
   const projectQuery = useProjectQuery();
-
+  const projectAddMembersMutation = useProjectAddMembersMutation(
+    editData?.projectId
+  );
+  const removeProjectMemberMutation = useRemoveProjectMemberMutation();
+  
   const formik = useFormik<z.infer<typeof updateProjectSchema>>({
     initialValues: {
       projectName: "",
@@ -179,6 +193,35 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
       setCurrencyValue(val);
       formik.setFieldValue("currency", val.value);
     }
+  };
+
+  const submitMembers = (user: UserOrganisationType) => {
+    if (user) {
+      projectAddMembersMutation.mutate(
+        { assginedToUserId: user.user.userId },
+        {
+          onSuccess(data) {
+            refetch();
+            toast.success(data.data.message);
+          },
+          onError(error) {
+            toast.error(error.response?.data.message);
+          },
+        }
+      );
+    }
+  };
+
+  const removeMembers = (id: string) => {
+    removeProjectMemberMutation.mutate(id, {
+      onSuccess(data) {
+        refetch();
+        toast.success(data.data.message);
+      },
+      onError(error) {
+        toast.error(error.response?.data.message);
+      },
+    });
   };
   return (
     <div className="mt-4">
@@ -375,6 +418,160 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
           </div>
           <div className="sm:flex gap-16 my-3">
             <div className="sm:w-[50%] w-full">
+              <Popover>
+                <PopoverTrigger className="w-full">
+                  <Button
+                    variant={"secondary"}
+                    type="button"
+                    className="py-1.5 px-3 flex w-full gap-3 justify-start"
+                  >
+                    <img src={UsersIcon} />
+                    Assignee project manager
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 focus:outline-none">
+                  <div className="grid gap-4">
+                    <div className="space-y-2">
+                      <h4 className="font-medium leading-none">Assign</h4>
+                    </div>
+                    <div>
+                      {projectMemberListQuery.data?.data.data.map(
+                        (data, index) => {
+                          return (
+                            data.role === "PROJECT_MANAGER" && (
+                              <div
+                                key={index}
+                                className={`flex items-center p-1 my-1 gap-4 hover:bg-slate-100 rounded-md ${
+                                  editData?.assignedUsers.some(
+                                    (u) => u.user.userId == data.user.userId
+                                  )
+                                    ? "bg-slate-100/80"
+                                    : ""
+                                }`}
+                                onClick={() => {
+                                  editData?.assignedUsers.some(
+                                    (u) => u.user.userId == data.user.userId
+                                  )
+                                    ? removeMembers(
+                                        editData?.assignedUsers.find(
+                                          (id) =>
+                                            id.user.userId == data.user.userId
+                                        )?.projectAssignUsersId ?? ""
+                                      )
+                                    : submitMembers(data);
+                                }}
+                              >
+                                <UserAvatar
+                                  user={data.user}
+                                  className="rounded-full"
+                                />
+                                <div>
+                                  <div className="">
+                                    {data.user.firstName} {data.user.lastName}
+                                  </div>
+                                  <div className="text-sm text-gray-400">
+                                    {data.user.email}
+                                  </div>
+                                </div>
+                                <CheckIcon
+                                  className={cn(
+                                    "ml-auto h-4 w-4",
+                                    editData?.assignedUsers.some(
+                                      (u) => u.user.userId == data.user.userId
+                                    )
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                              </div>
+                            )
+                          );
+                        }
+                      )}
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="sm:w-[50%] w-full">
+              <Popover>
+                <PopoverTrigger className="w-full">
+                  <Button
+                    variant={"secondary"}
+                    type="button"
+                    className="py-1.5 px-3 flex w-full gap-3 justify-start"
+                  >
+                    <img src={UsersIcon} />
+                    Assignee team member
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 focus:outline-none">
+                  <div className="grid gap-4">
+                    <div className="space-y-2">
+                      <h4 className="font-medium leading-none">Assign</h4>
+                    </div>
+                    <div>
+                      {projectMemberListQuery.data?.data.data.map(
+                        (data, index) => {
+                          return (
+                            data.role === "TEAM_MEMBER" && (
+                              <div
+                                key={index}
+                                className={`flex items-center p-1 my-1 gap-4 hover:bg-slate-100 rounded-md ${
+                                  editData?.assignedUsers.some(
+                                    (u) => u.user.userId == data.user.userId
+                                  )
+                                    ? "bg-slate-100/80"
+                                    : ""
+                                }`}
+                                onClick={() => {
+                                  editData?.assignedUsers.some(
+                                    (u) => u.user.userId == data.user.userId
+                                  )
+                                    ? removeMembers(
+                                        editData?.assignedUsers.find(
+                                          (id) =>
+                                            id.user.userId == data.user.userId
+                                        )?.projectAssignUsersId ?? ""
+                                      )
+                                    : submitMembers(data);
+                                }}
+                              >
+                                <UserAvatar
+                                  user={data.user}
+                                  className="rounded-full"
+                                />
+                                <div>
+                                  <div className="">
+                                    {data.user.firstName} {data.user.lastName}
+                                  </div>
+                                  <div className="text-sm text-gray-400">
+                                    {data.user.email}
+                                  </div>
+                                </div>
+                                <CheckIcon
+                                  className={cn(
+                                    "ml-auto h-4 w-4",
+                                    editData?.assignedUsers.some(
+                                      (u) => u.user.userId == data.user.userId
+                                    )
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                              </div>
+                            )
+                          );
+                        }
+                      )}
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+          <div className="sm:flex gap-16 my-3">
+            <div className="sm:w-[50%] w-full">
               <div className={labelStyle}>Status</div>
               <Select
                 isDisabled={viewOnly}
@@ -425,7 +622,6 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
           {!viewOnly && (
             <div className="flex justify-end mt-6 lg:mt-2">
               <Button
-                type="submit"
                 variant={"primary"}
                 className="font-medium text-lg"
                 isLoading={isSubmitting}
