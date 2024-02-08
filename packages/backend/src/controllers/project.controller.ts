@@ -315,6 +315,40 @@ export const assignedUserToProject = async (
   const prisma = await getClientByTenantId(req.tenantId);
 
   const { assginedToUserId } = assginedToUserIdSchema.parse(req.body);
+  const findUser = await prisma.user.findUnique({
+    where: {
+      userId: assginedToUserId,
+    },
+    select: {
+      userOrganisation: {
+        select: {
+          role: true,
+        },
+      },
+    },
+  });
+  const findProjectManager = await prisma.projectAssignUsers.findMany({
+    where: {
+      projectId,
+      user: {
+        userOrganisation: {
+          some: {
+            role: {
+              in: [UserRoleEnum.PROJECT_MANAGER],
+            },
+          },
+        },
+      },
+    },
+  });
+  if (
+    findProjectManager &&
+    findProjectManager.length !== 0 &&
+    findUser?.userOrganisation[0]?.role === UserRoleEnum.PROJECT_MANAGER
+  ) {
+    throw new BadRequestError("Project Manager already exists!!");
+  }
+
   const member = await prisma.projectAssignUsers.create({
     data: {
       assginedToUserId,
