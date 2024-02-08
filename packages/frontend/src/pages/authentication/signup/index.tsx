@@ -92,7 +92,7 @@ function Signup() {
   };
 
   const google = () => {
-    window.open(`${baseURL}/auth/google`, "_self");
+    window.open(`${baseURL}/api/auth/google`, "_self");
   };
   return (
     <div className="flex justify-center min-h-screen">
