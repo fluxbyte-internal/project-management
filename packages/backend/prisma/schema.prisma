@@ -306,8 +306,6 @@ model Task {
   dependencies    TaskDependencies[] @relation("dependencies")
   dependentOnTask TaskDependencies[] @relation("dependentOnTask")
 
-  notifications Notification[]
-
   @@index([taskId, projectId])
 }
 
@@ -372,7 +370,6 @@ model Notification {
   notificationId String               @id @default(uuid()) @map("notification_id")
   type           NotificationTypeEnum @map("type")
   referenceId    String               @map("reference_id")
-  task           Task?                @relation(fields: [referenceId], references: [taskId], onDelete: Cascade, map: "task_notification")
 
   sentBy             String @map("sent_by")
   sentNotificationBy User   @relation("sentNotificationBy", fields: [sentBy], references: [userId], onDelete: Cascade)
