@@ -72,4 +72,10 @@ router.delete(
   ProjectController.deleteAssignedUserFromProject
 );
 
+router.get(
+  "/org-users/",
+  roleMiddleware([UserRoleEnum.ADMINISTRATOR, UserRoleEnum.PROJECT_MANAGER]),
+  ProjectController.projectAssignToUser
+);
+
 export default router;
