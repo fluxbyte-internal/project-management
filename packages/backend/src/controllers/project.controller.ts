@@ -75,6 +75,11 @@ export const getProjectById = async (req: express.Request, res: express.Response
           email: true,
           avatarImg: true
         }
+      },
+      assignedUsers: {
+        include: {
+          user: true
+        }
       }
     }
   });
@@ -374,7 +379,12 @@ export const projectAssignToUser = async (
   }
   const prisma = await getClientByTenantId(req.tenantId);
   const usersOfOrganisation = await prisma.userOrganisation.findMany({
-    where: { organisationId: req.organisationId },
+    where: {
+      organisationId: req.organisationId,
+      role: {
+        notIn: [UserRoleEnum.ADMINISTRATOR],
+      },
+    },
     select: {
       role: true,
       organisationId: true,
