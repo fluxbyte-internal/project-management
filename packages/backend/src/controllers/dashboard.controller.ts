@@ -318,7 +318,7 @@ export const projectDashboardByprojectId = async (
   const spi = await Promise.all(tasksWithSPI);
 
   // Project Date's
-  const duration = (new Date(projectWithTasks.actualEndDate).getTime() - new Date(projectWithTasks.startDate).getTime()) + 1
+  const duration = Math.ceil((new Date(projectWithTasks.actualEndDate).getTime() - new Date(projectWithTasks.startDate).getTime()) / 86400000) + 1;
   const projectDates = {
     startDate: projectWithTasks.startDate,
     estimatedEndDate: projectWithTasks.estimatedEndDate,
