@@ -206,7 +206,6 @@ function ProjectsList() {
       border: "1px solid #E7E7E7",
       paddingTop: "0.2rem",
       paddingBottom: "0.2rem",
-      zIndex: 1000,
       outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
       boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
       "&:hover": {
@@ -287,7 +286,7 @@ function ProjectsList() {
                 <div className="flex justify-around items-center">
                   <div className="w-1/4">
                     <Select
-                      className="p-0 z-40"
+                      className="p-0 "
                       value={
                         filter.projectManager || {
                           label: "Select manager",
@@ -307,7 +306,7 @@ function ProjectsList() {
                       value={
                         filter.status || { label: "Select status", value: "" }
                       }
-                      className="p-0 z-40"
+                      className="p-0 "
                       options={status()}
                       onChange={(e) =>
                         setFilter((prev) => ({ ...prev, status: e }))
