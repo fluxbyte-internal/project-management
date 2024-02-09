@@ -525,7 +525,7 @@ function AdminConsole() {
           modalClass="rounded-lg !min-w-0"
         >
           <div className="flex flex-col gap-4 p-4 ">
-            Are you sure you want to Block User ?
+            Are you sure you want to Block this organisation ?
             <div className="flex gap-4 justify-center">
               <Button
                 variant={"outline"}

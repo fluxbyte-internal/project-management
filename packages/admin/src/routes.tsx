@@ -6,7 +6,6 @@ import OperatorsList from "./pages/operators";
 import AdminConsole from "./pages/admin-console";
 import OrganisationUsers from "./pages/organisation-user";
 
-import Signup from "./pages/authentication/signup";
 import OrganisationGuard from "./guards/OrganisationGuard";
 import AccountSettings from "./pages/account-settings";
 import Verification from "./pages/authentication/verification";
@@ -18,10 +17,7 @@ export const router = createBrowserRouter([
     path: "/login",
     element: <Login />,
   },
-  {
-    path: "/signup",
-    element: <Signup />,
-  },
+ 
   {
     path: "/forgot-password",
     element: <ForgotPassword />,
