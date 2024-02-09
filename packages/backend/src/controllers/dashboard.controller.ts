@@ -288,6 +288,7 @@ export const projectDashboardByprojectId = async (
   const actualCost = projectWithTasks.actualCost;
   const scheduleTrend = projectWithTasks.scheduleTrend;
   const budgetTrend = projectWithTasks.budgetTrend;
+  const projectProgression = await prisma.project.projectProgression(projectId);
 
   // CPI
   const cpi = prisma.project.calculationCPI(projectWithTasks);
@@ -365,7 +366,7 @@ export const projectDashboardByprojectId = async (
     actualCost,
     consumedBudget,
     estimatedBudget,
-
+    projectProgression,
   };
   return new SuccessResponse(
     StatusCodes.OK,
