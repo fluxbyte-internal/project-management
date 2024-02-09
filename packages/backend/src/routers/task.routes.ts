@@ -6,7 +6,7 @@ import { roleMiddleware } from "../middleware/role.middleware.js";
 let router = express.Router();
 
 router.get(
-  "/taskAssignUsers",
+  "/taskAssignUsers/:projectId",
   roleMiddleware([
     UserRoleEnum.ADMINISTRATOR,
     UserRoleEnum.PROJECT_MANAGER,

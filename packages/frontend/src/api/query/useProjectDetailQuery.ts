@@ -7,6 +7,7 @@ import {
 import { QUERY_KEYS } from "./querykeys";
 import { requestURLs } from "@/Environment";
 import { ProjectDefaultViewEnumValue } from "@backend/src/schemas/enums";
+import { AssignedUsers } from "./useProjectQuery";
 
 export interface ProjectDetailType {
   projectId: string;
@@ -30,6 +31,7 @@ export interface ProjectDetailType {
   tasks: [];
   createdByUser: CreatedByUser;
   projectProgression: string | null;
+  assignedUsers:AssignedUsers[]
 }
 
 export interface CreatedByUser {

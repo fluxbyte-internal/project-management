@@ -3,25 +3,164 @@ import { getClientByTenantId } from '../config/db.js';
 import { BadRequestError, NotFoundError, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
 import { consumedBudgetSchema, createKanbanSchema, createProjectSchema, projectIdSchema, projectStatusSchema, updateKanbanSchema, updateProjectSchema } from '../schemas/projectSchema.js';
-import { ProjectStatusEnum, TaskStatusEnum, UserRoleEnum } from '@prisma/client';
+import { NotificationTypeEnum, ProjectStatusEnum, TaskStatusEnum, UserRoleEnum } from '@prisma/client';
 import { uuidSchema } from '../schemas/commonSchema.js';
+import { assginedToUserIdSchema } from '../schemas/taskSchema.js';
 import { selectUserFields } from '../utils/selectedFieldsOfUsers.js';
 
 export const getProjects = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) { throw new BadRequestError('organisationId not found!') };
   const prisma = await getClientByTenantId(req.tenantId);
-  const projects = await prisma.project.findMany({
+
+  let projects;
+  const userRole = await prisma.userOrganisation.findFirst({
     where: {
       organisationId: req.organisationId,
-      deletedAt: null,
+      userId: req.userId,
     },
-    include: {
-      createdByUser: {
-        select: selectUserFields,
-      }
+    select: {
+      role: true,
     },
-    orderBy: { createdAt: 'desc' }
   });
+  if (!userRole) {
+    throw new BadRequestError("User role not found!!");
+  }
+
+  if (userRole.role === UserRoleEnum.ADMINISTRATOR) {
+    projects = await prisma.project.findMany({
+      where: {
+        organisationId: req.organisationId,
+      },
+      include: {
+        createdByUser: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+            avatarImg: true,
+          },
+        },
+        organisation: {
+          include: {
+            userOrganisation: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
+        assignedUsers: {
+          include: {
+            user: {
+              include: {
+                userOrganisation: {
+                  select: {
+                    role: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  } else if (userRole!.role === UserRoleEnum.PROJECT_MANAGER) {
+    projects = await prisma.project.findMany({
+      where: {
+        OR: [
+          {
+            organisationId: req.organisationId,
+            assignedUsers: {
+              some: {
+                assginedToUserId: req.userId,
+              },
+            },
+          },
+          {
+            createdByUserId: req.userId,
+          },
+        ],
+      },
+      include: {
+        createdByUser: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+            avatarImg: true,
+          },
+        },
+        organisation: {
+          include: {
+            userOrganisation: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
+        assignedUsers: {
+          include: {
+            user: {
+              include: {
+                userOrganisation: {
+                  select: {
+                    role: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  } else {
+    projects = await prisma.project.findMany({
+      where: {
+        organisationId: req.organisationId,
+        assignedUsers: {
+          some: {
+            assginedToUserId: req.userId,
+          },
+        },
+      },
+      include: {
+        createdByUser: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+            avatarImg: true,
+          },
+        },
+        organisation: {
+          include: {
+            userOrganisation: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
+        assignedUsers: {
+          include: {
+            user: {
+              include: {
+                userOrganisation: {
+                  select: {
+                    role: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  }
 
   // progressionPercentage for all projects
   const projectsWithProgression = [];
@@ -30,18 +169,36 @@ export const getProjects = async (req: express.Request, res: express.Response) =
     const progressionPercentage = await prisma.project.projectProgression(
       project.projectId
     );
-    const projectManagerInfo = await prisma.userOrganisation.findMany({
+    const projectManager = await prisma.projectAssignUsers.findMany({
       where: {
-        organisationId: req.organisationId,
-        role: UserRoleEnum.PROJECT_MANAGER,
-        deletedAt: null
-      },
-      select: {
+        projectId: project.projectId,
         user: {
-          select: selectUserFields,
+          userOrganisation: {
+            some: {
+              role: {
+                in: [UserRoleEnum.PROJECT_MANAGER],
+              },
+            },
+          },
         },
       },
+      select: {
+        user: true,
+      },
     });
+    const projectAdministartor = await prisma.userOrganisation.findMany({
+      where: {
+        role: {
+          in: [UserRoleEnum.ADMINISTRATOR],
+        },
+        organisationId: req.organisationId,
+      },
+      include: {
+        user: true,
+      },
+    });
+    const projectManagerInfo =
+      projectManager.length !== 0 ? projectManager : projectAdministartor;
     const projectWithProgression = {
       ...project,
       progressionPercentage,
@@ -63,9 +220,22 @@ export const getProjectById = async (req: express.Request, res: express.Response
         where: { deletedAt: null },
       },
       createdByUser: {
-        select: selectUserFields,
-      }
-    }
+        select: selectUserFields
+      },
+      assignedUsers: {
+        include: {
+          user: {
+            include: {
+              userOrganisation: {
+                select: {
+                  role: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   });
 
   const progressionPercentage = await prisma.project.projectProgression(projectId);
@@ -301,4 +471,144 @@ export const addConsumedBudgetToProject = async (
      },
   });
   return new SuccessResponse(StatusCodes.OK, projectUpdate, 'consumed budget updated successfully').send(res);
+};
+
+
+export const assignedUserToProject = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
+
+  const projectId = uuidSchema.parse(req.params.projectId);
+  const prisma = await getClientByTenantId(req.tenantId);
+
+  const { assginedToUserId } = assginedToUserIdSchema.parse(req.body);
+  const findUser = await prisma.user.findUnique({
+    where: {
+      userId: assginedToUserId,
+    },
+    select: {
+      userOrganisation: {
+        select: {
+          role: true,
+        },
+      },
+    },
+  });
+  const findProjectManager = await prisma.projectAssignUsers.findMany({
+    where: {
+      projectId,
+      user: {
+        userOrganisation: {
+          some: {
+            role: {
+              in: [UserRoleEnum.PROJECT_MANAGER],
+            },
+          },
+        },
+      },
+    },
+  });
+  if (
+    findProjectManager &&
+    findProjectManager.length !== 0 &&
+    findUser?.userOrganisation[0]?.role === UserRoleEnum.PROJECT_MANAGER
+  ) {
+    throw new BadRequestError("Project Manager already exists!!");
+  }
+
+  const member = await prisma.projectAssignUsers.create({
+    data: {
+      assginedToUserId,
+      projectId,
+    },
+    include: {
+      user: {
+        select: {
+          email: true,
+        },
+      },
+    },
+  });
+
+  //Send notification
+  const message = `Project assigned to you`;
+  await prisma.notification.sendNotification(
+    NotificationTypeEnum.PROJECT,
+    message,
+    assginedToUserId,
+    req.userId,
+    projectId
+  );
+
+  return new SuccessResponse(
+    StatusCodes.CREATED,
+    member,
+    "User assgined successfully"
+  ).send(res);
+};
+
+export const deleteAssignedUserFromProject = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
+  const projectAssignUsersId = uuidSchema.parse(
+    req.params.projectAssignUsersId
+  );
+  const prisma = await getClientByTenantId(req.tenantId);
+  await prisma.projectAssignUsers.delete({
+    where: {
+      projectAssignUsersId,
+    },
+  });
+
+  return new SuccessResponse(
+    StatusCodes.OK,
+    null,
+    "User removed successfully"
+  ).send(res);
+};
+
+export const projectAssignToUser = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.organisationId) {
+    throw new BadRequestError("organisationId not found!");
+  }
+  const prisma = await getClientByTenantId(req.tenantId);
+  const usersOfOrganisation = await prisma.userOrganisation.findMany({
+    where: {
+      organisationId: req.organisationId,
+      role: {
+        notIn: [UserRoleEnum.ADMINISTRATOR],
+      },
+    },
+    select: {
+      role: true,
+      organisationId: true,
+      userOrganisationId: true,
+      user: {
+        select: {
+          userId: true,
+          avatarImg: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
+  });
+
+  return new SuccessResponse(
+    StatusCodes.OK,
+    usersOfOrganisation,
+    "Get organisation's users successfully"
+  ).send(res);
 };

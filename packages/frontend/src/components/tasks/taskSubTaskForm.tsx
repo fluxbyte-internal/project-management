@@ -85,7 +85,7 @@ function TaskSubTaskForm(props: Props) {
   const [attachmentUploading, setAttachmentUploading] =
     useState<boolean>(false);
   const taskQuery = useTaskQuery(taskId);
-  const taskMemberList = useTaskMemberListQuery();
+  const taskMemberList = useTaskMemberListQuery(props.projectId ?? "");
   const taskUpdateMutation = useUpdateTaskMutation(taskId);
   const taskRemoveMembersMutation = useRemoveTaskMemberMutation();
   const taskAddMembersMutation = useTaskAddMembersMutation(taskId);

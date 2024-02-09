@@ -6,6 +6,12 @@ import { UserRoleEnum } from "@prisma/client";
 let router = express.Router();
 
 router.get(
+  "/org-users/",
+  roleMiddleware([UserRoleEnum.ADMINISTRATOR, UserRoleEnum.PROJECT_MANAGER]),
+  ProjectController.projectAssignToUser
+);
+
+router.get(
   "/",
   roleMiddleware([
     UserRoleEnum.ADMINISTRATOR,
@@ -58,6 +64,18 @@ router.put(
   "consumed-budget/:projectId",
   roleMiddleware([UserRoleEnum.ADMINISTRATOR, UserRoleEnum.PROJECT_MANAGER]),
   ProjectController.addConsumedBudgetToProject
+);
+
+router.post(
+  "/add-assignee/:projectId",
+  roleMiddleware([UserRoleEnum.ADMINISTRATOR, UserRoleEnum.PROJECT_MANAGER]),
+  ProjectController.assignedUserToProject
+);
+
+router.delete(
+  "/remove-assignee/:projectAssignUsersId",
+  roleMiddleware([UserRoleEnum.ADMINISTRATOR, UserRoleEnum.PROJECT_MANAGER]),
+  ProjectController.deleteAssignedUserFromProject
 );
 
 export default router;

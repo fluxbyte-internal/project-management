@@ -8,4 +8,5 @@ export const QUERY_KEYS = {
   allTask:"allTask",
   allNotification:"allNotification",
   allKanbanColumn:"allKanbanColumn",
+  ProjectMember:"getProjectMembers",
 } as const;

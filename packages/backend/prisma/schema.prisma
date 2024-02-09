@@ -122,6 +122,7 @@ model User {
   addedDependencies     TaskDependencies[]
   sentNotifications     Notification[]     @relation("sentNotificationBy")
   receivedNotifications Notification[]     @relation("sentNotificationTo")
+  projectAssignUsers    ProjectAssignUsers[]
 
   deletedAt DateTime? @map("deleted_at")
 
@@ -269,11 +270,24 @@ model Project {
 
   tasks         Task[]
   kanbanColumns KanbanColumn[]
+  assignedUsers ProjectAssignUsers[]
 
   deletedAt DateTime? @map("deleted_at")
 
   @@unique([organisationId, projectName])
   @@index([projectId, organisationId])
+}
+
+model ProjectAssignUsers {
+  projectAssignUsersId String   @id @default(uuid()) @map("project_assign_users_id")
+  projectId            String   @map("project_id")
+  assginedToUserId     String   @map("assgined_to_user_id")
+  project              Project  @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  user                 User     @relation(fields: [assginedToUserId], references: [userId], onDelete: Cascade)
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  @@unique([projectId, assginedToUserId])
 }
 
 model Task {
@@ -307,8 +321,6 @@ model Task {
   parent          Task?              @relation("parentTask", fields: [parentTaskId], references: [taskId], onDelete: Cascade)
   dependencies    TaskDependencies[] @relation("dependencies")
   dependentOnTask TaskDependencies[] @relation("dependentOnTask")
-
-  notifications Notification[]
 
   deletedAt DateTime? @map("deleted_at")
 
@@ -384,7 +396,6 @@ model Notification {
   notificationId String               @id @default(uuid()) @map("notification_id")
   type           NotificationTypeEnum @map("type")
   referenceId    String               @map("reference_id")
-  task           Task?                @relation(fields: [referenceId], references: [taskId], onDelete: Cascade, map: "task_notification")
 
   sentBy             String @map("sent_by")
   sentNotificationBy User   @relation("sentNotificationBy", fields: [sentBy], references: [userId], onDelete: Cascade)
