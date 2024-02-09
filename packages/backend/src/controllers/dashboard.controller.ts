@@ -208,62 +208,6 @@ export const administartorProjects = async (req: Request, res: Response) => {
   ).send(res);
 };
 
-export const allOrganisationsProjects = async (req: Request, res: Response) => {
-  const prisma = await getClientByTenantId(req.tenantId);
-
-  // Fetch all organizations with their projects
-  const allOrganisationsWithProjects = await prisma.organisation.findMany({
-    include: {
-      projects: true,
-    },
-  });
-
-  const allProjects = allOrganisationsWithProjects.flatMap(
-    (org) => org.projects
-  );
-
-  // Calculate Number of Projects per Status
-  const statusCounts: StatusCounts = allProjects.reduce((acc, project) => {
-    const status = project.status;
-    acc[status] = (acc[status] || 0) + 1;
-    return acc;
-  }, {} as StatusCounts);
-
-  // Calculate Number of Projects per Overall Situation
-  const overallSituationCounts: StatusCounts = allProjects.reduce(
-    (acc, project) => {
-      const overallSituation = project.overallTrack;
-      acc[overallSituation] = (acc[overallSituation] || 0) + 1;
-      return acc;
-    },
-    {} as StatusCounts
-  );
-
-  // Prepare data for the status chart
-  const statusChartData = {
-    labels: Object.keys(statusCounts),
-    data: Object.values(statusCounts),
-  };
-
-  // Prepare data for the overall situation chart
-  const overallSituationChartData = {
-    labels: Object.keys(overallSituationCounts),
-    data: Object.values(overallSituationCounts),
-  };
-
-  const response = {
-    allOrganisationsWithProjects,
-    statusChartData,
-    overallSituationChartData,
-  };
-
-  return new SuccessResponse(
-    StatusCodes.OK,
-    response,
-    "Portfolio projects of all Organisations"
-  ).send(res);
-};
-
 export const projectDashboardByprojectId = async (
   req: Request,
   res: Response
@@ -312,7 +256,8 @@ export const projectDashboardByprojectId = async (
     return { 
       taskId: task.taskId,
       taskName: task.taskName,
-      spi
+      spi,
+      taskStatus: task.status
      };
   });
   const spi = await Promise.all(tasksWithSPI);
