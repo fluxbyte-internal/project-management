@@ -20,7 +20,6 @@ import Loader from "@/components/common/Loader";
 import CreateProjectNoPopUpForm from "@/components/project/CreateProjectNoPopupForm";
 import { Project } from "@/api/query/useProjectQuery";
 import { useUser } from "@/hooks/useUser";
-import { UserRoleEnumValue } from "@backend/src/schemas/enums";
 
 function ProjectDetails() {
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
