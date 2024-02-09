@@ -6,6 +6,7 @@ import {
   ProjectOverAllTrackEnum,
   ProjectStatusEnum,
   TaskStatusEnum,
+  UserRoleEnum,
 } from "@prisma/client";
 import { StatusCounts } from "../types/statusCount.js";
 import { uuidSchema } from "../schemas/commonSchema.js";
@@ -16,8 +17,23 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
 
   const projectManagersProjects = await prisma.project.findMany({
     where: {
-      createdByUserId: userId,
+      OR: [
+        {
+          organisationId: req.organisationId,
+          assignedUsers: {
+            some: {
+              assginedToUserId: userId,
+            },
+          },
+        },
+        {
+          createdByUserId: userId,
+        },
+      ],
     },
+    include: {
+      tasks: true
+    }
   });
 
   // Calculate Number of Portfolio Projects per Status
@@ -51,9 +67,13 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
     data: Object.values(overallSituationCounts),
   };
 
-  // TODO: Deley calculation as per SPI logic
+  const projects = projectManagersProjects.map(async project => {
+    const CPI = await prisma.project.calculationCPI(project);
+    return { ...projectManagersProjects, CPI };
+  });
+
   const response = {
-    projectManagersProjects,
+    projects,
     statusChartData,
     overallSituationChartData,
   };
@@ -111,11 +131,61 @@ export const administartorProjects = async (req: Request, res: Response) => {
     data: Object.values(overallSituationCounts),
   };
 
+  // Fetch project manager information for each project
+  const projectsWithProjectManager = await Promise.all(
+    orgCreatedByUser.projects.map(async (project) => {
+      const CPI = prisma.project.calculationCPI(project);
+      const projectManagerInfo = await prisma.projectAssignUsers.findMany({
+        where: {
+          projectId: project.projectId,
+          user: {
+            userOrganisation: {
+              some: {
+                role: {
+                  equals: UserRoleEnum.PROJECT_MANAGER,
+                },
+              },
+            },
+          },
+        },
+        select: {
+          user: true,
+        },
+      });
+      // If project manager not found, get administrators of the organization
+      if (projectManagerInfo.length === 0) {
+        const projectAdministartor = await prisma.userOrganisation.findMany({
+          where: {
+            role: {
+              equals: UserRoleEnum.ADMINISTRATOR,
+            },
+            organisationId: req.organisationId,
+          },
+          include: {
+            user: true,
+          },
+        });
+        return {
+          ...project,
+          projectManagerInfo: projectAdministartor,
+          SPI: CPI
+        };
+      } else {
+        return {
+          ...project,
+          projectManagerInfo,
+          SPI: CPI
+        };
+      }
+    })
+  );
+
   // TODO: Deley calculation as per SPI logic
   const response = {
     orgCreatedByUser,
     statusChartData,
     overallSituationChartData,
+    projectsWithProjectManager,
   };
   return new SuccessResponse(
     StatusCodes.OK,
@@ -213,16 +283,33 @@ export const projectDashboardByprojectId = async (
 
   const projectBudgetTrend = projectWithTasks.budgetTrack;
   const projectOverAllSituation = projectWithTasks.overallTrack;
+  const consumedBudget = projectWithTasks.consumedBudget;
+  const estimatedBudget = projectWithTasks.estimatedBudget;
+  const actualCost = projectWithTasks.actualCost;
+  const scheduleTrend = projectWithTasks.scheduleTrend;
+  const budgetTrend = projectWithTasks.budgetTrend;
+
+  // CPI
+  const cpi = prisma.project.calculationCPI(projectWithTasks);
+
+  // SPI
+  const tasksWithSPI = projectWithTasks.tasks.map(task => {
+    const spi = prisma.task.calculationSPI(task);
+    return { 
+      taskId: task.taskId,
+      taskName: task.taskName,
+      spi
+     };
+  });
+  const spi = await Promise.all(tasksWithSPI);
 
   // Project Date's
   const projectDates = {
     startDate: projectWithTasks.startDate,
     estimatedEndDate: projectWithTasks.estimatedEndDate,
+    actualEndDate: projectWithTasks.actualEndDate,
+    projectCreatedAt: projectWithTasks.createdAt
   };
-
-  // Todo: Need to handle KPI-SPI-CPI
-  // TODO: Schedule trend
-  // TODO: Risks severity
 
   // Calculate Number of Portfolio Projects per Overall Situation
   const statusCounts: StatusCounts = projectWithTasks.tasks.reduce(
@@ -270,6 +357,15 @@ export const projectDashboardByprojectId = async (
     taskDelayChartData,
     numTeamMembersWorkingOnTasks,
     projectOverAllSituation,
+    projectStatus: projectWithTasks.status,
+    spi,
+    cpi,
+    budgetTrend,
+    scheduleTrend,
+    actualCost,
+    consumedBudget,
+    estimatedBudget,
+
   };
   return new SuccessResponse(
     StatusCodes.OK,

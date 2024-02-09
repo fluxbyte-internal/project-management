@@ -86,6 +86,12 @@ enum HistoryTypeEnum {
   TASK
 }
 
+enum ScheduleAndBudgetTrend {
+  INCREASING
+  STABLE
+  DECREASING
+}
+
 model User {
   userId     String         @id @default(uuid()) @map("user_id")
   email      String         @unique @map("email")
@@ -260,8 +266,8 @@ model Project {
   overallTrack       ProjectOverAllTrackEnum @default(SUNNY) @map("overall_track")
   estimatedBudget    String                  @map("estimated_budget")
   consumedBudget     String                  @default("0") @map("consumed_budget")
-  scheduleTrend      String?                 @map("schedule_trend")
-  budgetTrend        String?                 @map("budget_trend")
+  scheduleTrend      ScheduleAndBudgetTrend  @default(STABLE) @map("schedule_trend")
+  budgetTrend        ScheduleAndBudgetTrend  @default(STABLE) @map("budget_trend")
   actualCost         String?                 @map("actual_cost")
   createdByUserId    String                  @map("created_by_user_id")
   createdByUser      User                    @relation("createdByUser", fields: [createdByUserId], references: [userId], onDelete: Cascade)
