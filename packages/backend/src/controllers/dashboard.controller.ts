@@ -67,10 +67,16 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
     data: Object.values(overallSituationCounts),
   };
 
-  const projects = projectManagersProjects.map(async project => {
+  const projects = await Promise.all(projectManagersProjects.map(async project => {
     const CPI = await prisma.project.calculationCPI(project);
-    return { ...projectManagersProjects, CPI };
-  });
+    const completedTasksCount = await prisma.task.count({
+      where: {
+        projectId: project.projectId,
+        status: TaskStatusEnum.DONE
+      }
+    });
+    return { ...projectManagersProjects, CPI, completedTasksCount };
+  }));
 
   const response = {
     projects,
@@ -135,6 +141,12 @@ export const administartorProjects = async (req: Request, res: Response) => {
   const projectsWithProjectManager = await Promise.all(
     orgCreatedByUser.projects.map(async (project) => {
       const CPI = prisma.project.calculationCPI(project);
+      const completedTasksCount = await prisma.task.count({
+        where: {
+          projectId: project.projectId,
+          status: TaskStatusEnum.DONE
+        }
+      });
       const projectManagerInfo = await prisma.projectAssignUsers.findMany({
         where: {
           projectId: project.projectId,
@@ -168,13 +180,15 @@ export const administartorProjects = async (req: Request, res: Response) => {
         return {
           ...project,
           projectManagerInfo: projectAdministartor,
-          SPI: CPI
+          CPI,
+          completedTasksCount
         };
       } else {
         return {
           ...project,
           projectManagerInfo,
-          SPI: CPI
+          CPI,
+          completedTasksCount
         };
       }
     })
@@ -254,7 +268,6 @@ export const projectDashboardByprojectId = async (
   req: Request,
   res: Response
 ) => {
-  const userId = req.userId;
   const projectId = uuidSchema.parse(req.params.projectId);
 
   // Fetch projects created by the user

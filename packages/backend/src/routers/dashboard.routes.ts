@@ -17,10 +17,10 @@ router.get(
   DashboardController.administartorProjects
 );
 
-router.get(
-  "/allOrganisationsProjects",
-  DashboardController.allOrganisationsProjects
-);
+// router.get(
+//   "/allOrganisationsProjects",
+//   DashboardController.allOrganisationsProjects
+// );
 
 router.get(
   "/dashboardByProjectId/:projectId",
