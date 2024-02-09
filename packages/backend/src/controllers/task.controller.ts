@@ -625,7 +625,7 @@ export const taskAssignToUser = async (
   const projectId = uuidSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const usersOfOrganisation = await prisma.projectAssignUsers.findMany({
-    where: { projectId, deletedAt: null },
+    where: { projectId },
     select: {
       projectId: true,
       assginedToUserId: true,
