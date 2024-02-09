@@ -249,7 +249,7 @@ export const updateTask = async (
         projectId: taskUpdateDB.project.projectId,
       },
       data: {
-        estimatedEndDate: maxEndDate,
+        actualEndDate: maxEndDate,
       },
     });
   };
