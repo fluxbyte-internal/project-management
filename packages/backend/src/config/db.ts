@@ -1,5 +1,6 @@
-import { NotificationTypeEnum, PrismaClient, Task, TaskStatusEnum, UserStatusEnum, UserRoleEnum, HistoryTypeEnum } from "@prisma/client";
+import { NotificationTypeEnum, PrismaClient, Task, TaskStatusEnum, UserStatusEnum, UserRoleEnum, HistoryTypeEnum, Project } from "@prisma/client";
 import { RegisterSocketServices } from "../services/socket.services.js";
+import { settings } from "./settings.js";
 
 const rootPrismaClient = generatePrismaClient();
 const prismaClients: Record<
@@ -128,7 +129,6 @@ function generatePrismaClient(datasourceUrl?: string) {
       },
       project: {
         async projectProgression(projectId: string) {
-          const hours: number = 24;
           const parentTasks = await client.task.findMany({
             where: {
               projectId,
@@ -142,13 +142,17 @@ function generatePrismaClient(datasourceUrl?: string) {
 
           for (const value of parentTasks) {
             completionPecentageOrDuration +=
-              Number(value.completionPecentage) * (value.duration * hours);
-          }
-          for (const secondValue of parentTasks) {
-            averagesSumOfDuration += secondValue.duration * hours * 100;
+              Number(value.completionPecentage) * (value.duration * settings.hours);
+              averagesSumOfDuration += value.duration * settings.hours * 100;
           }
           return completionPecentageOrDuration / averagesSumOfDuration;
         },
+        async calculationCPI(project: Project) {
+          const progressionPercentage = await client.project.projectProgression(project.projectId);
+          const estimatedBudgetNumber = parseFloat(project.estimatedBudget);
+          const consumedBudgetNumber = parseFloat(project.consumedBudget);
+          return progressionPercentage * estimatedBudgetNumber / consumedBudgetNumber;
+      }
       },
       task: {
         // create action (comment-attachment-dependencies)
@@ -201,15 +205,14 @@ function generatePrismaClient(datasourceUrl?: string) {
           task: (Task & { subtasks: Task[] }) | any
         ) {
           if (task.subtasks && task.subtasks.length > 0) {
-            const hours: number = 24;
             let completionPecentageOrDurationTask = 0;
             let averagesSumOfDurationTask = 0;
             for (const value of task.subtasks) {
               const percentage =
                 client.task.calculationSubTaskProgression(value);
               completionPecentageOrDurationTask +=
-                Number(percentage) * (value.duration * hours);
-              averagesSumOfDurationTask += value.duration * hours * 100;
+                Number(percentage) * (value.duration * settings.hours);
+              averagesSumOfDurationTask += value.duration * settings.hours * 100;
             }
             return (
               (completionPecentageOrDurationTask / averagesSumOfDurationTask) *
@@ -279,6 +282,27 @@ function generatePrismaClient(datasourceUrl?: string) {
             }
           });
           return maxEndDate;
+        },
+        calculationSPI(tasks: Task): number {
+          const actualProgression = tasks.completionPecentage ?? 0;
+          const plannedProgression =
+            client.task.calculateTaskPlannedProgression(tasks);
+          return (
+            (actualProgression * (tasks.duration * settings.hours)) /
+            (plannedProgression * (tasks.duration * settings.hours))
+          );
+        },
+        calculateTaskPlannedProgression(task: Task): number {
+          const currentDate = new Date().getTime();
+          const taskStartDate = new Date(task.startDate).getTime();
+          const taskEndDate = client.task
+            .calculateEndDate(task.startDate, task.duration)
+            .getTime();
+          const effectiveCurrentDate = Math.min(currentDate, taskEndDate); // Use task end date if currentDate is greater
+          const plannedProgression =
+            (effectiveCurrentDate - taskStartDate + 1) /
+            (task.duration * settings.hours);
+          return plannedProgression;
         },
         tpiCalculation(task: Task): {
           tpiValue: number,
