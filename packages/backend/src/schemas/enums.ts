@@ -8,7 +8,8 @@ import type {
   ProjectOverAllTrackEnum,
   UserStatusEnum,
   ConsoleStatusEnum,
-  HistoryTypeEnum
+  HistoryTypeEnum,
+  ScheduleAndBudgetTrendEnum
 } from "@prisma/client";
 import type { EnumStringValueObj } from "../types/enumStringValueObject.js";
 
@@ -73,4 +74,10 @@ export const OverAllTrackEnumValue: EnumStringValueObj<ProjectOverAllTrackEnum> 
   RAINY: "RAINY",
   STORMY: "STORMY",
   SUNNY: "SUNNY"
+};
+
+export const ScheduleAndBudgetTrend: EnumStringValueObj<ScheduleAndBudgetTrendEnum> = {
+  STABLE: "STABLE",
+  INCREASING: "INCREASING",
+  DECREASING: "DECREASING"
 };

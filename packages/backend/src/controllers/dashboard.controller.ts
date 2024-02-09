@@ -294,7 +294,7 @@ export const projectDashboardByprojectId = async (
     0
   );
 
-  const projectBudgetTrend = projectWithTasks.budgetTrack;
+  const budgetTrack = projectWithTasks.budgetTrack;
   const projectOverAllSituation = projectWithTasks.overallTrack;
   const consumedBudget = projectWithTasks.consumedBudget;
   const estimatedBudget = projectWithTasks.estimatedBudget;
@@ -366,7 +366,7 @@ export const projectDashboardByprojectId = async (
     numTasks,
     numMilestones,
     projectDates,
-    projectBudgetTrend,
+    budgetTrack,
     taskStatusChartData,
     taskDelayChartData,
     numTeamMembersWorkingOnTasks,
