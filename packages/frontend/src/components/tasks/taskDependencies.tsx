@@ -298,14 +298,7 @@ function TaskDependencies(props: Props) {
             {dependenciesFormik.errors.dependendentOnTaskId}
           </ErrorMessage>
           <div className="flex justify-end gap-2">
-            <div>
-              <Button
-                variant={"primary_outline"}
-                onClick={dependenciesFormik.submitForm}
-              >
-                Create
-              </Button>
-            </div>
+           
             <div>
               <Button
                 variant={"secondary"}
@@ -314,6 +307,14 @@ function TaskDependencies(props: Props) {
                 }}
               >
                 Cancel
+              </Button>
+            </div>
+            <div>
+              <Button
+                variant={"primary_outline"}
+                onClick={dependenciesFormik.submitForm}
+              >
+                Create
               </Button>
             </div>
           </div>

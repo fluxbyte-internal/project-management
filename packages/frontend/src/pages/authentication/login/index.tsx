@@ -72,7 +72,7 @@ function Login() {
   };
 
   const google = () => {
-    window.open(`${baseURL}/auth/google`, "_self");
+    window.open(`${baseURL}/api/auth/google`, "_self");
   };
 
   return (

@@ -97,7 +97,7 @@ function GanttView() {
       });
       setTaskData(convertedData);
     }
-  }, [filterData]);
+  }, [filterData,filterUnit]);
 
   const convertTask = (originalTask: Task) => {
     const convertedTask: GanttChartTask = {

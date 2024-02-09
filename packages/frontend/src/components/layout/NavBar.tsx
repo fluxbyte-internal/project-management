@@ -27,6 +27,7 @@ import { toast } from "react-toastify";
 import useSingleReadNotificationMutation from "@/api/mutation/useSingleReadNotificationMutation";
 import Dialog from "../common/Dialog";
 import { baseURL } from "@/Environment";
+import { UserRoleEnumValue } from "@backend/src/schemas/enums";
 
 type NavItemType =
   | {
@@ -126,11 +127,7 @@ function NavBar() {
     return () => {
       socket.off("notification");
     };
-  }, [
-    useAllNotification.data?.data,
-    useAllNotification.data?.data.data,
-    user?.userId,
-  ]);
+  }, [useAllNotification.data?.data.data]);
 
   const handleReadAll = () => {
     const updatedNotifications = notifications?.map((notification) => ({
@@ -193,7 +190,12 @@ function NavBar() {
                       key={index}
                       className={`hidden gap-2 items-center ${
                         item.id === 2 && "lg:flex"
-                      } ${item.id === 1 && "md:flex"}`}
+                      } ${item.id === 1 && "md:flex"} ${
+                        user?.userOrganisation[0].role ==
+                          UserRoleEnumValue.TEAM_MEMBER &&
+                        item.id === 1 &&
+                        "!hidden"
+                      }`}
                     >
                       {hasSubItem(item) ? (
                         <DropdownMenu>
@@ -435,16 +437,16 @@ function NavBar() {
               </DropdownMenuItem>
               {user?.userOrganisation[0] &&
                 user?.userOrganisation[0].organisationId && (
-                <DropdownMenuItem onClick={openOrganisationSettings}>
-                  <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
-                  <Button
-                    className="p-0 font-normal h-auto"
-                    variant={"ghost"}
-                  >
+                  <DropdownMenuItem onClick={openOrganisationSettings}>
+                    <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
+                    <Button
+                      className="p-0 font-normal h-auto"
+                      variant={"ghost"}
+                    >
                       Organisations Settings
-                  </Button>
-                </DropdownMenuItem>
-              )}
+                    </Button>
+                  </DropdownMenuItem>
+                )}
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4 text-[#44546F]" />
                 <Button className="p-0 font-normal h-auto" variant={"ghost"}>
