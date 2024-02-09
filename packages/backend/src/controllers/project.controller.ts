@@ -15,17 +15,20 @@ export const getProjects = async (req: express.Request, res: express.Response) =
   const userRole = await prisma.userOrganisation.findFirst({
     where: {
       organisationId: req.organisationId,
-      userId: req.userId
+      userId: req.userId,
     },
     select: {
-      role: true
-    }
+      role: true,
+    },
   });
+  if (!userRole) {
+    throw new BadRequestError("User role not found!!");
+  }
 
-  if (userRole!.role === UserRoleEnum.ADMINISTRATOR) {
+  if (userRole.role === UserRoleEnum.ADMINISTRATOR) {
     projects = await prisma.project.findMany({
       where: {
-        organisationId: req.organisationId
+        organisationId: req.organisationId,
       },
       include: {
         createdByUser: {
@@ -33,17 +36,17 @@ export const getProjects = async (req: express.Request, res: express.Response) =
             firstName: true,
             lastName: true,
             email: true,
-            avatarImg: true
-          }
+            avatarImg: true,
+          },
         },
         organisation: {
           include: {
             userOrganisation: {
               include: {
-                user: true
-              }
-            }
-          }
+                user: true,
+              },
+            },
+          },
         },
         assignedUsers: {
           include: {
@@ -51,15 +54,66 @@ export const getProjects = async (req: express.Request, res: express.Response) =
               include: {
                 userOrganisation: {
                   select: {
-                    role: true
-                  }
-                }
-              }
-            }
-          }
-        }
+                    role: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
+    });
+  } else if (userRole!.role === UserRoleEnum.PROJECT_MANAGER) {
+    projects = await prisma.project.findMany({
+      where: {
+        OR: [
+          {
+            organisationId: req.organisationId,
+            assignedUsers: {
+              some: {
+                assginedToUserId: req.userId,
+              },
+            },
+          },
+          {
+            createdByUserId: req.userId,
+          },
+        ],
+      },
+      include: {
+        createdByUser: {
+          select: {
+            firstName: true,
+            lastName: true,
+            email: true,
+            avatarImg: true,
+          },
+        },
+        organisation: {
+          include: {
+            userOrganisation: {
+              include: {
+                user: true,
+              },
+            },
+          },
+        },
+        assignedUsers: {
+          include: {
+            user: {
+              include: {
+                userOrganisation: {
+                  select: {
+                    role: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
     });
   } else {
     projects = await prisma.project.findMany({
@@ -67,9 +121,9 @@ export const getProjects = async (req: express.Request, res: express.Response) =
         organisationId: req.organisationId,
         assignedUsers: {
           some: {
-            assginedToUserId: req.userId
-          }
-        }
+            assginedToUserId: req.userId,
+          },
+        },
       },
       include: {
         createdByUser: {
@@ -77,17 +131,17 @@ export const getProjects = async (req: express.Request, res: express.Response) =
             firstName: true,
             lastName: true,
             email: true,
-            avatarImg: true
-          }
+            avatarImg: true,
+          },
         },
         organisation: {
           include: {
             userOrganisation: {
               include: {
-                user: true
-              }
-            }
-          }
+                user: true,
+              },
+            },
+          },
         },
         assignedUsers: {
           include: {
@@ -95,15 +149,15 @@ export const getProjects = async (req: express.Request, res: express.Response) =
               include: {
                 userOrganisation: {
                   select: {
-                    role: true
-                  }
-                }
-              }
-            }
-          }
-        }
+                    role: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
   }
 
