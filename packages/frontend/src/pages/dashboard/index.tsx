@@ -1,13 +1,14 @@
 import { useUser } from "@/hooks/useUser";
 import AdminDashboard from "./adminDashboard";
 import ManagerDashboard from "./managerDashboard";
-// import { Redirect } from 'react-router-dom';
+import { UserRoleEnumValue } from "@backend/src/schemas/enums";
 function Dashboard() {
   const { user } = useUser();
 
   return(
     <>
-      {user?.userOrganisation[0]?.role === "ADMINISTRATOR" ? (<> <AdminDashboard /></>) : (<><ManagerDashboard/></>)}
+      {user?.userOrganisation[0]?.role === UserRoleEnumValue.ADMINISTRATOR ? (<> <AdminDashboard /></>) : 
+      (user?.userOrganisation[0]?.role === UserRoleEnumValue.PROJECT_MANAGER ? (<><ManagerDashboard/></>) : (<></>))}
     </>
   );
 }

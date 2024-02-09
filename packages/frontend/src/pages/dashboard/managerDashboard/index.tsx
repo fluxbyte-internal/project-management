@@ -41,6 +41,8 @@ function ManagerDashboard() {
       chartData: statusPieChartData!,
       color: ["#FFD04A", "#FFB819", "#B74E06"],
       title: "Projects Per Status",
+      radius:['0%', '80%'],
+      height : '500px'
     });
     const overallSituationPieChartData =
       data?.overallSituationChartData?.labels.map((name, index) => ({
@@ -51,6 +53,8 @@ function ManagerDashboard() {
       chartData: overallSituationPieChartData!,
       color: ["#FFD04A", "#FFB819", "#B74E06"],
       title: "Projects Per Overall Situation",
+      radius:['0%', '80%'],
+      height : '500px'
     });
   }, [data]);
 
@@ -58,12 +62,16 @@ function ManagerDashboard() {
     chartData: [],
     color: ["#FFD04A", "#FFB819", "#B74E06"],
     title: "Project With Delays",
+    radius:['0%', '80%'],
+    height : '500px'
   };
 
   const chartProp4: ChartProps = {
     chartData: [],
     color: ["#FFD04A", "#FFB819", "#B74E06"],
     title: "Projects Per Severity",
+    radius:['0%', '80%'],
+    height : '500px'
   };
   const columnDef: ColumeDef[] = [
     { key: "projectName", header: "Project Name", sorting: true,

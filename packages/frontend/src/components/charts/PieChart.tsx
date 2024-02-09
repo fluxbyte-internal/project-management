@@ -4,7 +4,9 @@ import * as echarts from 'echarts';
 export type ChartProps = {
   chartData: { value: number; name: string }[],
   color:string[],
-  title: string
+  title: string,
+  radius: string[],
+  height: string
 }
 interface PieChartProps {
   chartProps: ChartProps
@@ -37,7 +39,7 @@ const PieChart:  React.FC<PieChartProps> = ({ chartProps }) =>{
         {
           name: '',
           type: 'pie',
-          radius: ['0%', '80%'],
+          radius: chartProps?.radius,
           avoidLabelOverlap: false,
           label: {
             show: false,
@@ -64,7 +66,7 @@ const PieChart:  React.FC<PieChartProps> = ({ chartProps }) =>{
     };
   },[chartProps]);
 
-  return <div ref={chartref} style={{width: '100%', height: '500px'}} />;
+  return <div ref={chartref} style={{width: '100%', height: chartProps?.height}} />;
     
 };
 export default PieChart;

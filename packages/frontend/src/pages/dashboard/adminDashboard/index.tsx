@@ -6,55 +6,56 @@ import useAdminPortfolioDashboardQuery, {
 } from "@/api/query/usePortfolioDashboardQuery";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
+import PercentageCircle from "@/components/shared/PercentageCircle";
+import dateFormater from "@/helperFuntions/dateFormater";
+import { Button } from "@/components/ui/button";
+import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 
 export interface ProjectType {
-  projectId: string
-  organisationId: string
-  projectName: string
-  projectDescription: string
-  startDate: string
-  estimatedEndDate: string
-  status: string
-  defaultView: string
-  timeTrack: string
-  budgetTrack: string
-  currency: string
-  overallTrack: string
-  estimatedBudget: string
-  actualCost: string
-  createdByUserId: string
-  updatedByUserId: string
-  createdAt: string
-  updatedAt: string
+  projectId: string;
+  organisationId: string;
+  projectName: string;
+  projectDescription: string;
+  startDate: string;
+  estimatedEndDate: string;
+  status: string;
+  defaultView: string;
+  timeTrack: string;
+  budgetTrack: string;
+  currency: string;
+  overallTrack: string;
+  estimatedBudget: string;
+  actualCost: string;
+  createdByUserId: string;
+  updatedByUserId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 export interface tableDataType {
-  organisationId: string
-  organisationName: string
-  industry: string
-  status: string
-  country: string
-  nonWorkingDays: string[]
-  createdAt: string
-  updatedAt: string
-  tenantId: string
-  createdByUserId: string
-  updatedByUserId: string
-  projects: ProjectType[]
+  organisationId: string;
+  organisationName: string;
+  industry: string;
+  status: string;
+  country: string;
+  nonWorkingDays: string[];
+  createdAt: string;
+  updatedAt: string;
+  tenantId: string;
+  createdByUserId: string;
+  updatedByUserId: string;
+  projects: ProjectType[];
 }
-
 
 function AdminDashboard() {
   const admninPortfolioDashboardQuery = useAdminPortfolioDashboardQuery();
   const [datas, setDatas] = useState<DashboardPortfolioDataType>();
   const [statusPieChartProp, setstatusPieChartProp] = useState<ChartProps>();
   const [tableData, setTableData] = useState<ProjectType[]>();
+  const [isOpenPopUp, setIsOpenPopUp] = useState(false);
+  const [editData, setEditData] = useState<Project | undefined>();
   const [overallStatusPieChartProp, setOverallStatusPieChartProp] =
     useState<ChartProps>();
-    
- 
-  
-  
+
   // const overallSituationPieChartData =
   //   data?.overallSituationChartData?.labels?.map((name, index) => ({
   //     name,
@@ -62,7 +63,7 @@ function AdminDashboard() {
   //   }));
 
   useEffect(() => {
-    setDatas(admninPortfolioDashboardQuery?.data?.data?.data); 
+    setDatas(admninPortfolioDashboardQuery?.data?.data?.data);
   }, [admninPortfolioDashboardQuery?.data?.data?.data]);
 
   useEffect(() => {
@@ -76,8 +77,10 @@ function AdminDashboard() {
 
     setstatusPieChartProp({
       chartData: statusPieChartData!,
-      color: ["#FFD04A", "#FFB819", "#B74E06"],
+      color: ["#DD7102", "#943B0C", "#461802", "#555555"],
       title: "Projects Per Status",
+      radius: ["60%", "80%"],
+      height: "500px",
     });
     const overallSituationPieChartData =
       datas?.overallSituationChartData?.labels.map((name, index) => ({
@@ -88,6 +91,8 @@ function AdminDashboard() {
       chartData: overallSituationPieChartData!,
       color: ["#FFD04A", "#FFB819", "#B74E06"],
       title: "Projects Per Overall Situation",
+      radius: ["0%", "80%"],
+      height: "500px",
     });
   }, [datas]);
 
@@ -95,12 +100,16 @@ function AdminDashboard() {
     chartData: [],
     color: ["#FFD04A", "#FFB819", "#B74E06"],
     title: "Project With Delays",
+    radius: ["0%", "70%"],
+    height: "100%",
   };
 
   const chartProp4: ChartProps = {
     chartData: [],
     color: ["#FFD04A", "#FFB819", "#B74E06"],
     title: "Projects Per Severity",
+    radius: ["70%", "80%"],
+    height: "500px",
   };
   const columnDef: ColumeDef[] = [
     {
@@ -121,7 +130,7 @@ function AdminDashboard() {
     {
       key: "status",
       header: "Status",
-      onCellRender: (item: Project) => (
+      onCellRender: (item) => (
         <>
           <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
             <div className="text-cyan-700 text-xs font-medium leading-tight">
@@ -131,12 +140,41 @@ function AdminDashboard() {
         </>
       ),
     },
+
+    // {
+    //   key: "progress",
+    //   header: "Progress",
+    //   onCellRender: (item: Project) => (
+    //     <PercentageCircle percentage={item.progressionPercentage} />
+    //   ),
+    // },
+
+    {
+      key: "startDate",
+      header: "Start Date",
+      sorting: true,
+      onCellRender: (item) => <>{dateFormater(new Date(item.startDate))}</>,
+    },
+    {
+      key: "actualEndDate",
+      header: "End Date",
+      onCellRender: (item) => (
+        <>
+          {item.estimatedEndDate &&
+            dateFormater(new Date(item.estimatedEndDate))}
+        </>
+      ),
+    },
     {
       key: "estimatedBudget",
       header: "Budget",
       sorting: true,
     },
   ];
+  const close = () => {
+    setIsOpenPopUp(false);
+    setEditData(undefined);
+  };
   return (
     <>
       <div className="overflow-auto w-full py-2 mt-10 px-2 lg:px-14 flex flex-col gap-10">
@@ -144,62 +182,77 @@ function AdminDashboard() {
           Admin Dashboard
         </h2>
         <div className="text-xl font-bold text-gray-400">Project Status</div>
-        <div className="tabs w-full rounded-xl h-full flex flex-col md:flex-row gap-5 items-center px-6 py-5 text-white ">
-          {datas?.statusChartData?.labels.map((labelData, index) => (
-            <>
-              <div
-                key={index}
-                className={`flex flex-col gap-5 w-full lg:w-4/5 h-full  rounded-2xl p-2 py-3 text-start items-start justify-start px-10 border-l-[12px] ${
-                  labelData === "ACTIVE"
-                    ? "border-primary-600 bg-gradient-to-r  from-primary-500 to-primary-300"
-                    : labelData === "ON_HOLD"
-                      ? "border-primary-800 bg-gradient-to-r  from-primary-700 to-primary-500"
+        <div className="w-full h-full flex flex-col lg:flex-row gap-10 items-center">
+          <div className="tabs border-gray-300 border w-3/4 rounded-xl h-fit flex flex-col md:flex-row gap-5 items-center px-6 py-5 text-white flex-wrap justify-center">
+            {datas?.statusChartData?.labels.map((labelData, index) => (
+              <>
+                <div
+                  key={index}
+                  className={`flex flex-col gap-2 lg:gap-5 w-full lg:w-2/5 h-1/5 lg:h-full  rounded-2xl p-2 lg:py-3 text-start items-start justify-start px-10 border-l-[12px] ${
+                    labelData === "ACTIVE"
+                      ? "text-primary-600  border-2 border-primary-600 "
+                      : labelData === "ON_HOLD"
+                      ? "text-primary-800 border-2 border-primary-800"
                       : labelData === "NOT_STARTED"
-                        ? "border-primary-950 bg-gradient-to-r  from-primary-900 to-primary-700"
-                        : "border-gray-100  bg-gradient-to-r   from-gray-700 to-gray-400"
-                }`}
-              >
+                      ? "text-primary-950 border-2 border-primary-950"
+                      : "text-gray-800 border-2 border-gray-300  "
+                  }`}
+                >
+                  <a className="text-base font-bold items-end">{labelData}</a>
+                  <a className="text-4xl lg:text-5xl font-semibold">
+                    {datas?.statusChartData?.data[index]}
+                  </a>
+                </div>
+              </>
+            ))}
+          </div>
 
-                <a className="text-base font-bold items-end">{labelData}</a>
-                <a className="text-5xl font-semibold">
-                  {datas?.statusChartData?.data[index]}
-                </a>
-              </div>
-            </>
-          ))}
+          <div className=" rounded-2xl w-3/4 lg:w-1/4 h-[500px] lg:h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
+            <PieChart chartProps={chartProp2} />
+          </div>
         </div>
         <div className="text-xl font-bold text-gray-400">Charts</div>
         <div className=" w-full h-fit flex flex-col lg:flex-row justify-center items-center gap-6 py-2 ">
-          <div className=" rounded-2xl w-full h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
-            <PieChart chartProps={chartProp2} />
-          </div>
-          <div className=" rounded-2xl w-full h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
+          <div className=" rounded-2xl w-3/4 lg:w-1/2 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <PieChart chartProps={overallStatusPieChartProp!} />
           </div>
-          <div className=" rounded-2xl w-full h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
+          <div className=" rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <PieChart chartProps={chartProp4} />
           </div>
-          <div className=" rounded-2xl w-full h-full justify-center items-center flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300  ">
+          <div className=" rounded-2xl w-3/4 lg:w-1/4  h-full justify-center items-center flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300  ">
             <PieChart chartProps={statusPieChartProp!} />
           </div>
         </div>
-        <div className="w-full flex flex-col md:flex-row gap-10 justify-center">
-      
-      
-          <div className="w-full md:w-4/5 h-full">
+        <div className="w-full flex flex-col md:flex-col gap-10 justify-center px-5 md:px-20 lg:px-0 self-center">
+       
+                  <div className="w-full lg:w-4/5 self-center">
+                    <Button
+                      variant={"primary"}
+                      onClick={() => setIsOpenPopUp(true)}
+                    >
+                      Add Project
+                    </Button>
+                  </div>
+
+          <div className="w-full lg:w-4/5 h-full self-center">
             {tableData && (
               <>
                 <Table
                   key="ProjectList view"
                   columnDef={columnDef}
                   data={tableData}
-
                 />
               </>
             )}
           </div>
         </div>
       </div>
+      {isOpenPopUp && (
+            <CreateUpdateProjectForm
+              handleClosePopUp={close}
+              editData={editData}
+            />
+          )}
     </>
   );
 }
