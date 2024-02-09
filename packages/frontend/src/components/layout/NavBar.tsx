@@ -103,23 +103,25 @@ function NavBar() {
     });
     socket.emit("join", user?.userId);
     socket.on("notification", (notificationObject) => {
-      setNotifications((prevNotifications) => [
-        ...(prevNotifications ? prevNotifications : []),
-        {
-          notificationId: notificationObject.notificationId,
-          type: notificationObject.type,
-          referenceId: notificationObject.referenceId,
-          sentBy: notificationObject.sentBy,
-          sentTo: notificationObject.sentTo,
-          details: notificationObject.details,
-          isRead: notificationObject.isRead,
-          createdAt: notificationObject.createdAt,
-          ReadAt: notificationObject.ReadAt,
-          sentNotificationBy: notificationObject.sentNotificationBy,
-          sentNotificationTo: notificationObject.sentNotificationTo,
-          task: notificationObject.task,
-        },
-      ]);
+      if (notificationObject) {
+        setNotifications((prevNotifications) => [
+          ...(prevNotifications ? prevNotifications : []),
+          {
+            notificationId: notificationObject.notificationId,
+            type: notificationObject.type,
+            referenceId: notificationObject.referenceId,
+            sentBy: notificationObject.sentBy,
+            sentTo: notificationObject.sentTo,
+            details: notificationObject.details,
+            isRead: notificationObject.isRead,
+            createdAt: notificationObject.createdAt,
+            ReadAt: notificationObject.ReadAt,
+            sentNotificationBy: notificationObject.sentNotificationBy,
+            sentNotificationTo: notificationObject.sentNotificationTo,
+            task: notificationObject.task,
+          },
+        ]);
+      }
     });
     return () => {
       socket.off("notification");
@@ -433,16 +435,16 @@ function NavBar() {
               </DropdownMenuItem>
               {user?.userOrganisation[0] &&
                 user?.userOrganisation[0].organisationId && (
-                  <DropdownMenuItem onClick={openOrganisationSettings}>
-                    <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
-                    <Button
-                      className="p-0 font-normal h-auto"
-                      variant={"ghost"}
-                    >
+                <DropdownMenuItem onClick={openOrganisationSettings}>
+                  <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
+                  <Button
+                    className="p-0 font-normal h-auto"
+                    variant={"ghost"}
+                  >
                       Organisations Settings
-                    </Button>
-                  </DropdownMenuItem>
-                )}
+                  </Button>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4 text-[#44546F]" />
                 <Button className="p-0 font-normal h-auto" variant={"ghost"}>

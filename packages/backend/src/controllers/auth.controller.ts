@@ -109,7 +109,7 @@ export const login = async (req: express.Request, res: express.Response) => {
   const { email, password } = authLoginSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
   const user = await prisma.user.findUnique({
-    where: { email },
+    where: { email, deletedAt: null },
     include: { provider: true },
   });
   if (
@@ -133,7 +133,6 @@ export const login = async (req: express.Request, res: express.Response) => {
       ...cookieConfig,
       maxAge: cookieConfig.maxAgeRefreshToken
     });
-
     const { provider, ...userWithoutProvider } = user;
 
     // Generate and save verify otp
@@ -154,7 +153,6 @@ export const login = async (req: express.Request, res: express.Response) => {
         console.error('Failed to send otp email', error)
       }
     }
-
     return new SuccessResponse(
       StatusCodes.OK,
       { user: userWithoutProvider },
@@ -214,7 +212,7 @@ export const forgotPassword = async (
   const token = generateRandomToken();
 
   const prisma = await getClientByTenantId(req.tenantId);
-  const findUser = await prisma.user.findFirst({ where: { email: email } });
+  const findUser = await prisma.user.findFirst({ where: { email: email, deletedAt: null } });
   if (!findUser) throw new NotFoundError("User not found");
 
   const expiryTimeInMinutes = 10;
@@ -257,6 +255,7 @@ export const resetPassword = async (
   let resetPasswordRecord = await prisma.resetPassword.findFirst({
     where: {
       token: token,
+      deletedAt: null,
       expiryTime: {
         gt: new Date(),
       },

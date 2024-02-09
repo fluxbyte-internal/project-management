@@ -7,40 +7,38 @@ import { createCommentTaskSchema, createTaskSchema, attachmentTaskSchema, taskSt
 import { NotificationTypeEnum, TaskStatusEnum } from '@prisma/client';
 import { AwsUploadService } from '../services/aws.services.js';
 import { uuidSchema } from '../schemas/commonSchema.js';
-import { RegisterSocketServices } from '../services/socket.services.js';
 import { MilestoneIndicatorStatusEnum } from '@prisma/client';
 import { HistoryTypeEnumValue } from '../schemas/enums.js';
 import { removeProperties } from "../types/removeProperties.js";
+import { selectUserFields } from '../utils/selectedFieldsOfUsers.js';
 
 export const getTasks = async (req: express.Request, res: express.Response) => {
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const tasks = await prisma.task.findMany({
-    where: { projectId: projectId },
+    where: { projectId: projectId, deletedAt: null },
     orderBy: { createdAt: 'desc' },include: {
       assignedUsers: {
+        where: { deletedAt: null },
         select: {
           taskAssignUsersId: true,
           user:{
-            select: {
-              userId: true,
-              avatarImg: true, 
-              email: true,
-              firstName: true,
-              lastName: true
-            }
+            select: selectUserFields,
           }
         }
       },
       subtasks: {
+        where: { deletedAt: null },
         include: {
           subtasks: {
+            where: { deletedAt: null },
             include: {
               subtasks: true,
             },
           },
         },
       },
+      dependencies: true
     },
   });
   const finalArray = tasks.map((task) => {
@@ -59,38 +57,33 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
   const taskId = uuidSchema.parse(req.params.taskId);
   const prisma = await getClientByTenantId(req.tenantId);
   const task = await prisma.task.findFirstOrThrow({
-    where: { taskId: taskId },
+    where: { taskId: taskId, deletedAt: null },
     include: {
       comments: {
         orderBy: { createdAt: "desc" },
         include: {
           commentByUser: {
-            select: {
-              firstName: true,
-              lastName: true,
-              email: true,
-              avatarImg: true,
-            },
+            select: selectUserFields,
           },
         },
       },
       assignedUsers: {
+        where: { deletedAt: null },
         select: {
           taskAssignUsersId: true,
           user:{
-            select: {
-              userId: true,
-              avatarImg: true, 
-              email: true,
-              firstName: true,
-              lastName: true
-            }
+            select: selectUserFields,
           }
         }
       },
-      documentAttachments: true,
-      subtasks: true,
+      documentAttachments: {
+        where: { deletedAt: null }
+      },
+      subtasks: {
+        where: { deletedAt: null },
+      },
       dependencies: {
+        where: { deletedAt: null },
         include: {
           dependentOnTask: true,
         },
@@ -99,12 +92,7 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
         orderBy: { createdAt: "desc" },
         include: {
           createdByUser: {
-            select: {
-              avatarImg: true,
-              email: true,
-              firstName: true,
-              lastName: true,
-            },
+            select: selectUserFields,
           },
         },
       },
@@ -135,7 +123,7 @@ export const createTask = async (
 
   if (parentTaskId) {
     const parentTask = await prisma.task.findUnique({
-      where: { taskId: parentTaskId },
+      where: { taskId: parentTaskId, deletedAt: null },
     });
     if (!parentTask) { throw new NotFoundError('Parent task not found') };
 
@@ -229,7 +217,7 @@ export const updateTask = async (
     throw new UnAuthorizedError();
   }
   const findtask = await prisma.task.findFirstOrThrow({
-    where: { taskId: taskId },
+    where: { taskId: taskId, deletedAt: null },
     include: {
       documentAttachments: true,
       assignedUsers: true,
@@ -335,8 +323,10 @@ export const deleteTask = async (req: express.Request, res: express.Response) =>
   if (!action) {
     throw new UnAuthorizedError();
   }
-  await prisma.task.delete({
+
+  await prisma.task.update({
     where: { taskId },
+    data: { deletedAt: new Date() },
     include: {
       comments: true,
       documentAttachments: true,
@@ -357,7 +347,7 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
   const statusBody = taskStatusSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
   if (taskId) {
-    const findTask = await prisma.task.findFirstOrThrow({ where: { taskId: taskId } })
+    const findTask = await prisma.task.findFirstOrThrow({ where: { taskId: taskId, deletedAt: null } })
     let updatedTask = await prisma.task.update({
       where: { taskId: taskId },
       data: {
@@ -401,7 +391,7 @@ export const statusCompletedAllTAsk = async (req: express.Request, res: express.
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const findAllTaskByProjectId = await prisma.task.findMany({
-    where: { projectId: projectId }
+    where: { projectId: projectId, deletedAt: null }
   });
   if (findAllTaskByProjectId.length > 0) {
     await prisma.task.updateMany({
@@ -570,7 +560,7 @@ export const addAttachment = async (
   }
 
   const findTask = await prisma.task.findFirst({
-    where: { taskId: taskId },
+    where: { taskId: taskId, deletedAt: null },
     include: { documentAttachments: true },
   });
 
@@ -599,7 +589,13 @@ export const deleteAttachment = async (
   }
   //TODO: If Delete require on S3
   // await AwsUploadService.deleteFile(attachment.name, 'task-attachment');
-  const deletedAttachment = await prisma.taskAttachment.delete({ where: { attachmentId } });
+  // const deletedAttachment = await prisma.taskAttachment.delete({ where: { attachmentId } });
+  const deletedAttachment = await prisma.taskAttachment.update({
+    where: { attachmentId },
+    data: {
+      deletedAt: new Date(),
+    },
+  });
 
   // History-Manage
   const historyMessage = "Task's attachment was removed";
@@ -629,19 +625,13 @@ export const taskAssignToUser = async (
   const projectId = uuidSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const usersOfOrganisation = await prisma.projectAssignUsers.findMany({
-    where: { projectId },
+    where: { projectId, deletedAt: null },
     select: {
       projectId: true,
       assginedToUserId: true,
       projectAssignUsersId: true,
       user: {
-        select: {
-          userId: true,
-          avatarImg: true,
-          email: true,
-          firstName: true,
-          lastName: true,
-        },
+        select: selectUserFields,
       },
     },
   });
@@ -811,6 +801,7 @@ export const removeDependencies = async (
   if (!req.userId) {
     throw new BadRequestError("userId not found!!");
   }
+  console.log({uuid: req.params.taskDependenciesId})
   const taskDependenciesId = uuidSchema.parse(req.params.taskDependenciesId);
   const prisma = await getClientByTenantId(req.tenantId);
   const action = await prisma.taskDependencies.canDelete(

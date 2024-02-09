@@ -1,10 +1,5 @@
-import { NotificationTypeEnum, PrismaClient, Task } from "@prisma/client";
+import { NotificationTypeEnum, PrismaClient, Task, TaskStatusEnum, UserStatusEnum, UserRoleEnum, HistoryTypeEnum } from "@prisma/client";
 import { RegisterSocketServices } from "../services/socket.services.js";
-import {
-  HistoryTypeEnum,
-  UserRoleEnum,
-  UserStatusEnum,
-} from "@prisma/client";
 
 const rootPrismaClient = generatePrismaClient();
 const prismaClients: Record<
@@ -62,24 +57,12 @@ function generatePrismaClient(datasourceUrl?: string) {
         flag: {
           needs: { milestoneIndicator: true },
           compute(task: Task): "Red" | "Orange" | "Green" {
-            let { milestoneIndicator, duration, completionPecentage } = task;
-
-            //TODO: Need to change logic here
-            const plannedProgress = duration / duration;
-            if (!completionPecentage) {
-              completionPecentage = 100;
-            }
-            const tpi = completionPecentage / plannedProgress;
+            let { milestoneIndicator } = task;
+            const tpi = client.task.tpiCalculation(task);
             if (milestoneIndicator) {
-              return tpi < 1 ? "Red" : "Green";
+              return tpi.tpiValue < 1 ? "Red" : "Green";
             } else {
-              if (tpi < 0.8) {
-                return "Red";
-              } else if (tpi >= 0.8 && tpi < 0.95) {
-                return "Orange";
-              } else {
-                return "Green";
-              }
+              return tpi.tpiFlag
             }
           },
         },
@@ -138,6 +121,7 @@ function generatePrismaClient(datasourceUrl?: string) {
               user: {
                 status: UserStatusEnum.ACTIVE,
               },
+              deletedAt: null,
             },
           });
         },
@@ -149,6 +133,7 @@ function generatePrismaClient(datasourceUrl?: string) {
             where: {
               projectId,
               parentTaskId: null,
+              deletedAt: null,
             },
           });
 
@@ -201,9 +186,10 @@ function generatePrismaClient(datasourceUrl?: string) {
         },
         async getTaskById(taskId: string) {
           return client.task.findFirstOrThrow({
-            where: { taskId },
+            where: { taskId, deletedAt: null, },
             include: {
               assignedUsers: {
+                where: { deletedAt: null },
                 include: {
                   user: true,
                 },
@@ -238,7 +224,7 @@ function generatePrismaClient(datasourceUrl?: string) {
           let count = 0;
           while (currentTaskId) {
             const currentTask = (await client.task.findFirst({
-              where: { taskId: currentTaskId },
+              where: { taskId: currentTaskId, deletedAt: null, },
               select: { parentTaskId: true },
             })) as { taskId: string; parentTaskId: string | null };
             if (currentTask) {
@@ -264,7 +250,7 @@ function generatePrismaClient(datasourceUrl?: string) {
         },
         async findMaxEndDateAmongTasks(projectId: string) {
           const tasks = await client.task.findMany({
-            where: { projectId: projectId },
+            where: { projectId: projectId, deletedAt: null, },
             select: {
               startDate: true,
               duration: true,
@@ -294,11 +280,49 @@ function generatePrismaClient(datasourceUrl?: string) {
           });
           return maxEndDate;
         },
-      },
+        tpiCalculation(task: Task): {
+          tpiValue: number,
+          tpiFlag: "Red" | "Orange" | "Green"
+        } {
+          let { duration, completionPecentage, startDate, status } = task;
+          if (
+            status === TaskStatusEnum.TODO ||
+            status === TaskStatusEnum.PLANNED
+          ) {
+            return {
+              tpiValue: 0,
+              tpiFlag: "Red"
+            };
+          }
+          const currentDate: Date = new Date();
+          const startDateObj: Date = new Date(startDate);
+          const elapsedDays: number = Math.ceil(
+            (currentDate.getTime() - startDateObj.getTime()) /
+              (1000 * 60 * 60 * 24)
+          );
+
+          const plannedProgress = elapsedDays / duration;
+          if (!completionPecentage) {
+            completionPecentage = 0;
+          }
+          const tpi = completionPecentage / plannedProgress;
+          let flag = "" as "Red" | "Orange" | "Green";
+          if (tpi < 0.8) {
+            flag = "Red";
+          } else if (tpi >= 0.8 && tpi < 0.95) {
+            flag = "Orange";
+          } else {
+            flag = "Green";
+          }
+          return {
+            tpiValue: tpi,
+            tpiFlag: flag
+          };
+      }},
       comments: {
         async canEditOrDelete(commentId: string, userId: string) {
           const comment = await client.comments.findFirstOrThrow({
-            where: { commentId },
+            where: { commentId, deletedAt: null },
             include: {
               commentByUser: true,
             },
@@ -321,11 +345,12 @@ function generatePrismaClient(datasourceUrl?: string) {
       taskAttachment: {
         async canDelete(attachmentId: string, userId: string) {
           const attachment = await client.taskAttachment.findFirstOrThrow({
-            where: { attachmentId: attachmentId },
+            where: { attachmentId: attachmentId, deletedAt: null },
             include: {
               task: {
                 include: {
                   assignedUsers: {
+                    where: { deletedAt: null },
                     include: {
                       user: true,
                     },
@@ -353,6 +378,7 @@ function generatePrismaClient(datasourceUrl?: string) {
           const dependencies = await client.taskDependencies.findFirstOrThrow({
             where: {
               taskDependenciesId: taskDependenciesId,
+              deletedAt: null,
             },
           });
 
@@ -380,6 +406,7 @@ function generatePrismaClient(datasourceUrl?: string) {
           const user = await client.user.findFirstOrThrow({
             include: {
               userOrganisation: {
+                where: { deletedAt: null },
                 select: {
                   role: true,
                 },
@@ -387,13 +414,14 @@ function generatePrismaClient(datasourceUrl?: string) {
             },
             where: {
               userId: userId,
+              deletedAt: null,
             },
           });
           return user.userOrganisation.map((org) => org.role);
         },
       },
-    },
-  });
+    }},
+  );
   return client;
 }
 

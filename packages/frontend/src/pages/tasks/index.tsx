@@ -66,10 +66,10 @@ function Tasks() {
             item?.flag == "Green"
               ? "bg-green-500/60 border border-green-500"
               : item?.flag == "Red"
-              ? "bg-red-500/60 border border-red-500/60"
-              : item?.flag == "Orange"
-              ? "bg-primary-500/60 border border-primary-500/60"
-              : ""
+                ? "bg-red-500/60 border border-red-500/60"
+                : item?.flag == "Orange"
+                  ? "bg-primary-500/60 border border-primary-500/60"
+                  : ""
           }`}
         ></div>
       ),

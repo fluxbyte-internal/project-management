@@ -211,18 +211,18 @@ function KanbanView(
   }) => {
     const className = "";
     switch (data.dataField) {
-      case TaskStatusEnumValue.PLANNED:
-        className.concat("!bg-rose-500/20");
-        break;
-      case TaskStatusEnumValue.TODO:
-        className.concat("!bg-slate-500/20");
-        break;
-      case TaskStatusEnumValue.IN_PROGRESS:
-        className.concat("!bg-primary-500/20");
-        break;
-      case TaskStatusEnumValue.DONE:
-        className.concat("!bg-green-500/20");
-        break;
+    case TaskStatusEnumValue.PLANNED:
+      className.concat("!bg-rose-500/20");
+      break;
+    case TaskStatusEnumValue.TODO:
+      className.concat("!bg-slate-500/20");
+      break;
+    case TaskStatusEnumValue.IN_PROGRESS:
+      className.concat("!bg-primary-500/20");
+      break;
+    case TaskStatusEnumValue.DONE:
+      className.concat("!bg-green-500/20");
+      break;
     }
     // header.classList.add(...className.split(" "));
   };

@@ -20,10 +20,17 @@ import { OrgStatusEnum, UserStatusEnum, UserProviderTypeEnum } from "@prisma/cli
 export const me = async (req: express.Request, res: express.Response) => {
   const prisma = await getClientByTenantId(req.tenantId);
   const user = await prisma.user.findUniqueOrThrow({
-    where: { userId: req.userId },
+    where: { userId: req.userId, deletedAt: null },
     include: {
-      userOrganisation: { include: { organisation: true } },
-      provider: { select: { providerType: true }}
+      userOrganisation: {
+        where: { deletedAt: null },
+        include: {
+          organisation: {
+            where: { deletedAt: null },
+          },
+        },
+      },
+      provider: { select: { providerType: true } },
     },
   });
 
@@ -73,7 +80,7 @@ export const updateUserAvtarImg = async (
   const files = avatarImgSchema.parse(req.files);
   const prisma = await getClientByTenantId(req.tenantId);
   const findUser = await prisma.user.findFirst({
-    where: { userId: req.userId },
+    where: { userId: req.userId, deletedAt: null },
   });
   if (!findUser) throw new NotFoundError("User not found");
   const avatarImgURL = await AwsUploadService.uploadFileWithContent(
@@ -161,6 +168,7 @@ export const changePassword = async (
   const findUser = await prisma.user.findUniqueOrThrow({
     where: {
       userId: req.userId,
+      deletedAt: null,
       provider: {
         providerType: UserProviderTypeEnum.EMAIL,
       },

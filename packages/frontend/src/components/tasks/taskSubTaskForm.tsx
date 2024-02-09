@@ -66,9 +66,10 @@ import useTaskStatusUpdateMutation from "@/api/mutation/useTaskStatusUpdateMutat
 
 type Props = {
   projectId: string | undefined;
-  taskId: string | undefined;
+  taskId?: string | undefined;
   close: () => void;
-  initialValues?: { startDate: Date | undefined };
+  initialValues?: { startDate: Date | undefined; taskId?: string };
+  createSubtask?: string;
 };
 
 function TaskSubTaskForm(props: Props) {
@@ -91,7 +92,10 @@ function TaskSubTaskForm(props: Props) {
 
   let tasks = taskQuery.data && taskId ? taskQuery.data.data.data : undefined;
   const taskAttachmentAddMutation = useTaskAttechmentAddMutation(taskId);
-  const taskCreateMutation = useCreateTaskMutation(props.projectId, taskId);
+  const taskCreateMutation = useCreateTaskMutation(
+    props.projectId,
+    props.createSubtask ? props.createSubtask : taskId ? taskId : ""
+  );
   const taskAddUpdateMilestoneMutation =
     useTaskAddUpdateMilestoneMutation(taskId);
   useEffect(() => {
@@ -331,10 +335,7 @@ function TaskSubTaskForm(props: Props) {
                       name="taskName"
                       onChange={taskFormik.handleChange}
                       onClick={taskFormik.handleBlur}
-                      placeholder={
-                        "Task Name" +
-                        <span className="text-red-500 text-sm">*</span>
-                      }
+                      placeholder="Create new task *"
                       value={taskFormik.values.taskName}
                     ></InputText>
                   </div>
@@ -357,9 +358,9 @@ function TaskSubTaskForm(props: Props) {
                   <div className="text-sm font-normal cursor-pointer">
                     {tasks?.status
                       ? `in list ${tasks?.status
-                          .toLowerCase()
-                          .replace(/_/g, " ")
-                          .replace(/\b\w/g, (char) => char.toUpperCase())}`
+                        .toLowerCase()
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, (char) => char.toUpperCase())}`
                       : "Select Status"}
                   </div>
                 </DropdownMenuTrigger>
@@ -473,19 +474,19 @@ function TaskSubTaskForm(props: Props) {
                     ></InputText>
                   </div>
                   <div className="flex gap-3 justify-end mt-3">
+                  <Button
+                      variant={"secondary"}
+                      onClick={() => setSubTaskFieldShow(false)}
+                      className="py-2 px-4"
+                    >
+                      Cancel
+                    </Button>
                     <Button
                       variant={"primary_outline"}
                       onClick={createSubTask}
                       className="py-2 px-4"
                     >
                       Create
-                    </Button>
-                    <Button
-                      variant={"secondary"}
-                      onClick={() => setSubTaskFieldShow(false)}
-                      className="py-2 px-4"
-                    >
-                      Cancel
                     </Button>
                   </div>
                 </>
@@ -498,10 +499,10 @@ function TaskSubTaskForm(props: Props) {
             {/* Attachments */}
             {tasks?.documentAttachments &&
             tasks?.documentAttachments.length > 0 ? (
-              <TaskAttachment refetch={refetch} task={tasks}></TaskAttachment>
-            ) : (
-              ""
-            )}
+                <TaskAttachment refetch={refetch} task={tasks}></TaskAttachment>
+              ) : (
+                ""
+              )}
 
             <div className="flex items-center gap-2.5 mt-4">
               <img src={MultiLine} width={20} height={20} />
@@ -538,7 +539,7 @@ function TaskSubTaskForm(props: Props) {
                       className="py-1.5 px-3 flex w-full gap-3 justify-start"
                     >
                       <img src={Users} />
-                      Members
+                      Assignees
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-80 focus:outline-none">
@@ -563,11 +564,11 @@ function TaskSubTaskForm(props: Props) {
                                   (u) => u.user.userId == data.user.userId
                                 )
                                   ? removeMembers(
-                                      tasks?.assignedUsers.find(
-                                        (id) =>
-                                          id.user.userId == data.user.userId
-                                      )?.taskAssignUsersId ?? ""
-                                    )
+                                    tasks?.assignedUsers.find(
+                                      (id) =>
+                                        id.user.userId == data.user.userId
+                                    )?.taskAssignUsersId ?? ""
+                                  )
                                   : submitMembers(data);
                               }}
                             >
@@ -659,10 +660,10 @@ function TaskSubTaskForm(props: Props) {
                     />
                     {taskFormik.errors.startDate &&
                       taskFormik.values.startDate && (
-                        <ErrorMessage className="ml-0 p-0">
-                          {/* {taskFormik.errors.startDate} */}
-                        </ErrorMessage>
-                      )}
+                      <ErrorMessage className="ml-0 p-0">
+                        {/* {taskFormik.errors.startDate} */}
+                      </ErrorMessage>
+                    )}
                   </PopoverContent>
                 </Popover>
               </div>
@@ -672,10 +673,10 @@ function TaskSubTaskForm(props: Props) {
                     tasks?.flag == "Green"
                       ? "bg-green-500/60"
                       : tasks?.flag == "Red"
-                      ? "bg-red-500/60"
-                      : tasks?.flag == "Orange"
-                      ? "bg-primary-500/60"
-                      : ""
+                        ? "bg-red-500/60"
+                        : tasks?.flag == "Orange"
+                          ? "bg-primary-500/60"
+                          : ""
                   }`}
                 >
                   <img src={Tag} className="w-3.5" />
@@ -722,9 +723,14 @@ function TaskSubTaskForm(props: Props) {
                         <div className="text-sm  text-gray-300">
                           {milestoneFormik.values.dueDate
                             ? dateFormater(
-                                new Date(milestoneFormik.values.dueDate)
-                              )
+                              new Date(milestoneFormik.values.dueDate)
+                            )
                             : "Select date"}
+                          <ErrorMessage>
+                            {!milestoneFormik.values.dueDate &&
+                              milestoneFormik.values.milestoneIndicator &&
+                              "Please select due date"}
+                          </ErrorMessage>
                         </div>
                       </PopoverTrigger>
                       <PopoverContent className="p-0">
@@ -744,30 +750,30 @@ function TaskSubTaskForm(props: Props) {
                         />
                         {milestoneFormik.errors.dueDate &&
                           milestoneFormik.values.dueDate && (
-                            <ErrorMessage className="ml-0 p-0">
-                              {milestoneFormik.errors.dueDate}
-                            </ErrorMessage>
-                          )}
+                          <ErrorMessage className="ml-0 p-0">
+                            {milestoneFormik.errors.dueDate}
+                          </ErrorMessage>
+                        )}
                       </PopoverContent>
                     </Popover>
                   </div>
                 )}
                 {(!tasks?.dueDate || !tasks.milestoneIndicator) &&
                   tasks?.endDate && (
-                    <div className="flex flex-col gap-2">
-                      <div className="text-xs font-medium text-gray-400">
+                  <div className="flex flex-col gap-2">
+                    <div className="text-xs font-medium text-gray-400">
                         End Date
-                      </div>
-                      {/* <div className="text-sm  text-gray-300">
+                    </div>
+                    {/* <div className="text-sm  text-gray-300">
                     {tasks?.milestoneIndicator
                       ? dateFormater(tasks.dueDate ?? new Date())
                       : dateFormater(new Date())}
                   </div> */}
-                      <div className="text-sm  text-gray-300">
-                        {dateFormater(new Date(tasks.endDate))}
-                      </div>
+                    <div className="text-sm  text-gray-300">
+                      {dateFormater(new Date(tasks.endDate))}
                     </div>
-                  )}
+                  </div>
+                )}
               </div>
               <div className="flex justify-between">
                 <div>
@@ -813,7 +819,7 @@ function TaskSubTaskForm(props: Props) {
                             <InputNumber
                               onBlur={() => {
                                 setTaskDurationField(false),
-                                  taskFormik.submitForm();
+                                taskFormik.submitForm();
                               }}
                               name="duration"
                               onChange={taskFormik.handleChange}

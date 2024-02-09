@@ -26,6 +26,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "date-fns": "^3.0.4",
+    "echarts": "^5.4.3",
     "formik": "^2.4.5",
     "lucide-react": "^0.292.0",
     "react": "^18.2.0",

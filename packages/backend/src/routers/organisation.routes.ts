@@ -7,6 +7,12 @@ let router = express.Router();
 
 router.get("/:organisationId", OrganisationControlller.getOrganisationById);
 
+router.put(
+  "/re-assigned-task/",
+  roleMiddleware([UserRoleEnum.ADMINISTRATOR]),
+  OrganisationControlller.reassignTasks
+);
+
 router.post("/", OrganisationControlller.createOrganisation);
 
 router.post(
@@ -16,7 +22,13 @@ router.post(
 );
 
 router.put(
-  "/:userOrganisationId",
+  "/:organisationId",
+  roleMiddleware([UserRoleEnum.ADMINISTRATOR]),
+  OrganisationControlller.updateOrganisation
+);
+
+router.put(
+  "/change-role/:userOrganisationId",
   roleMiddleware([UserRoleEnum.ADMINISTRATOR]),
   OrganisationControlller.changeMemberRole
 );
@@ -25,12 +37,6 @@ router.delete(
   "/:userOrganisationId",
   roleMiddleware([UserRoleEnum.ADMINISTRATOR]),
   OrganisationControlller.removeOrganisationMember
-);
-
-router.put(
-  "/:organisationId",
-  roleMiddleware([UserRoleEnum.ADMINISTRATOR]),
-  OrganisationControlller.updateOrganisation
 );
 
 export default router;
