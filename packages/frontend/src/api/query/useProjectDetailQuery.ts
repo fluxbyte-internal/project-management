@@ -32,6 +32,7 @@ export interface ProjectDetailType {
   createdByUser: CreatedByUser;
   projectProgression: string | null;
   assignedUsers:AssignedUsers[]
+  actualEndDate:Date |null
 }
 
 export interface CreatedByUser {
