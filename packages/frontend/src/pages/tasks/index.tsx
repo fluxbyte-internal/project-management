@@ -207,9 +207,9 @@ function Tasks() {
   const setData = (data: Task[] | undefined) => {
     if (data) {
       data.forEach((task) => {
-        task.subtasks = data.filter(
+        task.subtasks = allTaskQuery.data?.data.data.filter(
           (subtask) => subtask.parentTaskId === task.taskId
-        );
+        )?? [];
       });
       const topLevelTasks = data.filter((task) => task.parentTaskId === null);
       return topLevelTasks.map((task) => convertTask(task));

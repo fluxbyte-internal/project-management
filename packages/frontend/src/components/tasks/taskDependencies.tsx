@@ -68,8 +68,17 @@ function TaskDependencies(props: Props) {
   const dependencies = (): Options[] => {
     const dependenciesArr: Options[] = [{ label: "select", value: "" }];
     allTask.data?.data.data.forEach((task) => {
-      if (task.taskId !== props.task.taskId) {
-        dependenciesArr.push({ label: task.taskName, value: task.taskId });
+      if (
+        task.taskId !== props.task.taskId &&
+        task.parentTaskId !== props.task.taskId
+      ) {
+        if (
+          !props.task.dependencies.some(
+            (e) => e.dependendentOnTaskId === task.taskId
+          )
+        ) {
+          dependenciesArr.push({ label: task.taskName, value: task.taskId });
+        }
       }
     });
     return dependenciesArr;
@@ -94,7 +103,7 @@ function TaskDependencies(props: Props) {
   const dependenciesFormik = useFormik<z.infer<typeof dependenciesTaskSchema>>({
     initialValues: {
       dependentType: TaskDependenciesEnumValue.BLOCKING,
-      dependendentOnTaskId: props.endTask ? defaultsValue.value :"",
+      dependendentOnTaskId: props.endTask ? defaultsValue.value : "",
     },
     validationSchema: toFormikValidationSchema(dependenciesTaskSchema),
     onSubmit: (values) => {
@@ -298,7 +307,6 @@ function TaskDependencies(props: Props) {
             {dependenciesFormik.errors.dependendentOnTaskId}
           </ErrorMessage>
           <div className="flex justify-end gap-2">
-           
             <div>
               <Button
                 variant={"secondary"}
