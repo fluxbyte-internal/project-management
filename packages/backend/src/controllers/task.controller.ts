@@ -549,7 +549,7 @@ export const addAttachment = async (
 
     // History-Manage
     const historyMessage = "Task's attachment was added";
-    const historyData = { oldValue: null, newValue: taskAttachmentURL };
+    const historyData = { oldValue: null, newValue: singleFile.name };
     await prisma.history.createHistory(
       req.userId,
       HistoryTypeEnumValue.TASK,
@@ -599,7 +599,7 @@ export const deleteAttachment = async (
 
   // History-Manage
   const historyMessage = "Task's attachment was removed";
-  const historyData = { oldValue: deletedAttachment.url, newValue: null };
+  const historyData = { oldValue: deletedAttachment.name, newValue: null };
   await prisma.history.createHistory(
     req.userId,
     HistoryTypeEnumValue.TASK,
