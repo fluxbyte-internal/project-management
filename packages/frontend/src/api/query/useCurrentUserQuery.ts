@@ -49,7 +49,7 @@ function useCurrentUserQuery() {
     queryKey: [QUERY_KEYS.currentUser],
     queryFn: async () => await ApiRequest.get(requestURLs.me),
     enabled: false,
-    retry:0
+    retry:0,
   });
 }
 

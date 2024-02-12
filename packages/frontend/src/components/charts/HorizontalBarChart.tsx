@@ -16,34 +16,34 @@ const HorizontalBarChart:  React.FC<HorizontalBarChartProps> = ({ chartProps }) 
   useEffect(()=>{
     const myChart = echarts.init(chartref.current as HTMLDivElement);
     const labelRight = {
-        position: 'right'
-      } as const;
+      position: 'right',
+    } as const;
       
     const option:echarts.EChartsOption = {
-        color: chartProps.color,
+      color: chartProps.color,
       title: {
         text: chartProps.title,
         top:'2%',
-    left:"center"
+        left:"center",
       },
       tooltip: {
         trigger: 'axis',
         axisPointer: {
-          type: 'shadow'
-        }
+          type: 'shadow',
+        },
       },
       grid: {
         top: 80,
-        bottom: 30
+        bottom: 30,
       },
       xAxis: {
         type: 'value',
         position: 'top',
         splitLine: {
           lineStyle: {
-            type: 'dashed'
-          }
-        }
+            type: 'dashed',
+          },
+        },
       },
       yAxis: {
         type: 'category',
@@ -54,8 +54,8 @@ const HorizontalBarChart:  React.FC<HorizontalBarChartProps> = ({ chartProps }) 
         data: [
           'low',
           'high',
-          'medium'
-        ]
+          'medium',
+        ],
       },
       series: [
         {
@@ -64,15 +64,15 @@ const HorizontalBarChart:  React.FC<HorizontalBarChartProps> = ({ chartProps }) 
           stack: 'Total',
           label: {
             show: true,
-            formatter: '{b}'
+            formatter: '{b}',
           },
           data: [
             { value: 0, label: labelRight },
             { value: 0, label: labelRight },
-            0
-          ]
-        }
-      ]
+            0,
+          ],
+        },
+      ],
     };
     myChart.setOption(option);
 

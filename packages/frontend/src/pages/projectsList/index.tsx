@@ -55,7 +55,7 @@ function ProjectsList() {
     setData(projectQuery.data?.data.data);
     setFilterData(projectQuery.data?.data.data);
     if (searchParams.get("status")) {
-      setFilter(prev => ({...prev,status:{label:searchParams.get("status")??"",value:searchParams.get("status")??""}}))
+      setFilter(prev => ({...prev,status:{label:searchParams.get("status")??"",value:searchParams.get("status")??""}}));
     }
   }, [projectQuery.data?.data.data,searchParams]);
 
@@ -189,7 +189,7 @@ function ProjectsList() {
         <>
           <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
             <div className="text-cyan-700 text-xs font-medium leading-tight">
-            {item.status
+              {item.status
                 .toLowerCase()
                 .replace(/_/g, " ")
                 .replace(/\b\w/g, (char) => char.toUpperCase())}
@@ -315,7 +315,7 @@ function ProjectsList() {
       date: undefined,
       status: null,
     });
-    setSearchParams({})
+    setSearchParams({});
     setFilterData(data);
   };
 

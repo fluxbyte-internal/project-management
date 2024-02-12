@@ -14,8 +14,6 @@ import { ScheduleAndBudgetTrend } from "@backend/src/schemas/enums";
 import Increasing from "@/assets/increase.svg";
 import Decreasing from "@/assets/decrease.svg";
 import Stable from "@/assets/stable.svg";
-import PercentageCircle from "@/components/shared/PercentageCircle";
-import HorizontalBarChart from "@/components/charts/HorizontalBarChart";
 export type ThemeColorData = {
   theme: string;
   colors: {
@@ -173,14 +171,14 @@ function ProjectDashboard() {
   const navigate = useNavigate();
   const filterRoutes = (item: string) => {
     switch (item) {
-      case "Milestones":
-        navigate(`/tasks/${projectId}?milestones=true`);
-        break;
-        case "Tasks":
-          navigate(`/tasks/${projectId}`);
-          break;
-      default:
-        break;
+    case "Milestones":
+      navigate(`/tasks/${projectId}?milestones=true`);
+      break;
+    case "Tasks":
+      navigate(`/tasks/${projectId}`);
+      break;
+    default:
+      break;
     }
   };
   return (
@@ -196,12 +194,12 @@ function ProjectDashboard() {
                     data?.projectOverAllSituation === "SUNNY"
                       ? Sunny
                       : data?.projectOverAllSituation === "CLOUDY"
-                      ? Cloudy
-                      : data?.projectOverAllSituation === "RAINY"
-                      ? Rainy
-                      : data?.projectOverAllSituation === "STORMY"
-                      ? Stormy
-                      : ""
+                        ? Cloudy
+                        : data?.projectOverAllSituation === "RAINY"
+                          ? Rainy
+                          : data?.projectOverAllSituation === "STORMY"
+                            ? Stormy
+                            : ""
                   }`}
                 />
               </div>
@@ -222,7 +220,7 @@ function ProjectDashboard() {
 
               <div
                 onClick={() => filterRoutes("Tasks")}
-               className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer  ${selectedStatusTheme?.colors.tabBorders}`}
+                className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer  ${selectedStatusTheme?.colors.tabBorders}`}
               >
                 <div className="text-lg ">No. of Tasks</div>
                 <div className="text-4xl font-semibold">{data.numTasks}</div>
@@ -353,11 +351,11 @@ function ProjectDashboard() {
                           ? Stable
                           : data?.scheduleTrend ===
                             ScheduleAndBudgetTrend.INCREASING
-                          ? Increasing
-                          : data?.scheduleTrend ===
+                            ? Increasing
+                            : data?.scheduleTrend ===
                             ScheduleAndBudgetTrend.DECREASING
-                          ? Decreasing
-                          : ""
+                              ? Decreasing
+                              : ""
                       }
                     ></img>
                   </div>
@@ -374,11 +372,11 @@ function ProjectDashboard() {
                           ? Stable
                           : data?.scheduleTrend ===
                             ScheduleAndBudgetTrend.INCREASING
-                          ? Increasing
-                          : data?.scheduleTrend ===
+                            ? Increasing
+                            : data?.scheduleTrend ===
                             ScheduleAndBudgetTrend.DECREASING
-                          ? Decreasing
-                          : ""
+                              ? Decreasing
+                              : ""
                       }
                     ></img>
                   </div>

@@ -104,7 +104,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
       overallTrack: "SUNNY",
       scheduleTrend: "STABLE",
       budgetTrend: "STABLE",
-      consumedBudget:''
+      consumedBudget:'',
     },
     validationSchema: toFormikValidationSchema(updateProjectSchema),
     onSubmit: (values, helper) => {
@@ -166,7 +166,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
         overallTrack: editData.overallTrack,
         scheduleTrend: editData.scheduleTrend,
         budgetTrend: editData.budgetTrend,
-        consumedBudget:editData.consumedBudget
+        consumedBudget:editData.consumedBudget,
       });
       setCurrencyValue({ label: editData.currency, value: editData.currency });
     }
@@ -468,11 +468,11 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                                     (u) => u.user.userId == data.user.userId
                                   )
                                     ? removeMembers(
-                                        editData?.assignedUsers.find(
-                                          (id) =>
-                                            id.user.userId == data.user.userId
-                                        )?.projectAssignUsersId ?? ""
-                                      )
+                                      editData?.assignedUsers.find(
+                                        (id) =>
+                                          id.user.userId == data.user.userId
+                                      )?.projectAssignUsersId ?? ""
+                                    )
                                     : submitMembers(data);
                                 }}
                               >
@@ -544,11 +544,11 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                                     (u) => u.user.userId == data.user.userId
                                   )
                                     ? removeMembers(
-                                        editData?.assignedUsers.find(
-                                          (id) =>
-                                            id.user.userId == data.user.userId
-                                        )?.projectAssignUsersId ?? ""
-                                      )
+                                      editData?.assignedUsers.find(
+                                        (id) =>
+                                          id.user.userId == data.user.userId
+                                      )?.projectAssignUsersId ?? ""
+                                    )
                                     : submitMembers(data);
                                 }}
                               >
@@ -685,25 +685,25 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
           </div>
           <div className="grid lg:grid-cols-2 gap-14">
 
-          <div className="">
-            <div>
-            <label className={labelStyle}>Consumed Budget</label>
-            <span className="ml-0.5 text-red-500">*</span>
+            <div className="">
+              <div>
+                <label className={labelStyle}>Consumed Budget</label>
+                <span className="ml-0.5 text-red-500">*</span>
+              </div>
+              <input
+                disabled={viewOnly}
+                type="text"
+                name="consumedBudget"
+                placeholder="Consumed budget"
+                className={inputStyle}
+                value={formik.values.consumedBudget ?? ""}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+              <span className={errorStyle}>
+                {formik.touched.consumedBudget && formik.errors.consumedBudget}
+              </span>
             </div>
-            <input
-              disabled={viewOnly}
-              type="text"
-              name="consumedBudget"
-              placeholder="Consumed budget"
-              className={inputStyle}
-              value={formik.values.consumedBudget ?? ""}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-            />
-            <span className={errorStyle}>
-              {formik.touched.consumedBudget && formik.errors.consumedBudget}
-            </span>
-          </div>
           </div>
 
           {!viewOnly && (

@@ -7,7 +7,6 @@ import {
 } from "../types/axiosResponseType";
 import ApiRequest from "../ApiRequest";
 import { OverAllTrackEnumValue, ProjectDefaultViewEnumValue, ScheduleAndBudgetTrend, UserRoleEnumValue } from "@backend/src/schemas/enums";
-import { TypeOf } from "zod";
 
 export type Project = {
   overallTrack:  keyof typeof OverAllTrackEnumValue;

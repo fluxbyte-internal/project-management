@@ -203,10 +203,10 @@ function Tasks() {
       setFilterData(setData(allTaskQuery.data?.data.data));
     }
     if (searchParams.get("milestones")) {
-      setFilterData(setData(allTaskQuery.data?.data.data.filter(d => d.milestoneIndicator)))
+      setFilterData(setData(allTaskQuery.data?.data.data.filter(d => d.milestoneIndicator)));
     }
     if (searchParams.get("status")) {
-      setFilterData(setData(allTaskQuery.data?.data.data.filter(d => d.status == searchParams.get("status"))))
+      setFilterData(setData(allTaskQuery.data?.data.data.filter(d => d.status == searchParams.get("status"))));
     }
   }, [allTaskQuery.data?.data.data, taskId]);
   const [searchParams] = useSearchParams();

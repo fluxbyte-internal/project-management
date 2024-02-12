@@ -18,7 +18,7 @@ function ManagerDashboard() {
   const projectManagerPortfolioDashboardQuery =
     useProjectManagerPortfolioDashboardQuery();
   const [data, setData] = useState<managerDashboardPortfolioDataType>();
-const [statusPieChartProp, setstatusPieChartProp] = useState<ChartProps>();
+  const [statusPieChartProp, setstatusPieChartProp] = useState<ChartProps>();
   const [tableData, setTableData] = useState<ProjectType[]>();
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
   const [editData, setEditData] = useState<Project | undefined>();
@@ -128,22 +128,22 @@ const [statusPieChartProp, setstatusPieChartProp] = useState<ChartProps>();
         </>
       ),
     },
-    {
-      key: "status",
-      header: "Status",
-      onCellRender: (item) => (
-        <>
-          <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
-            <div className="text-cyan-700 text-xs font-medium leading-tight">
-            {/* {item?.status
-                .toLowerCase()
-                .replace(/_/g, " ")
-                .replace(/\b\w/g, (char:string) => char.toUpperCase())} */}
-            </div>
-          </div>
-        </>
-      ),
-    },
+    // {
+    //   key: "status",
+    //   header: "Status",
+    //   onCellRender: (item) => (
+    //     <>
+    //       <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
+    //         <div className="text-cyan-700 text-xs font-medium leading-tight">
+    //           {item?.status
+    //             .toLowerCase()
+    //             .replace(/_/g, " ")
+    //             .replace(/\b\w/g, (char:string) => char.toUpperCase())}
+    //         </div>
+    //       </div>
+    //     </>
+    //   ),
+    // },
     {
       key: "estimatedBudget",
       header: "Budget",
@@ -160,88 +160,88 @@ const [statusPieChartProp, setstatusPieChartProp] = useState<ChartProps>();
   };
   return (
     <>
-    <div className="overflow-auto w-full py-2 px-2 lg:px-14 flex flex-col gap-10">
-      <h2 className="font-medium text-3xl leading-normal text-gray-600">
+      <div className="overflow-auto w-full py-2 px-2 lg:px-14 flex flex-col gap-10">
+        <h2 className="font-medium text-3xl leading-normal text-gray-600">
       Manager's Dashboard
-      </h2>
-      <div className="text-xl font-bold text-gray-400">Project Status</div>
-      <div className="w-full h-fit flex flex-col lg:flex-row gap-10 items-center">
-        <div className="tabs border-gray-300 border w-3/4 rounded-xl h-fit flex flex-col md:flex-row gap-5 items-center px-6 py-5 text-white flex-wrap justify-center">
-          {data?.statusChartData?.labels.map((labelData, index) => (
-            <>
-              <div
-              onClick={()=>filterRoutes(labelData)}
-                key={index}
-                className={`flex flex-col gap-2 cursor-pointer lg:gap-5 w-full lg:w-2/5 h-1/5 lg:h-full  rounded-2xl p-2 lg:py-3 text-start items-start justify-start px-10 border-l-[12px] ${
-                  labelData === "ACTIVE"
-                    ? "text-primary-600  border-2 border-primary-600 "
-                    : labelData === "ON_HOLD"
-                    ? "text-primary-800 border-2 border-primary-800"
-                    : labelData === "NOT_STARTED"
-                    ? "text-primary-950 border-2 border-primary-950"
-                    : "text-gray-800 border-2 border-gray-300  "
-                }`}
-              >
-                <a className="text-base font-bold items-end">{labelData}</a>
-                <a className="text-4xl lg:text-5xl font-semibold">
-                  {data?.statusChartData?.data[index]}
-                </a>
-              </div>
-            </>
-          ))}
-        </div>
-
-        <div className="delays rounded-2xl w-3/4 lg:w-1/4 h-fit justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
-          <PieChart chartProps={chartProp2} />
-        </div>
-        
-        <div className="status rounded-2xl w-3/4 lg:w-1/4  h-fit justify-center items-center flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300  ">
-          <PieChart chartProps={statusPieChartProp!} />
-        </div>
-      </div>
-      <div className="text-xl font-bold text-gray-400">Charts</div>
-      <div className=" w-full h-fit flex flex-col lg:flex-row justify-center items-center gap-6 py-2 ">
-        <div className="situation rounded-2xl w-3/4 lg:w-1/2 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
-          <PieChart chartProps={overallStatusPieChartProp!} />
-        </div>
-        <div className="severity rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
-          <PieChart chartProps={chartProp4} />
-        </div>
-        <div className="risks rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
-          <HorizontalBarChart chartProps={chartProp5} />
-        </div>
-      </div>
-      <div className="w-full flex flex-col md:flex-col gap-10 justify-center px-5 md:px-20 lg:px-0 self-center">
-     
-                <div className="w-full lg:w-4/5 self-center">
-                  <Button
-                    variant={"primary"}
-                    onClick={() => setIsOpenPopUp(true)}
-                  >
-                    Add Project
-                  </Button>
+        </h2>
+        <div className="text-xl font-bold text-gray-400">Project Status</div>
+        <div className="w-full h-fit flex flex-col lg:flex-row gap-10 items-center">
+          <div className="tabs border-gray-300 border w-3/4 rounded-xl h-fit flex flex-col md:flex-row gap-5 items-center px-6 py-5 text-white flex-wrap justify-center">
+            {data?.statusChartData?.labels.map((labelData, index) => (
+              <>
+                <div
+                  onClick={()=>filterRoutes(labelData)}
+                  key={index}
+                  className={`flex flex-col gap-2 cursor-pointer lg:gap-5 w-full lg:w-2/5 h-1/5 lg:h-full  rounded-2xl p-2 lg:py-3 text-start items-start justify-start px-10 border-l-[12px] ${
+                    labelData === "ACTIVE"
+                      ? "text-primary-600  border-2 border-primary-600 "
+                      : labelData === "ON_HOLD"
+                        ? "text-primary-800 border-2 border-primary-800"
+                        : labelData === "NOT_STARTED"
+                          ? "text-primary-950 border-2 border-primary-950"
+                          : "text-gray-800 border-2 border-gray-300  "
+                  }`}
+                >
+                  <a className="text-base font-bold items-end">{labelData}</a>
+                  <a className="text-4xl lg:text-5xl font-semibold">
+                    {data?.statusChartData?.data[index]}
+                  </a>
                 </div>
+              </>
+            ))}
+          </div>
 
-        <div className="w-full lg:w-4/5 h-full self-center">
-          {tableData && (
-            <>
-              <Table
-                key="ProjectList view"
-                columnDef={columnDef}
-                data={tableData}
-              />
-            </>
-          )}
+          <div className="delays rounded-2xl w-3/4 lg:w-1/4 h-fit justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
+            <PieChart chartProps={chartProp2} />
+          </div>
+        
+          <div className="status rounded-2xl w-3/4 lg:w-1/4  h-fit justify-center items-center flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300  ">
+            <PieChart chartProps={statusPieChartProp!} />
+          </div>
+        </div>
+        <div className="text-xl font-bold text-gray-400">Charts</div>
+        <div className=" w-full h-fit flex flex-col lg:flex-row justify-center items-center gap-6 py-2 ">
+          <div className="situation rounded-2xl w-3/4 lg:w-1/2 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
+            <PieChart chartProps={overallStatusPieChartProp!} />
+          </div>
+          <div className="severity rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
+            <PieChart chartProps={chartProp4} />
+          </div>
+          <div className="risks rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
+            <HorizontalBarChart chartProps={chartProp5} />
+          </div>
+        </div>
+        <div className="w-full flex flex-col md:flex-col gap-10 justify-center px-5 md:px-20 lg:px-0 self-center">
+     
+          <div className="w-full lg:w-4/5 self-center">
+            <Button
+              variant={"primary"}
+              onClick={() => setIsOpenPopUp(true)}
+            >
+                    Add Project
+            </Button>
+          </div>
+
+          <div className="w-full lg:w-4/5 h-full self-center">
+            {tableData && (
+              <>
+                <Table
+                  key="ProjectList view"
+                  columnDef={columnDef}
+                  data={tableData}
+                />
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
-    {isOpenPopUp && (
-          <CreateUpdateProjectForm
-            handleClosePopUp={close}
-            editData={editData}
-          />
-        )}
-  </>
+      {isOpenPopUp && (
+        <CreateUpdateProjectForm
+          handleClosePopUp={close}
+          editData={editData}
+        />
+      )}
+    </>
   );
 }
 export default ManagerDashboard;

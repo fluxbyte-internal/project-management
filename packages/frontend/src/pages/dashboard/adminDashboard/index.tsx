@@ -5,7 +5,6 @@ import useAdminPortfolioDashboardQuery, {
 } from "@/api/query/usePortfolioDashboardQuery";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import PercentageCircle from "@/components/shared/PercentageCircle";
 import dateFormater from "@/helperFuntions/dateFormater";
 import { Button } from "@/components/ui/button";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
@@ -157,7 +156,7 @@ function AdminDashboard() {
         <>
           <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
             <div className="text-cyan-700 text-xs font-medium leading-tight">
-            {item?.status
+              {item?.status
                 .toLowerCase()
                 .replace(/_/g, " ")
                 .replace(/\b\w/g, (char:string) => char.toUpperCase())}
@@ -192,16 +191,16 @@ function AdminDashboard() {
             {datas?.statusChartData?.labels.map((labelData, index) => (
               <>
                 <div
-                onClick={()=>filterRoutes(labelData)}
+                  onClick={()=>filterRoutes(labelData)}
                   key={index}
                   className={`flex flex-col gap-2 cursor-pointer lg:gap-5 w-full lg:w-2/5 h-1/5 lg:h-full  rounded-2xl p-2 lg:py-3 text-start items-start justify-start px-10 border-l-[12px] ${
                     labelData === "ACTIVE"
                       ? "text-primary-600  border-2 border-primary-600 "
                       : labelData === "ON_HOLD"
-                      ? "text-primary-800 border-2 border-primary-800"
-                      : labelData === "NOT_STARTED"
-                      ? "text-primary-950 border-2 border-primary-950"
-                      : "text-gray-800 border-2 border-gray-300  "
+                        ? "text-primary-800 border-2 border-primary-800"
+                        : labelData === "NOT_STARTED"
+                          ? "text-primary-950 border-2 border-primary-950"
+                          : "text-gray-800 border-2 border-gray-300  "
                   }`}
                 >
                   <a className="text-base font-bold items-end">{labelData}</a>
@@ -235,14 +234,14 @@ function AdminDashboard() {
         </div>
         <div className="w-full flex flex-col md:flex-col gap-10 justify-center px-5 md:px-20 lg:px-0 self-center">
        
-                  <div className="w-full lg:w-4/5 self-center">
-                    <Button
-                      variant={"primary"}
-                      onClick={() => setIsOpenPopUp(true)}
-                    >
+          <div className="w-full lg:w-4/5 self-center">
+            <Button
+              variant={"primary"}
+              onClick={() => setIsOpenPopUp(true)}
+            >
                       Add Project
-                    </Button>
-                  </div>
+            </Button>
+          </div>
 
           <div className="w-full lg:w-4/5 h-full self-center">
             {tableData && (
@@ -258,11 +257,11 @@ function AdminDashboard() {
         </div>
       </div>
       {isOpenPopUp && (
-            <CreateUpdateProjectForm
-              handleClosePopUp={close}
-              editData={editData}
-            />
-          )}
+        <CreateUpdateProjectForm
+          handleClosePopUp={close}
+          editData={editData}
+        />
+      )}
     </>
   );
 }

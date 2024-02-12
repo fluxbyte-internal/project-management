@@ -67,11 +67,11 @@ const PieChart:  React.FC<PieChartProps> = ({ chartProps }) =>{
       ],
     };
     
-  myChart.on('click', (params: any) => {
-    if (projectId) {
-      filterRoutes(params.name)
-    }
-  });
+    myChart.on('click', (params: any) => {
+      if (projectId) {
+        filterRoutes(params.name);
+      }
+    });
     myChart.setOption(option);
 
     return()=>{
