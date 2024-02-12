@@ -68,7 +68,6 @@ function ProjectDetails() {
   const handleProjectClick = () => {
     navigate("/projects");
   };
-  // console.log('projectDetailQuery.data?.data.data',projectDetailQuery.data?.data.data);
 
   const verification = () => {
     if (user?.userOrganisation[0].role === "ADMINISTRATOR") {

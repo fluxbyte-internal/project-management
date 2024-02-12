@@ -6,7 +6,7 @@ import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
 import { Button } from "@/components/ui/button";
 import dateFormater from "@/helperFuntions/dateFormater";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import NoTask from "./NoTask";
 import Dialog from "@/components/common/Dialog";
 import useRemoveTaskMutation from "@/api/mutation/useTaskRemove";
@@ -202,8 +202,15 @@ function Tasks() {
       setTaskData(setData(allTaskQuery.data?.data.data));
       setFilterData(setData(allTaskQuery.data?.data.data));
     }
+    if (searchParams.get("milestones")) {
+      setFilterData(setData(allTaskQuery.data?.data.data.filter(d => d.milestoneIndicator)))
+    }
+    if (searchParams.get("status")) {
+      setFilterData(setData(allTaskQuery.data?.data.data.filter(d => d.status == searchParams.get("status"))))
+    }
   }, [allTaskQuery.data?.data.data, taskId]);
-
+  const [searchParams] = useSearchParams();
+  
   const setData = (data: Task[] | undefined) => {
     if (data) {
       data.forEach((task) => {

@@ -3,7 +3,7 @@ import useProjectDashboardQuery, {
 } from "@/api/query/useProjectDashboardQuery";
 import PieChart, { ChartProps } from "@/components/charts/PieChart";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import dateFormatter from "@/helperFuntions/dateFormater";
 import BarChart, { BarChartPropsType } from "@/components/charts/BarChart";
 import Sunny from "@/assets/png/Sunny.png";
@@ -11,9 +11,11 @@ import Cloudy from "@/assets/png/Cloudy.png";
 import Rainy from "@/assets/png/Rainy.png";
 import Stormy from "@/assets/png/Stormy.png";
 import { ScheduleAndBudgetTrend } from "@backend/src/schemas/enums";
-import Increasing from '@/assets/increase.svg'
-import Decreasing from '@/assets/decrease.svg'
-import Stable from '@/assets/stable.svg'
+import Increasing from "@/assets/increase.svg";
+import Decreasing from "@/assets/decrease.svg";
+import Stable from "@/assets/stable.svg";
+import PercentageCircle from "@/components/shared/PercentageCircle";
+import HorizontalBarChart from "@/components/charts/HorizontalBarChart";
 export type ThemeColorData = {
   theme: string;
   colors: {
@@ -162,13 +164,31 @@ function ProjectDashboard() {
       });
     }
   }, [selectedStatusTheme]);
+  const formatStatus = (status: string): string => {
+    return status
+      .replace(/_/g, " ")
+      .toLowerCase()
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  };
+  const navigate = useNavigate();
+  const filterRoutes = (item: string) => {
+    switch (item) {
+      case "Milestones":
+        navigate(`/tasks/${projectId}?milestones=true`);
+        break;
+        case "Tasks":
+          navigate(`/tasks/${projectId}`);
+          break;
+      default:
+        break;
+    }
+  };
   return (
     <>
       {selectedStatusTheme && data && (
         <>
           <div className="overflow-auto w-full self-center py-2  px-5 lg:px-24 flex flex-col gap-10">
-            <div className="w-full h-full overflow-hidden fixed opacity-30 -z-10">
-              {/* -right-[10%] top-[65%] md:-right-[8%] md:-top-[35%] md:w-1/5 w-[30%] */}
+            <div className="w-full h-full overflow-hidden fixed opacity-30 -z-10 -m-3">
               <div className="statusImage absolute -top-[25%] -right-[50%] md:-right-[30%] md:-top-[10%] lg:-top-[40%] lg:-right-[20%]  h-full text-right">
                 <img
                   className="h-[65%] md:h-3/4 lg:h-[125%] select-none"
@@ -191,7 +211,7 @@ function ProjectDashboard() {
             </h2>
             <div className="statsbox w-full h-fit flex flex-col lg:flex-row justify-center items-center gap-6 py-2 ">
               <div
-                className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabGradient} ${selectedStatusTheme?.colors.tabTexts} border-l-[12px]  rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter   ${selectedStatusTheme?.colors.tabBorders}  `}
+                className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabGradient} ${selectedStatusTheme?.colors.tabTexts} border-l-[12px]  rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer   ${selectedStatusTheme?.colors.tabBorders}  `}
               >
                 <div className="text-lg ">No. of Team Members</div>
                 <div className="text-4xl font-semibold">
@@ -201,14 +221,16 @@ function ProjectDashboard() {
               </div>
 
               <div
-                className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter  ${selectedStatusTheme?.colors.tabBorders}`}
+                onClick={() => filterRoutes("Tasks")}
+               className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer  ${selectedStatusTheme?.colors.tabBorders}`}
               >
                 <div className="text-lg ">No. of Tasks</div>
                 <div className="text-4xl font-semibold">{data.numTasks}</div>
                 <div className="absolute right-3 bottom-3">oo</div>
               </div>
               <div
-                className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter  ${selectedStatusTheme?.colors.tabBorders}`}
+                onClick={() => filterRoutes("Milestones")}
+                className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer  ${selectedStatusTheme?.colors.tabBorders}`}
               >
                 <div className="text-lg ">No. of Milestones</div>
                 <div className="text-4xl font-semibold">
@@ -217,57 +239,76 @@ function ProjectDashboard() {
                 <div className="absolute right-3 bottom-3">oo</div>
               </div>
               <div
-                className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter  ${selectedStatusTheme?.colors.tabBorders}`}
+                className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer  ${selectedStatusTheme?.colors.tabBorders}`}
               >
                 <div className="text-lg ">No. of Risks</div>
                 <div className="text-4xl font-semibold">0</div>
                 <div className="absolute right-3 bottom-3">oo</div>
               </div>
             </div>
-            <div className="statsbox relative w-full h-fit flex  justify-center items-center  border-2 border-gray-500 rounded-2xl">
-              <div className="statsboxDiv w-full h-full overflow-hidden relative flex flex-col lg:flex-row gap-6  py-2 rounded-2xl">
-                <div className="w-full lg:w-2/3 flex flex-col sm:flex-col md:flex-row lg:flex-row justify-center items-center gap-6 py-2">
-                  <div className="datesDiv w-full flex flex-col md:flex-row lg:flex-col gap-1 md:gap-6 justify-center items-center py-3">
-                    <div className=" w-full h-full flex flex-col md:flex-row items-center justify-center gap-0 md:gap-5 border-b-0 md:border-b-2 border-primary-200">
-                      <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2  border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
-                        <div>Creation Date</div>
-                        <div className="text-lg md:text-xl font-bold text-gray-500">
-                          {dateFormatter(
-                            new Date(data?.projectDates?.projectCreatedAt)
-                          )}
-                        </div>
-                      </div>
-                      <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
-                        <div>Start Date</div>
-                        <div className="text-lg md:text-xl font-bold text-gray-500">
-                          {dateFormatter(
-                            new Date(data?.projectDates?.startDate)
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="w-full h-full flex flex-col md:flex-row items-center justify-center gap-0 md:gap-5">
-                      <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
-                        <div>Est. End Date</div>
-                        <div className="text-lg md:text-xl font-bold text-gray-500">
-                          {dateFormatter(
-                            new Date(data?.projectDates?.estimatedEndDate)
-                          )}
-                        </div>
-                      </div>
-                      <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
-                        <div>Actual End Date</div>
-                        <div className="text-lg md:text-xl font-bold text-gray-500">
-                          {dateFormatter(
-                            new Date(data?.projectDates?.actualEndDate)
-                          )}
-                        </div>
-                      </div>
+            <div className="datesDiv w-full flex flex-col md:flex-row lg:flex-col gap-1 md:gap-6 justify-center items-center py-3">
+              <div className=" w-full h-full flex flex-col md:flex-row items-center justify-center gap-0 md:gap-5 border-b-0 lg:border-b-2 border-primary-200">
+                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2  border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
+                  <div>Creation Date</div>
+                  <div className="text-lg md:text-xl font-bold text-gray-500">
+                    {dateFormatter(
+                      new Date(data?.projectDates?.projectCreatedAt)
+                    )}
+                  </div>
+                </div>
+                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
+                  <div>Start Date</div>
+                  <div className="text-lg md:text-xl font-bold text-gray-500">
+                    {dateFormatter(new Date(data?.projectDates?.startDate))}
+                  </div>
+                </div>
+              </div>
+              <div className="w-full h-full flex flex-col md:flex-row items-center justify-center gap-0 md:gap-5">
+                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
+                  <div>Est. End Date</div>
+                  <div className="text-lg md:text-xl font-bold text-gray-500">
+                    {dateFormatter(
+                      new Date(data?.projectDates?.estimatedEndDate)
+                    )}
+                  </div>
+                </div>
+                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
+                  <div>Actual End Date</div>
+                  <div className="text-lg md:text-xl font-bold text-gray-500">
+                    {dateFormatter(new Date(data?.projectDates?.actualEndDate))}
+                  </div>
+                </div>
 
-                      <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
-                        <div>Actual Duration</div>
-                        <div className="text-lg md:text-xl font-bold text-gray-500">
-                          {data?.projectDates?.duration}
+                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
+                  <div>Actual Duration</div>
+                  <div className="text-lg md:text-xl font-bold text-gray-500">
+                    {data?.projectDates?.duration}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="databox relative w-full h-fit flex  justify-center items-center  border-2 border-gray-500 rounded-2xl">
+              <div className="statsboxDiv w-full h-full overflow-hidden relative flex flex-col lg:flex-row gap-6  py-2 rounded-2xl">
+                <div className="progress w-full lg:w-2/3 flex justify-center items-center gap-6 py-2">
+                  <div className="w-fit h-fit">
+                    <div className="w-full flex flex-col items-center justify-center">
+                      <div className="text-xl font-semibold">
+                        Project's Progress
+                      </div>
+                      <div
+                        className="h-[100px] w-[100px] rounded-full flex justify-center items-center"
+                        role="progressbar"
+                        aria-valuenow={75}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        style={{
+                          background: `radial-gradient(closest-side, white 79%, transparent 80% 100%), conic-gradient(${selectedStatusTheme?.colors?.chartColors[0]} ${data?.projectProgression}%, #cecece 0)`,
+                        }}
+                      >
+                        <div className="m-1">
+                          {data?.projectProgression
+                            ? data?.projectProgression + "%"
+                            : "NA"}
                         </div>
                       </div>
                     </div>
@@ -276,9 +317,9 @@ function ProjectDashboard() {
                 <div className="flex flex-col gap-5 w-full h-full items-center justify-center text-center ">
                   <div className="text-xl font-semibold">Project Status</div>
                   <div
-                    className={`text-4xl font-semibold ${selectedStatusTheme?.colors.mainTexts}`}
+                    className={`text-4xl font-semibold ${selectedStatusTheme?.colors?.mainTexts}`}
                   >
-                    {data?.projectStatus}
+                    {formatStatus(data?.projectStatus)}
                   </div>
                 </div>
                 <div className="w-full h-full">
@@ -287,7 +328,7 @@ function ProjectDashboard() {
                       Project OverAll Status:
                     </div>
                     <div
-                      className={`${selectedStatusTheme?.colors.subTexts} font-bold  `}
+                      className={`${selectedStatusTheme?.colors?.subTexts} font-bold  `}
                     >
                       {data?.projectOverAllSituation}
                     </div>
@@ -298,27 +339,53 @@ function ProjectDashboard() {
             <h2 className="font-medium text-3xl leading-normal text-gray-600">
               Project's Budget
             </h2>
-            <div className="w-full h-fit flex gap-5 justify-center items-center">
-            <div className="w-full h-full flex gap-5 border-2 border-gray-500 rounded-2xl p-3">
-            <div className="w-1/2 h-full flex flex-col gap-3 justify-center items-center">
-                <div className="w-full h-full text-center text-base md:text-lg font-semibold">
-                  Schedule Trend
+            <div className="budgetBox w-full h-fit flex flex-col md:flex-row gap-5 justify-center items-center">
+              <div className="w-full h-full flex  gap-5 border-2 border-gray-500 rounded-2xl p-3">
+                <div className="w-1/2 h-full flex flex-col gap-3 justify-center items-center">
+                  <div className="w-full h-full text-center text-base md:text-lg font-semibold">
+                    Schedule Trend
+                  </div>
+                  <div className="w-fit h-fit text-lg md:text-xl font-bold text-gray-500 text-center">
+                    <img
+                      className="h-10 w-10"
+                      src={
+                        data?.scheduleTrend === ScheduleAndBudgetTrend.STABLE
+                          ? Stable
+                          : data?.scheduleTrend ===
+                            ScheduleAndBudgetTrend.INCREASING
+                          ? Increasing
+                          : data?.scheduleTrend ===
+                            ScheduleAndBudgetTrend.DECREASING
+                          ? Decreasing
+                          : ""
+                      }
+                    ></img>
+                  </div>
                 </div>
-                <div className="w-fit h-fit text-lg md:text-xl font-bold text-gray-500 text-center">
-                  <img className="h-10 w-10" src={(data.scheduleTrend === ScheduleAndBudgetTrend.STABLE) ? Stable : (data.scheduleTrend === ScheduleAndBudgetTrend.INCREASING)? Increasing : (data.scheduleTrend === ScheduleAndBudgetTrend.DECREASING)? Decreasing : ''}></img>
+                <div className="w-1/2 h-full flex flex-col gap-3 justify-center items-center">
+                  <div className="w-full h-full text-center text-base md:text-lg font-semibold">
+                    Budget Trend
+                  </div>
+                  <div className="w-fit h-fit text-lg md:text-xl font-bold text-gray-500 text-center">
+                    <img
+                      className="h-10 w-10"
+                      src={
+                        data?.scheduleTrend === ScheduleAndBudgetTrend.STABLE
+                          ? Stable
+                          : data?.scheduleTrend ===
+                            ScheduleAndBudgetTrend.INCREASING
+                          ? Increasing
+                          : data?.scheduleTrend ===
+                            ScheduleAndBudgetTrend.DECREASING
+                          ? Decreasing
+                          : ""
+                      }
+                    ></img>
+                  </div>
                 </div>
               </div>
-              <div className="w-1/2 h-full flex flex-col gap-3 justify-center items-center">
-                <div className="w-full h-full text-center text-base md:text-lg font-semibold">
-                Budget Trend
-                </div>
-                <div className="w-fit h-fit text-lg md:text-xl font-bold text-gray-500 text-center">
-                  <img className="h-10 w-10" src={(data.scheduleTrend === ScheduleAndBudgetTrend.STABLE) ? Stable : (data.scheduleTrend === ScheduleAndBudgetTrend.INCREASING)? Increasing : (data.scheduleTrend === ScheduleAndBudgetTrend.DECREASING)? Decreasing : ''}></img>
-                </div>
-              </div>
-            </div>
-            
-              <div className="w-1/4 h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3">
+
+              <div className="w-full md:w-1/4 h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3">
                 <div className="w-full h-full text-center text-base md:text-lg font-semibold ">
                   Project's Budget
                 </div>
@@ -326,7 +393,7 @@ function ProjectDashboard() {
                   {data?.estimatedBudget}
                 </div>
               </div>
-              <div className="w-1/4 h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3">
+              <div className="w-full md:w-1/4  h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3">
                 <div className="w-full h-full text-center text-base md:text-lg font-semibold ">
                   Consumed Project's Budget
                 </div>
@@ -353,6 +420,9 @@ function ProjectDashboard() {
                   <></>
                 )}
               </div>
+              {/* <div className="risks rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
+            <HorizontalBarChart chartProps={} />
+          </div> */}
             </div>
           </div>
         </>

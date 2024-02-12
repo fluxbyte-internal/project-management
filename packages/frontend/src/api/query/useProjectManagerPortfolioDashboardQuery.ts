@@ -91,13 +91,13 @@ export interface OverallSituationChartData {
 
   
 export type maangerPortfolioDashboardResponseType = ResponseType<{
-  projectManagersProjects : ProjectManagersProjects[],
+  projects : ProjectManagersProjects[],
     statusChartData: StatusChartData,
     overallSituationChartData: OverallSituationChartData
 }>
 
 export type managerDashboardPortfolioDataType = {
-  projectManagersProjects : ProjectManagersProjects[],
+  projects : ProjectManagersProjects[],
     statusChartData: StatusChartData,
     overallSituationChartData: OverallSituationChartData
 

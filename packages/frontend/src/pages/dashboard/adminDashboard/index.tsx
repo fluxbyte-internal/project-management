@@ -2,14 +2,15 @@ import PieChart, { ChartProps } from "@/components/charts/PieChart";
 import Table, { ColumeDef } from "@/components/shared/Table";
 import useAdminPortfolioDashboardQuery, {
   DashboardPortfolioDataType,
-  Project,
 } from "@/api/query/usePortfolioDashboardQuery";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PercentageCircle from "@/components/shared/PercentageCircle";
 import dateFormater from "@/helperFuntions/dateFormater";
 import { Button } from "@/components/ui/button";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
+import HorizontalBarChart from "@/components/charts/HorizontalBarChart";
+import { Project } from "@/api/query/useProjectQuery";
 
 export interface ProjectType {
   projectId: string;
@@ -79,8 +80,8 @@ function AdminDashboard() {
       chartData: statusPieChartData!,
       color: ["#DD7102", "#943B0C", "#461802", "#555555"],
       title: "Projects Per Status",
-      radius: ["60%", "80%"],
-      height: "500px",
+      radius: ["45%", "60%"],
+      height: "300px",
     });
     const overallSituationPieChartData =
       datas?.overallSituationChartData?.labels.map((name, index) => ({
@@ -89,7 +90,7 @@ function AdminDashboard() {
       }));
     setOverallStatusPieChartProp({
       chartData: overallSituationPieChartData!,
-      color: ["#FFD04A", "#FFB819", "#B74E06"],
+      color: ["#FFD04A", "#FFB819", "#B74E06", "#461802"],
       title: "Projects Per Overall Situation",
       radius: ["0%", "80%"],
       height: "500px",
@@ -100,14 +101,21 @@ function AdminDashboard() {
     chartData: [],
     color: ["#FFD04A", "#FFB819", "#B74E06"],
     title: "Project With Delays",
-    radius: ["0%", "70%"],
-    height: "100%",
+    radius: ["45%", "60%"],
+    height: "300px",
   };
 
   const chartProp4: ChartProps = {
     chartData: [],
     color: ["#FFD04A", "#FFB819", "#B74E06"],
     title: "Projects Per Severity",
+    radius: ["70%", "80%"],
+    height: "500px",
+  };
+  const chartProp5: ChartProps = {
+    chartData: [],
+    color: ["#FFD04A", "#FFB819", "#B74E06"],
+    title: "Risks",
     radius: ["70%", "80%"],
     height: "500px",
   };
@@ -126,29 +134,6 @@ function AdminDashboard() {
         );
       },
     },
-
-    {
-      key: "status",
-      header: "Status",
-      onCellRender: (item) => (
-        <>
-          <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
-            <div className="text-cyan-700 text-xs font-medium leading-tight">
-              {item.status}
-            </div>
-          </div>
-        </>
-      ),
-    },
-
-    // {
-    //   key: "progress",
-    //   header: "Progress",
-    //   onCellRender: (item: Project) => (
-    //     <PercentageCircle percentage={item.progressionPercentage} />
-    //   ),
-    // },
-
     {
       key: "startDate",
       header: "Start Date",
@@ -166,6 +151,22 @@ function AdminDashboard() {
       ),
     },
     {
+      key: "status",
+      header: "Status",
+      onCellRender: (item) => (
+        <>
+          <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
+            <div className="text-cyan-700 text-xs font-medium leading-tight">
+            {item?.status
+                .toLowerCase()
+                .replace(/_/g, " ")
+                .replace(/\b\w/g, (char:string) => char.toUpperCase())}
+            </div>
+          </div>
+        </>
+      ),
+    },
+    {
       key: "estimatedBudget",
       header: "Budget",
       sorting: true,
@@ -175,20 +176,25 @@ function AdminDashboard() {
     setIsOpenPopUp(false);
     setEditData(undefined);
   };
+  const navigate = useNavigate();
+  const filterRoutes = (item: string) => {
+    navigate(`/projects/?status=${item}`);
+  };
   return (
     <>
-      <div className="overflow-auto w-full py-2 mt-10 px-2 lg:px-14 flex flex-col gap-10">
+      <div className="overflow-auto w-full py-2 px-2 lg:px-14 flex flex-col gap-10">
         <h2 className="font-medium text-3xl leading-normal text-gray-600">
           Admin Dashboard
         </h2>
         <div className="text-xl font-bold text-gray-400">Project Status</div>
-        <div className="w-full h-full flex flex-col lg:flex-row gap-10 items-center">
+        <div className="w-full h-fit flex flex-col lg:flex-row gap-10 items-center">
           <div className="tabs border-gray-300 border w-3/4 rounded-xl h-fit flex flex-col md:flex-row gap-5 items-center px-6 py-5 text-white flex-wrap justify-center">
             {datas?.statusChartData?.labels.map((labelData, index) => (
               <>
                 <div
+                onClick={()=>filterRoutes(labelData)}
                   key={index}
-                  className={`flex flex-col gap-2 lg:gap-5 w-full lg:w-2/5 h-1/5 lg:h-full  rounded-2xl p-2 lg:py-3 text-start items-start justify-start px-10 border-l-[12px] ${
+                  className={`flex flex-col gap-2 cursor-pointer lg:gap-5 w-full lg:w-2/5 h-1/5 lg:h-full  rounded-2xl p-2 lg:py-3 text-start items-start justify-start px-10 border-l-[12px] ${
                     labelData === "ACTIVE"
                       ? "text-primary-600  border-2 border-primary-600 "
                       : labelData === "ON_HOLD"
@@ -207,20 +213,24 @@ function AdminDashboard() {
             ))}
           </div>
 
-          <div className=" rounded-2xl w-3/4 lg:w-1/4 h-[500px] lg:h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
+          <div className="delays rounded-2xl w-3/4 lg:w-1/4 h-fit justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <PieChart chartProps={chartProp2} />
+          </div>
+          
+          <div className="status rounded-2xl w-3/4 lg:w-1/4  h-fit justify-center items-center flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300  ">
+            <PieChart chartProps={statusPieChartProp!} />
           </div>
         </div>
         <div className="text-xl font-bold text-gray-400">Charts</div>
         <div className=" w-full h-fit flex flex-col lg:flex-row justify-center items-center gap-6 py-2 ">
-          <div className=" rounded-2xl w-3/4 lg:w-1/2 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
+          <div className="situation rounded-2xl w-3/4 lg:w-1/2 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <PieChart chartProps={overallStatusPieChartProp!} />
           </div>
-          <div className=" rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
+          <div className="severity rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <PieChart chartProps={chartProp4} />
           </div>
-          <div className=" rounded-2xl w-3/4 lg:w-1/4  h-full justify-center items-center flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300  ">
-            <PieChart chartProps={statusPieChartProp!} />
+          <div className="risks rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
+            <HorizontalBarChart chartProps={chartProp5} />
           </div>
         </div>
         <div className="w-full flex flex-col md:flex-col gap-10 justify-center px-5 md:px-20 lg:px-0 self-center">

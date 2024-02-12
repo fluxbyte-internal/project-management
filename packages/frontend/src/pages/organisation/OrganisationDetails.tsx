@@ -271,7 +271,6 @@ function OrganisationDetails() {
       },
     });
   };
-  console.log(reAssingUser);
   const handleReAssign = () => {
     if (reAssingUser) {
       reAssgingTaskMutation.mutate(reAssingUser, {

@@ -1,5 +1,6 @@
 import React, {useEffect, useRef} from 'react'; 
 import * as echarts from 'echarts';
+import { useNavigate, useParams } from 'react-router-dom';
 // export type chartDataType = { value: number; name: string }
 export type ChartProps = {
   chartData: { value: number; name: string }[],
@@ -12,6 +13,12 @@ interface PieChartProps {
   chartProps: ChartProps
 }
 const PieChart:  React.FC<PieChartProps> = ({ chartProps }) =>{
+  const projectId = useParams()?.projectId;
+  const navigate = useNavigate();
+
+  const filterRoutes = (item: string) => {
+    navigate(`/tasks/${projectId}?status=${item}`);
+  };
   const chartref = useRef<HTMLDivElement>(null);
   useEffect(()=>{
     const myChart = echarts.init(chartref.current as HTMLDivElement);
@@ -59,6 +66,12 @@ const PieChart:  React.FC<PieChartProps> = ({ chartProps }) =>{
         },
       ],
     };
+    
+  myChart.on('click', (params: any) => {
+    if (projectId) {
+      filterRoutes(params.name)
+    }
+  });
     myChart.setOption(option);
 
     return()=>{
