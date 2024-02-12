@@ -295,6 +295,19 @@ function TaskSubTaskForm(props: Props) {
       }
     );
   };
+  const taskStatus = () => {
+    const removeStatus = [
+      TaskStatusEnumValue.IN_PROGRESS,
+      TaskStatusEnumValue.TODO,
+    ];
+    if (tasks?.milestoneIndicator && tasks?.dueDate) {
+      return Object.keys(TaskStatusEnumValue).filter(
+        (e) => !removeStatus.some((r) => e === r)
+      );
+    } else {
+      return Object.keys(TaskStatusEnumValue);
+    }
+  };
   return (
     <div className="absolute w-full h-full z-50 top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-gray-900 bg-opacity-50">
       <div className="bg-white rounded-lg text-gray-700 p-6 lg:p-10 w-full md:max-w-[95%] lg:max-w-[80%] h-full md:max-h-[80%] overflow-auto ">
@@ -351,45 +364,6 @@ function TaskSubTaskForm(props: Props) {
               >
                 <img src={Edit} width={10} height={10} />
               </Button>
-            </div>
-            <div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <div className="text-sm font-normal cursor-pointer">
-                    {tasks?.status
-                      ? `in list ${tasks?.status
-                        .toLowerCase()
-                        .replace(/_/g, " ")
-                        .replace(/\b\w/g, (char) => char.toUpperCase())}`
-                      : "Select Status"}
-                  </div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-auto">
-                  {Object.keys(TaskStatusEnumValue).map((status) => {
-                    return (
-                      <div
-                        onClick={() => {
-                          updateStatus(status);
-                        }}
-                        className="cursor-pointer flex px-3 w-44 rounded-md hover:bg-slate-50/80 py-2 justify-between items-center"
-                      >
-                        {status
-                          .toLowerCase()
-                          .replace(/_/g, " ")
-                          .replace(/\b\w/g, (char) => char.toUpperCase())}
-                        <CheckIcon
-                          className={cn(
-                            "ml-auto h-4 w-4",
-                            status === tasks?.status
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                      </div>
-                    );
-                  })}
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
           </div>
         </div>
@@ -474,7 +448,7 @@ function TaskSubTaskForm(props: Props) {
                     ></InputText>
                   </div>
                   <div className="flex gap-3 justify-end mt-3">
-                  <Button
+                    <Button
                       variant={"secondary"}
                       onClick={() => setSubTaskFieldShow(false)}
                       className="py-2 px-4"
@@ -499,10 +473,10 @@ function TaskSubTaskForm(props: Props) {
             {/* Attachments */}
             {tasks?.documentAttachments &&
             tasks?.documentAttachments.length > 0 ? (
-                <TaskAttachment refetch={refetch} task={tasks}></TaskAttachment>
-              ) : (
-                ""
-              )}
+              <TaskAttachment refetch={refetch} task={tasks}></TaskAttachment>
+            ) : (
+              ""
+            )}
 
             <div className="flex items-center gap-2.5 mt-4">
               <img src={MultiLine} width={20} height={20} />
@@ -531,6 +505,50 @@ function TaskSubTaskForm(props: Props) {
           <div className="w-full md:w-1/4">
             <div>
               <div className="text-xs font-medium mb-4">Add to card</div>
+              <div className="mt-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div className="text-sm font-normal cursor-pointer">
+                      <Button
+                        variant={"secondary"}
+                        className="py-1.5 px-3 flex w-full gap-3 justify-start"
+                      >
+                        {tasks?.status
+                          ? `Status: ${tasks?.status
+                              .toLowerCase()
+                              .replace(/_/g, " ")
+                              .replace(/\b\w/g, (char) => char.toUpperCase())}`
+                          : "Select Status"}
+                      </Button>
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-auto">
+                    {taskStatus().map((status) => {
+                      return (
+                        <div
+                          onClick={() => {
+                            updateStatus(status);
+                          }}
+                          className="cursor-pointer flex px-3 w-44 rounded-md hover:bg-slate-50/80 py-2 justify-between items-center"
+                        >
+                          {status
+                            .toLowerCase()
+                            .replace(/_/g, " ")
+                            .replace(/\b\w/g, (char) => char.toUpperCase())}
+                          <CheckIcon
+                            className={cn(
+                              "ml-auto h-4 w-4",
+                              status === tasks?.status
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
+                        </div>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               <div className="mt-2">
                 <Popover>
                   <PopoverTrigger className="w-full">
@@ -564,11 +582,11 @@ function TaskSubTaskForm(props: Props) {
                                   (u) => u.user.userId == data.user.userId
                                 )
                                   ? removeMembers(
-                                    tasks?.assignedUsers.find(
-                                      (id) =>
-                                        id.user.userId == data.user.userId
-                                    )?.taskAssignUsersId ?? ""
-                                  )
+                                      tasks?.assignedUsers.find(
+                                        (id) =>
+                                          id.user.userId == data.user.userId
+                                      )?.taskAssignUsersId ?? ""
+                                    )
                                   : submitMembers(data);
                               }}
                             >
@@ -660,10 +678,10 @@ function TaskSubTaskForm(props: Props) {
                     />
                     {taskFormik.errors.startDate &&
                       taskFormik.values.startDate && (
-                      <ErrorMessage className="ml-0 p-0">
-                        {/* {taskFormik.errors.startDate} */}
-                      </ErrorMessage>
-                    )}
+                        <ErrorMessage className="ml-0 p-0">
+                          {/* {taskFormik.errors.startDate} */}
+                        </ErrorMessage>
+                      )}
                   </PopoverContent>
                 </Popover>
               </div>
@@ -673,10 +691,10 @@ function TaskSubTaskForm(props: Props) {
                     tasks?.flag == "Green"
                       ? "bg-green-500/60"
                       : tasks?.flag == "Red"
-                        ? "bg-red-500/60"
-                        : tasks?.flag == "Orange"
-                          ? "bg-primary-500/60"
-                          : ""
+                      ? "bg-red-500/60"
+                      : tasks?.flag == "Orange"
+                      ? "bg-primary-500/60"
+                      : ""
                   }`}
                 >
                   <img src={Tag} className="w-3.5" />
@@ -723,8 +741,8 @@ function TaskSubTaskForm(props: Props) {
                         <div className="text-sm  text-gray-300">
                           {milestoneFormik.values.dueDate
                             ? dateFormater(
-                              new Date(milestoneFormik.values.dueDate)
-                            )
+                                new Date(milestoneFormik.values.dueDate)
+                              )
                             : "Select date"}
                           <ErrorMessage>
                             {!milestoneFormik.values.dueDate &&
@@ -750,30 +768,30 @@ function TaskSubTaskForm(props: Props) {
                         />
                         {milestoneFormik.errors.dueDate &&
                           milestoneFormik.values.dueDate && (
-                          <ErrorMessage className="ml-0 p-0">
-                            {milestoneFormik.errors.dueDate}
-                          </ErrorMessage>
-                        )}
+                            <ErrorMessage className="ml-0 p-0">
+                              {milestoneFormik.errors.dueDate}
+                            </ErrorMessage>
+                          )}
                       </PopoverContent>
                     </Popover>
                   </div>
                 )}
                 {(!tasks?.dueDate || !tasks.milestoneIndicator) &&
                   tasks?.endDate && (
-                  <div className="flex flex-col gap-2">
-                    <div className="text-xs font-medium text-gray-400">
+                    <div className="flex flex-col gap-2">
+                      <div className="text-xs font-medium text-gray-400">
                         End Date
-                    </div>
-                    {/* <div className="text-sm  text-gray-300">
+                      </div>
+                      {/* <div className="text-sm  text-gray-300">
                     {tasks?.milestoneIndicator
                       ? dateFormater(tasks.dueDate ?? new Date())
                       : dateFormater(new Date())}
                   </div> */}
-                    <div className="text-sm  text-gray-300">
-                      {dateFormater(new Date(tasks.endDate))}
+                      <div className="text-sm  text-gray-300">
+                        {dateFormater(new Date(tasks.endDate))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
               </div>
               <div className="flex justify-between">
                 <div>
@@ -819,7 +837,7 @@ function TaskSubTaskForm(props: Props) {
                             <InputNumber
                               onBlur={() => {
                                 setTaskDurationField(false),
-                                taskFormik.submitForm();
+                                  taskFormik.submitForm();
                               }}
                               name="duration"
                               onChange={taskFormik.handleChange}
@@ -829,12 +847,14 @@ function TaskSubTaskForm(props: Props) {
                           </div>
                         )}
                       </div>
-                      <Button
-                        variant={"ghost"}
-                        onClick={() => setTaskDurationField((prev) => !prev)}
-                      >
-                        <img src={Edit} className="w-2.5 h-2.5" />
-                      </Button>
+                      {!(tasks?.milestoneIndicator && tasks?.dueDate) && (
+                        <Button
+                          variant={"ghost"}
+                          onClick={() => setTaskDurationField((prev) => !prev)}
+                        >
+                          <img src={Edit} className="w-2.5 h-2.5" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -863,18 +883,20 @@ function TaskSubTaskForm(props: Props) {
                       <div className="text-sm  text-gray-300">
                         {tasks?.completionPecentage ?? 0}%
                       </div>{" "}
-                      {tasks && tasks.subtasks?.length === 0 && (
-                        <div>
-                          <Button
-                            variant={"none"}
-                            onClick={() =>
-                              setTaskProgressField((prev) => !prev)
-                            }
-                          >
-                            <img src={Edit} />
-                          </Button>
-                        </div>
-                      )}
+                      {tasks &&
+                        tasks.subtasks?.length === 0 &&
+                        !(tasks?.milestoneIndicator && tasks?.dueDate) && (
+                          <div>
+                            <Button
+                              variant={"none"}
+                              onClick={() =>
+                                setTaskProgressField((prev) => !prev)
+                              }
+                            >
+                              <img src={Edit} />
+                            </Button>
+                          </div>
+                        )}
                     </div>
                   )}
                 </div>
