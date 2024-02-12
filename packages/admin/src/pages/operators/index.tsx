@@ -287,7 +287,7 @@ function OperatorsList() {
                                             src={Active}
                                           />
                                           <span className="p-0 font-normal h-auto">
-                                            Retrieve
+                                          Activate
                                           </span>
                                         </DropdownMenuItem>
                                       )}
@@ -387,7 +387,7 @@ function OperatorsList() {
                                                     src={Active}
                                                   />
                                                   <span className="p-0 font-normal h-auto">
-                                                    Retrieve
+                                                  Activate
                                                   </span>
                                                 </DropdownMenuItem>
                                               )}
@@ -524,7 +524,7 @@ function OperatorsList() {
             modalClass="rounded-lg !min-w-0"
           >
             <div className="flex flex-col gap-4 p-4 ">
-              Are you sure you want to Retrieve User ?
+              Are you sure you want to Activate User ?
               <div className="flex gap-4 justify-center">
                 <Button
                   variant={"outline"}

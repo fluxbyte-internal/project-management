@@ -233,7 +233,7 @@ function AdminConsole() {
                 <>
                   <DropdownMenuItem onClick={() => handleRetrieverOperators(item.organisationId)}>
                     <img className="mr-2 h-4 w-4 text-[#44546F]" src={Active} />
-                    <span className="p-0 font-normal h-auto">Retrieve</span>
+                    <span className="p-0 font-normal h-auto">Activate</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="mx-1" />
                 </>
@@ -489,7 +489,7 @@ function AdminConsole() {
           modalClass="rounded-lg !min-w-0"
         >
           <div className="flex flex-col gap-4 p-4 ">
-            Are you sure you want to Retrieve User ?
+            Are you sure you want to Activate User ?
             <div className="flex gap-4 justify-center">
               <Button
                 variant={"outline"}
