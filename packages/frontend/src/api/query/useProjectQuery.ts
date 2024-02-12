@@ -31,6 +31,7 @@ export type Project = {
   projectManagerInfo:{user:CreatedByUser}[]
   scheduleTrend:keyof typeof ScheduleAndBudgetTrend
 budgetTrend:keyof typeof ScheduleAndBudgetTrend
+consumedBudget:string
 };
 export interface AssignedUsers {
   projectAssignUsersId: string;
