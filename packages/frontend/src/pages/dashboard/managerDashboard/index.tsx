@@ -184,10 +184,10 @@ function ManagerDashboard() {
                     labelData === "ACTIVE"
                       ? "text-primary-600  border-2 border-primary-600 "
                       : labelData === "ON_HOLD"
-                      ? "text-primary-800 border-2 border-primary-800"
-                      : labelData === "NOT_STARTED"
-                      ? "text-primary-950 border-2 border-primary-950"
-                      : "text-gray-800 border-2 border-gray-300  "
+                        ? "text-primary-800 border-2 border-primary-800"
+                        : labelData === "NOT_STARTED"
+                          ? "text-primary-950 border-2 border-primary-950"
+                          : "text-gray-800 border-2 border-gray-300  "
                   }`}
                 >
                   <a className="text-base font-bold items-end">{labelData}</a>

@@ -66,10 +66,10 @@ function Tasks() {
             item?.flag == "Green"
               ? "bg-green-500/60 border border-green-500"
               : item?.flag == "Red"
-              ? "bg-red-500/60 border border-red-500/60"
-              : item?.flag == "Orange"
-              ? "bg-primary-500/60 border border-primary-500/60"
-              : ""
+                ? "bg-red-500/60 border border-red-500/60"
+                : item?.flag == "Orange"
+                  ? "bg-primary-500/60 border border-primary-500/60"
+                  : ""
           }`}
         ></div>
       ),
@@ -245,32 +245,32 @@ function Tasks() {
   const findParant =(id:string)=>{
     allTaskQuery.data?.data.data.forEach(e=>{
       if (e.parentTaskId == null) {
-        return e
+        return e;
       }
       else{
         if (e.taskId == id) {
-          findParant(e.taskId)
+          findParant(e.taskId);
         }
       }
-    })
-  } 
+    });
+  }; 
   function findParentTasksWithDoneStatus(tasks:Task[],status:string) {
     const parentTasks:Task[] = [];
 
     function checkTask(task:Task) {
-        if (task.subtasks && task.subtasks.length > 0) {
-            const hasDoneSubtasks = task.subtasks.some(subtask => subtask.status === status);
-            if (hasDoneSubtasks || task.status === status) {
-                parentTasks.push(task);
-            }
+      if (task.subtasks && task.subtasks.length > 0) {
+        const hasDoneSubtasks = task.subtasks.some(subtask => subtask.status === status);
+        if (hasDoneSubtasks || task.status === status) {
+          parentTasks.push(task);
         }
+      }
     }
     tasks.forEach(task => {
-        checkTask(task);
+      checkTask(task);
     });
     
     return parentTasks.filter(d=> d.parentTaskId === null);
-}
+  }
 
 
   const createTask = () => {

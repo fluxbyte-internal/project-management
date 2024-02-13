@@ -171,14 +171,14 @@ function ProjectDashboard() {
   const navigate = useNavigate();
   const filterRoutes = (item: string) => {
     switch (item) {
-      case "Milestones":
-        navigate(`/tasks/${projectId}?milestones=true`);
-        break;
-      case "Tasks":
-        navigate(`/tasks/${projectId}`);
-        break;
-      default:
-        break;
+    case "Milestones":
+      navigate(`/tasks/${projectId}?milestones=true`);
+      break;
+    case "Tasks":
+      navigate(`/tasks/${projectId}`);
+      break;
+    default:
+      break;
     }
   };
   const getSPI = () => {
@@ -205,12 +205,12 @@ function ProjectDashboard() {
                     data?.projectOverAllSituation === "SUNNY"
                       ? Sunny
                       : data?.projectOverAllSituation === "CLOUDY"
-                      ? Cloudy
-                      : data?.projectOverAllSituation === "RAINY"
-                      ? Rainy
-                      : data?.projectOverAllSituation === "STORMY"
-                      ? Stormy
-                      : ""
+                        ? Cloudy
+                        : data?.projectOverAllSituation === "RAINY"
+                          ? Rainy
+                          : data?.projectOverAllSituation === "STORMY"
+                            ? Stormy
+                            : ""
                   }`}
                 />
               </div>
@@ -362,11 +362,11 @@ function ProjectDashboard() {
                           ? Stable
                           : data?.scheduleTrend ===
                             ScheduleAndBudgetTrend.INCREASING
-                          ? Increasing
-                          : data?.scheduleTrend ===
+                            ? Increasing
+                            : data?.scheduleTrend ===
                             ScheduleAndBudgetTrend.DECREASING
-                          ? Decreasing
-                          : ""
+                              ? Decreasing
+                              : ""
                       }
                     ></img>
                   </div>
@@ -383,11 +383,11 @@ function ProjectDashboard() {
                           ? Stable
                           : data?.scheduleTrend ===
                             ScheduleAndBudgetTrend.INCREASING
-                          ? Increasing
-                          : data?.scheduleTrend ===
+                            ? Increasing
+                            : data?.scheduleTrend ===
                             ScheduleAndBudgetTrend.DECREASING
-                          ? Decreasing
-                          : ""
+                              ? Decreasing
+                              : ""
                       }
                     ></img>
                   </div>
