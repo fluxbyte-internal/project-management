@@ -75,7 +75,7 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
         status: TaskStatusEnum.DONE
       }
     });
-    return { ...projectManagersProjects, CPI, completedTasksCount };
+    return { ...project, CPI, completedTasksCount };
   }));
 
   const response = {
@@ -300,14 +300,21 @@ export const projectDashboardByprojectId = async (
   });
   const taskDelayChartData = await Promise.all(taskDelayChartDataPromises);
 
-  // Collect unique user IDs from assigned users of tasks
-  const assignedUsersSet = new Set<string>();
-  projectWithTasks.tasks.forEach((task) => {
-    task.assignedUsers.forEach((assignUser) => {
-      assignedUsersSet.add(assignUser.assginedToUserId);
-    });
+  // Count of working users in this project
+  const numTeamMembersWorkingOnTasks = await prisma.projectAssignUsers.count({
+    where: {
+      projectId,
+      user: {
+        userOrganisation: {
+          some: {
+            role: {
+              in: [UserRoleEnum.PROJECT_MANAGER, UserRoleEnum.TEAM_MEMBER],
+            },
+          },
+        },
+      },
+    },
   });
-  const numTeamMembersWorkingOnTasks = assignedUsersSet.size;
 
   const response = {
     numTasks,
