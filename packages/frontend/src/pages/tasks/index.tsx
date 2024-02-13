@@ -66,10 +66,10 @@ function Tasks() {
             item?.flag == "Green"
               ? "bg-green-500/60 border border-green-500"
               : item?.flag == "Red"
-                ? "bg-red-500/60 border border-red-500/60"
-                : item?.flag == "Orange"
-                  ? "bg-primary-500/60 border border-primary-500/60"
-                  : ""
+              ? "bg-red-500/60 border border-red-500/60"
+              : item?.flag == "Orange"
+              ? "bg-primary-500/60 border border-primary-500/60"
+              : ""
           }`}
         ></div>
       ),
@@ -202,30 +202,38 @@ function Tasks() {
       setTaskData(setData(allTaskQuery.data?.data.data));
       setFilterData(setData(allTaskQuery.data?.data.data));
     }
+   
+  }, [allTaskQuery.data?.data.data]);
+
+  useEffect(() => {
     if (searchParams.get("milestones")) {
       setFilterData(
-        setData(
-          allTaskQuery.data?.data.data.filter((d) => d.milestoneIndicator)
-        )
+         taskData?.filter((d) => d.milestoneIndicator)
       );
     }
     if (searchParams.get("status")) {
       setFilterData(
         findParentTasksWithDoneStatus(
-          allTaskQuery.data?.data.data??[],
+          taskData ?? [],
           searchParams.get("status") ?? ""
         )
       );
     }
-  }, [allTaskQuery.data?.data.data, taskId]);
+  }, [taskData])
+  
+
+  useEffect(() => {
+    allTaskQuery.refetch();
+  }, [projectId]);
+
   const [searchParams] = useSearchParams();
 
   const setData = (data: Task[] | undefined) => {
     if (data) {
       data.forEach((task) => {
-        task.subtasks = allTaskQuery.data?.data.data.filter(
+        task.subtasks = data.filter(
           (subtask) => subtask.parentTaskId === task.taskId
-        )?? [];
+        );
       });
       const topLevelTasks = data.filter((task) => task.parentTaskId === null);
       return topLevelTasks.map((task) => convertTask(task));
@@ -242,25 +250,23 @@ function Tasks() {
 
     return convertedTask;
   };
-  
-  function findParentTasksWithDoneStatus(tasks:Task[],status:string) {
-    const parentTasks:Task[] = [];
 
-    function checkTask(task:Task) {
-      if (task.subtasks && task.subtasks.length > 0) {
-        const hasDoneSubtasks = task.subtasks.some(subtask => subtask.status === status);
-        if (hasDoneSubtasks || task.status === status) {
-          parentTasks.push(task);
-        }
-      }
+  
+  const checkTaskStatus = (task: Task, status: string) => {
+    if(task.subtasks && task.subtasks.length > 0){
+      const index = task.subtasks.findIndex((subtask)=>{
+        return checkTaskStatus(subtask, status);
+      })
+      return index !== -1
     }
-    tasks.forEach(task => {
-      checkTask(task);
-    });
-    
-    return parentTasks.filter(d=> d.parentTaskId === null);
+    return task.status === status
   }
 
+  function findParentTasksWithDoneStatus(tasks: Task[], status: string) {
+    return tasks.filter((task) => {
+      return checkTaskStatus(task,status);
+    });
+  }
 
   const createTask = () => {
     setTaskId("");

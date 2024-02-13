@@ -74,13 +74,23 @@ function TaskFilter(props: Filter) {
   const searchTask = (searchString: string) => {
     const tempData: Task[] = [];
     tasks?.forEach((element) => {
+      const searchStringLower = searchString.toLowerCase();
+      const searchStringUpper = searchString.toUpperCase();
+      const taskNameLower = element.taskName.toLowerCase();
+      const taskDescriptionLower = element.taskDescription.toLowerCase();
+      const taskNameUpper = element.taskName.toUpperCase();
+      const taskDescriptionUpper = element.taskDescription.toUpperCase();
+
       if (
-        element.taskName.search(searchString) >= 0 ||
-        element.taskDescription.search(searchString) >= 0
+        taskNameLower.includes(searchStringLower) ||
+        taskDescriptionLower.includes(searchStringLower) ||
+        taskNameUpper.includes(searchStringUpper) ||
+        taskDescriptionUpper.includes(searchStringUpper)
       ) {
         tempData.push(element);
       }
     });
+
     props.filteredData(tempData);
   };
 
@@ -439,13 +449,18 @@ function TaskFilter(props: Filter) {
             </div>
             {filterApplyed && (
               <div>
-                <Button size={"sm"} variant={"outline"} onClick={resetFilter}>
-                <div className="flex items-center justify-between gap-2">
-                      Reset
-                      <div className="w-3 h-3">
-                        <img src={FilterResetIcon} />
-                      </div>
+                <Button
+                  size={"sm"}
+                  className="w-fit h-8 rounded px-2"
+                  variant={"outline"}
+                  onClick={resetFilter}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    Reset
+                    <div className="w-3 h-3">
+                      <img src={FilterResetIcon} />
                     </div>
+                  </div>
                 </Button>
               </div>
             )}
