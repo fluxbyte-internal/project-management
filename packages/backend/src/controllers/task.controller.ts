@@ -43,11 +43,11 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
   });
   const finalArray = tasks.map((task) => {
     const duration = prisma.task.daysFromTwoDates(task.startDate, task.endDate);
-
+    const completionPecentage = prisma.task.calculationSubTaskProgression(task);
     const updatedTask = {
       ...task,
       duration,
-      completionPecentage: prisma.task.calculationSubTaskProgression(task),
+      completionPecentage,
     };
     return updatedTask;
   });
@@ -101,8 +101,8 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
     },
   });
   const duration = prisma.task.daysFromTwoDates(task.startDate, task.endDate);
-
-  const finalResponse = { ...task, duration };
+  const completionPecentage = prisma.task.calculationSubTaskProgression(task)
+  const finalResponse = { ...task, duration, completionPecentage };
   return new SuccessResponse(
     StatusCodes.OK,
     finalResponse,

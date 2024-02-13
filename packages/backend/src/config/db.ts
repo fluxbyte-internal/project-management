@@ -142,7 +142,6 @@ function generatePrismaClient(datasourceUrl?: string) {
           const parentTasks = await client.task.findMany({
             where: {
               projectId,
-              parentTaskId: null,
               deletedAt: null,
             },
           });
@@ -153,11 +152,11 @@ function generatePrismaClient(datasourceUrl?: string) {
           for (const value of parentTasks) {
             const duration = client.task.daysFromTwoDates(value.startDate, value.endDate);
             completionPecentageOrDuration +=
-              Number(value.completionPecentage) *
-              (duration * settings.hours);
+            Number(value.completionPecentage) *
+            (duration * settings.hours);
             averagesSumOfDuration += duration * settings.hours * 100;
           }
-          return completionPecentageOrDuration / averagesSumOfDuration;
+          return (completionPecentageOrDuration / averagesSumOfDuration) * 100;
         },
         async calculationCPI(project: Project) {
           const progressionPercentage = await client.project.projectProgression(
