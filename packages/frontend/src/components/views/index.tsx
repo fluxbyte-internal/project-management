@@ -4,7 +4,7 @@ import SideBar from "../layout/SideBar";
 import CalendarView from "./calendarView";
 import Tasks from "@/pages/tasks";
 import useProjectDetail from "@/api/query/useProjectDetailQuery";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { ProjectDefaultViewEnumValue } from "@backend/src/schemas/enums";
 import kanaban from "../../assets/svg/KanbanView.svg";
 import gantt from "../../assets/svg/Gantt.svg";
@@ -31,6 +31,7 @@ function TaskViews() {
       value: ProjectDefaultViewEnumValue.GANTT,
     },
   ];
+  const [searchParams] = useSearchParams();
 
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
   const [views, setViews] = useState<string>(viewOption[0].value);
@@ -41,15 +42,18 @@ function TaskViews() {
   const { projectId } = useParams();
   const projectQuery = useProjectDetail(projectId);
   useEffect(() => {
-    if (projectQuery.data?.data.data) {
+    if (projectQuery.data?.data.data) { 
       setViews(projectQuery.data.data.data.defaultView);
     }
   }, [projectQuery.data?.data.data]);
+  useEffect(() => {
+    setViews(viewOption[0].value);
+  }, [projectQuery.status == "success", searchParams]);
 
   return (
     <>
       <div className="relative h-full overflow-hidden">
-        <BackgroundImage/>
+        <BackgroundImage />
         <SideBar
           toggleSidebar={toggleSidebar}
           isSidebarExpanded={isSidebarExpanded}

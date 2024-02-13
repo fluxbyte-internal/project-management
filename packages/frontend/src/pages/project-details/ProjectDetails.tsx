@@ -20,6 +20,7 @@ import Loader from "@/components/common/Loader";
 import CreateProjectNoPopUpForm from "@/components/project/CreateProjectNoPopupForm";
 import { Project } from "@/api/query/useProjectQuery";
 import { useUser } from "@/hooks/useUser";
+import dateFormater from "@/helperFuntions/dateFormater";
 
 function ProjectDetails() {
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
@@ -48,7 +49,6 @@ function ProjectDetails() {
     }
   };
 
-
   const HandleOverallTrack = () => {
     switch (projectDetailQuery.data?.data.data.overallTrack) {
     case "STORMY":
@@ -68,7 +68,6 @@ function ProjectDetails() {
   const handleProjectClick = () => {
     navigate("/projects");
   };
-  // console.log('projectDetailQuery.data?.data.data',projectDetailQuery.data?.data.data);
 
   const verification = () => {
     if (user?.userOrganisation[0].role === "ADMINISTRATOR") {
@@ -146,15 +145,28 @@ function ProjectDetails() {
                   <div className="sm:text-3xl text-xl  font-semibold">
                     Project Detail
                   </div>
-                  <div className="h-10 w-12">
-                    {HandleOverallTrack()}
-                  </div>
+                  <div className="h-10 w-12">{HandleOverallTrack()}</div>
                   <div className="bg-[#227D9B] sm:px-4  text-white text-sm font-normal rounded-md py-0.5 px-4">
                     {HandleStatus()}
                   </div>
+                  <div className="ml-auto text-sm text-gray-400 font-semibold">
+                    {projectDetailQuery.data?.data.data.actualEndDate && (
+                      <div>
+                      Actual end date: &nbsp;
+                        { dateFormater(new
+                        Date(projectDetailQuery.data?.data.data.actualEndDate))}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="my-4 border border-[#E2E8F0] rounded-lg sm:px-8 px-4 py-6">
-                  <CreateProjectNoPopUpForm viewOnly={currentUserIsAdmin?false:true} refetch={projectDetailQuery.refetch} editData={projectDetailQuery.data?.data.data as unknown as Project}/>
+                  <CreateProjectNoPopUpForm
+                    viewOnly={currentUserIsAdmin ? false : true}
+                    refetch={projectDetailQuery.refetch}
+                    editData={
+                      projectDetailQuery.data?.data.data as unknown as Project
+                    }
+                  />
                   <div>
                     {/* <div className="border-b-2 border-gray-100 my-3.5" />
                     <div className="sm:flex gap-8">

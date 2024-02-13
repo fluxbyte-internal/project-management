@@ -25,6 +25,7 @@ import ErrorMessage from "../common/ErrorMessage";
 import {
   OverAllTrackEnumValue,
   ProjectStatusEnumValue,
+  ScheduleAndBudgetTrend,
 } from "@backend/src/schemas/enums";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import UsersIcon from "@/assets/svg/Users.svg";
@@ -89,7 +90,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
     editData?.projectId
   );
   const removeProjectMemberMutation = useRemoveProjectMemberMutation();
-  
+
   const formik = useFormik<z.infer<typeof updateProjectSchema>>({
     initialValues: {
       projectName: "",
@@ -101,6 +102,9 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
       currency: "USD",
       status: "NOT_STARTED",
       overallTrack: "SUNNY",
+      scheduleTrend: "STABLE",
+      budgetTrend: "STABLE",
+      consumedBudget:'',
     },
     validationSchema: toFormikValidationSchema(updateProjectSchema),
     onSubmit: (values, helper) => {
@@ -160,6 +164,9 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
         defaultView: editData.defaultView,
         currency: editData.currency,
         overallTrack: editData.overallTrack,
+        scheduleTrend: editData.scheduleTrend,
+        budgetTrend: editData.budgetTrend,
+        consumedBudget:editData.consumedBudget,
       });
       setCurrencyValue({ label: editData.currency, value: editData.currency });
     }
@@ -255,7 +262,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                   rows={5}
                   cols={30}
                   name="projectDescription"
-                  placeholder="Placeholder"
+                  placeholder="Description"
                   className="py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full"
                   value={formik.values.projectDescription}
                   onChange={formik.handleChange}
@@ -417,6 +424,11 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
               </div>
             </div>
           </div>
+          <div className="w-full flex items-center gap-2 justify-between my-3 text-gray-400 text-lg font-semibold">
+            <hr className="w-2/5" />
+            Project Management
+            <hr className="w-2/5" />
+          </div>
           <div className="lg:flex lg:flex-row flex-col  gap-16 lg:my-3">
             <div className="lg:w-[50%] w-full my-6 lg:my-0">
               <Popover>
@@ -433,7 +445,9 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 <PopoverContent className="w-80 focus:outline-none">
                   <div className="grid gap-4">
                     <div className="space-y-2">
-                      <h4 className="font-medium leading-none">Project Manager</h4>
+                      <h4 className="font-medium leading-none">
+                        Project Manager
+                      </h4>
                     </div>
                     <div>
                       {projectMemberListQuery.data?.data.data.map(
@@ -454,11 +468,11 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                                     (u) => u.user.userId == data.user.userId
                                   )
                                     ? removeMembers(
-                                        editData?.assignedUsers.find(
-                                          (id) =>
-                                            id.user.userId == data.user.userId
-                                        )?.projectAssignUsersId ?? ""
-                                      )
+                                      editData?.assignedUsers.find(
+                                        (id) =>
+                                          id.user.userId == data.user.userId
+                                      )?.projectAssignUsersId ?? ""
+                                    )
                                     : submitMembers(data);
                                 }}
                               >
@@ -530,11 +544,11 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                                     (u) => u.user.userId == data.user.userId
                                   )
                                     ? removeMembers(
-                                        editData?.assignedUsers.find(
-                                          (id) =>
-                                            id.user.userId == data.user.userId
-                                        )?.projectAssignUsersId ?? ""
-                                      )
+                                      editData?.assignedUsers.find(
+                                        (id) =>
+                                          id.user.userId == data.user.userId
+                                      )?.projectAssignUsersId ?? ""
+                                    )
                                     : submitMembers(data);
                                 }}
                               >
@@ -620,6 +634,78 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
               </ErrorMessage>
             </div>
           </div>
+          <div className="sm:flex gap-16 my-3">
+            <div className="sm:w-[50%] w-full">
+              <div className={labelStyle}>Schedule Trend</div>
+              <Select
+                isDisabled={viewOnly}
+                menuPlacement="auto"
+                value={
+                  formik.values.scheduleTrend && {
+                    label: formik.values.scheduleTrend,
+                    value: formik.values.scheduleTrend,
+                  }
+                }
+                name="scheduleTrend"
+                isMulti={false}
+                onChange={(e: SingleValue<Options>) =>
+                  formik.setFieldValue("scheduleTrend", e?.value)
+                }
+                options={Object.keys(ScheduleAndBudgetTrend).map((i) => {
+                  return { label: i, value: i };
+                })}
+              />
+              <ErrorMessage>
+                {formik.touched.scheduleTrend && formik.errors.scheduleTrend}
+              </ErrorMessage>
+            </div>
+            <div className="sm:w-[50%] w-full mt-2 sm:mt-0">
+              <div className={labelStyle}>Budget Trend</div>
+
+              <Select
+                isDisabled={viewOnly}
+                options={Object.keys(ScheduleAndBudgetTrend).map((i) => {
+                  return { label: i, value: i };
+                })}
+                menuPlacement="auto"
+                value={
+                  formik.values.budgetTrend && {
+                    label: formik.values.budgetTrend,
+                    value: formik.values.budgetTrend,
+                  }
+                }
+                onChange={(e: SingleValue<Options>) =>
+                  formik.setFieldValue("budgetTrend", e?.value)
+                }
+              />
+              <ErrorMessage>
+                {formik.touched.budgetTrend && formik.errors.budgetTrend}
+              </ErrorMessage>
+            </div>
+          </div>
+          <div className="grid lg:grid-cols-2 gap-14">
+
+            <div className="">
+              <div>
+                <label className={labelStyle}>Consumed Budget</label>
+                <span className="ml-0.5 text-red-500">*</span>
+              </div>
+              <input
+                disabled={viewOnly}
+                type="text"
+                name="consumedBudget"
+                placeholder="Consumed budget"
+                className={inputStyle}
+                value={formik.values.consumedBudget ?? ""}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+              <span className={errorStyle}>
+                {formik.touched.consumedBudget && formik.errors.consumedBudget}
+              </span>
+            </div>
+          </div>
+
           {!viewOnly && (
             <div className="flex justify-end mt-6 lg:mt-2">
               <Button

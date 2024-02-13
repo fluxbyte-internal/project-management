@@ -42,7 +42,8 @@ export type Settings = {
     bucketName: string
   };
   environment: string
-  domain: string
+  domain: string,
+  hours: number,
 };
 
 const {
@@ -144,5 +145,6 @@ export const settings: Settings = {
     bucketName: AWS_BUCKET_NAME
   },
   environment: ENV_NAME,
-  domain: ".projectchef.io"
+  domain: ".projectchef.io",
+  hours: 24,
 };
