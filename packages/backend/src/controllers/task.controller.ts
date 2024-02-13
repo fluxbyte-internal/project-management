@@ -44,8 +44,12 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
   const finalArray = tasks.map((task) => {
     const updatedTask = {
       ...task,
-      completionPecentage: prisma.task
-        .calculationSubTaskProgression(task)
+      duration: Math.ceil(
+        (new Date(task.endDate).getTime() -
+          new Date(task.startDate).getTime()) /
+          86400000
+      ),
+      completionPecentage: prisma.task.calculationSubTaskProgression(task),
     };
     return updatedTask;
   });
@@ -99,8 +103,12 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
     },
   });
 
+  const duration = Math.ceil(
+    (new Date(task.endDate).getTime() - new Date(task.startDate).getTime()) /
+      86400000
+  );
 
-  const finalResponse = { ...task };
+  const finalResponse = { ...task, duration };
   return new SuccessResponse(
     StatusCodes.OK,
     finalResponse,
