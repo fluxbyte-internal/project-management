@@ -271,7 +271,12 @@ export const createProject = async (req: express.Request, res: express.Response)
       defaultView: defaultView,
       createdByUserId: req.userId,
       updatedByUserId: req.userId,
-      currency: currency
+      currency: currency,
+      assignedUsers: {
+        create: {
+          assginedToUserId: req.userId
+        }
+      }
     }
   });
   return new SuccessResponse(StatusCodes.CREATED, project, 'project created successfully').send(res);

@@ -18,11 +18,6 @@ router.get(
 );
 
 router.get(
-  "/allOrganisationsProjects",
-  DashboardController.allOrganisationsProjects
-);
-
-router.get(
   "/dashboardByProjectId/:projectId",
   DashboardController.projectDashboardByprojectId
 );

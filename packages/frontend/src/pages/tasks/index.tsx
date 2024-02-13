@@ -6,7 +6,7 @@ import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
 import { Button } from "@/components/ui/button";
 import dateFormater from "@/helperFuntions/dateFormater";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import NoTask from "./NoTask";
 import Dialog from "@/components/common/Dialog";
 import useRemoveTaskMutation from "@/api/mutation/useTaskRemove";
@@ -202,7 +202,23 @@ function Tasks() {
       setTaskData(setData(allTaskQuery.data?.data.data));
       setFilterData(setData(allTaskQuery.data?.data.data));
     }
+    if (searchParams.get("milestones")) {
+      setFilterData(
+        setData(
+          allTaskQuery.data?.data.data.filter((d) => d.milestoneIndicator)
+        )
+      );
+    }
+    if (searchParams.get("status")) {
+      setFilterData(
+        findParentTasksWithDoneStatus(
+          allTaskQuery.data?.data.data??[],
+          searchParams.get("status") ?? ""
+        )
+      );
+    }
   }, [allTaskQuery.data?.data.data, taskId]);
+  const [searchParams] = useSearchParams();
 
   const setData = (data: Task[] | undefined) => {
     if (data) {
@@ -226,6 +242,26 @@ function Tasks() {
 
     return convertedTask;
   };
+  
+  function findParentTasksWithDoneStatus(tasks:Task[],status:string) {
+    const parentTasks:Task[] = [];
+
+    function checkTask(task:Task) {
+      if (task.subtasks && task.subtasks.length > 0) {
+        const hasDoneSubtasks = task.subtasks.some(subtask => subtask.status === status);
+        if (hasDoneSubtasks || task.status === status) {
+          parentTasks.push(task);
+        }
+      }
+    }
+    tasks.forEach(task => {
+      checkTask(task);
+    });
+    
+    return parentTasks.filter(d=> d.parentTaskId === null);
+  }
+
+
   const createTask = () => {
     setTaskId("");
     setTaskCreate(true);

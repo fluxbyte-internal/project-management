@@ -1,15 +1,24 @@
 import React, {useEffect, useRef} from 'react'; 
 import * as echarts from 'echarts';
+import { useNavigate, useParams } from 'react-router-dom';
 // export type chartDataType = { value: number; name: string }
 export type ChartProps = {
   chartData: { value: number; name: string }[],
   color:string[],
-  title: string
+  title: string,
+  radius: string[],
+  height: string
 }
 interface PieChartProps {
   chartProps: ChartProps
 }
 const PieChart:  React.FC<PieChartProps> = ({ chartProps }) =>{
+  const projectId = useParams()?.projectId;
+  const navigate = useNavigate();
+
+  const filterRoutes = (item: string) => {
+    navigate(`/tasks/${projectId}?status=${item}`);
+  };
   const chartref = useRef<HTMLDivElement>(null);
   useEffect(()=>{
     const myChart = echarts.init(chartref.current as HTMLDivElement);
@@ -37,7 +46,7 @@ const PieChart:  React.FC<PieChartProps> = ({ chartProps }) =>{
         {
           name: '',
           type: 'pie',
-          radius: ['0%', '80%'],
+          radius: chartProps?.radius,
           avoidLabelOverlap: false,
           label: {
             show: false,
@@ -57,6 +66,12 @@ const PieChart:  React.FC<PieChartProps> = ({ chartProps }) =>{
         },
       ],
     };
+    
+    myChart.on('click', (params: any) => {
+      if (projectId) {
+        filterRoutes(params.name);
+      }
+    });
     myChart.setOption(option);
 
     return()=>{
@@ -64,7 +79,7 @@ const PieChart:  React.FC<PieChartProps> = ({ chartProps }) =>{
     };
   },[chartProps]);
 
-  return <div ref={chartref} style={{width: '100%', height: '500px'}} />;
+  return <div ref={chartref} style={{width: '100%', height: chartProps?.height}} />;
     
 };
 export default PieChart;

@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollText, Settings } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Select, { SingleValue } from "react-select";
 import CalendarSvg from "../../assets/svg/Calendar.svg";
 import {
@@ -49,10 +49,16 @@ function ProjectsList() {
   const navigate = useNavigate();
 
   const projectQuery = useProjectQuery();
+  const [searchParams,setSearchParams] = useSearchParams();
+
   useEffect(() => {
     setData(projectQuery.data?.data.data);
     setFilterData(projectQuery.data?.data.data);
-  }, [projectQuery.data?.data.data]);
+    if (searchParams.get("status")) {
+      setFilter(prev => ({...prev,status:{label:searchParams.get("status")??"",value:searchParams.get("status")??""}}));
+    }
+  }, [projectQuery.data?.data.data,searchParams]);
+
 
   const close = () => {
     setIsOpenPopUp(false);
@@ -183,7 +189,10 @@ function ProjectsList() {
         <>
           <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
             <div className="text-cyan-700 text-xs font-medium leading-tight">
-              {item.status}
+              {item.status
+                .toLowerCase()
+                .replace(/_/g, " ")
+                .replace(/\b\w/g, (char) => char.toUpperCase())}
             </div>
           </div>
         </>
@@ -306,6 +315,7 @@ function ProjectsList() {
       date: undefined,
       status: null,
     });
+    setSearchParams({});
     setFilterData(data);
   };
 

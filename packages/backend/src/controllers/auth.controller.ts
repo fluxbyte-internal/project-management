@@ -1,5 +1,5 @@
 import express from "express";
-import { UserProviderTypeEnum, UserStatusEnum } from "@prisma/client";
+import { OrgStatusEnum, UserProviderTypeEnum, UserStatusEnum } from "@prisma/client";
 import { getClientByTenantId } from "../config/db.js";
 import { settings } from "../config/settings.js";
 import { createJwtToken, verifyJwtToken } from "../utils/jwtHelper.js";
@@ -108,10 +108,31 @@ export const signUp = async (req: express.Request, res: express.Response) => {
 export const login = async (req: express.Request, res: express.Response) => {
   const { email, password } = authLoginSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
-  const user = await prisma.user.findUnique({
+  const user = await prisma.user.findUniqueOrThrow({
     where: { email, deletedAt: null },
-    include: { provider: true },
+    include: {
+      userOrganisation: {
+        where: { deletedAt: null },
+        include: {
+          organisation: {
+            where: { deletedAt: null },
+          },
+        },
+      },
+      provider: true,
+    },
   });
+  if (user?.status === UserStatusEnum.INACTIVE) {
+    throw new BadRequestError('User is DEACTIVE');
+  }
+  
+  if (user.userOrganisation.length > 0) {
+    const organisation = user.userOrganisation[0]?.organisation;
+
+    if (organisation?.status === OrgStatusEnum.DEACTIVE) {
+      throw new BadRequestError("Organisation is DEACTIVE");
+    }
+  }
   if (
     user &&
     user.provider?.providerType == UserProviderTypeEnum.EMAIL &&

@@ -86,6 +86,12 @@ enum HistoryTypeEnum {
   TASK
 }
 
+enum ScheduleAndBudgetTrendEnum {
+  INCREASING
+  STABLE
+  DECREASING
+}
+
 model User {
   userId     String         @id @default(uuid()) @map("user_id")
   email      String         @unique @map("email")
@@ -109,7 +115,7 @@ model User {
   createdProject Project[] @relation("createdByUser")
   updatedProject Project[] @relation("updatedByUser")
 
-  provider    UserProvider?
+  provider UserProvider?
 
   createdTask         Task[]            @relation("createdByUser")
   updatedTask         Task[]            @relation("updatedByUser")
@@ -120,8 +126,8 @@ model User {
   history               History[]
   uploadedAttachment    TaskAttachment[]
   addedDependencies     TaskDependencies[]
-  sentNotifications     Notification[]     @relation("sentNotificationBy")
-  receivedNotifications Notification[]     @relation("sentNotificationTo")
+  sentNotifications     Notification[]       @relation("sentNotificationBy")
+  receivedNotifications Notification[]       @relation("sentNotificationTo")
   projectAssignUsers    ProjectAssignUsers[]
 
   deletedAt DateTime? @map("deleted_at")
@@ -260,6 +266,8 @@ model Project {
   overallTrack       ProjectOverAllTrackEnum @default(SUNNY) @map("overall_track")
   estimatedBudget    String                  @map("estimated_budget")
   consumedBudget     String                  @default("0") @map("consumed_budget")
+  scheduleTrend      ScheduleAndBudgetTrendEnum  @default(STABLE) @map("schedule_trend")
+  budgetTrend        ScheduleAndBudgetTrendEnum  @default(STABLE) @map("budget_trend")
   actualCost         String?                 @map("actual_cost")
   createdByUserId    String                  @map("created_by_user_id")
   createdByUser      User                    @relation("createdByUser", fields: [createdByUserId], references: [userId], onDelete: Cascade)

@@ -149,7 +149,6 @@ function Table(props: Props) {
     const [day, month, year] = dateString.split("/").map(Number);
     return [day, month, year];
   }
-  console.log(data);
 
   const sorting = (key: string) => {
     setAccordionshow(null);

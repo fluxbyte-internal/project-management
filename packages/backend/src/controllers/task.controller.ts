@@ -42,10 +42,12 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
     },
   });
   const finalArray = tasks.map((task) => {
+    const duration = prisma.task.daysFromTwoDates(task.startDate, task.endDate);
+    const completionPecentage = prisma.task.calculationSubTaskProgression(task);
     const updatedTask = {
       ...task,
-      completionPecentage: prisma.task
-        .calculationSubTaskProgression(task)
+      duration,
+      completionPecentage,
     };
     return updatedTask;
   });
@@ -98,9 +100,9 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
       },
     },
   });
-
-
-  const finalResponse = { ...task };
+  const duration = prisma.task.daysFromTwoDates(task.startDate, task.endDate);
+  const completionPecentage = prisma.task.calculationSubTaskProgression(task)
+  const finalResponse = { ...task, duration, completionPecentage };
   return new SuccessResponse(
     StatusCodes.OK,
     finalResponse,
@@ -249,7 +251,7 @@ export const updateTask = async (
         projectId: taskUpdateDB.project.projectId,
       },
       data: {
-        estimatedEndDate: maxEndDate,
+        actualEndDate: maxEndDate,
       },
     });
   };
@@ -767,6 +769,15 @@ export const addDependencies = async (
   const { dependentType, dependendentOnTaskId } = dependenciesTaskSchema.parse(
     req.body
   );
+  const findDependencies = await prisma.taskDependencies.findFirst({
+    where: {
+      dependendentOnTaskId,
+      dependentTaskId: taskId,
+    },
+  });
+  if (findDependencies) {
+    throw new BadRequestError("Already have dependencies on this task!!");
+  }
   const addDependencies = await prisma.taskDependencies.create({
     data: {
       dependentType: dependentType,

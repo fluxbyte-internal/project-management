@@ -474,7 +474,7 @@ function TaskSubTaskForm(props: Props) {
                     ></InputText>
                   </div>
                   <div className="flex gap-3 justify-end mt-3">
-                  <Button
+                    <Button
                       variant={"secondary"}
                       onClick={() => setSubTaskFieldShow(false)}
                       className="py-2 px-4"
