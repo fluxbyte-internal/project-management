@@ -242,18 +242,7 @@ function Tasks() {
 
     return convertedTask;
   };
-  const findParant =(id:string)=>{
-    allTaskQuery.data?.data.data.forEach(e=>{
-      if (e.parentTaskId == null) {
-        return e;
-      }
-      else{
-        if (e.taskId == id) {
-          findParant(e.taskId);
-        }
-      }
-    });
-  }; 
+  
   function findParentTasksWithDoneStatus(tasks:Task[],status:string) {
     const parentTasks:Task[] = [];
 

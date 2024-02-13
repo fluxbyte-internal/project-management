@@ -72,13 +72,13 @@ function ManagerDashboard() {
     height: "300px",
   };
 
-  const chartProp4: ChartProps = {
-    chartData: [],
-    color: ["#FFD04A", "#FFB819", "#B74E06"],
-    title: "Projects Per Severity",
-    radius: ["70%", "80%"],
-    height: "500px",
-  };
+  // const chartProp4: ChartProps = {
+  //   chartData: [],
+  //   color: ["#FFD04A", "#FFB819", "#B74E06"],
+  //   title: "Projects Per Severity",
+  //   radius: ["70%", "80%"],
+  //   height: "500px",
+  // };
   const chartProp5: ChartProps = {
     chartData: [],
     color: ["#FFD04A", "#FFB819", "#B74E06"],
