@@ -42,18 +42,11 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
     },
   });
   const finalArray = tasks.map((task) => {
-    const startDate = new Date(task.startDate);
-    const endDate = new Date(task.endDate);
-    startDate.setHours(0, 0, 0, 0);
-    endDate.setHours(0, 0, 0, 0);
-    const durationMilliseconds = endDate.getTime() - startDate.getTime();
-    const durationDays = Math.ceil(
-      durationMilliseconds / (1000 * 60 * 60 * 24)
-    );
+    const duration = prisma.task.daysFromTwoDates(task.startDate, task.endDate);
 
     const updatedTask = {
       ...task,
-      duration: durationDays,
+      duration,
       completionPecentage: prisma.task.calculationSubTaskProgression(task),
     };
     return updatedTask;
@@ -107,16 +100,7 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
       },
     },
   });
-
-  const startDate = new Date(task.startDate);
-  const endDate = new Date(task.endDate);
-  startDate.setHours(0, 0, 0, 0);
-  endDate.setHours(0, 0, 0, 0);
-  const durationMilliseconds = endDate.getTime() - startDate.getTime();
-  const duration = Math.ceil(
-    durationMilliseconds /
-      86400000
-  );
+  const duration = prisma.task.daysFromTwoDates(task.startDate, task.endDate);
 
   const finalResponse = { ...task, duration };
   return new SuccessResponse(
