@@ -343,7 +343,7 @@ function generatePrismaClient(datasourceUrl?: string) {
           ) {
             return {
               tpiValue: 0,
-              tpiFlag: "Red",
+              tpiFlag: "Green",
             };
           }
           const currentDate: Date = new Date();
