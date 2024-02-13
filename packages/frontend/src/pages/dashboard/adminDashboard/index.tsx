@@ -134,6 +134,16 @@ function AdminDashboard() {
       },
     },
     {
+      key: "CPI",
+      header: "CPI",
+      onCellRender: (item: Project) => (
+        <>
+          {item.CPI ? item.CPI.toFixed(2) : (0.0).toFixed(2)}{" "}
+          {console.log(item.CPI)}
+        </>
+      ),
+    },
+    {
       key: "startDate",
       header: "Start Date",
       sorting: true,
@@ -225,9 +235,9 @@ function AdminDashboard() {
           <div className="situation rounded-2xl w-3/4 lg:w-1/2 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <PieChart chartProps={overallStatusPieChartProp!} />
           </div>
-          <div className="severity rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
+          {/* <div className="severity rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <PieChart chartProps={chartProp4} />
-          </div>
+          </div> */}
           <div className="risks rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <HorizontalBarChart chartProps={chartProp5} />
           </div>

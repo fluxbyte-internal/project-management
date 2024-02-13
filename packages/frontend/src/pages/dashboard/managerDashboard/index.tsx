@@ -1,7 +1,6 @@
 import PieChart, { ChartProps } from "@/components/charts/PieChart";
 import Table, { ColumeDef } from "@/components/shared/Table";
-import  {
-} from "@/api/query/usePortfolioDashboardQuery";
+import {} from "@/api/query/usePortfolioDashboardQuery";
 import useProjectManagerPortfolioDashboardQuery, {
   managerDashboardPortfolioDataType,
 } from "@/api/query/useProjectManagerPortfolioDashboardQuery";
@@ -103,7 +102,6 @@ function ManagerDashboard() {
       },
     },
 
-   
     // {
     //   key: "progress",
     //   header: "Progress",
@@ -111,6 +109,16 @@ function ManagerDashboard() {
     //     <PercentageCircle percentage={item.progressionPercentage} />
     //   ),
     // },
+    {
+      key: "CPI",
+      header: "CPI",
+      onCellRender: (item: Project) => (
+        <>
+          {item.CPI ? item.CPI.toFixed(2) : (0.0).toFixed(2)}{" "}
+          {console.log(item.CPI)}
+        </>
+      ),
+    },
 
     {
       key: "startDate",
@@ -162,7 +170,7 @@ function ManagerDashboard() {
     <>
       <div className="overflow-auto w-full py-2 px-2 lg:px-14 flex flex-col gap-10">
         <h2 className="font-medium text-3xl leading-normal text-gray-600">
-      Manager's Dashboard
+          Manager's Dashboard
         </h2>
         <div className="text-xl font-bold text-gray-400">Project Status</div>
         <div className="w-full h-fit flex flex-col lg:flex-row gap-10 items-center">
@@ -170,16 +178,16 @@ function ManagerDashboard() {
             {data?.statusChartData?.labels.map((labelData, index) => (
               <>
                 <div
-                  onClick={()=>filterRoutes(labelData)}
+                  onClick={() => filterRoutes(labelData)}
                   key={index}
                   className={`flex flex-col gap-2 cursor-pointer lg:gap-5 w-full lg:w-2/5 h-1/5 lg:h-full  rounded-2xl p-2 lg:py-3 text-start items-start justify-start px-10 border-l-[12px] ${
                     labelData === "ACTIVE"
                       ? "text-primary-600  border-2 border-primary-600 "
                       : labelData === "ON_HOLD"
-                        ? "text-primary-800 border-2 border-primary-800"
-                        : labelData === "NOT_STARTED"
-                          ? "text-primary-950 border-2 border-primary-950"
-                          : "text-gray-800 border-2 border-gray-300  "
+                      ? "text-primary-800 border-2 border-primary-800"
+                      : labelData === "NOT_STARTED"
+                      ? "text-primary-950 border-2 border-primary-950"
+                      : "text-gray-800 border-2 border-gray-300  "
                   }`}
                 >
                   <a className="text-base font-bold items-end">{labelData}</a>
@@ -194,7 +202,7 @@ function ManagerDashboard() {
           <div className="delays rounded-2xl w-3/4 lg:w-1/4 h-fit justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <PieChart chartProps={chartProp2} />
           </div>
-        
+
           <div className="status rounded-2xl w-3/4 lg:w-1/4  h-fit justify-center items-center flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300  ">
             <PieChart chartProps={statusPieChartProp!} />
           </div>
@@ -204,21 +212,17 @@ function ManagerDashboard() {
           <div className="situation rounded-2xl w-3/4 lg:w-1/2 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <PieChart chartProps={overallStatusPieChartProp!} />
           </div>
-          <div className="severity rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
+          {/* <div className="severity rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <PieChart chartProps={chartProp4} />
-          </div>
+          </div> */}
           <div className="risks rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <HorizontalBarChart chartProps={chartProp5} />
           </div>
         </div>
         <div className="w-full flex flex-col md:flex-col gap-10 justify-center px-5 md:px-20 lg:px-0 self-center">
-     
           <div className="w-full lg:w-4/5 self-center">
-            <Button
-              variant={"primary"}
-              onClick={() => setIsOpenPopUp(true)}
-            >
-                    Add Project
+            <Button variant={"primary"} onClick={() => setIsOpenPopUp(true)}>
+              Add Project
             </Button>
           </div>
 
@@ -236,10 +240,7 @@ function ManagerDashboard() {
         </div>
       </div>
       {isOpenPopUp && (
-        <CreateUpdateProjectForm
-          handleClosePopUp={close}
-          editData={editData}
-        />
+        <CreateUpdateProjectForm handleClosePopUp={close} editData={editData} />
       )}
     </>
   );

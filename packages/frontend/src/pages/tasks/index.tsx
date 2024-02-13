@@ -66,10 +66,10 @@ function Tasks() {
             item?.flag == "Green"
               ? "bg-green-500/60 border border-green-500"
               : item?.flag == "Red"
-                ? "bg-red-500/60 border border-red-500/60"
-                : item?.flag == "Orange"
-                  ? "bg-primary-500/60 border border-primary-500/60"
-                  : ""
+              ? "bg-red-500/60 border border-red-500/60"
+              : item?.flag == "Orange"
+              ? "bg-primary-500/60 border border-primary-500/60"
+              : ""
           }`}
         ></div>
       ),
@@ -203,14 +203,23 @@ function Tasks() {
       setFilterData(setData(allTaskQuery.data?.data.data));
     }
     if (searchParams.get("milestones")) {
-      setFilterData(setData(allTaskQuery.data?.data.data.filter(d => d.milestoneIndicator)));
+      setFilterData(
+        setData(
+          allTaskQuery.data?.data.data.filter((d) => d.milestoneIndicator)
+        )
+      );
     }
     if (searchParams.get("status")) {
-      setFilterData(setData(allTaskQuery.data?.data.data.filter(d => d.status == searchParams.get("status"))));
+      setFilterData(
+        findParentTasksWithDoneStatus(
+          allTaskQuery.data?.data.data??[],
+          searchParams.get("status") ?? ""
+        )
+      );
     }
   }, [allTaskQuery.data?.data.data, taskId]);
   const [searchParams] = useSearchParams();
-  
+
   const setData = (data: Task[] | undefined) => {
     if (data) {
       data.forEach((task) => {
@@ -233,6 +242,37 @@ function Tasks() {
 
     return convertedTask;
   };
+  const findParant =(id:string)=>{
+    allTaskQuery.data?.data.data.forEach(e=>{
+      if (e.parentTaskId == null) {
+        return e
+      }
+      else{
+        if (e.taskId == id) {
+          findParant(e.taskId)
+        }
+      }
+    })
+  } 
+  function findParentTasksWithDoneStatus(tasks:Task[],status:string) {
+    const parentTasks:Task[] = [];
+
+    function checkTask(task:Task) {
+        if (task.subtasks && task.subtasks.length > 0) {
+            const hasDoneSubtasks = task.subtasks.some(subtask => subtask.status === status);
+            if (hasDoneSubtasks || task.status === status) {
+                parentTasks.push(task);
+            }
+        }
+    }
+    tasks.forEach(task => {
+        checkTask(task);
+    });
+    
+    return parentTasks.filter(d=> d.parentTaskId === null);
+}
+
+
   const createTask = () => {
     setTaskId("");
     setTaskCreate(true);
