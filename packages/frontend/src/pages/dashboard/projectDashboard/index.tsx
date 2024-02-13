@@ -181,6 +181,17 @@ function ProjectDashboard() {
       break;
     }
   };
+  const getSPI = () => {
+    let val = 0;
+    if (data && data.spi.length) {
+      data?.spi.forEach((e) => {
+        val =+ e.spi;
+      });
+      return Number((val / data?.spi.length) * 100).toFixed(2) ;
+    } else {
+      return 0;
+    }
+  };
   return (
     <>
       {selectedStatusTheme && data && (
@@ -280,7 +291,7 @@ function ProjectDashboard() {
                 <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
                   <div>Actual Duration</div>
                   <div className="text-lg md:text-xl font-bold text-gray-500">
-                    {data?.projectDates?.duration}
+                    {data?.projectDates?.duration} Days
                   </div>
                 </div>
               </div>
@@ -305,7 +316,7 @@ function ProjectDashboard() {
                       >
                         <div className="m-1">
                           {data?.projectProgression
-                            ? data?.projectProgression + "%"
+                            ? Number(Number(data?.projectProgression).toFixed(2)) * 100 + "%"
                             : "NA"}
                         </div>
                       </div>
@@ -382,7 +393,14 @@ function ProjectDashboard() {
                   </div>
                 </div>
               </div>
-
+              <div className="w-full md:w-1/4 h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3">
+                <div className="w-full h-full text-center text-base md:text-lg font-semibold ">
+                  SPI
+                </div>
+                <div className={`w-full h-full text-lg md:text-xl font-bold text-gray-500 text-center ${Number(getSPI()) < 0.8 ? "text-red-700/60":Number(getSPI()) >= 0.8 && Number(getSPI()) < 0.95 ? "text-orange-400/80" :Number(getSPI()) >= 0.95 ? "text-green-700/60" :"" }`}>
+                  {getSPI()}
+                </div>
+              </div>
               <div className="w-full md:w-1/4 h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3">
                 <div className="w-full h-full text-center text-base md:text-lg font-semibold ">
                   Project's Budget

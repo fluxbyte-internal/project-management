@@ -9,6 +9,7 @@ import ApiRequest from "../ApiRequest";
 import { OverAllTrackEnumValue, ProjectDefaultViewEnumValue, ScheduleAndBudgetTrend, UserRoleEnumValue } from "@backend/src/schemas/enums";
 
 export type Project = {
+  CPI?:number
   overallTrack:  keyof typeof OverAllTrackEnumValue;
   projectId: string;
   assignedUsers: AssignedUsers[];
