@@ -210,7 +210,6 @@ export const administartorProjects = async (req: Request, res: Response) => {
     })
   );
 
-  // TODO: Deley calculation as per SPI logic
   const response = {
     orgCreatedByUser,
     statusChartData,
@@ -235,9 +234,13 @@ export const projectDashboardByprojectId = async (
   const projectWithTasks = await prisma.project.findFirstOrThrow({
     where: {
       projectId,
+      deletedAt: null,
     },
     include: {
       tasks: {
+        where: {
+          deletedAt: null,
+        },
         include: {
           assignedUsers: true,
         },
