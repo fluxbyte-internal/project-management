@@ -17,8 +17,10 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
 
   const projectManagersProjects = await prisma.project.findMany({
     where: {
+      deletedAt: null,
       OR: [
         {
+          deletedAt: null,
           organisationId: req.organisationId,
           assignedUsers: {
             some: {
@@ -107,6 +109,7 @@ export const administartorProjects = async (req: Request, res: Response) => {
     where: {
       createdByUserId: req.userId,
       organisationId: req.organisationId,
+      deletedAt: null,
     },
     include: {
       projects: true,
@@ -160,13 +163,15 @@ export const administartorProjects = async (req: Request, res: Response) => {
       const completedTasksCount = await prisma.task.count({
         where: {
           projectId: project.projectId,
-          status: TaskStatusEnum.DONE
+          status: TaskStatusEnum.DONE,
+          deletedAt: null,
         }
       });
       const projectManagerInfo = await prisma.projectAssignUsers.findMany({
         where: {
           projectId: project.projectId,
           user: {
+            deletedAt: null,
             userOrganisation: {
               some: {
                 role: {
@@ -188,6 +193,7 @@ export const administartorProjects = async (req: Request, res: Response) => {
               equals: UserRoleEnum.ADMINISTRATOR,
             },
             organisationId: req.organisationId,
+            deletedAt: null,
           },
           include: {
             user: true,
