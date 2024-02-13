@@ -37,14 +37,22 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
   });
 
   // Calculate Number of Portfolio Projects per Status
-  const statusCounts: StatusCounts = projectManagersProjects.reduce(
-    (acc, project) => {
-      const status = project.status as ProjectStatusEnum;
-      acc[status] = (acc[status] || 0) + 1;
-      return acc;
-    },
-    {} as StatusCounts
-  );
+  const allStatusValues: ProjectStatusEnum[] = [
+    ProjectStatusEnum.NOT_STARTED,
+    ProjectStatusEnum.ACTIVE,
+    ProjectStatusEnum.ON_HOLD,
+    ProjectStatusEnum.CLOSED,
+  ];
+
+  const statusCounts: StatusCounts = allStatusValues.reduce((acc, status) => {
+    acc[status] = 0;
+    return acc;
+  }, {} as StatusCounts);
+
+  projectManagersProjects.forEach((project) => {
+    const status = project.status as ProjectStatusEnum;
+    statusCounts[status]++;
+  });
 
   // Calculate Number of Portfolio Projects per Overall Situation
   const overallSituationCounts: StatusCounts = projectManagersProjects.reduce(
@@ -67,7 +75,7 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
     data: Object.values(overallSituationCounts),
   };
 
-  const projects = await Promise.all(projectManagersProjects.map(async project => {
+  const projects = await Promise.all(projectManagersProjects.map(async (project) => {
     const CPI = await prisma.project.calculationCPI(project);
     const completedTasksCount = await prisma.task.count({
       where: {
@@ -106,14 +114,22 @@ export const administartorProjects = async (req: Request, res: Response) => {
   });
 
   // Calculate Number of Portfolio Projects per Status
-  const statusCounts: StatusCounts = orgCreatedByUser.projects.reduce(
-    (acc, project) => {
-      const status = project.status as ProjectStatusEnum;
-      acc[status] = (acc[status] || 0) + 1;
-      return acc;
-    },
-    {} as StatusCounts
-  );
+  const allStatusValues: ProjectStatusEnum[] = [
+    ProjectStatusEnum.NOT_STARTED,
+    ProjectStatusEnum.ACTIVE,
+    ProjectStatusEnum.ON_HOLD,
+    ProjectStatusEnum.CLOSED,
+  ];
+
+  const statusCounts: StatusCounts = allStatusValues.reduce((acc, status) => {
+    acc[status] = 0;
+    return acc;
+  }, {} as StatusCounts);
+
+  orgCreatedByUser.projects.forEach((project) => {
+    const status = project.status as ProjectStatusEnum;
+    statusCounts[status]++;
+  });
 
   // Calculate Number of Portfolio Projects per Overall Situation
   const overallSituationCounts: StatusCounts = orgCreatedByUser.projects.reduce(
