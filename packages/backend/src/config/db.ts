@@ -156,7 +156,7 @@ function generatePrismaClient(datasourceUrl?: string) {
             (duration * settings.hours);
             averagesSumOfDuration += duration * settings.hours * 100;
           }
-          return (completionPecentageOrDuration / averagesSumOfDuration) * 100;
+          return (completionPecentageOrDuration / averagesSumOfDuration);
         },
         async calculationCPI(project: Project) {
           const progressionPercentage = await client.project.projectProgression(
