@@ -769,6 +769,15 @@ export const addDependencies = async (
   const { dependentType, dependendentOnTaskId } = dependenciesTaskSchema.parse(
     req.body
   );
+  const findDependencies = await prisma.taskDependencies.findFirst({
+    where: {
+      dependendentOnTaskId,
+      dependentTaskId: taskId,
+    },
+  });
+  if (findDependencies) {
+    throw new BadRequestError("Already have dependencies on this task!!");
+  }
   const addDependencies = await prisma.taskDependencies.create({
     data: {
       dependentType: dependentType,
