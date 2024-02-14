@@ -303,7 +303,6 @@ function KanbanView(
               columns={Columns}
               dataSource={dataSource}
               addNewButton
-              onColumnClick={() => setClosePopup(true)}
               className="!h-[92%] !w-full kanban"
               taskCustomFields={taskCustomFields}
               onTaskRender={onTaskRender}
