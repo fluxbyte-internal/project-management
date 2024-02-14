@@ -42,13 +42,20 @@ function TaskViews() {
   const { projectId } = useParams();
   const projectQuery = useProjectDetail(projectId);
   useEffect(() => {
-    if (projectQuery.data?.data.data) { 
+    if (projectQuery.data?.data.data) {
+      console.log(projectQuery.data.data.data.defaultView);
+      
       setViews(projectQuery.data.data.data.defaultView);
     }
   }, [projectQuery.data?.data.data]);
   useEffect(() => {
-    setViews(viewOption[0].value);
-  }, [projectQuery.status == "success", searchParams]);
+    if (searchParams.get("milestones")) {
+      setViews(viewOption[0].value);
+    }
+    if (searchParams.get("status")) {
+      setViews(viewOption[0].value);
+    }
+  }, [projectQuery.status == "success"]);
 
   return (
     <>
