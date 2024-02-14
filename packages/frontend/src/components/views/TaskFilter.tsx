@@ -14,6 +14,7 @@ import InputText from "@/components/common/InputText";
 import { Task } from "@/api/mutation/useTaskCreateMutation";
 import FilterIcon from "../../assets/svg/Filter.svg";
 import { FIELDS } from "@/api/types/enums";
+import FilterResetIcon from "@/assets/svg/FilterReset.svg";
 type Options = { label: string; value: string };
 
 type Filter = {
@@ -73,13 +74,23 @@ function TaskFilter(props: Filter) {
   const searchTask = (searchString: string) => {
     const tempData: Task[] = [];
     tasks?.forEach((element) => {
+      const searchStringLower = searchString.toLowerCase();
+      const searchStringUpper = searchString.toUpperCase();
+      const taskNameLower = element.taskName.toLowerCase();
+      const taskDescriptionLower = element.taskDescription.toLowerCase();
+      const taskNameUpper = element.taskName.toUpperCase();
+      const taskDescriptionUpper = element.taskDescription.toUpperCase();
+
       if (
-        element.taskName.search(searchString) >= 0 ||
-        element.taskDescription.search(searchString) >= 0
+        taskNameLower.includes(searchStringLower) ||
+        taskDescriptionLower.includes(searchStringLower) ||
+        taskNameUpper.includes(searchStringUpper) ||
+        taskDescriptionUpper.includes(searchStringUpper)
       ) {
         tempData.push(element);
       }
     });
+
     props.filteredData(tempData);
   };
 
@@ -123,7 +134,7 @@ function TaskFilter(props: Filter) {
       ({ taskId }) => !uniqueIds.has(taskId) && uniqueIds.add(taskId)
     );
   };
-
+  const [filterApplyed, setFilterApplyed] = useState(false);
   const ApplyFilter = () => {
     let filteredData: Task[] | undefined = tasks;
     if (filter && filter.flag && filter.flag.value) {
@@ -192,6 +203,7 @@ function TaskFilter(props: Filter) {
       (key) => filter[key as keyof FilterField]
     ).length;
     if (applyFilter !== 0 && filteredData) {
+      setFilterApplyed(true);
       filteredData = removeDuplicatesById(filteredData);
       props.filteredData(filteredData);
     } else {
@@ -200,7 +212,19 @@ function TaskFilter(props: Filter) {
 
     setPopOverCLose(false);
   };
-
+  const resetFilter = () => {
+    setFilterApplyed(false);
+    setFilter({
+      assigned: null,
+      tasks: null,
+      date: undefined,
+      dueSevenDays: false,
+      overdueDays: false,
+      todayDueDays: false,
+      flag: null,
+    });
+    props.filteredData(tasks);
+  };
   return (
     <div>
       <div className="flex w-full justify-between items-center gap-2">
@@ -314,8 +338,8 @@ function TaskFilter(props: Filter) {
                               <div className="flex justify-between text-base items-center w-full text-gray-950 font-normal">
                                 {filter.date
                                   ? `${dateFormater(
-                                    filter.date.from ?? new Date()
-                                  )}-
+                                      filter.date.from ?? new Date()
+                                    )}-
                           ${dateFormater(filter.date.to ?? new Date())}`
                                   : "Select start date"}
                                 <img src={CalendarSvg} width={20} />
@@ -423,6 +447,23 @@ function TaskFilter(props: Filter) {
                 </PopoverContent>
               </Popover>
             </div>
+            {filterApplyed && (
+              <div>
+                <Button
+                  size={"sm"}
+                  className="w-fit h-8 rounded px-2"
+                  variant={"outline"}
+                  onClick={resetFilter}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    Reset
+                    <div className="w-3 h-3">
+                      <img src={FilterResetIcon} />
+                    </div>
+                  </div>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>

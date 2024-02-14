@@ -220,7 +220,7 @@ function ProjectsList() {
       key: "progress",
       header: "Progress",
       onCellRender: (item: Project) => (
-        <PercentageCircle percentage={item.progressionPercentage} />
+        <PercentageCircle percentage={item.progressionPercentage ? Number(item.progressionPercentage) * 100 : 0} />
       ),
     },
     {
