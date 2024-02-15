@@ -333,6 +333,7 @@ model Task {
   deletedAt DateTime? @map("deleted_at")
 
   @@index([taskId, projectId])
+  @@unique([projectId, taskName])
 }
 
 model TaskAssignUsers {
