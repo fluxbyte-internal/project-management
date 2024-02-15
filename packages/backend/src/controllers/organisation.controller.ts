@@ -220,7 +220,7 @@ export const addOrganisationMember = async (
       You are invited in Organisation ${newUserOrg?.organisation?.organisationName}
       
       URL: ${settings.appURL}/login
-      EMAIL: ${newUser.email}
+      LOGIN: ${newUser.email}
       PASSWORD: ${randomPassword}
       `
       await EmailService.sendEmail(newUser.email, subjectMessage, bodyMessage);

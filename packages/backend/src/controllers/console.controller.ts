@@ -226,7 +226,7 @@ export const createOperator = async (
       You are invited in console
       
       URL: ${settings.adminURL}/login
-      EMAIL: ${newUser.email}
+      LOGIN: ${newUser.email}
       PASSWORD: ${randomPassword}
       `;
     await EmailService.sendEmail(newUser.email, subjectMessage, bodyMessage);
