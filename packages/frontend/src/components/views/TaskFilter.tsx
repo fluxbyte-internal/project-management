@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Select from "react-select";
 import {
@@ -16,6 +16,7 @@ import FilterIcon from "../../assets/svg/Filter.svg";
 import { FIELDS } from "@/api/types/enums";
 import FilterResetIcon from "@/assets/svg/FilterReset.svg";
 import { useSearchParams } from "react-router-dom";
+import { forwardRef, useImperativeHandle } from "react";
 type Options = { label: string; value: string };
 
 type Filter = {
@@ -23,8 +24,15 @@ type Filter = {
   fieldToShow: FIELDS[];
   filteredData: (data: Task[] | undefined) => void;
 };
-
-function TaskFilter(props: Filter) {
+export type TaskFilterRef = {
+  callFilter: () => void;
+}
+const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
+  useImperativeHandle(ref, () => ({
+    callFilter() {
+      ApplyFilter();
+    },
+  }));
   const { tasks, fieldToShow } = props;
   const [popOverCLose, setPopOverCLose] = useState(false);
   const [filter, setFilter] = useSearchParams();
@@ -55,11 +63,7 @@ function TaskFilter(props: Filter) {
     });
     return projectManagerData;
   };
-  useEffect(() => {
-    if (filter.size > 0 && tasks?.length) {
-      ApplyFilter();
-    }
-  }, [tasks]);
+
 
   const searchTask = (searchString: string) => {
     const tempData: Task[] = [];
@@ -87,7 +91,7 @@ function TaskFilter(props: Filter) {
   const reactSelectStyle = {
     control: (
       provided: Record<string, unknown>,
-      state: { isFocused: boolean }
+      state: { isFocused: boolean },
     ) => ({
       ...provided,
       border: "1px solid #E7E7E7",
@@ -121,13 +125,11 @@ function TaskFilter(props: Filter) {
   const removeDuplicatesById = (arr: Task[]) => {
     const uniqueIds = new Set();
     return arr.filter(
-      ({ taskId }) => !uniqueIds.has(taskId) && uniqueIds.add(taskId)
+      ({ taskId }) => !uniqueIds.has(taskId) && uniqueIds.add(taskId),
     );
   };
   const [filterApplyed, setFilterApplied] = useState(false);
   const ApplyFilter = () => {
-    console.log("call");
-
     let filteredData: Task[] | undefined = tasks;
     if (filter && Boolean(filter.get("flag"))) {
       filteredData = filteredData?.filter((d) => d.flag == filter?.get("flag"));
@@ -166,19 +168,19 @@ function TaskFilter(props: Filter) {
 
     if (filter && filter.get("dueSevenDays")) {
       filteredData = filteredData?.filter((data) =>
-        isDateSevenDays(data.endDate)
+        isDateSevenDays(data.endDate),
       );
     }
 
     if (filter && filter.get("overdueDays")) {
       filteredData = filteredData?.filter((data) =>
-        isOverDueDays(data.endDate)
+        isOverDueDays(data.endDate),
       );
     }
 
     if (filter && filter.get("todayDueDays")) {
       filteredData = filteredData?.filter((data) =>
-        isDueTodayDays(data.endDate)
+        isDueTodayDays(data.endDate),
       );
     }
 
@@ -208,6 +210,7 @@ function TaskFilter(props: Filter) {
       props.filteredData(filteredData);
     } else {
       props.filteredData(tasks);
+      setFilterApplied(false);
     }
 
     setPopOverCLose(false);
@@ -220,10 +223,9 @@ function TaskFilter(props: Filter) {
   const setParamFilter = (key: string, value: string) => {
     filter.set(key, value);
     setFilter(filter);
-
-    if (value == "undefined" && !value) {
-      console.log(key, value);
+    if ((value == "undefined" && !value) || value == "false") {
       filter.delete(key);
+      setFilter(filter);
     }
   };
 
@@ -291,7 +293,7 @@ function TaskFilter(props: Filter) {
                                 onChange={(e) =>
                                   setParamFilter(
                                     "dueSevenDays",
-                                    String(e.target.checked)
+                                    String(e.target.checked),
                                   )
                                 }
                                 className="sr-only peer"
@@ -317,7 +319,7 @@ function TaskFilter(props: Filter) {
                                 onChange={(e) =>
                                   setParamFilter(
                                     "overdueDays",
-                                    String(e.target.checked)
+                                    String(e.target.checked),
                                   )
                                 }
                                 className="sr-only peer"
@@ -343,7 +345,7 @@ function TaskFilter(props: Filter) {
                                 onChange={(e) =>
                                   setParamFilter(
                                     "todayDueDays",
-                                    String(e.target.checked)
+                                    String(e.target.checked),
                                   )
                                 }
                                 className="sr-only peer"
@@ -366,10 +368,12 @@ function TaskFilter(props: Filter) {
                                 {Boolean(filter.get("from")) &&
                                 Boolean(filter.get("to"))
                                   ? `${dateFormater(
-                                      new Date(filter.get("from") ?? new Date())
+                                      new Date(
+                                        filter.get("from") ?? new Date(),
+                                      ),
                                     )}-
                           ${dateFormater(
-                            new Date(filter.get("to") ?? new Date())
+                            new Date(filter.get("to") ?? new Date()),
                           )}`
                                   : "Select start date"}
                                 <img src={CalendarSvg} width={20} />
@@ -518,6 +522,6 @@ function TaskFilter(props: Filter) {
       </div>
     </div>
   );
-}
+});
 
 export default TaskFilter;

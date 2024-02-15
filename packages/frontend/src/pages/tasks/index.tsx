@@ -5,7 +5,7 @@ import Table, { ColumeDef } from "@/components/shared/Table";
 import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
 import { Button } from "@/components/ui/button";
 import dateFormater from "@/helperFuntions/dateFormater";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import NoTask from "./NoTask";
 import Dialog from "@/components/common/Dialog";
@@ -24,7 +24,7 @@ import { Settings } from "lucide-react";
 import DimondIcon from "../../assets/svg/DiamondIcon.svg";
 import DownArrowIcon from "../../assets/svg/DownArrow.svg";
 import UserAvatar from "@/components/ui/userAvatar";
-import TaskFilter from "@/components/views/TaskFilter";
+import TaskFilter, { TaskFilterRef } from "@/components/views/TaskFilter";
 import { FIELDS } from "@/api/types/enums";
 function Tasks() {
   const [taskData, setTaskData] = useState<Task[]>();
@@ -196,13 +196,13 @@ function Tasks() {
       ),
     },
   ];
-
+  const filterRef = useRef<TaskFilterRef | null>(null);
   useEffect(() => {
     if (allTaskQuery.data?.data.data) {
       setTaskData(setData(allTaskQuery.data?.data.data));
       setFilterData(setData(allTaskQuery.data?.data.data));
     }
-   
+    filterRef.current?.callFilter()
   }, [allTaskQuery.data?.data.data]);
 
   useEffect(() => {
@@ -322,6 +322,7 @@ function Tasks() {
                   FIELDS.OVERDUEDAYS,
                   FIELDS.TODAYDUEDAYS,
                 ]}
+                ref={filterRef}
                 filteredData={(data) => setFilterData(setData(data))}
                 tasks={taskData}
               />
