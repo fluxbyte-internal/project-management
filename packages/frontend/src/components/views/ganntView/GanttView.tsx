@@ -420,7 +420,7 @@ function GanttView() {
         treeSize={treeSize}
         durationUnit={durationUnit}
         nonworkingDays={HandleNonWorkingDays()}
-        monthScale="day"
+        monthScale="week"
         dayFormat="short"
         weekFormat="long"
         disableSelection
