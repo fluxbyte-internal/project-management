@@ -66,17 +66,27 @@ function TaskHistory(props: { task: Task | undefined }) {
                 <UserAvatar user={history.createdByUser} />
                 <div>
                   <div className="flex flex-col">
-                    <p className="text-sm font-semibold w-full flex gap-2 items-center">
-                      {history.createdByUser.firstName &&
-                      history.createdByUser.lastName
-                        ? history.createdByUser.firstName +
-                          " " +
-                          history.createdByUser.lastName
-                        : history.createdByUser.email}
-                      <p className="text-gray-400 text-xs">
-                        {calculateTimeDifference(new Date(history.createdAt))}
+                    <div className="flex w-full flex gap-2 items-center">
+                      <p
+                        className={`text-sm font-semibold ${
+                          history.createdByUser.deletedAt
+                            ? "line-through decoration-pink-500"
+                            : ""
+                        }`}
+                      >
+                        {history.createdByUser.firstName &&
+                        history.createdByUser.lastName
+                          ? history.createdByUser.firstName +
+                            " " +
+                            history.createdByUser.lastName
+                          : history.createdByUser.email}
                       </p>
-                    </p>
+                      <p className="text-gray-400 text-xs">
+                        {calculateTimeDifference(new Date(history.createdAt))}{" "}
+                        {history.createdByUser.deletedAt ? "(Deleted)" : ""}
+                      </p>
+                    </div>
+
                     <p className="text-xs text-gray-400 font-semibold w-full">
                       {messageCreate(history)}
                     </p>

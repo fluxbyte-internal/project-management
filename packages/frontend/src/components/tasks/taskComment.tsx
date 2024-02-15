@@ -148,18 +148,16 @@ function TaskComment(props: Props) {
                 </div>
                 <div className="flex flex-col gap-1 w-full">
                   <div className="flex items-center gap-2">
-                    <div className="text-sm font-semibold">
+                    <div className={`text-sm font-semibold ${comment.commentByUser.deletedAt ? "!line-through !decoration-pink-500" : ''}`}>
                       {comment.commentByUser.firstName &&
                       comment.commentByUser.lastName
                         ? comment.commentByUser.firstName +
                           " " +
                           comment.commentByUser.lastName
                         : comment.commentByUser.email}
-
-                      {}
                     </div>
                     <div className="text-xs text-gray-400">
-                      {calculateTimeDifference(new Date(comment.createdAt))}
+                      {calculateTimeDifference(new Date(comment.createdAt))} {comment.commentByUser.deletedAt ?" (Deleted)":''}
                     </div>
                   </div>
 

@@ -21,6 +21,7 @@ export type UserOrganisationType = {
     firstName?: string;
     lastName?: string;
     avatarImg?: string;
+    deletedAt?:string
   };
 };
 
