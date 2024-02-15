@@ -1,30 +1,30 @@
-import FormLabel from "@/components/common/FormLabel";
-import InputText from "@/components/common/InputText";
-import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import { useFormik } from "formik";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import z from "zod";
-import InputNumber from "@/components/common/InputNumber";
+import { useEffect, useState } from 'react';
+import { useFormik } from 'formik';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
+import z from 'zod';
+import { updateKanbanSchema } from '@backend/src/schemas/projectSchema';
+import { toast } from 'react-toastify';
+import { useParams } from 'react-router-dom';
+import ThreeDoteIcon from '../../../../assets/svg/ThreeDotsVertical.svg';
+import TrashCan from '../../../../assets/svg/TrashCan.svg';
+import EditPen from '../../../../assets/svg/EditPen.svg';
+import RulesForm from './rulesForm';
+import FormLabel from '@/components/common/FormLabel';
+import InputText from '@/components/common/InputText';
+import { Button } from '@/components/ui/button';
+import InputNumber from '@/components/common/InputNumber';
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuSeparator,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import ThreeDoteIcon from "../../../../assets/svg/ThreeDotsVertical.svg";
-import TrashCan from "../../../../assets/svg/TrashCan.svg";
-import EditPen from "../../../../assets/svg/EditPen.svg";
-import { updateKanbanSchema } from "@backend/src/schemas/projectSchema";
-import { KanbanColumnType } from "@/api/mutation/useKanbanCreateColumn";
-import { toast } from "react-toastify";
-import { useParams } from "react-router-dom";
-import useAllKanbanColumnQuery from "@/api/query/useAllKanbanColumn";
-import Dialog from "@/components/common/Dialog";
-import useRemoveKanbanColumnsMutation from "@/api/mutation/useKanbanColumnRemove";
-import useKanbanUpdateColumnMutation from "@/api/mutation/useKanbanUpdateColumn";
-import RulesForm from "./rulesForm";
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { KanbanColumnType } from '@/api/mutation/useKanbanCreateColumn';
+import useAllKanbanColumnQuery from '@/api/query/useAllKanbanColumn';
+import Dialog from '@/components/common/Dialog';
+import useRemoveKanbanColumnsMutation from '@/api/mutation/useKanbanColumnRemove';
+import useKanbanUpdateColumnMutation from '@/api/mutation/useKanbanUpdateColumn';
 
 type Props = {
   setColumes: (column: KanbanColumnType[]) => void;
@@ -43,29 +43,29 @@ function RulesSetups(props: Props) {
     z.infer<typeof updateKanbanSchema>
   >({
     initialValues: {
-      name: ruleEditData?.name || "",
+      name: ruleEditData?.name || '',
       percentage: ruleEditData?.percentage || 0,
     },
-    validationSchema: toFormikValidationSchema(updateKanbanSchema),
     onSubmit: (values) => {
       const data = {
         ...values,
         id: ruleEditData?.kanbanColumnId,
       };
       kanbanUpdateColumnMutation.mutate(data, {
+        onError(err) {
+          toast.error(err.response?.data.message);
+        },
         onSuccess() {
           updateKanbanColumnFormik.setValues({
-            name: "",
+            name: '',
             percentage: 0,
           });
           setRuleEditData(undefined);
           allKanbanColumn.refetch();
         },
-        onError(err) {
-          toast.error(err.response?.data.message);
-        },
       });
     },
+    validationSchema: toFormikValidationSchema(updateKanbanSchema),
   });
   const handleEdit = (data: KanbanColumnType) => {
     setRuleEditData(data);
@@ -81,7 +81,7 @@ function RulesSetups(props: Props) {
     if (allKanbanColumn.data?.data.data) {
       if (allKanbanColumn.data?.data.data.length > 0) {
         allKanbanColumn.data?.data.data.sort(
-          (a, b) => (a.percentage ?? 0) - (b.percentage ?? 0)
+          (a, b) => (a.percentage ?? 0) - (b.percentage ?? 0),
         );
       }
 
@@ -92,12 +92,12 @@ function RulesSetups(props: Props) {
 
   const remove = () => {
     removeKanbanColumnsMutation.mutate(String(ruleRemoveId), {
-      onSuccess() {
-        setRuleRemoveId("");
-        allKanbanColumn.refetch();
-      },
       onError(err) {
         toast.error(err.response?.data.message);
+      },
+      onSuccess() {
+        setRuleRemoveId('');
+        allKanbanColumn.refetch();
       },
     });
   };
@@ -154,7 +154,7 @@ function RulesSetups(props: Props) {
                         ruleEditData?.kanbanColumnId !== r.kanbanColumnId
                       }
                       value={
-                        ruleEditData?.kanbanColumnId == r.kanbanColumnId
+                        ruleEditData?.kanbanColumnId === r.kanbanColumnId
                           ? updateKanbanColumnFormik.values.name
                           : r.name
                       }
@@ -172,7 +172,7 @@ function RulesSetups(props: Props) {
                         ruleEditData?.kanbanColumnId !== r.kanbanColumnId
                       }
                       value={
-                        ruleEditData?.kanbanColumnId == r.kanbanColumnId
+                        ruleEditData?.kanbanColumnId === r.kanbanColumnId
                           ? updateKanbanColumnFormik.values.percentage
                           : r.percentage ?? 0
                       }
@@ -183,11 +183,11 @@ function RulesSetups(props: Props) {
                       onChange={updateKanbanColumnFormik.handleChange}
                     />
                   </div>
-                  {ruleEditData?.kanbanColumnId == r.kanbanColumnId && (
+                  {ruleEditData?.kanbanColumnId === r.kanbanColumnId && (
                     <div className="flex justify-between mt-3">
                       <Button
-                        variant={"outline"}
-                        size={"sm"}
+                        variant={'outline'}
+                        size={'sm'}
                         onClick={() => setRuleEditData(undefined)}
                       >
                         Cancel
@@ -196,8 +196,8 @@ function RulesSetups(props: Props) {
                         onClick={() => {
                           updateKanbanColumnFormik.submitForm();
                         }}
-                        variant={"primary_outline"}
-                        size={"sm"}
+                        variant={'primary_outline'}
+                        size={'sm'}
                       >
                         Update
                       </Button>
@@ -207,7 +207,7 @@ function RulesSetups(props: Props) {
               );
             })}
             <RulesForm
-              projectId={projectId ?? ""}
+              projectId={projectId ?? ''}
               refetch={() => allKanbanColumn.refetch()}
               rules={rules}
             />
@@ -217,7 +217,7 @@ function RulesSetups(props: Props) {
           <Button
             onClick={() => close()}
             disabled={rules.length <= 0}
-            variant={"primary"}
+            variant={'primary'}
           >
             Go To Kanban
           </Button>
@@ -233,14 +233,14 @@ function RulesSetups(props: Props) {
           to delete ?
           <div className="flex gap-2 ml-auto">
             <Button
-              variant={"outline"}
+              variant={'outline'}
               isLoading={removeKanbanColumnsMutation.isPending}
               disabled={removeKanbanColumnsMutation.isPending}
-              onClick={() => setRuleRemoveId("")}
+              onClick={() => setRuleRemoveId('')}
             >
               Cancel
             </Button>
-            <Button variant={"primary"} onClick={remove}>
+            <Button variant={'primary'} onClick={remove}>
               Delete
             </Button>
           </div>

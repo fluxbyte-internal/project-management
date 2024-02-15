@@ -1,32 +1,32 @@
-import { Button } from "@/components/ui/button";
-import { useUser } from "@/hooks/useUser";
-import { useFormik } from "formik";
+import { useFormik } from 'formik';
 import {
   TaskColorPaletteEnum,
   userOrgSettingsUpdateSchema,
   userUpdateSchema,
-} from "@backend/src/schemas/userSchema";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import { z } from "zod";
-import ErrorMessage from "@/components/common/ErrorMessage";
-import { useEffect, useRef, useState } from "react";
-import { SingleValue } from "react-select";
-import countries from "@/assets/json/countries.json";
-import useUserProfileUpdateMutation from "@/api/mutation/useUserProfileUpdateMutation";
-import { isAxiosError } from "axios";
-import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
-import FormLabel from "@/components/common/FormLabel";
-import InputText from "@/components/common/InputText";
-import InputSelect from "@/components/common/InputSelect";
+} from '@backend/src/schemas/userSchema';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
+import { z } from 'zod';
+import { useEffect, useRef, useState } from 'react';
+import { SingleValue } from 'react-select';
+import { isAxiosError } from 'axios';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import BackArrow from '../../assets/svg/Arrow.svg';
+import { Button } from '@/components/ui/button';
+import { useUser } from '@/hooks/useUser';
+import ErrorMessage from '@/components/common/ErrorMessage';
+import countries from '@/assets/json/countries.json';
+import useUserProfileUpdateMutation from '@/api/mutation/useUserProfileUpdateMutation';
+import useCurrentUserQuery from '@/api/query/useCurrentUserQuery';
+import FormLabel from '@/components/common/FormLabel';
+import InputText from '@/components/common/InputText';
+import InputSelect from '@/components/common/InputSelect';
 // import UserOrganisationCard from "./UserOrganisationCard";
-import { NavLink, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import useFileUploadMutation from "@/api/mutation/useFileUploadMutation";
-import Spinner from "@/components/ui/spinner";
-import UserAvatar from "@/components/ui/userAvatar";
-import ChangePassword from "@/components/changePassword/ChangePassword";
-import useOrgSettingsUpdateMutation from "@/api/mutation/useOrgSettingsUpdateMutation";
-import BackArrow from "../../assets/svg/Arrow.svg";
+import useFileUploadMutation from '@/api/mutation/useFileUploadMutation';
+import Spinner from '@/components/ui/spinner';
+import UserAvatar from '@/components/ui/userAvatar';
+import ChangePassword from '@/components/changePassword/ChangePassword';
+import useOrgSettingsUpdateMutation from '@/api/mutation/useOrgSettingsUpdateMutation';
 
 const countryOptions = countries.map((item) => {
   return { label: item.name, value: item.isoCode };
@@ -49,26 +49,19 @@ function AccountSettings() {
   const avatarImg = useRef<HTMLInputElement>(null);
   const useFileUpload = useFileUploadMutation();
   const orgSettingsUpdateMutation = useOrgSettingsUpdateMutation(
-    user?.userOrganisation[0]?.userOrganisationId ?? ""
+    user?.userOrganisation[0]?.userOrganisationId ?? '',
   );
   const navigate = useNavigate();
 
-
   const userProfileForm = useFormik<z.infer<typeof userUpdateSchema>>({
     initialValues: {
-      firstName: user?.firstName ?? "",
-      lastName: user?.lastName ?? "",
-      country: user?.country ?? "",
+      country: user?.country ?? '',
+      firstName: user?.firstName ?? '',
+      lastName: user?.lastName ?? '',
     },
-    validationSchema: toFormikValidationSchema(userUpdateSchema),
     onSubmit: (values, helper) => {
       setIsUserProfileSubmitting(true);
       userProfileUpdateMutation.mutate(values, {
-        onSuccess(data) {
-          toast.success(data.data.message);
-          setIsUserProfileSubmitting(false);
-          refetchUser();
-        },
         onError(error) {
           if (isAxiosError(error)) {
             if (
@@ -82,32 +75,33 @@ function AccountSettings() {
             }
             if (!Array.isArray(error.response?.data.errors)) {
               toast.error(
-                error.response?.data?.message ?? "An unexpected error occurred."
+                error.response?.data?.message ??
+                  'An unexpected error occurred.',
               );
             }
           }
           setIsUserProfileSubmitting(false);
         },
+        onSuccess(data) {
+          toast.success(data.data.message);
+          setIsUserProfileSubmitting(false);
+          refetchUser();
+        },
       });
     },
+    validationSchema: toFormikValidationSchema(userUpdateSchema),
   });
   const userOrgSettingForm = useFormik<
     z.infer<typeof userOrgSettingsUpdateSchema>
   >({
     initialValues: {
-      jobTitle: user?.userOrganisation[0]?.jobTitle ?? "",
+      jobTitle: user?.userOrganisation[0]?.jobTitle ?? '',
       taskColour:
         user?.userOrganisation[0]?.taskColour ?? TaskColorPaletteEnum.BLACK,
     },
-    validationSchema: toFormikValidationSchema(userOrgSettingsUpdateSchema),
     onSubmit: (values, helper) => {
       setIsJobTitleSubmitting(true);
       orgSettingsUpdateMutation.mutate(values, {
-        onSuccess(data) {
-          toast.success(data.data.message);
-          setIsJobTitleSubmitting(false);
-          refetchUser();
-        },
         onError(error) {
           if (isAxiosError(error)) {
             if (
@@ -121,14 +115,21 @@ function AccountSettings() {
             }
             if (!Array.isArray(error.response?.data.errors)) {
               toast.error(
-                error.response?.data?.message ?? "An unexpected error occurred."
+                error.response?.data?.message ??
+                  'An unexpected error occurred.',
               );
             }
           }
           setIsJobTitleSubmitting(false);
         },
+        onSuccess(data) {
+          toast.success(data.data.message);
+          setIsJobTitleSubmitting(false);
+          refetchUser();
+        },
       });
     },
+    validationSchema: toFormikValidationSchema(userOrgSettingsUpdateSchema),
   });
   useEffect(() => {
     setCountryValue(countryOptions.find((c) => c.value === user?.country));
@@ -148,8 +149,21 @@ function AccountSettings() {
     if (image) {
       setFileUploading(true);
       const formdata = new FormData();
-      formdata.append("avatarImg", image);
+      formdata.append('avatarImg', image);
       useFileUpload.mutate(formdata, {
+        onError(error) {
+          if (Array.isArray(error.response?.data.errors)) {
+            toast.error(
+              error.response?.data.errors[0].message ??
+                'An unexpected error occurred.',
+            );
+          } else {
+            toast.error(
+              error.response?.data?.message ?? 'An unexpected error occurred.',
+            );
+          }
+          setFileUploading(false);
+        },
         onSuccess() {
           refetchUser()
             .then(() => {
@@ -158,19 +172,6 @@ function AccountSettings() {
             .catch(() => {
               setFileUploading(false);
             });
-        },
-        onError(error) {
-          if (Array.isArray(error.response?.data.errors)) {
-            toast.error(
-              error.response?.data.errors[0].message ??
-                "An unexpected error occurred."
-            );
-          } else {
-            toast.error(
-              error.response?.data?.message ?? "An unexpected error occurred."
-            );
-          }
-          setFileUploading(false);
         },
       });
     }
@@ -197,7 +198,7 @@ function AccountSettings() {
       <div className="max-w-5xl mx-auto p-4 pb-5">
         <div className="text-gray-600 text-lg font-bold mb-4 flex justify-start items-center gap-1">
           <div className="">
-            <Button variant={"none"} onClick={() => navigate(-1)}>
+            <Button variant={'none'} onClick={() => navigate(-1)}>
               <img src={BackArrow} className="" />
             </Button>
           </div>
@@ -213,7 +214,10 @@ function AccountSettings() {
                       <Spinner className="h-10 w-36" color="#F99807"></Spinner>
                     </div>
                   ) : (
-                    <img src={user.avatarImg} className="rounded-full m-auto h-full w-full object-fill" />
+                    <img
+                      src={user.avatarImg}
+                      className="rounded-full m-auto h-full w-full object-fill"
+                    />
                   )}
                 </div>
               ) : (
@@ -223,7 +227,11 @@ function AccountSettings() {
                       <Spinner className="h-10 w-36" color="#F99807"></Spinner>
                     </div>
                   ) : (
-                    <UserAvatar className="w-full h-full" fontClass="!text-7xl" user={user}></UserAvatar>
+                    <UserAvatar
+                      className="w-full h-full"
+                      fontClass="!text-7xl"
+                      user={user}
+                    ></UserAvatar>
                   )}
                 </div>
               )}
@@ -237,7 +245,7 @@ function AccountSettings() {
               type="file"
               name="avatarImg"
               id=""
-              style={{ display: "none" }}
+              style={{ display: 'none' }}
             />
             <div className="w-[80%] flex flex-col gap-5">
               <Button
@@ -245,9 +253,9 @@ function AccountSettings() {
                 className="transition ease-in-out duration-150 h-auto px-2 py-1 w-[1/2]"
                 onClick={() => avatarImg.current?.click()}
               >
-                {user.avatarImg ? "Change Profile Photo" : "Add Profile Photo"}
+                {user.avatarImg ? 'Change Profile Photo' : 'Add Profile Photo'}
               </Button>
-              {user.provider?.providerType === "EMAIL" && (
+              {user.provider?.providerType === 'EMAIL' && (
                 <Button
                   variant="primary_outline"
                   className="transition ease-in-out duration-150 h-auto px-2 py-1 w-[1/2]"
@@ -305,7 +313,7 @@ function AccountSettings() {
                           val as (typeof countryOptions)[number];
                         const countryValue = selectedCountry?.value;
                         setCountryValue(selectedCountry);
-                        userProfileForm.setFieldValue("country", countryValue);
+                        userProfileForm.setFieldValue('country', countryValue);
                       }
                     }}
                     onBlur={userProfileForm.handleBlur}
@@ -336,26 +344,28 @@ function AccountSettings() {
                   </div>
                 </div>
               </div>
-              {user?.userOrganisation[0]?.organisationId&& <div>
-                <FormLabel htmlFor="jobTitle">Job Title</FormLabel>
-                <InputText
-                  name="jobTitle"
-                  id="jobTitle"
-                  placeholder="Enter your job title"
-                  value={userOrgSettingForm.values.jobTitle}
-                  onChange={userOrgSettingForm.handleChange}
-                />
+              {user?.userOrganisation[0]?.organisationId && (
                 <div>
-                  <ErrorMessage>
-                    {userOrgSettingForm.touched.jobTitle &&
-                      userOrgSettingForm.errors.jobTitle}
-                  </ErrorMessage>
+                  <FormLabel htmlFor="jobTitle">Job Title</FormLabel>
+                  <InputText
+                    name="jobTitle"
+                    id="jobTitle"
+                    placeholder="Enter your job title"
+                    value={userOrgSettingForm.values.jobTitle}
+                    onChange={userOrgSettingForm.handleChange}
+                  />
+                  <div>
+                    <ErrorMessage>
+                      {userOrgSettingForm.touched.jobTitle &&
+                        userOrgSettingForm.errors.jobTitle}
+                    </ErrorMessage>
+                  </div>
                 </div>
-              </div>}
+              )}
               <div className="flex items-center @2xl:col-span-2 my-4">
                 <Button
                   isLoading={isUserProfileSubmitting || isJobTitleSubmitting}
-                  variant={"primary"}
+                  variant={'primary'}
                   className="w-auto ml-auto"
                   disabled={
                     isUserProfileSubmitting ||
@@ -385,7 +395,7 @@ function AccountSettings() {
               ))} */}
 
               {user.userOrganisation.length === 0 && (
-                <NavLink to={"/"}>
+                <NavLink to={'/'}>
                   <div className="text-center text-lg border text-gray-800 border-gray-800 rounded-md py-5 px-2">
                     You Don’t have any organisation
                   </div>

@@ -1,41 +1,41 @@
-import { Button } from "../ui/button";
-import { useFormik } from "formik";
-import kanaban from "../../assets/svg/KanbanView.svg";
-import gantt from "../../assets/svg/Gantt.svg";
-import calendar from "../../assets/svg/Calendar.svg";
-import list from "../../assets/svg/List.svg";
-import InfoCircle from "../../assets/svg/Info circle.svg";
-import { useEffect, useState } from "react";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import { updateProjectSchema } from "@backend/src/schemas/projectSchema";
-import { z } from "zod";
-import { isAxiosError } from "axios";
-import useProjectQuery, { Project } from "@/api/query/useProjectQuery";
-import useProjectUpdateMutation from "@/api/mutation/useProjectUpdateMutation";
-import {
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "../ui/tooltip";
-import { toast } from "react-toastify";
-import countries from "../../assets/json/countries.json";
-import Select, { SingleValue } from "react-select";
-import ErrorMessage from "../common/ErrorMessage";
+import { useFormik } from 'formik';
+import { useEffect, useState } from 'react';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
+import { updateProjectSchema } from '@backend/src/schemas/projectSchema';
+import { z } from 'zod';
+import { isAxiosError } from 'axios';
+import { toast } from 'react-toastify';
+import Select, { SingleValue } from 'react-select';
 import {
   OverAllTrackEnumValue,
   ProjectStatusEnumValue,
   ScheduleAndBudgetTrend,
-} from "@backend/src/schemas/enums";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import UsersIcon from "@/assets/svg/Users.svg";
-import UserAvatar from "../ui/userAvatar";
-import useProjectMemberListQuery from "@/api/query/useAllUserOfOrganition";
-import { CheckIcon } from "lucide-react";
-import useProjectAddMembersMutation from "@/api/mutation/useAddMemberProject";
-import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
-import { cn } from "@/lib/utils";
-import useRemoveProjectMemberMutation from "@/api/mutation/useRemoveMemberProject";
+} from '@backend/src/schemas/enums';
+import { CheckIcon } from 'lucide-react';
+import { Button } from '../ui/button';
+import kanaban from '../../assets/svg/KanbanView.svg';
+import gantt from '../../assets/svg/Gantt.svg';
+import calendar from '../../assets/svg/Calendar.svg';
+import list from '../../assets/svg/List.svg';
+import InfoCircle from '../../assets/svg/Info circle.svg';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../ui/tooltip';
+import countries from '../../assets/json/countries.json';
+import ErrorMessage from '../common/ErrorMessage';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import UserAvatar from '../ui/userAvatar';
+import useProjectQuery, { Project } from '@/api/query/useProjectQuery';
+import useProjectUpdateMutation from '@/api/mutation/useProjectUpdateMutation';
+import UsersIcon from '@/assets/svg/Users.svg';
+import useProjectMemberListQuery from '@/api/query/useAllUserOfOrganition';
+import useProjectAddMembersMutation from '@/api/mutation/useAddMemberProject';
+import { UserOrganisationType } from '@/api/query/useOrganisationDetailsQuery';
+import { cn } from '@/lib/utils';
+import useRemoveProjectMemberMutation from '@/api/mutation/useRemoveMemberProject';
 
 type Options = { label: string; value: string };
 
@@ -47,28 +47,28 @@ type AddProjectType = {
 
 const RADIO_BUTTON_OPTIONS = [
   {
+    description: 'Unlock the Power of Visual Project Management with Kanban',
     id: 1,
-    title: "Kanban",
-    description: "Unlock the Power of Visual Project Management with Kanban",
     img: kanaban,
+    title: 'Kanban',
   },
   {
+    description: 'Track Milestones and Deadlines with Gantt Charts',
     id: 2,
-    title: "Gantt",
-    description: "Track Milestones and Deadlines with Gantt Charts",
     img: gantt,
+    title: 'Gantt',
   },
   {
+    description: 'Master Your Daily, Weekly, and Monthly Planning',
     id: 3,
-    title: "Calendar",
-    description: "Master Your Daily, Weekly, and Monthly Planning",
     img: calendar,
+    title: 'Calendar',
   },
   {
+    description: 'Never Miss a Detail with Comprehensive List Management',
     id: 4,
-    title: "List",
-    description: "Never Miss a Detail with Comprehensive List Management",
     img: list,
+    title: 'List',
   },
 ];
 
@@ -76,46 +76,39 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
   const projectMemberListQuery = useProjectMemberListQuery();
   const { editData, refetch, viewOnly } = props;
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const errorStyle = "text-red-400 block text-sm h-1";
-  const labelStyle = "font-medium text-base text-gray-700 ";
+  const errorStyle = 'text-red-400 block text-sm h-1';
+  const labelStyle = 'font-medium text-base text-gray-700 ';
   const inputStyle =
-    "py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[46px]";
+    'py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[46px]';
   const projectUpdateMutation = useProjectUpdateMutation(
-    editData ? editData.projectId : ""
+    editData ? editData.projectId : '',
   );
   const [currencyValue, setCurrencyValue] = useState<SingleValue<Options>>();
 
   const projectQuery = useProjectQuery();
   const projectAddMembersMutation = useProjectAddMembersMutation(
-    editData?.projectId
+    editData?.projectId,
   );
   const removeProjectMemberMutation = useRemoveProjectMemberMutation();
 
   const formik = useFormik<z.infer<typeof updateProjectSchema>>({
     initialValues: {
-      projectName: "",
-      projectDescription: "",
-      startDate: "" as unknown as Date,
-      estimatedEndDate: "" as unknown as Date,
-      estimatedBudget: "",
-      defaultView: "KANBAN",
-      currency: "USD",
-      status: "NOT_STARTED",
-      overallTrack: "SUNNY",
-      scheduleTrend: "STABLE",
-      budgetTrend: "STABLE",
-      consumedBudget:'',
+      budgetTrend: 'STABLE',
+      consumedBudget: '',
+      currency: 'USD',
+      defaultView: 'KANBAN',
+      estimatedBudget: '',
+      estimatedEndDate: '' as unknown as Date,
+      overallTrack: 'SUNNY',
+      projectDescription: '',
+      projectName: '',
+      scheduleTrend: 'STABLE',
+      startDate: '' as unknown as Date,
+      status: 'NOT_STARTED',
     },
-    validationSchema: toFormikValidationSchema(updateProjectSchema),
     onSubmit: (values, helper) => {
       if (editData && editData.projectId) {
         projectUpdateMutation.mutate(values, {
-          onSuccess(data) {
-            projectQuery.refetch();
-            refetch();
-            setIsSubmitting(false);
-            toast.success(data.data.message);
-          },
           onError(error) {
             setIsSubmitting(false);
             if (isAxiosError(error)) {
@@ -131,14 +124,21 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
               if (!Array.isArray(error.response?.data.errors)) {
                 toast.error(
                   error.response?.data?.message ??
-                    "An unexpected error occurred."
+                    'An unexpected error occurred.',
                 );
               }
             }
           },
+          onSuccess(data) {
+            projectQuery.refetch();
+            refetch();
+            setIsSubmitting(false);
+            toast.success(data.data.message);
+          },
         });
       }
     },
+    validationSchema: toFormikValidationSchema(updateProjectSchema),
   });
 
   useEffect(() => {
@@ -149,24 +149,24 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
         const month = date.getMonth() + 1;
         const day = date.getDate();
 
-        return `${year}-${month.toString().padStart(2, "0")}-${day
+        return `${year}-${month.toString().padStart(2, '0')}-${day
           .toString()
-          .padStart(2, "0")}`;
+          .padStart(2, '0')}`;
       };
       formik.setValues({
-        startDate: formatDate(editData.startDate) as unknown as Date,
-        estimatedEndDate: formatDate(
-          editData.estimatedEndDate
-        ) as unknown as Date,
+        budgetTrend: editData.budgetTrend,
+        consumedBudget: editData.consumedBudget,
+        currency: editData.currency,
+        defaultView: editData.defaultView,
         estimatedBudget: editData.estimatedBudget,
+        estimatedEndDate: formatDate(
+          editData.estimatedEndDate,
+        ) as unknown as Date,
+        overallTrack: editData.overallTrack,
         projectDescription: editData.projectDescription,
         projectName: editData.projectName,
-        defaultView: editData.defaultView,
-        currency: editData.currency,
-        overallTrack: editData.overallTrack,
         scheduleTrend: editData.scheduleTrend,
-        budgetTrend: editData.budgetTrend,
-        consumedBudget:editData.consumedBudget,
+        startDate: formatDate(editData.startDate) as unknown as Date,
       });
       setCurrencyValue({ label: editData.currency, value: editData.currency });
     }
@@ -182,23 +182,23 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
   const reactSelectStyle = {
     control: (
       provided: Record<string, unknown>,
-      state: { isFocused: boolean }
+      state: { isFocused: boolean },
     ) => ({
       ...provided,
-      border: "1px solid #E7E7E7",
-      outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
-      boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
-      "&:hover": {
-        outline: state.isFocused ? "1px solid #943B0C" : "1px solid #E7E7E7",
-        boxShadow: "0px 0px 0px #943B0C",
+      '&:hover': {
+        boxShadow: '0px 0px 0px #943B0C',
+        outline: state.isFocused ? '1px solid #943B0C' : '1px solid #E7E7E7',
       },
+      border: '1px solid #E7E7E7',
+      boxShadow: state.isFocused ? '0px 0px 0px #943B0C' : 'none',
+      outline: state.isFocused ? '2px solid #943B0C' : '0px solid #E7E7E7',
     }),
   };
 
   const handleCurrency = (val: SingleValue<Options>) => {
     if (val) {
       setCurrencyValue(val);
-      formik.setFieldValue("currency", val.value);
+      formik.setFieldValue('currency', val.value);
     }
   };
 
@@ -207,26 +207,26 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
       projectAddMembersMutation.mutate(
         { assginedToUserId: user.user.userId },
         {
+          onError(error) {
+            toast.error(error.response?.data.message);
+          },
           onSuccess(data) {
             refetch();
             toast.success(data.data.message);
           },
-          onError(error) {
-            toast.error(error.response?.data.message);
-          },
-        }
+        },
       );
     }
   };
 
   const removeMembers = (id: string) => {
     removeProjectMemberMutation.mutate(id, {
+      onError(error) {
+        toast.error(error.response?.data.message);
+      },
       onSuccess(data) {
         refetch();
         toast.success(data.data.message);
-      },
-      onError(error) {
-        toast.error(error.response?.data.message);
       },
     });
   };
@@ -324,7 +324,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                     placeholder="Placeholder"
                     value={
                       (formik.values.estimatedEndDate as unknown as string) ??
-                      ""
+                      ''
                     }
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -345,7 +345,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                     onBlur={() => formik.setTouched({ currency: true })}
                     options={currencyFn()}
                     value={currencyValue}
-                    defaultValue={{ label: "USD", value: "USD" }}
+                    defaultValue={{ label: 'USD', value: 'USD' }}
                     placeholder="Currency"
                     name="currency"
                     menuPlacement="auto"
@@ -364,7 +364,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                     name="estimatedBudget"
                     placeholder="Estimated budget"
                     className={inputStyle}
-                    value={formik.values.estimatedBudget ?? ""}
+                    value={formik.values.estimatedBudget ?? ''}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                   />
@@ -386,8 +386,8 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                     className={`h-full w-full rounded-[5px] border ${
                       formik.values.defaultView ===
                       radioButton.title.toUpperCase()
-                        ? " border-2 border-primary-800 "
-                        : " border-gray-100"
+                        ? ' border-2 border-primary-800 '
+                        : ' border-gray-100'
                     }`}
                   >
                     <label className="flex lg:gap-3.5 gap-4 px-5 py-2.5 items-center h-full cursor-pointer">
@@ -434,7 +434,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
               <Popover>
                 <PopoverTrigger className="w-full" disabled={viewOnly}>
                   <Button
-                    variant={"secondary"}
+                    variant={'secondary'}
                     type="button"
                     className="py-1.5 px-3 flex w-full gap-3 justify-start"
                   >
@@ -453,26 +453,26 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                       {projectMemberListQuery.data?.data.data.map(
                         (data, index) => {
                           return (
-                            data.role === "PROJECT_MANAGER" && (
+                            data.role === 'PROJECT_MANAGER' && (
                               <div
                                 key={index}
                                 className={`flex items-center p-1 my-1 gap-4 hover:bg-slate-100 rounded-md ${
                                   editData?.assignedUsers.some(
-                                    (u) => u.user.userId == data.user.userId
+                                    (u) => u.user.userId === data.user.userId,
                                   )
-                                    ? "bg-slate-100/80"
-                                    : ""
+                                    ? 'bg-slate-100/80'
+                                    : ''
                                 }`}
                                 onClick={() => {
                                   editData?.assignedUsers.some(
-                                    (u) => u.user.userId == data.user.userId
+                                    (u) => u.user.userId === data.user.userId,
                                   )
                                     ? removeMembers(
-                                      editData?.assignedUsers.find(
-                                        (id) =>
-                                          id.user.userId == data.user.userId
-                                      )?.projectAssignUsersId ?? ""
-                                    )
+                                        editData?.assignedUsers.find(
+                                          (id) =>
+                                            id.user.userId === data.user.userId,
+                                        )?.projectAssignUsersId ?? '',
+                                      )
                                     : submitMembers(data);
                                 }}
                               >
@@ -490,18 +490,18 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                                 </div>
                                 <CheckIcon
                                   className={cn(
-                                    "ml-auto h-4 w-4",
+                                    'ml-auto h-4 w-4',
                                     editData?.assignedUsers.some(
-                                      (u) => u.user.userId == data.user.userId
+                                      (u) => u.user.userId === data.user.userId,
                                     )
-                                      ? "opacity-100"
-                                      : "opacity-0"
+                                      ? 'opacity-100'
+                                      : 'opacity-0',
                                   )}
                                 />
                               </div>
                             )
                           );
-                        }
+                        },
                       )}
                     </div>
                   </div>
@@ -512,7 +512,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
               <Popover>
                 <PopoverTrigger className="w-full" disabled={viewOnly}>
                   <Button
-                    variant={"secondary"}
+                    variant={'secondary'}
                     type="button"
                     className="py-1.5 px-3 flex w-full gap-3 justify-start"
                   >
@@ -529,26 +529,26 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                       {projectMemberListQuery.data?.data.data.map(
                         (data, index) => {
                           return (
-                            data.role === "TEAM_MEMBER" && (
+                            data.role === 'TEAM_MEMBER' && (
                               <div
                                 key={index}
                                 className={`flex items-center p-1 my-1 gap-4 hover:bg-slate-100 rounded-md ${
                                   editData?.assignedUsers.some(
-                                    (u) => u.user.userId == data.user.userId
+                                    (u) => u.user.userId === data.user.userId,
                                   )
-                                    ? "bg-slate-100/80"
-                                    : ""
+                                    ? 'bg-slate-100/80'
+                                    : ''
                                 }`}
                                 onClick={() => {
                                   editData?.assignedUsers.some(
-                                    (u) => u.user.userId == data.user.userId
+                                    (u) => u.user.userId === data.user.userId,
                                   )
                                     ? removeMembers(
-                                      editData?.assignedUsers.find(
-                                        (id) =>
-                                          id.user.userId == data.user.userId
-                                      )?.projectAssignUsersId ?? ""
-                                    )
+                                        editData?.assignedUsers.find(
+                                          (id) =>
+                                            id.user.userId === data.user.userId,
+                                        )?.projectAssignUsersId ?? '',
+                                      )
                                     : submitMembers(data);
                                 }}
                               >
@@ -566,18 +566,18 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                                 </div>
                                 <CheckIcon
                                   className={cn(
-                                    "ml-auto h-4 w-4",
+                                    'ml-auto h-4 w-4',
                                     editData?.assignedUsers.some(
-                                      (u) => u.user.userId == data.user.userId
+                                      (u) => u.user.userId === data.user.userId,
                                     )
-                                      ? "opacity-100"
-                                      : "opacity-0"
+                                      ? 'opacity-100'
+                                      : 'opacity-0',
                                   )}
                                 />
                               </div>
                             )
                           );
-                        }
+                        },
                       )}
                     </div>
                   </div>
@@ -600,7 +600,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 name="status"
                 isMulti={false}
                 onChange={(e: SingleValue<Options>) =>
-                  formik.setFieldValue("status", e?.value)
+                  formik.setFieldValue('status', e?.value)
                 }
                 options={Object.keys(ProjectStatusEnumValue).map((i) => {
                   return { label: i, value: i };
@@ -626,7 +626,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                   }
                 }
                 onChange={(e: SingleValue<Options>) =>
-                  formik.setFieldValue("overallTrack", e?.value)
+                  formik.setFieldValue('overallTrack', e?.value)
                 }
               />
               <ErrorMessage>
@@ -649,7 +649,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 name="scheduleTrend"
                 isMulti={false}
                 onChange={(e: SingleValue<Options>) =>
-                  formik.setFieldValue("scheduleTrend", e?.value)
+                  formik.setFieldValue('scheduleTrend', e?.value)
                 }
                 options={Object.keys(ScheduleAndBudgetTrend).map((i) => {
                   return { label: i, value: i };
@@ -675,7 +675,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                   }
                 }
                 onChange={(e: SingleValue<Options>) =>
-                  formik.setFieldValue("budgetTrend", e?.value)
+                  formik.setFieldValue('budgetTrend', e?.value)
                 }
               />
               <ErrorMessage>
@@ -684,7 +684,6 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
             </div>
           </div>
           <div className="grid lg:grid-cols-2 gap-14">
-
             <div className="">
               <div>
                 <label className={labelStyle}>Consumed Budget</label>
@@ -696,7 +695,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 name="consumedBudget"
                 placeholder="Consumed budget"
                 className={inputStyle}
-                value={formik.values.consumedBudget ?? ""}
+                value={formik.values.consumedBudget ?? ''}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
               />
@@ -709,7 +708,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
           {!viewOnly && (
             <div className="flex justify-end mt-6 lg:mt-2">
               <Button
-                variant={"primary"}
+                variant={'primary'}
                 className="font-medium text-lg"
                 isLoading={isSubmitting}
                 disabled={isSubmitting}

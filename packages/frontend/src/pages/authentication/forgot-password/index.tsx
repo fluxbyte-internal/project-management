@@ -1,19 +1,19 @@
-import useForgotPassword from "@/api/mutation/useForgotPasswordEmailSend";
-import InputEmail from "@/components/common/InputEmail";
-import { Button } from "@/components/ui/button";
-import { forgotPasswordSchema } from "@backend/src/schemas/authSchema";
-import { isAxiosError } from "axios";
-import { useFormik } from "formik";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import ErrorMessage from "@/components/common/ErrorMessage";
-import EmailSend from "../../../assets/svg/EmailSendSuccess.svg";
-import { z } from "zod";
-import { toast } from "react-toastify";
+import { forgotPasswordSchema } from '@backend/src/schemas/authSchema';
+import { isAxiosError } from 'axios';
+import { useFormik } from 'formik';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
+import { z } from 'zod';
+import { toast } from 'react-toastify';
+import EmailSend from '../../../assets/svg/EmailSendSuccess.svg';
+import ErrorMessage from '@/components/common/ErrorMessage';
+import { Button } from '@/components/ui/button';
+import InputEmail from '@/components/common/InputEmail';
+import useForgotPassword from '@/api/mutation/useForgotPasswordEmailSend';
 
 function ForgotPassword() {
-  const labelStyle = "font-medium text-base text-gray-8 ";
+  const labelStyle = 'font-medium text-base text-gray-8 ';
   const forgotPasswordMutation = useForgotPassword();
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -21,17 +21,11 @@ function ForgotPassword() {
 
   const formik = useFormik<z.infer<typeof forgotPasswordSchema>>({
     initialValues: {
-      email: "",
+      email: '',
     },
-    validationSchema: toFormikValidationSchema(forgotPasswordSchema),
     onSubmit: (values, helper) => {
       setIsLoading(true);
       forgotPasswordMutation.mutate(values, {
-        onSuccess(data) {
-          toast.success(data.data.message);
-          setIsLoading(false);
-          setIsSubmitted(true);
-        },
         onError(error) {
           if (isAxiosError(error)) {
             setIsLoading(false);
@@ -46,20 +40,27 @@ function ForgotPassword() {
             }
             if (!Array.isArray(error.response?.data.errors)) {
               toast.error(
-                error.response?.data?.message ?? "An unexpected error occurred."
+                error.response?.data?.message ??
+                  'An unexpected error occurred.',
               );
             }
           }
         },
+        onSuccess(data) {
+          toast.success(data.data.message);
+          setIsLoading(false);
+          setIsSubmitted(true);
+        },
       });
     },
+    validationSchema: toFormikValidationSchema(forgotPasswordSchema),
   });
   return (
     <div className="flex flex-col px-2 items-center min-h-screen py-6 justify-center bg-gradient-to-t from-[#FFF8DF] to-[#FFD6AB]">
       <div className="w-[min(400px,100%)] space-y-4 py-4 overflow-hidden bg-white shadow-md sm:max-w-lg sm:rounded-lg">
         <div className="px-4">
           <h3 className="text-2xl text-center font-bold text-primary-900">
-            {!isSubmitted ? "Forgot Password" : "Email sent"}
+            {!isSubmitted ? 'Forgot Password' : 'Email sent'}
           </h3>
         </div>
         <hr />
@@ -80,9 +81,9 @@ function ForgotPassword() {
             <div className="w-full p-3 mt-3">
               <Button
                 type="submit"
-                variant={"primary"}
+                variant={'primary'}
                 className="w-full"
-                onClick={() => navigate("/login")}
+                onClick={() => navigate('/login')}
               >
                 back
               </Button>
@@ -112,7 +113,7 @@ function ForgotPassword() {
             <div className="flex flex-col justify-center mt-1.5">
               <Button
                 type="submit"
-                variant={"primary"}
+                variant={'primary'}
                 className="w-full"
                 isLoading={isLoading}
                 disabled={isLoading}

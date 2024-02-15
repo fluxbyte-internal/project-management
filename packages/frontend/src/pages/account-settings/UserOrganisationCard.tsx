@@ -1,22 +1,22 @@
-import useOrgSettingsUpdateMutation from "@/api/mutation/useOrgSettingsUpdateMutation";
+import { NavLink } from 'react-router-dom';
+import {
+  TaskColorPaletteEnum,
+  userOrgSettingsUpdateSchema,
+} from '@backend/src/schemas/userSchema';
+import { isAxiosError } from 'axios';
+import { useFormik } from 'formik';
+import { useState } from 'react';
+import { z } from 'zod';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
+import { toast } from 'react-toastify';
+import { Button } from '@/components/ui/button';
+import InputText from '@/components/common/InputText';
+import FormLabel from '@/components/common/FormLabel';
+import ErrorMessage from '@/components/common/ErrorMessage';
 import useCurrentUserQuery, {
   UserOrganisationType,
-} from "@/api/query/useCurrentUserQuery";
-import ErrorMessage from "@/components/common/ErrorMessage";
-import FormLabel from "@/components/common/FormLabel";
-import InputText from "@/components/common/InputText";
-import { Button } from "@/components/ui/button";
-import { NavLink } from "react-router-dom";
-import {
-  userOrgSettingsUpdateSchema,
-  TaskColorPaletteEnum,
-} from "@backend/src/schemas/userSchema";
-import { isAxiosError } from "axios";
-import { useFormik } from "formik";
-import { useState } from "react";
-import { z } from "zod";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import { toast } from "react-toastify";
+} from '@/api/query/useCurrentUserQuery';
+import useOrgSettingsUpdateMutation from '@/api/mutation/useOrgSettingsUpdateMutation';
 
 // const taskColors = Object.keys(TaskColorPaletteEnum).map((colorPalette) => {
 //   const color =
@@ -30,11 +30,13 @@ import { toast } from "react-toastify";
 //   };
 // });
 
-function UserOrganisationCard(props: { userOrganisation: UserOrganisationType }) {
+function UserOrganisationCard(props: {
+  userOrganisation: UserOrganisationType;
+}) {
   const { userOrganisation } = props;
   const { refetch: refetchUser } = useCurrentUserQuery();
   const orgSettingsUpdateMutation = useOrgSettingsUpdateMutation(
-    userOrganisation.userOrganisationId
+    userOrganisation.userOrganisationId,
   );
   const [isUserOrgSettingsSubmitting, setIsUserOrgSettingsSubmitting] =
     useState(false);
@@ -43,18 +45,12 @@ function UserOrganisationCard(props: { userOrganisation: UserOrganisationType })
     z.infer<typeof userOrgSettingsUpdateSchema>
   >({
     initialValues: {
-      jobTitle: userOrganisation.jobTitle ?? "",
+      jobTitle: userOrganisation.jobTitle ?? '',
       taskColour: userOrganisation.taskColour ?? TaskColorPaletteEnum.BLACK,
     },
-    validationSchema: toFormikValidationSchema(userOrgSettingsUpdateSchema),
     onSubmit: (values, helper) => {
       setIsUserOrgSettingsSubmitting(true);
       orgSettingsUpdateMutation.mutate(values, {
-        onSuccess(data) {
-          toast.success(data.data.message);
-          setIsUserOrgSettingsSubmitting(false);
-          refetchUser();
-        },
         onError(error) {
           if (isAxiosError(error)) {
             if (
@@ -68,14 +64,21 @@ function UserOrganisationCard(props: { userOrganisation: UserOrganisationType })
             }
             if (!Array.isArray(error.response?.data.errors)) {
               toast.error(
-                error.response?.data?.message ?? "An unexpected error occurred."
+                error.response?.data?.message ??
+                  'An unexpected error occurred.',
               );
             }
           }
           setIsUserOrgSettingsSubmitting(false);
         },
+        onSuccess(data) {
+          toast.success(data.data.message);
+          setIsUserOrgSettingsSubmitting(false);
+          refetchUser();
+        },
       });
     },
+    validationSchema: toFormikValidationSchema(userOrgSettingsUpdateSchema),
   });
 
   const userOrgSettingsHasChanges =
@@ -95,8 +98,8 @@ function UserOrganisationCard(props: { userOrganisation: UserOrganisationType })
       <NavLink to={`/organisation/${userOrganisation.organisationId}`}>
         <Button
           className="transition ease-in-out duration-150 opacity-0 group-hover:opacity-100 focus:opacity-100 absolute right-1 top-1"
-          variant={"primary_outline"}
-          size={"sm"}
+          variant={'primary_outline'}
+          size={'sm'}
         >
           View
         </Button>
@@ -161,7 +164,7 @@ function UserOrganisationCard(props: { userOrganisation: UserOrganisationType })
           <div className="flex items-center @2xl:col-span-2">
             <Button
               isLoading={isUserOrgSettingsSubmitting}
-              variant={"primary"}
+              variant={'primary'}
               className="w-auto ml-auto"
               disabled={
                 isUserOrgSettingsSubmitting || !userOrgSettingsHasChanges

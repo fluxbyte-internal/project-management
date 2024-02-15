@@ -2,29 +2,30 @@ import Kanban, {
   KanbanColumn,
   KanbanDataSource,
   KanbanProps,
-} from "smart-webcomponents-react/kanban";
-import { HTMLAttributes, useEffect, useRef, useState } from "react";
-import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
-import { Task } from "@/api/mutation/useTaskCreateMutation";
-import useAllTaskQuery from "@/api/query/useAllTaskQuery";
-import { useParams } from "react-router-dom";
-import "./index.css";
-import { createRoot } from "react-dom/client";
-import TaskShellView from "./taskShellView";
-import { TaskStatusEnumValue } from "@backend/src/schemas/enums";
-import { toast } from "react-toastify";
-import TaskFilter from "../TaskFilter";
-import RulesSetups from "./rulesSetups/rulesSetups";
-import { KanbanColumnType } from "@/api/mutation/useKanbanCreateColumn";
-import { Button } from "@/components/ui/button";
-import useUpdateTaskMutation from "@/api/mutation/useTaskUpdateMutation";
-import Dialog from "@/components/common/Dialog";
-import RulesForm from "./rulesSetups/rulesForm";
-import CrossIcon from "@/assets/svg/CrossIcon.svg";
-import SettingIcon from "@/assets/svg/Setting.svg";
-import useAllKanbanColumnQuery from "@/api/query/useAllKanbanColumn";
-import Loader from "@/components/common/Loader";
-import { FIELDS } from "@/api/types/enums";
+} from 'smart-webcomponents-react/kanban';
+import { HTMLAttributes, useEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { TaskStatusEnumValue } from '@backend/src/schemas/enums';
+import { createRoot } from 'react-dom/client';
+import TaskFilter from '../TaskFilter';
+import TaskShellView from './taskShellView';
+import RulesSetups from './rulesSetups/rulesSetups';
+import RulesForm from './rulesSetups/rulesForm';
+import TaskSubTaskForm from '@/components/tasks/taskSubTaskForm';
+import { Task } from '@/api/mutation/useTaskCreateMutation';
+import useAllTaskQuery from '@/api/query/useAllTaskQuery';
+import './index.css';
+import { KanbanColumnType } from '@/api/mutation/useKanbanCreateColumn';
+import { Button } from '@/components/ui/button';
+import useUpdateTaskMutation from '@/api/mutation/useTaskUpdateMutation';
+import Dialog from '@/components/common/Dialog';
+import CrossIcon from '@/assets/svg/CrossIcon.svg';
+import SettingIcon from '@/assets/svg/Setting.svg';
+import useAllKanbanColumnQuery from '@/api/query/useAllKanbanColumn';
+import Loader from '@/components/common/Loader';
+import { FIELDS } from '@/api/types/enums';
+
 export interface columnsRenderData {
   label: string;
   dataField: string;
@@ -43,10 +44,10 @@ export type ExtendedKanbanDataSource = KanbanDataSource & {
   mileStone: boolean;
 };
 function KanbanView(
-  props: (HTMLAttributes<Element> & KanbanProps) | undefined
+  props: (HTMLAttributes<Element> & KanbanProps) | undefined,
 ) {
   const [dialogRendered, setDialogRendered] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [isTaskShow, setIsTaskShow] = useState<boolean>(false);
   const childRef = useRef<Kanban>(null);
@@ -62,10 +63,10 @@ function KanbanView(
   const [rawData, setRawData] = useState<KanbanColumnType[]>();
 
   useEffect(() => {
-    if (allKanbanColumn.status == "success") {
+    if (allKanbanColumn.status === 'success') {
       setOpen();
     }
-  }, [allKanbanColumn.status == "success"]);
+  }, [allKanbanColumn.status === 'success']);
 
   useEffect(() => {
     allTasks.refetch();
@@ -85,7 +86,7 @@ function KanbanView(
   useEffect(() => {
     if (allKanbanColumn.data?.data.data) {
       allKanbanColumn.data?.data.data.sort(
-        (a, b) => (a.percentage ?? 0) - (b.percentage ?? 0)
+        (a, b) => (a.percentage ?? 0) - (b.percentage ?? 0),
       );
       handleColumn(allKanbanColumn.data?.data.data);
     }
@@ -126,30 +127,20 @@ function KanbanView(
         id: e?.detail.value.id,
       },
       {
-        onSuccess() {
-          allTasks.refetch();
-        },
         onError(error) {
           allTasks.refetch();
           toast.error(error.response?.data.message);
         },
-      }
+        onSuccess() {
+          allTasks.refetch();
+        },
+      },
     );
   };
 
   function DataConvertToKanbanDataSource(data: Task): ExtendedKanbanDataSource {
     return {
-      id: data.taskId,
       color: data.flag,
-      text: data.taskName,
-      status: setStatus(data),
-      progress: data.completionPecentage ? Number(data.completionPecentage) : 1,
-      startDate: data.startDate,
-      dueDate: data.dueDate ?? data.endDate,
-      users: JSON.stringify(data.assignedUsers),
-      subTask:
-        allTasks.data?.data.data.filter((i) => data.taskId == i.parentTaskId)
-          .length ?? 0,
       comments: data.comments?.map((comment) => {
         return {
           text: comment.commentText,
@@ -157,17 +148,27 @@ function KanbanView(
           userId: comment.commentByUserId,
         };
       }),
+      dueDate: data.dueDate ?? data.endDate,
+      id: data.taskId,
       mileStone: data.milestoneIndicator,
+      progress: data.completionPecentage ? Number(data.completionPecentage) : 1,
+      startDate: data.startDate,
+      status: setStatus(data),
+      subTask:
+        allTasks.data?.data.data.filter((i) => data.taskId === i.parentTaskId)
+          .length ?? 0,
+      text: data.taskName,
+      users: JSON.stringify(data.assignedUsers),
     };
   }
   const taskCustomFields = [
     {
-      label: "Users",
-      dataField: "users",
+      dataField: 'users',
+      label: 'Users',
     },
     {
-      label: "Sub task count",
-      dataField: "subTask",
+      dataField: 'subTask',
+      label: 'Sub task count',
     },
   ];
 
@@ -192,7 +193,7 @@ function KanbanView(
 
   const onOpening = (e: (Event & CustomEvent) | undefined) => {
     e?.preventDefault();
-    if (e?.detail.purpose === "add") {
+    if (e?.detail.purpose === 'add') {
       setDialogRendered(undefined), setIsTaskShow(true);
     } else {
       setDialogRendered(e?.detail.value.id);
@@ -200,7 +201,7 @@ function KanbanView(
   };
   const onTaskRender = (
     taskElement: HTMLElement,
-    data: ExtendedKanbanDataSource
+    data: ExtendedKanbanDataSource,
   ) => {
     const root = createRoot(taskElement);
     root.render(<TaskShellView taskData={data} />);
@@ -209,20 +210,20 @@ function KanbanView(
   const onColumnHeaderRender = (data: {
     dataField: keyof typeof TaskStatusEnumValue;
   }) => {
-    const className = "";
+    const className = '';
     switch (data.dataField) {
-    case TaskStatusEnumValue.PLANNED:
-      className.concat("!bg-rose-500/20");
-      break;
-    case TaskStatusEnumValue.TODO:
-      className.concat("!bg-slate-500/20");
-      break;
-    case TaskStatusEnumValue.IN_PROGRESS:
-      className.concat("!bg-primary-500/20");
-      break;
-    case TaskStatusEnumValue.DONE:
-      className.concat("!bg-green-500/20");
-      break;
+      case TaskStatusEnumValue.PLANNED:
+        className.concat('!bg-rose-500/20');
+        break;
+      case TaskStatusEnumValue.TODO:
+        className.concat('!bg-slate-500/20');
+        break;
+      case TaskStatusEnumValue.IN_PROGRESS:
+        className.concat('!bg-primary-500/20');
+        break;
+      case TaskStatusEnumValue.DONE:
+        className.concat('!bg-green-500/20');
+        break;
     }
     // header.classList.add(...className.split(" "));
   };
@@ -233,10 +234,10 @@ function KanbanView(
     setRawData(data);
     const column: KanbanColumn[] = data.map((d) => {
       return {
-        label: d.name.toUpperCase(),
+        addNewButton: d.percentage === 0,
         dataField: String(d.percentage),
+        label: d.name.toUpperCase(),
         width: 300,
-        addNewButton: d.percentage == 0 ? true : false,
       };
     });
     setColumns(column);
@@ -280,16 +281,16 @@ function KanbanView(
             <div className="flex w-full justify-between">
               <div>
                 <Button
-                  variant={"ghost"}
-                  size={"sm"}
+                  variant={'ghost'}
+                  size={'sm'}
                   onClick={() => setClosePopup(true)}
                 >
                   <img src={SettingIcon} className="h-4 w-4" />
                 </Button>
               </div>
               <Button
-                variant={"primary"}
-                value={"Create Columns"}
+                variant={'primary'}
+                value={'Create Columns'}
                 onClick={() => setIsColumnsOpen(true)}
               >
                 Create Columns
@@ -333,7 +334,7 @@ function KanbanView(
       )}
       {closePopup && projectId && (
         <RulesSetups
-          key={"RulesSetups#1"}
+          key={'RulesSetups#1'}
           setColumes={(data) => handleColumn(data)}
           close={() => {
             setClosePopup(false);
@@ -348,12 +349,12 @@ function KanbanView(
       >
         <div className="flex justify-between mb-3">
           <div className="text-lg font-semibold">Create column</div>
-          <Button variant={"none"} onClick={() => setIsColumnsOpen(false)}>
+          <Button variant={'none'} onClick={() => setIsColumnsOpen(false)}>
             <img src={CrossIcon} />
           </Button>
         </div>
         <RulesForm
-          projectId={projectId ?? ""}
+          projectId={projectId ?? ''}
           refetch={() => allKanbanColumn.refetch()}
           close={() => setIsColumnsOpen(false)}
           rules={rawData}

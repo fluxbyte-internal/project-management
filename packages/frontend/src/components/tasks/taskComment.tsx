@@ -1,85 +1,86 @@
-import InputText from "../common/InputText";
-import UserAvatar from "../ui/userAvatar";
-import ScaleSvg from "../../assets/svg/ScaleSvg.svg";
-import Send from "../../assets/svg/Send.svg";
-import { Task } from "@/api/mutation/useTaskCreateMutation";
-import { useUser } from "@/hooks/useUser";
-import calculateTimeDifference from "../shared/TimeDifferenceCalculate";
-import { Button } from "../ui/button";
-import { useFormik } from "formik";
-import { createCommentTaskSchema } from "@backend/src/schemas/taskSchema";
-import { z } from "zod";
-import { toFormikValidationSchema } from "zod-formik-adapter";
+import { useFormik } from 'formik';
+import { createCommentTaskSchema } from '@backend/src/schemas/taskSchema';
+import { z } from 'zod';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
+import { toast } from 'react-toastify';
+import { useState } from 'react';
+import InputText from '../common/InputText';
+import UserAvatar from '../ui/userAvatar';
+import ScaleSvg from '../../assets/svg/ScaleSvg.svg';
+import Send from '../../assets/svg/Send.svg';
+import calculateTimeDifference from '../shared/TimeDifferenceCalculate';
+import { Button } from '../ui/button';
+import { Task } from '@/api/mutation/useTaskCreateMutation';
+import { useUser } from '@/hooks/useUser';
 import useCreateTaskCommentMutation, {
   Comment,
-} from "@/api/mutation/useTaskAddCommentMutation";
-import { toast } from "react-toastify";
-import { useState } from "react";
-import useUpdateTaskCommentMutation from "@/api/mutation/useTaskUpdateCommentMutation";
-import useRemoveTaskCommentMutation from "@/api/mutation/useTaskRemoveCommentMutation";
+} from '@/api/mutation/useTaskAddCommentMutation';
+import useUpdateTaskCommentMutation from '@/api/mutation/useTaskUpdateCommentMutation';
+import useRemoveTaskCommentMutation from '@/api/mutation/useTaskRemoveCommentMutation';
+
 type Props = {
   task: Task | undefined;
   refetch: () => void;
 };
 function TaskComment(props: Props) {
-  const { task, refetch } = props;
+  const { refetch, task } = props;
   const currantUser = useUser();
   const [commentId, setCommentId] = useState<string | null>();
   const [showAllShow, setShowAllShow] = useState<boolean>(false);
 
   const createTaskCommentMutation = useCreateTaskCommentMutation(task?.taskId);
   const updateTaskCommentMutation = useUpdateTaskCommentMutation(
-    commentId ?? undefined
+    commentId ?? undefined,
   );
   const removeTaskCommentMutation = useRemoveTaskCommentMutation();
   const commentFormik = useFormik<z.infer<typeof createCommentTaskSchema>>({
     initialValues: {
-      commentText: "",
+      commentText: '',
     },
-    validationSchema: toFormikValidationSchema(createCommentTaskSchema),
     onSubmit: (values) => {
       createTaskCommentMutation.mutate(values, {
+        onError(error) {
+          toast.error(error.response?.data.message);
+        },
         onSuccess(data) {
           refetch();
           commentFormik.resetForm();
           toast.success(data.data.message);
         },
-        onError(error) {
-          toast.error(error.response?.data.message);
-        },
       });
     },
+    validationSchema: toFormikValidationSchema(createCommentTaskSchema),
   });
 
   const updateCommentFormik = useFormik<
     z.infer<typeof createCommentTaskSchema>
   >({
     initialValues: {
-      commentText: "",
+      commentText: '',
     },
-    validationSchema: toFormikValidationSchema(createCommentTaskSchema),
     onSubmit: (values) => {
       updateTaskCommentMutation.mutate(values, {
+        onError(error) {
+          toast.error(error.response?.data.message);
+        },
         onSuccess(data) {
           refetch();
           updateCommentFormik.resetForm();
           toast.success(data.data.message);
           setCommentId(null);
         },
-        onError(error) {
-          toast.error(error.response?.data.message);
-        },
       });
     },
+    validationSchema: toFormikValidationSchema(createCommentTaskSchema),
   });
 
   const handleEdit = (comment: Comment) => {
     setCommentId(comment.commentId);
-    updateCommentFormik.setFieldValue("commentText", comment.commentText);
+    updateCommentFormik.setFieldValue('commentText', comment.commentText);
   };
   const handleBlur = () => {
-    const val = task?.comments.find((c) => c.commentId == commentId);
-    if (val?.commentText != updateCommentFormik.values.commentText) {
+    const val = task?.comments.find((c) => c.commentId === commentId);
+    if (val?.commentText !== updateCommentFormik.values.commentText) {
       updateCommentFormik.submitForm();
     } else {
       setCommentId(null);
@@ -87,13 +88,13 @@ function TaskComment(props: Props) {
   };
   const handleRemove = (comment: Comment) => {
     removeTaskCommentMutation.mutate(comment.commentId, {
+      onError(error) {
+        toast.error(error.response?.data.message);
+      },
       onSuccess(data) {
         refetch();
         toast.success(data.data.message);
         setCommentId(null);
-      },
-      onError(error) {
-        toast.error(error.response?.data.message);
       },
     });
   };
@@ -106,8 +107,8 @@ function TaskComment(props: Props) {
   const visibleComments = showAllShow
     ? props.task?.comments ?? []
     : (props.task?.comments ?? []).filter(
-      (comment) => !isDateSevenDaysOld(new Date(comment.createdAt))
-    );
+        (comment) => !isDateSevenDaysOld(new Date(comment.createdAt)),
+      );
   return (
     <>
       <div className="flex items-center gap-2.5 mt-4">
@@ -129,8 +130,8 @@ function TaskComment(props: Props) {
             ></InputText>
             {commentFormik.values.commentText && (
               <Button
-                variant={"ghost"}
-                size={"icon"}
+                variant={'ghost'}
+                size={'icon'}
                 className="absolute top-1/2 right-1 -translate-y-1/2 mt-[1px] p-0 "
                 onClick={commentFormik.submitForm}
               >
@@ -152,7 +153,7 @@ function TaskComment(props: Props) {
                       {comment.commentByUser.firstName &&
                       comment.commentByUser.lastName
                         ? comment.commentByUser.firstName +
-                          " " +
+                          ' ' +
                           comment.commentByUser.lastName
                         : comment.commentByUser.email}
 
@@ -163,7 +164,7 @@ function TaskComment(props: Props) {
                     </div>
                   </div>
 
-                  {commentId && commentId == comment.commentId ? (
+                  {commentId && commentId === comment.commentId ? (
                     <InputText
                       placeholder="Write a comment"
                       className="mt-0 w-full p-1 h-fit"
@@ -187,7 +188,7 @@ function TaskComment(props: Props) {
                   <ul className="inline-flex gap-7 ml-6 list-[circle] justify-start w-3/5">
                     <li className="">
                       <Button
-                        variant={"none"}
+                        variant={'none'}
                         onClick={() => {
                           handleEdit(comment);
                         }}
@@ -198,7 +199,7 @@ function TaskComment(props: Props) {
                     </li>
                     <li className="">
                       <Button
-                        variant={"none"}
+                        variant={'none'}
                         onClick={() => {
                           handleRemove(comment);
                         }}
@@ -212,17 +213,18 @@ function TaskComment(props: Props) {
               </div>
             );
           })}
-          {(props.task?.comments.length !== visibleComments.length&&props.task?.comments.length) && (
-            <div>
-              <hr className="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700"></hr>
-              <div
-                className="text-center cursor-pointer"
-                onClick={() => setShowAllShow((prev) => !prev)}
-              >
-                {!showAllShow ? "Show all" : "Less"}
+          {props.task?.comments.length !== visibleComments.length &&
+            props.task?.comments.length && (
+              <div>
+                <hr className="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700"></hr>
+                <div
+                  className="text-center cursor-pointer"
+                  onClick={() => setShowAllShow((prev) => !prev)}
+                >
+                  {!showAllShow ? 'Show all' : 'Less'}
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
       </div>
     </>

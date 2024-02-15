@@ -1,13 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
-import ApiRequest from "../ApiRequest";
+import { useQuery } from '@tanstack/react-query';
+import { ProjectDefaultViewEnumValue } from '@backend/src/schemas/enums';
+import ApiRequest from '../ApiRequest';
 import {
   AxiosResponseAndError,
   ResponseType,
-} from "../types/axiosResponseType";
-import { QUERY_KEYS } from "./querykeys";
-import { requestURLs } from "@/Environment";
-import { ProjectDefaultViewEnumValue } from "@backend/src/schemas/enums";
-import { AssignedUsers } from "./useProjectQuery";
+} from '../types/axiosResponseType';
+import { QUERY_KEYS } from './querykeys';
+import { AssignedUsers } from './useProjectQuery';
+import { requestURLs } from '@/Environment';
 
 export interface ProjectDetailType {
   projectId: string;
@@ -22,8 +22,8 @@ export interface ProjectDetailType {
   budgetTrack: string | null;
   estimatedBudget: string;
   actualCost: string | null;
-  overallTrack:string|null;
-  progressionPercentage: string | null ;
+  overallTrack: string | null;
+  progressionPercentage: string | null;
   createdByUserId: string;
   updatedByUserId: string;
   createdAt: string;
@@ -31,27 +31,26 @@ export interface ProjectDetailType {
   tasks: [];
   createdByUser: CreatedByUser;
   projectProgression: string | null;
-  assignedUsers:AssignedUsers[]
-  actualEndDate:Date |null
+  assignedUsers: AssignedUsers[];
+  actualEndDate: Date | null;
 }
 
 export interface CreatedByUser {
   firstName: string;
   lastName: string;
   email: string;
-  avatarImg: string | null ;
+  avatarImg: string | null;
 }
 type ProjectDetailsApiResponse = ResponseType<ProjectDetailType>;
 
 function useProjectDetail(id: string | undefined) {
   return useQuery<
-    AxiosResponseAndError<ProjectDetailsApiResponse>["response"],
-    AxiosResponseAndError<ProjectDetailsApiResponse>["error"]
+    AxiosResponseAndError<ProjectDetailsApiResponse>['response'],
+    AxiosResponseAndError<ProjectDetailsApiResponse>['error']
   >({
+    enabled: Boolean(id),
+    queryFn: async () => await ApiRequest.get(`${requestURLs.project}/${id}`),
     queryKey: [QUERY_KEYS.getProjectDetails, id],
-    queryFn: async () =>
-      await ApiRequest.get(`${requestURLs.project}/${id}`),
-    enabled: !!id,
   });
 }
 export default useProjectDetail;

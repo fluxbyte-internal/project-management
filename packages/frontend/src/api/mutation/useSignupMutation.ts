@@ -1,9 +1,12 @@
-import { useMutation } from "@tanstack/react-query";
-import { requestURLs } from "../../Environment";
-import { z } from "zod";
-import { AxiosResponseAndError, ResponseType } from "@/api/types/axiosResponseType";
-import { authSignUpSchema } from "@backend/src/schemas/authSchema";
-import ApiRequest from "../ApiRequest";
+import { useMutation } from '@tanstack/react-query';
+import { z } from 'zod';
+import { authSignUpSchema } from '@backend/src/schemas/authSchema';
+import { requestURLs } from '../../Environment';
+import ApiRequest from '../ApiRequest';
+import {
+  AxiosResponseAndError,
+  ResponseType,
+} from '@/api/types/axiosResponseType';
 
 type SignupResponseType = ResponseType<{
   token: string;
@@ -23,8 +26,8 @@ type SignupResponseType = ResponseType<{
 
 function useSignupMutation() {
   const mutation = useMutation<
-    AxiosResponseAndError<SignupResponseType>["response"],
-    AxiosResponseAndError<SignupResponseType>["error"],
+    AxiosResponseAndError<SignupResponseType>['response'],
+    AxiosResponseAndError<SignupResponseType>['error'],
     z.infer<typeof authSignUpSchema>
   >({
     mutationFn: (data) =>

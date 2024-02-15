@@ -1,14 +1,26 @@
-import { useUser } from "@/hooks/useUser";
-import AdminDashboard from "./adminDashboard";
-import ManagerDashboard from "./managerDashboard";
-import { UserRoleEnumValue } from "@backend/src/schemas/enums";
+import { UserRoleEnumValue } from '@backend/src/schemas/enums';
+import AdminDashboard from './adminDashboard';
+import ManagerDashboard from './managerDashboard';
+import { useUser } from '@/hooks/useUser';
+
 function Dashboard() {
   const { user } = useUser();
 
-  return(
+  return (
     <>
-      {user?.userOrganisation[0]?.role === UserRoleEnumValue.ADMINISTRATOR ? (<> <AdminDashboard /></>) : 
-        (user?.userOrganisation[0]?.role === UserRoleEnumValue.PROJECT_MANAGER ? (<><ManagerDashboard/></>) : (<></>))}
+      {user?.userOrganisation[0]?.role === UserRoleEnumValue.ADMINISTRATOR ? (
+        <>
+          {' '}
+          <AdminDashboard />
+        </>
+      ) : user?.userOrganisation[0]?.role ===
+        UserRoleEnumValue.PROJECT_MANAGER ? (
+        <>
+          <ManagerDashboard />
+        </>
+      ) : (
+        <></>
+      )}
     </>
   );
 }

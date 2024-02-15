@@ -1,23 +1,22 @@
-import { useMutation } from "@tanstack/react-query";
-import { requestURLs } from "../../Environment";
+import { useMutation } from '@tanstack/react-query';
+import { requestURLs } from '../../Environment';
+import ApiRequest from '../ApiRequest';
 import {
   AxiosResponseAndError,
   ResponseType,
-} from "@/api/types/axiosResponseType";
-import ApiRequest from "../ApiRequest";
-
+} from '@/api/types/axiosResponseType';
 
 type kanbanRemoveColumnsResponseType = ResponseType<null>;
 
 function useRemoveKanbanColumnsMutation() {
   const mutation = useMutation<
-    AxiosResponseAndError<kanbanRemoveColumnsResponseType>["response"],
-    AxiosResponseAndError<kanbanRemoveColumnsResponseType>["error"],
+    AxiosResponseAndError<kanbanRemoveColumnsResponseType>['response'],
+    AxiosResponseAndError<kanbanRemoveColumnsResponseType>['error'],
     string
   >({
     mutationFn: (data) =>
       ApiRequest.delete<kanbanRemoveColumnsResponseType>(
-        `${requestURLs.kanbanColumn}${data}`
+        `${requestURLs.kanbanColumn}${data}`,
       ),
   });
 

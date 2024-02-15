@@ -1,17 +1,18 @@
-import { useEffect, useState } from "react";
-import KanbanView from "./kanbanView";
-import SideBar from "../layout/SideBar";
-import CalendarView from "./calendarView";
-import Tasks from "@/pages/tasks";
-import useProjectDetail from "@/api/query/useProjectDetailQuery";
-import { useParams, useSearchParams } from "react-router-dom";
-import { ProjectDefaultViewEnumValue } from "@backend/src/schemas/enums";
-import kanaban from "../../assets/svg/KanbanView.svg";
-import gantt from "../../assets/svg/Gantt.svg";
-import calendar from "../../assets/svg/Calendar.svg";
-import list from "../../assets/svg/List.svg";
-import GanttView from "./ganntView/GanttView";
-import BackgroundImage from "../layout/BackgroundImage";
+import { useEffect, useState } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { ProjectDefaultViewEnumValue } from '@backend/src/schemas/enums';
+import SideBar from '../layout/SideBar';
+import kanaban from '../../assets/svg/KanbanView.svg';
+import gantt from '../../assets/svg/Gantt.svg';
+import calendar from '../../assets/svg/Calendar.svg';
+import list from '../../assets/svg/List.svg';
+import BackgroundImage from '../layout/BackgroundImage';
+import CalendarView from './calendarView';
+import GanttView from './ganntView/GanttView';
+import KanbanView from './kanbanView';
+import useProjectDetail from '@/api/query/useProjectDetailQuery';
+import Tasks from '@/pages/tasks';
+
 function TaskViews() {
   const viewOption = [
     {
@@ -42,13 +43,13 @@ function TaskViews() {
   const { projectId } = useParams();
   const projectQuery = useProjectDetail(projectId);
   useEffect(() => {
-    if (projectQuery.data?.data.data) { 
+    if (projectQuery.data?.data.data) {
       setViews(projectQuery.data.data.data.defaultView);
     }
   }, [projectQuery.data?.data.data]);
   useEffect(() => {
     setViews(viewOption[0].value);
-  }, [projectQuery.status == "success", searchParams]);
+  }, [projectQuery.status === 'success', searchParams]);
 
   return (
     <>
@@ -60,7 +61,7 @@ function TaskViews() {
         />
         <div
           className={`h-full ${
-            isSidebarExpanded ? "ml-64" : "ml-4"
+            isSidebarExpanded ? 'ml-64' : 'ml-4'
           } flex flex-col`}
         >
           <div className="flex justify-between px-4 py-2 items-center">
@@ -73,7 +74,7 @@ function TaskViews() {
                       <button
                         onClick={() => setViews(item.value)}
                         className={`text-gra relative flex items-center justify-center px-4 py-0.5 h-fit gap-2 rounded-lg  shadow hover:bg-white hover:text-gray-700 ${
-                          item.value == views ? "bg-white" : "bg-gray-50"
+                          item.value === views ? 'bg-white' : 'bg-gray-50'
                         }`}
                       >
                         <img src={item.icon} className="w-8 h-8" />
@@ -85,10 +86,10 @@ function TaskViews() {
             </div>
           </div>
           <div className="h-full overflow-hidden px-2">
-            {views == ProjectDefaultViewEnumValue.KANBAN && <KanbanView />}
-            {views == ProjectDefaultViewEnumValue.LIST && <Tasks />}
-            {views == ProjectDefaultViewEnumValue.CALENDAR && <CalendarView />}
-            {views == ProjectDefaultViewEnumValue.GANTT && <GanttView />}
+            {views === ProjectDefaultViewEnumValue.KANBAN && <KanbanView />}
+            {views === ProjectDefaultViewEnumValue.LIST && <Tasks />}
+            {views === ProjectDefaultViewEnumValue.CALENDAR && <CalendarView />}
+            {views === ProjectDefaultViewEnumValue.GANTT && <GanttView />}
           </div>
         </div>
       </div>

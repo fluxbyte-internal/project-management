@@ -1,33 +1,33 @@
-import CrossIcon from "../../assets/svg/CrossIcon.svg";
-import { Button } from "../ui/button";
-import { useFormik } from "formik";
-import kanaban from "../../assets/svg/KanbanView.svg";
-import gantt from "../../assets/svg/Gantt.svg";
-import calendar from "../../assets/svg/Calendar.svg";
-import list from "../../assets/svg/List.svg";
-import InfoCircle from "../../assets/svg/Info circle.svg";
-import { useEffect, useState } from "react";
-import { toFormikValidationSchema } from "zod-formik-adapter";
+import { useFormik } from 'formik';
+import { useEffect, useState } from 'react';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
 import {
   createProjectSchema,
   updateProjectSchema,
-} from "@backend/src/schemas/projectSchema";
-import { z } from "zod";
-import useProjectMutation from "@/api/mutation/useProjectMutation";
-import { isAxiosError } from "axios";
-import useProjectQuery, { Project } from "@/api/query/useProjectQuery";
-import useProjectUpdateMutation from "@/api/mutation/useProjectUpdateMutation";
+} from '@backend/src/schemas/projectSchema';
+import { z } from 'zod';
+import { isAxiosError } from 'axios';
+import { toast } from 'react-toastify';
+import Select, { SingleValue } from 'react-select';
+import { useNavigate } from 'react-router-dom';
+import CrossIcon from '../../assets/svg/CrossIcon.svg';
+import { Button } from '../ui/button';
+import kanaban from '../../assets/svg/KanbanView.svg';
+import gantt from '../../assets/svg/Gantt.svg';
+import calendar from '../../assets/svg/Calendar.svg';
+import list from '../../assets/svg/List.svg';
+import InfoCircle from '../../assets/svg/Info circle.svg';
 import {
-  TooltipProvider,
   Tooltip,
-  TooltipTrigger,
   TooltipContent,
-} from "../ui/tooltip";
-import { toast } from "react-toastify";
-import countries from "../../assets/json/countries.json";
-import Select, { SingleValue } from "react-select";
-import ErrorMessage from "../common/ErrorMessage";
-import { useNavigate } from "react-router-dom";
+  TooltipProvider,
+  TooltipTrigger,
+} from '../ui/tooltip';
+import countries from '../../assets/json/countries.json';
+import ErrorMessage from '../common/ErrorMessage';
+import useProjectMutation from '@/api/mutation/useProjectMutation';
+import useProjectQuery, { Project } from '@/api/query/useProjectQuery';
+import useProjectUpdateMutation from '@/api/mutation/useProjectUpdateMutation';
 
 type Options = { label: string; value: string };
 
@@ -38,42 +38,42 @@ type AddProjectType = {
 
 const RADIO_BUTTON_OPTIONS = [
   {
+    description: 'Unlock the Power of Visual Project Management with Kanban',
     id: 1,
-    title: "Kanban",
-    description: "Unlock the Power of Visual Project Management with Kanban",
     img: kanaban,
+    title: 'Kanban',
   },
   {
+    description: 'Track Milestones and Deadlines with Gantt Charts',
     id: 2,
-    title: "Gantt",
-    description: "Track Milestones and Deadlines with Gantt Charts",
     img: gantt,
+    title: 'Gantt',
   },
   {
+    description: 'Master Your Daily, Weekly, and Monthly Planning',
     id: 3,
-    title: "Calendar",
-    description: "Master Your Daily, Weekly, and Monthly Planning",
     img: calendar,
+    title: 'Calendar',
   },
   {
+    description: 'Never Miss a Detail with Comprehensive List Management',
     id: 4,
-    title: "List",
-    description: "Never Miss a Detail with Comprehensive List Management",
     img: list,
+    title: 'List',
   },
 ];
 
 function CreateUpdateProjectForm(props: AddProjectType) {
-  const { handleClosePopUp, editData } = props;
+  const { editData, handleClosePopUp } = props;
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const errorStyle = "text-red-400 block text-sm h-1";
-  const labelStyle = "font-medium text-base text-gray-700 ";
+  const errorStyle = 'text-red-400 block text-sm h-1';
+  const labelStyle = 'font-medium text-base text-gray-700 ';
   const inputStyle =
-    "py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[46px]";
+    'py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[46px]';
   const projectMutation = useProjectMutation();
   const projectUpdateMutation = useProjectUpdateMutation(
-    editData ? editData.projectId : ""
+    editData ? editData.projectId : '',
   );
   const [currencyValue, setCurrencyValue] = useState<SingleValue<Options>>();
 
@@ -81,82 +81,82 @@ function CreateUpdateProjectForm(props: AddProjectType) {
   const navigate = useNavigate();
   const formik = useFormik<z.infer<typeof createProjectSchema>>({
     initialValues: {
-      projectName: "",
-      projectDescription: "",
-      startDate: "" as unknown as Date,
-      estimatedEndDate: "" as unknown as Date,
-      estimatedBudget: "",
-      defaultView: "KANBAN",
-      currency: "USD",
+      currency: 'USD',
+      defaultView: 'KANBAN',
+      estimatedBudget: '',
+      estimatedEndDate: '' as unknown as Date,
+      projectDescription: '',
+      projectName: '',
+      startDate: '' as unknown as Date,
+    },
+    onSubmit: (values, helper) => {
+      if (editData && editData.projectId) {
+        projectUpdateMutation.mutate(values, {
+          onError(error) {
+            setIsSubmitting(false);
+            if (isAxiosError(error)) {
+              if (
+                error.response?.status === 400 &&
+                error.response.data?.errors &&
+                Array.isArray(error.response?.data.errors)
+              ) {
+                error.response.data.errors.forEach((item) => {
+                  helper.setFieldError(item.path[0], item.message);
+                });
+              }
+              if (!Array.isArray(error.response?.data.errors)) {
+                toast.error(
+                  error.response?.data?.message ??
+                    'An unexpected error occurred.',
+                );
+              }
+            }
+          },
+          onSuccess(data) {
+            projectQuery.refetch();
+            formik.resetForm();
+            handleClosePopUp();
+            setIsSubmitting(false);
+            toast.success(data.data.message);
+            navigate('/projects/');
+          },
+        });
+      } else {
+        projectMutation.mutate(values, {
+          onError(error) {
+            setIsSubmitting(false);
+            if (isAxiosError(error)) {
+              if (
+                error.response?.status === 400 &&
+                error.response.data?.errors &&
+                Array.isArray(error.response?.data.errors)
+              ) {
+                error.response.data.errors.forEach((item) => {
+                  helper.setFieldError(item.path[0], item.message);
+                });
+              }
+              if (!Array.isArray(error.response?.data.errors)) {
+                toast.error(
+                  error.response?.data?.message ??
+                    'An unexpected error occurred.',
+                );
+              }
+            }
+          },
+          onSuccess(data) {
+            projectQuery.refetch();
+            formik.resetForm();
+            handleClosePopUp();
+            toast.success(data.data.message);
+            navigate('/projects/');
+          },
+        });
+      }
     },
     validationSchema:
       editData && editData.projectId
         ? toFormikValidationSchema(updateProjectSchema)
         : toFormikValidationSchema(createProjectSchema),
-    onSubmit: (values, helper) => {
-      if (editData && editData.projectId) {
-        projectUpdateMutation.mutate(values, {
-          onSuccess(data) {
-            projectQuery.refetch();
-            formik.resetForm();
-            handleClosePopUp();
-            setIsSubmitting(false);
-            toast.success(data.data.message);
-            navigate("/projects/");
-          },
-          onError(error) {
-            setIsSubmitting(false);
-            if (isAxiosError(error)) {
-              if (
-                error.response?.status === 400 &&
-                error.response.data?.errors &&
-                Array.isArray(error.response?.data.errors)
-              ) {
-                error.response.data.errors.forEach((item) => {
-                  helper.setFieldError(item.path[0], item.message);
-                });
-              }
-              if (!Array.isArray(error.response?.data.errors)) {
-                toast.error(
-                  error.response?.data?.message ??
-                    "An unexpected error occurred."
-                );
-              }
-            }
-          },
-        });
-      } else {
-        projectMutation.mutate(values, {
-          onSuccess(data) {
-            projectQuery.refetch();
-            formik.resetForm();
-            handleClosePopUp();
-            toast.success(data.data.message);
-            navigate("/projects/");
-          },
-          onError(error) {
-            setIsSubmitting(false);
-            if (isAxiosError(error)) {
-              if (
-                error.response?.status === 400 &&
-                error.response.data?.errors &&
-                Array.isArray(error.response?.data.errors)
-              ) {
-                error.response.data.errors.forEach((item) => {
-                  helper.setFieldError(item.path[0], item.message);
-                });
-              }
-              if (!Array.isArray(error.response?.data.errors)) {
-                toast.error(
-                  error.response?.data?.message ??
-                    "An unexpected error occurred."
-                );
-              }
-            }
-          },
-        });
-      }
-    },
   });
   useEffect(() => {
     if (editData) {
@@ -166,20 +166,20 @@ function CreateUpdateProjectForm(props: AddProjectType) {
         const month = date.getMonth() + 1;
         const day = date.getDate();
 
-        return `${year}-${month.toString().padStart(2, "0")}-${day
+        return `${year}-${month.toString().padStart(2, '0')}-${day
           .toString()
-          .padStart(2, "0")}`;
+          .padStart(2, '0')}`;
       };
       formik.setValues({
-        startDate: formatDate(editData.startDate) as unknown as Date,
-        estimatedEndDate: formatDate(
-          editData.estimatedEndDate
-        ) as unknown as Date,
+        currency: editData.currency,
+        defaultView: editData.defaultView,
         estimatedBudget: editData.estimatedBudget,
+        estimatedEndDate: formatDate(
+          editData.estimatedEndDate,
+        ) as unknown as Date,
         projectDescription: editData.projectDescription,
         projectName: editData.projectName,
-        defaultView: editData.defaultView,
-        currency: editData.currency,
+        startDate: formatDate(editData.startDate) as unknown as Date,
       });
       setCurrencyValue({ label: editData.currency, value: editData.currency });
     }
@@ -195,26 +195,26 @@ function CreateUpdateProjectForm(props: AddProjectType) {
   const reactSelectStyle = {
     control: (
       provided: Record<string, unknown>,
-      state: { isFocused: boolean }
+      state: { isFocused: boolean },
     ) => ({
       ...provided,
-      border: "1px solid #E7E7E7",
-      paddingTop: "0.2rem",
-      paddingBottom: "0.2rem",
-      zIndex: 1000,
-      outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
-      boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
-      "&:hover": {
-        outline: state.isFocused ? "1px solid #943B0C" : "1px solid #E7E7E7",
-        boxShadow: "0px 0px 0px #943B0C",
+      '&:hover': {
+        boxShadow: '0px 0px 0px #943B0C',
+        outline: state.isFocused ? '1px solid #943B0C' : '1px solid #E7E7E7',
       },
+      border: '1px solid #E7E7E7',
+      boxShadow: state.isFocused ? '0px 0px 0px #943B0C' : 'none',
+      outline: state.isFocused ? '2px solid #943B0C' : '0px solid #E7E7E7',
+      paddingBottom: '0.2rem',
+      paddingTop: '0.2rem',
+      zIndex: 1000,
     }),
   };
 
   const handleCurrency = (val: SingleValue<Options>) => {
     if (val) {
       setCurrencyValue(val);
-      formik.setFieldValue("currency", val.value);
+      formik.setFieldValue('currency', val.value);
     }
   };
   return (
@@ -323,7 +323,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                           placeholder="Placeholder"
                           value={
                             (formik.values
-                              .estimatedEndDate as unknown as string) ?? ""
+                              .estimatedEndDate as unknown as string) ?? ''
                           }
                           onChange={formik.handleChange}
                           onBlur={formik.handleBlur}
@@ -343,7 +343,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                           onBlur={() => formik.setTouched({ currency: true })}
                           options={currencyFn()}
                           value={currencyValue}
-                          defaultValue={{ label: "USD", value: "USD" }}
+                          defaultValue={{ label: 'USD', value: 'USD' }}
                           placeholder="Currency"
                           name="currency"
                           menuPlacement="auto"
@@ -355,7 +355,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                       </div>
                       <div className=" w-full">
                         <label className={labelStyle}>
-                          Estimated Budget{" "}
+                          Estimated Budget{' '}
                           <span className="ml-0.5 text-red-500">*</span>
                         </label>
                         <input
@@ -363,7 +363,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                           name="estimatedBudget"
                           placeholder="Estimated budget"
                           className={inputStyle}
-                          value={formik.values.estimatedBudget ?? ""}
+                          value={formik.values.estimatedBudget ?? ''}
                           onChange={formik.handleChange}
                           onBlur={formik.handleBlur}
                         />
@@ -385,8 +385,8 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                           className={`h-full w-full rounded-[5px] border ${
                             formik.values.defaultView ===
                             radioButton.title.toUpperCase()
-                              ? " border-2 border-primary-800 "
-                              : " border-gray-100"
+                              ? ' border-2 border-primary-800 '
+                              : ' border-gray-100'
                           }`}
                         >
                           <label className="flex lg:gap-3.5 gap-4 px-5 py-2.5 items-center h-full cursor-pointer">
@@ -426,7 +426,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                 <div className="flex justify-center mt-6 lg:mt-2">
                   <Button
                     type="submit"
-                    variant={"primary"}
+                    variant={'primary'}
                     className="font-medium text-lg"
                     isLoading={isSubmitting}
                     disabled={isSubmitting}

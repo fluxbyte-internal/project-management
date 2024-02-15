@@ -1,22 +1,22 @@
-import { useMutation } from "@tanstack/react-query";
-import { requestURLs } from "../../Environment";
+import { useMutation } from '@tanstack/react-query';
+import { requestURLs } from '../../Environment';
+import ApiRequest from '../ApiRequest';
 import {
   AxiosResponseAndError,
   ResponseType,
-} from "@/api/types/axiosResponseType";
-import ApiRequest from "../ApiRequest";
+} from '@/api/types/axiosResponseType';
 
 type TaskRemoveDependenciesResponseType = ResponseType<null>;
 
 function useRemoveTaskDependenciesMutation() {
   const mutation = useMutation<
-    AxiosResponseAndError<TaskRemoveDependenciesResponseType>["response"],
-    AxiosResponseAndError<TaskRemoveDependenciesResponseType>["error"],
+    AxiosResponseAndError<TaskRemoveDependenciesResponseType>['response'],
+    AxiosResponseAndError<TaskRemoveDependenciesResponseType>['error'],
     string
   >({
     mutationFn: (data) =>
       ApiRequest.delete<TaskRemoveDependenciesResponseType>(
-        `${requestURLs.task}dependencies/${data}`
+        `${requestURLs.task}dependencies/${data}`,
       ),
   });
 

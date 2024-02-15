@@ -1,12 +1,13 @@
-import { useMutation } from "@tanstack/react-query";
-import { requestURLs } from "../../Environment";
+import { useMutation } from '@tanstack/react-query';
+import { z } from 'zod';
+import { assginedToUserIdSchema } from '@backend/src/schemas/taskSchema';
+import { requestURLs } from '../../Environment';
+import ApiRequest from '../ApiRequest';
 import {
   AxiosResponseAndError,
   ResponseType,
-} from "@/api/types/axiosResponseType";
-import ApiRequest from "../ApiRequest";
-import { z } from "zod";
-import { assginedToUserIdSchema } from "@backend/src/schemas/taskSchema";
+} from '@/api/types/axiosResponseType';
+
 type TaskAddMembersResponse = ResponseType<{
   taskAssignUsersId: string;
   taskId: string;
@@ -17,14 +18,14 @@ type TaskAddMembersResponse = ResponseType<{
 
 function useTaskAddMembersMutation(taskId?: string) {
   const mutation = useMutation<
-    AxiosResponseAndError<TaskAddMembersResponse>["response"],
-    AxiosResponseAndError<TaskAddMembersResponse>["error"],
-   z.infer<typeof assginedToUserIdSchema>
+    AxiosResponseAndError<TaskAddMembersResponse>['response'],
+    AxiosResponseAndError<TaskAddMembersResponse>['error'],
+    z.infer<typeof assginedToUserIdSchema>
   >({
     mutationFn: (data) =>
       ApiRequest.post<TaskAddMembersResponse>(
         `${requestURLs.task}member/${taskId}`,
-        data
+        data,
       ),
   });
 

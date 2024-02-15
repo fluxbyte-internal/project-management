@@ -1,14 +1,24 @@
-import PercentageCircle from "@/components/shared/PercentageCircle";
-import Table, { ColumeDef } from "@/components/shared/Table";
-import dateFormatter from "@/helperFuntions/dateFormater";
-import useProjectQuery, { Project } from "../../api/query/useProjectQuery";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
-import NoProject from "../../components/project/NoProject";
-import Loader from "@/components/common/Loader";
-import UserAvatar from "@/components/ui/userAvatar";
-import BackgroundImage from "@/components/layout/BackgroundImage";
+import { useEffect, useState } from 'react';
+import { ScrollText, Settings } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import Select, { SingleValue } from 'react-select';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@radix-ui/react-popover';
+import { DateRange } from 'react-day-picker';
+import useProjectQuery, { Project } from '../../api/query/useProjectQuery';
+import NoProject from '../../components/project/NoProject';
+import CalendarSvg from '../../assets/svg/Calendar.svg';
+import PercentageCircle from '@/components/shared/PercentageCircle';
+import Table, { ColumeDef } from '@/components/shared/Table';
+import dateFormatter from '@/helperFuntions/dateFormater';
+import { Button } from '@/components/ui/button';
+import CreateUpdateProjectForm from '@/components/project/CreateProjectForm';
+import Loader from '@/components/common/Loader';
+import UserAvatar from '@/components/ui/userAvatar';
+import BackgroundImage from '@/components/layout/BackgroundImage';
 
 import {
   DropdownMenu,
@@ -16,19 +26,9 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ScrollText, Settings } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import Select, { SingleValue } from "react-select";
-import CalendarSvg from "../../assets/svg/Calendar.svg";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@radix-ui/react-popover";
-import { Calendar } from "@/components/ui/calendar";
-import { DateRange } from "react-day-picker";
-import { useUser } from "@/hooks/useUser";
+} from '@/components/ui/dropdown-menu';
+import { Calendar } from '@/components/ui/calendar';
+import { useUser } from '@/hooks/useUser';
 
 type Options = { label: string; value: string };
 function ProjectsList() {
@@ -41,24 +41,29 @@ function ProjectsList() {
     status: SingleValue<Options> | null;
     date: DateRange | undefined;
   }>({
+    date: undefined,
     projectManager: null,
     status: null,
-    date: undefined,
   });
   const { user } = useUser();
   const navigate = useNavigate();
 
   const projectQuery = useProjectQuery();
-  const [searchParams,setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     setData(projectQuery.data?.data.data);
     setFilterData(projectQuery.data?.data.data);
-    if (searchParams.get("status")) {
-      setFilter(prev => ({...prev,status:{label:searchParams.get("status")??"",value:searchParams.get("status")??""}}));
+    if (searchParams.get('status')) {
+      setFilter((prev) => ({
+        ...prev,
+        status: {
+          label: searchParams.get('status') ?? '',
+          value: searchParams.get('status') ?? '',
+        },
+      }));
     }
-  }, [projectQuery.data?.data.data,searchParams]);
-
+  }, [projectQuery.data?.data.data, searchParams]);
 
   const close = () => {
     setIsOpenPopUp(false);
@@ -66,16 +71,16 @@ function ProjectsList() {
   };
 
   const handleView = (id: string) => {
-    navigate("/project-details/" + id);
+    navigate('/project-details/' + id);
   };
   const projectManager = (): Options[] | undefined => {
     const projectManagerData: Options[] | undefined = [
-      { label: "Select manager", value: "" },
+      { label: 'Select manager', value: '' },
     ];
     data?.forEach((item) => {
       item.projectManagerInfo.forEach((element) => {
         const val = element.user.email;
-        if (!projectManagerData.some((i) => i.value == element.user.email)) {
+        if (!projectManagerData.some((i) => i.value === element.user.email)) {
           projectManagerData.push({ label: val, value: val });
         }
       });
@@ -85,10 +90,10 @@ function ProjectsList() {
   };
   const status = (): Options[] | undefined => {
     const statusData: Options[] | undefined = [
-      { label: "Select status", value: "" },
+      { label: 'Select status', value: '' },
     ];
     data?.forEach((item) => {
-      if (!statusData.some((i) => i.value == item.status)) {
+      if (!statusData.some((i) => i.value === item.status)) {
         statusData.push({ label: item.status, value: item.status });
       }
     });
@@ -96,10 +101,10 @@ function ProjectsList() {
     return statusData;
   };
   const columnDef: ColumeDef[] = [
-    { key: "projectName", header: "Project Name", sorting: true },
+    { header: 'Project Name', key: 'projectName', sorting: true },
     {
-      key: "createdByUser",
-      header: "Project Manager",
+      header: 'Project Manager',
+      key: 'createdByUser',
       onCellRender: (item: Project) => (
         <div className="w-full my-3">
           {item.projectManagerInfo?.length > 0 ? (
@@ -119,79 +124,80 @@ function ProjectsList() {
               })}
               {item.projectManagerInfo &&
                 item.projectManagerInfo?.length > 3 && (
-                <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
-                  {`${item.projectManagerInfo?.length - 3}+`}
-                </div>
-              )}
-              {item.projectManagerInfo?.length <= 0 ? "N/A" : ""}
+                  <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
+                    {`${item.projectManagerInfo?.length - 3}+`}
+                  </div>
+                )}
+              {item.projectManagerInfo?.length <= 0 ? 'N/A' : ''}
             </div>
           ) : (
-            "NA"
+            'NA'
           )}
         </div>
       ),
     },
     {
-      key: "createdByUser",
-      header: "Team Member",
+      header: 'Team Member',
+      key: 'createdByUser',
       onCellRender: (item: Project) => (
         <div className="w-full my-3">
           {item.assignedUsers.filter(
-            (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER"
+            (d) => d.user.userOrganisation[0].role === 'TEAM_MEMBER',
           )?.length > 0 ? (
-              <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
-                {item.assignedUsers
-                  ?.filter(
-                    (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER"
-                  )
-                  .slice(0, 3)
-                  .map((item, index) => {
-                    const zIndex = Math.abs(index - 2);
-                    return (
-                      <>
-                        <div key={index} style={{ zIndex: zIndex }}>
-                          <UserAvatar
-                            className={`shadow-sm h-7 w-7`}
-                            user={item.user}
-                          ></UserAvatar>
-                        </div>
-                      </>
-                    );
-                  })}
-                {item.projectManagerInfo &&
+            <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
+              {item.assignedUsers
+                ?.filter(
+                  (d) => d.user.userOrganisation[0].role === 'TEAM_MEMBER',
+                )
+                .slice(0, 3)
+                .map((item, index) => {
+                  const zIndex = Math.abs(index - 2);
+                  return (
+                    <>
+                      <div key={index} style={{ zIndex: zIndex }}>
+                        <UserAvatar
+                          className={`shadow-sm h-7 w-7`}
+                          user={item.user}
+                        ></UserAvatar>
+                      </div>
+                    </>
+                  );
+                })}
+              {item.projectManagerInfo &&
                 item.assignedUsers.filter(
-                  (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER"
+                  (d) => d.user.userOrganisation[0].role === 'TEAM_MEMBER',
                 )?.length > 3 && (
                   <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
                     {`${
                       item.assignedUsers.filter(
-                        (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER"
+                        (d) =>
+                          d.user.userOrganisation[0].role === 'TEAM_MEMBER',
                       )?.length - 3
                     }+`}
                   </div>
                 )}
-                {item.assignedUsers.filter(
-                  (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER"
-                )?.length <= 0
-                  ? "N/A"
-                  : ""}
-              </div>
-            ) : (
-              "NA"
-            )}
+              {item.assignedUsers.filter(
+                (d) => d.user.userOrganisation[0].role === 'TEAM_MEMBER',
+              )?.length <= 0
+                ? 'N/A'
+                : ''}
+            </div>
+          ) : (
+            'NA'
+          )}
         </div>
       ),
     },
     {
-      key: "status",
-      header: "Status",
+      header: 'Status',
+      key: 'status',
       onCellRender: (item: Project) => (
         <>
           <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
             <div className="text-cyan-700 text-xs font-medium leading-tight">
               {item.status
                 .toLowerCase()
-                .replace(/_/g, " ")
+                .replace(/_/g, ' ')
                 .replace(/\b\w/g, (char) => char.toUpperCase())}
             </div>
           </div>
@@ -199,16 +205,16 @@ function ProjectsList() {
       ),
     },
     {
-      key: "startDate",
-      header: "Start Date",
-      sorting: true,
+      header: 'Start Date',
+      key: 'startDate',
       onCellRender: (item: Project) => (
         <>{dateFormatter(new Date(item.startDate))}</>
       ),
+      sorting: true,
     },
     {
-      key: "actualEndDate",
-      header: "End Date",
+      header: 'End Date',
+      key: 'actualEndDate',
       onCellRender: (item: Project) => (
         <>
           {item.estimatedEndDate &&
@@ -217,20 +223,26 @@ function ProjectsList() {
       ),
     },
     {
-      key: "progress",
-      header: "Progress",
+      header: 'Progress',
+      key: 'progress',
       onCellRender: (item: Project) => (
-        <PercentageCircle percentage={item.progressionPercentage ? Number(item.progressionPercentage) * 100 : 0} />
+        <PercentageCircle
+          percentage={
+            item.progressionPercentage
+              ? Number(item.progressionPercentage) * 100
+              : 0
+          }
+        />
       ),
     },
     {
-      key: "estimatedBudget",
-      header: "Budget",
+      header: 'Budget',
+      key: 'estimatedBudget',
       sorting: true,
     },
     {
-      key: "Action",
-      header: "Action",
+      header: 'Action',
+      key: 'Action',
       onCellRender: (item: Project) => (
         <>
           <DropdownMenu>
@@ -260,18 +272,18 @@ function ProjectsList() {
   const reactSelectStyle = {
     control: (
       provided: Record<string, unknown>,
-      state: { isFocused: boolean }
+      state: { isFocused: boolean },
     ) => ({
       ...provided,
-      border: "1px solid #E7E7E7",
-      paddingTop: "0.2rem",
-      paddingBottom: "0.2rem",
-      outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
-      boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
-      "&:hover": {
-        outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
-        boxShadow: "0px 0px 0px #943B0C",
+      '&:hover': {
+        boxShadow: '0px 0px 0px #943B0C',
+        outline: state.isFocused ? '2px solid #943B0C' : '0px solid #E7E7E7',
       },
+      border: '1px solid #E7E7E7',
+      boxShadow: state.isFocused ? '0px 0px 0px #943B0C' : 'none',
+      outline: state.isFocused ? '2px solid #943B0C' : '0px solid #E7E7E7',
+      paddingBottom: '0.2rem',
+      paddingTop: '0.2rem',
     }),
   };
   // const handleEdit = (item: Project) => {
@@ -311,8 +323,8 @@ function ProjectsList() {
 
   const reset = () => {
     setFilter({
-      projectManager: null,
       date: undefined,
+      projectManager: null,
       status: null,
     });
     setSearchParams({});
@@ -332,10 +344,10 @@ function ProjectsList() {
                 <h2 className="font-medium text-3xl leading-normal text-gray-600">
                   Projects
                 </h2>
-                {user?.userOrganisation[0]?.role !== "TEAM_MEMBER" && (
+                {user?.userOrganisation[0]?.role !== 'TEAM_MEMBER' && (
                   <div>
                     <Button
-                      variant={"primary"}
+                      variant={'primary'}
                       onClick={() => setIsOpenPopUp(true)}
                     >
                       Add Project
@@ -350,8 +362,8 @@ function ProjectsList() {
                       className="p-0 "
                       value={
                         filter.projectManager || {
-                          label: "Select manager",
-                          value: "",
+                          label: 'Select manager',
+                          value: '',
                         }
                       }
                       options={projectManager()}
@@ -365,7 +377,7 @@ function ProjectsList() {
                   <div className="w-1/4">
                     <Select
                       value={
-                        filter.status || { label: "Select status", value: "" }
+                        filter.status || { label: 'Select status', value: '' }
                       }
                       className="p-0 "
                       options={status()}
@@ -380,16 +392,16 @@ function ProjectsList() {
                     <Popover>
                       <PopoverTrigger className="w-full">
                         <Button
-                          variant={"outline"}
+                          variant={'outline'}
                           className="w-full h-11 py-1"
                         >
                           <div className="flex justify-between items-center w-full text-gray-400 font-normal">
                             {filter.date
                               ? `${dateFormatter(
-                                filter.date.from ?? new Date()
-                              )}-
+                                  filter.date.from ?? new Date(),
+                                )}-
                               ${dateFormatter(filter.date.to ?? new Date())}`
-                              : "End date"}
+                              : 'End date'}
                             <img src={CalendarSvg} width={20} />
                           </div>
                         </Button>
@@ -410,7 +422,7 @@ function ProjectsList() {
                   </div>
                   <div>
                     <Button
-                      variant={"outline"}
+                      variant={'outline'}
                       className="h-11 py-1 bg-gray-100/50"
                       onClick={reset}
                     >

@@ -1,26 +1,26 @@
-import { useFormik } from "formik";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import {
-  createOrganisationSchema,
-  updateOrganisationSchema,
-} from "../../../../../backend/src/schemas/organisationSchema";
-import { OrganisationType } from "@/api/mutation/useOrganisationMutation";
-import { isAxiosError } from "axios";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
-import { useEffect, useState } from "react";
-import Select, { SingleValue, MultiValue } from "react-select";
-import countries from "../../../assets/json/countries.json";
-import ErrorMessage from "@/components/common/ErrorMessage";
-import useOrganisationUpdateMutation from "@/api/mutation/useOrganisationUpdateMutation";
-import { toast } from "react-toastify";
+import { useFormik } from 'formik';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
+import { isAxiosError } from 'axios';
+import { z } from 'zod';
+import { useEffect, useState } from 'react';
+import Select, { MultiValue, SingleValue } from 'react-select';
+import { toast } from 'react-toastify';
 import {
   TaskColorPaletteEnum,
   userOrgSettingsUpdateSchema,
-} from "@backend/src/schemas/userSchema";
-import { useUser } from "@/hooks/useUser";
-import useOrgSettingsUpdateMutation from "@/api/mutation/useOrgSettingsUpdateMutation";
+} from '@backend/src/schemas/userSchema';
+import {
+  createOrganisationSchema,
+  updateOrganisationSchema,
+} from '../../../../../backend/src/schemas/organisationSchema';
+import countries from '../../../assets/json/countries.json';
+import { OrganisationType } from '@/api/mutation/useOrganisationMutation';
+import { Button } from '@/components/ui/button';
+import useCurrentUserQuery from '@/api/query/useCurrentUserQuery';
+import ErrorMessage from '@/components/common/ErrorMessage';
+import useOrganisationUpdateMutation from '@/api/mutation/useOrganisationUpdateMutation';
+import { useUser } from '@/hooks/useUser';
+import useOrgSettingsUpdateMutation from '@/api/mutation/useOrgSettingsUpdateMutation';
 
 interface Props {
   editData?: OrganisationType;
@@ -30,18 +30,18 @@ interface Props {
 type Options = { label: string; value: string };
 
 function OrganisationNoPopUpForm(props: Props) {
-  const { viewOnly ,editData } = props;
-  const labelStyle = "block text-gray-500 text-sm font-bold mb-1";
+  const { editData, viewOnly } = props;
+  const labelStyle = 'block text-gray-500 text-sm font-bold mb-1';
   const inputStyle = `block w-full p-2.5 border border-gray-100 text-gray-500 text-sm rounded-md shadow-sm placeholder:text-gray-400 `;
 
   const organisationUpdateMutation = useOrganisationUpdateMutation(
-    editData && editData.organisationId ? editData.organisationId : ""
+    editData && editData.organisationId ? editData.organisationId : '',
   );
   const { refetch } = useCurrentUserQuery();
   const { user } = useUser();
 
   const orgSettingsUpdateMutation = useOrgSettingsUpdateMutation(
-    user?.userOrganisation[0].userOrganisationId ?? ""
+    user?.userOrganisation[0].userOrganisationId ?? '',
   );
   const [countryValue, setContryValue] = useState<SingleValue<Options>>();
   const [industryValue, setIndustryValue] = useState<SingleValue<Options>>();
@@ -51,23 +51,15 @@ function OrganisationNoPopUpForm(props: Props) {
   const [IsTaskColourSubmitting, setIsTaskColourSubmitting] = useState(false);
   const formik = useFormik<z.infer<typeof createOrganisationSchema>>({
     initialValues: {
-      organisationName: "",
-      industry: "",
-      status: "ACTIVE",
+      country: '',
+      industry: '',
       nonWorkingDays: [],
-      country: "",
+      organisationName: '',
+      status: 'ACTIVE',
     },
-    validationSchema: toFormikValidationSchema(updateOrganisationSchema),
     onSubmit: (values, helper) => {
       setIsSubmitting(true);
       organisationUpdateMutation.mutate(values, {
-        onSuccess(data) {
-          toast.success(data.data.message);
-          close();
-          refetch();
-          props.refetch();
-          setIsSubmitting(false);
-        },
         onError(error) {
           if (isAxiosError(error)) {
             if (
@@ -78,37 +70,40 @@ function OrganisationNoPopUpForm(props: Props) {
               error.response.data.errors.map(
                 (item: { message: string; path: [string] }) => {
                   helper.setFieldError(item.path[0], item.message);
-                }
+                },
               );
             }
             if (!Array.isArray(error.response?.data.errors)) {
               toast.error(
-                error.response?.data?.message ?? "An unexpected error occurred."
+                error.response?.data?.message ??
+                  'An unexpected error occurred.',
               );
             }
             setIsSubmitting(false);
           }
         },
+        onSuccess(data) {
+          toast.success(data.data.message);
+          close();
+          refetch();
+          props.refetch();
+          setIsSubmitting(false);
+        },
       });
     },
+    validationSchema: toFormikValidationSchema(updateOrganisationSchema),
   });
   const userOrgSettingForm = useFormik<
     z.infer<typeof userOrgSettingsUpdateSchema>
   >({
     initialValues: {
-      jobTitle: user?.userOrganisation[0].jobTitle ?? "",
+      jobTitle: user?.userOrganisation[0].jobTitle ?? '',
       taskColour:
         user?.userOrganisation[0].taskColour ?? TaskColorPaletteEnum.BLACK,
     },
-    validationSchema: toFormikValidationSchema(userOrgSettingsUpdateSchema),
     onSubmit: (values, helper) => {
       setIsTaskColourSubmitting(true);
       orgSettingsUpdateMutation.mutate(values, {
-        onSuccess(data) {
-          toast.success(data.data.message);
-          setIsTaskColourSubmitting(false);
-          refetch();
-        },
         onError(error) {
           if (isAxiosError(error)) {
             if (
@@ -122,14 +117,21 @@ function OrganisationNoPopUpForm(props: Props) {
             }
             if (!Array.isArray(error.response?.data.errors)) {
               toast.error(
-                error.response?.data?.message ?? "An unexpected error occurred."
+                error.response?.data?.message ??
+                  'An unexpected error occurred.',
               );
             }
           }
           setIsTaskColourSubmitting(false);
         },
+        onSuccess(data) {
+          toast.success(data.data.message);
+          setIsTaskColourSubmitting(false);
+          refetch();
+        },
       });
     },
+    validationSchema: toFormikValidationSchema(userOrgSettingsUpdateSchema),
   });
   // const taskColors = Object.keys(TaskColorPaletteEnum).map((colorPalette) => {
   //   const color =
@@ -154,8 +156,8 @@ function OrganisationNoPopUpForm(props: Props) {
       });
       if (editData.industry) {
         setIndustryValue({
-          value: editData.industry,
           label: editData.industry,
+          value: editData.industry,
         });
       }
       const country = countries.find((item) => {
@@ -164,7 +166,7 @@ function OrganisationNoPopUpForm(props: Props) {
         }
       });
       const setNonWorkingDays = editData.nonWorkingDays.map((item) => {
-        return nonWorkingDays.find((i) => item == i.value);
+        return nonWorkingDays.find((i) => item === i.value);
       });
       if (country && setNonWorkingDays) {
         setContryValue({ label: country?.name, value: country?.isoCode });
@@ -173,37 +175,36 @@ function OrganisationNoPopUpForm(props: Props) {
     }
   }, [editData]);
 
-
   const reactSelectStyle = {
     control: (
       provided: Record<string, unknown>,
-      state: { isFocused: boolean }
+      state: { isFocused: boolean },
     ) => ({
       ...provided,
-      border: "1px solid #E7E7E7",
-      outline: state.isFocused ? "2px solid #943B0C" : "1px solid #E7E7E7",
-      boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
-      "&:hover": {
-        outline: state.isFocused ? "2px solid #943B0C" : "1px solid #E7E7E7",
-        boxShadow: "0px 0px 0px #943B0C",
+      '&:hover': {
+        boxShadow: '0px 0px 0px #943B0C',
+        outline: state.isFocused ? '2px solid #943B0C' : '1px solid #E7E7E7',
       },
+      border: '1px solid #E7E7E7',
+      boxShadow: state.isFocused ? '0px 0px 0px #943B0C' : 'none',
+      outline: state.isFocused ? '2px solid #943B0C' : '1px solid #E7E7E7',
     }),
   };
   const nonWorkingDays: Options[] = [
-    { label: "Sunday", value: "SUN" },
-    { label: "Monday", value: "MON" },
-    { label: "Tuesday", value: "TUE" },
-    { label: "Wednesday", value: "WED" },
-    { label: "Thursday", value: "THU" },
-    { label: "Friday", value: "FRI" },
-    { label: "Saturday", value: "SAT" },
+    { label: 'Sunday', value: 'SUN' },
+    { label: 'Monday', value: 'MON' },
+    { label: 'Tuesday', value: 'TUE' },
+    { label: 'Wednesday', value: 'WED' },
+    { label: 'Thursday', value: 'THU' },
+    { label: 'Friday', value: 'FRI' },
+    { label: 'Saturday', value: 'SAT' },
   ];
   const industriesData: Options[] = [
-    { label: "IT", value: "IT" },
-    { label: "Banking", value: "Banking" },
-    { label: "Insurance", value: "Insurance" },
-    { label: "Education", value: "Education" },
-    { label: "Chemicals", value: "Chemicals" },
+    { label: 'IT', value: 'IT' },
+    { label: 'Banking', value: 'Banking' },
+    { label: 'Insurance', value: 'Insurance' },
+    { label: 'Education', value: 'Education' },
+    { label: 'Chemicals', value: 'Chemicals' },
   ];
 
   const contrysFn = () => {
@@ -215,24 +216,24 @@ function OrganisationNoPopUpForm(props: Props) {
   const handleCountry = (val: SingleValue<Options>) => {
     if (val) {
       setContryValue(val);
-      formik.setFieldValue("country", val.value);
+      formik.setFieldValue('country', val.value);
     }
   };
   const handleNonWorkingDays = (val: MultiValue<Options>) => {
     if (val) {
       setNonWorkingDaysValue(val);
       formik.setFieldValue(
-        "nonWorkingDays",
+        'nonWorkingDays',
         val.map((item) => {
           return item.value;
-        })
+        }),
       );
     }
   };
   const handleIndustries = (val: SingleValue<Options>) => {
     if (val) {
       setIndustryValue(val);
-      formik.setFieldValue("industry", val.value);
+      formik.setFieldValue('industry', val.value);
     }
   };
 
@@ -380,17 +381,19 @@ function OrganisationNoPopUpForm(props: Props) {
             ))}
           </div>
         </div> */}
-        {!viewOnly&&<div className="flex justify-end">
-          <Button
-            type="submit"
-            variant={"primary"}
-            isLoading={isSubmitting || IsTaskColourSubmitting}
-            disabled={isSubmitting || IsTaskColourSubmitting}
-            className="py-2.5 mt-5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
-          >
-            Save
-          </Button>
-        </div>}
+        {!viewOnly && (
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              variant={'primary'}
+              isLoading={isSubmitting || IsTaskColourSubmitting}
+              disabled={isSubmitting || IsTaskColourSubmitting}
+              className="py-2.5 mt-5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
+            >
+              Save
+            </Button>
+          </div>
+        )}
       </form>
     </div>
   );

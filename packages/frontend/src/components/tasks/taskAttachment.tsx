@@ -1,15 +1,15 @@
-import Dialog from "../common/Dialog";
-import { Button } from "../ui/button";
-import { toast } from "react-toastify";
-import { useState } from "react";
-import TrashCanSvg from "../../assets/svg/TrashCan.svg";
-import PapperClip from "../../assets/svg/Paperclip.svg";
-import FileIcon from "../../assets/svg/FileIcon.svg";
-import DownloadSvg from "../../assets/svg/DownLoad.svg";
-import TopRightArrow from "../../assets/svg/TopRightArrow.svg";
-import calculateTimeDifference from "../shared/TimeDifferenceCalculate";
-import { Task } from "@/api/mutation/useTaskCreateMutation";
-import useRemoveTaskAttachmentMutation from "@/api/mutation/useTaskAttechmentRemoveMutation";
+import { toast } from 'react-toastify';
+import { useState } from 'react';
+import Dialog from '../common/Dialog';
+import { Button } from '../ui/button';
+import TrashCanSvg from '../../assets/svg/TrashCan.svg';
+import PapperClip from '../../assets/svg/Paperclip.svg';
+import FileIcon from '../../assets/svg/FileIcon.svg';
+import DownloadSvg from '../../assets/svg/DownLoad.svg';
+import TopRightArrow from '../../assets/svg/TopRightArrow.svg';
+import calculateTimeDifference from '../shared/TimeDifferenceCalculate';
+import { Task } from '@/api/mutation/useTaskCreateMutation';
+import useRemoveTaskAttachmentMutation from '@/api/mutation/useTaskAttechmentRemoveMutation';
 
 type Props = {
   task: Task | undefined;
@@ -19,18 +19,20 @@ type Props = {
 function TaskAttachment(props: Props) {
   const removeTaskAttachmentMutation = useRemoveTaskAttachmentMutation();
   const [showAllAttachment, setShowAllAttachment] = useState<boolean>(false);
-  const [showConfirmDelete, setShowConfirmDelete] = useState<string | null>(null);
+  const [showConfirmDelete, setShowConfirmDelete] = useState<string | null>(
+    null,
+  );
 
   const removeConfirm = () => {
     if (showConfirmDelete) {
       removeTaskAttachmentMutation.mutate(showConfirmDelete, {
+        onError(error) {
+          toast.error(error.response?.data.message);
+          setShowConfirmDelete(null);
+        },
         onSuccess(data) {
           props.refetch();
           toast.success(data.data.message);
-          setShowConfirmDelete(null);
-        },
-        onError(error) {
-          toast.error(error.response?.data.message);
           setShowConfirmDelete(null);
         },
       });
@@ -45,7 +47,11 @@ function TaskAttachment(props: Props) {
           <div className="text-xl font-medium">Attachments</div>
         </div>
       </div>
-      {props.task?.documentAttachments.slice(0, showAllAttachment ? props.task?.documentAttachments.length : 2)
+      {props.task?.documentAttachments
+        .slice(
+          0,
+          showAllAttachment ? props.task?.documentAttachments.length : 2,
+        )
         .map((item, index) => {
           return (
             <div key={index} className="flex gap-2 mt-2 group">
@@ -74,7 +80,7 @@ function TaskAttachment(props: Props) {
                   </div>
                   <div className="opacity-0 group-hover:opacity-90">
                     <Button
-                      variant={"none"}
+                      variant={'none'}
                       className="px-3"
                       onClick={() => setShowConfirmDelete(item.attachmentId)}
                     >
@@ -88,18 +94,18 @@ function TaskAttachment(props: Props) {
         })}
       {props.task?.documentAttachments &&
         props.task?.documentAttachments.length > 2 && (
-        <div>
-          <hr className="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700"></hr>
-          <div
-            className="text-center cursor-pointer"
-            onClick={() => setShowAllAttachment((prev) => !prev)}
-          >
-            {!showAllAttachment ? "Show all" : "Less"}
+          <div>
+            <hr className="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700"></hr>
+            <div
+              className="text-center cursor-pointer"
+              onClick={() => setShowAllAttachment((prev) => !prev)}
+            >
+              {!showAllAttachment ? 'Show all' : 'Less'}
+            </div>
           </div>
-        </div>
-      )}
+        )}
       <Dialog
-        isOpen={showConfirmDelete ? true : false}
+        isOpen={Boolean(showConfirmDelete)}
         onClose={() => {}}
         modalClass="rounded-lg"
       >
@@ -108,20 +114,19 @@ function TaskAttachment(props: Props) {
           want to delete ?
           <div className="flex gap-2 ml-auto">
             <Button
-              variant={"outline"}
+              variant={'outline'}
               isLoading={removeTaskAttachmentMutation.isPending}
               disabled={removeTaskAttachmentMutation.isPending}
               onClick={() => setShowConfirmDelete(null)}
             >
               Cancel
             </Button>
-            <Button variant={"primary"} onClick={removeConfirm}>
+            <Button variant={'primary'} onClick={removeConfirm}>
               Delete
             </Button>
           </div>
         </div>
       </Dialog>
-
     </>
   );
 }

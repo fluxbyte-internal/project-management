@@ -1,15 +1,15 @@
-import { useState } from "react";
-import { Button } from "../ui/button";
-import CrossIcon from "../../assets/svg/CrossIcon.svg";
-import { useFormik } from "formik";
-import usePasswordChangeMutation from "@/api/mutation/usePasswordChangeMutation";
-import { toast } from "react-toastify";
-import { isAxiosError } from "axios";
-import show from "../../../src/assets/eye-alt.svg";
-import hide from "../../../src/assets/eye-slash.svg";
-import { z } from "zod";
-import { changePasswordSchema } from "@backend/src/schemas/userSchema";
-import { toFormikValidationSchema } from "zod-formik-adapter";
+import { useState } from 'react';
+import { useFormik } from 'formik';
+import { toast } from 'react-toastify';
+import { isAxiosError } from 'axios';
+import { z } from 'zod';
+import { changePasswordSchema } from '@backend/src/schemas/userSchema';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
+import hide from '../../../src/assets/eye-slash.svg';
+import show from '../../../src/assets/eye-alt.svg';
+import CrossIcon from '../../assets/svg/CrossIcon.svg';
+import { Button } from '../ui/button';
+import usePasswordChangeMutation from '@/api/mutation/usePasswordChangeMutation';
 
 type PasswordType = {
   handleClosePasswordPopUp: () => void;
@@ -23,25 +23,19 @@ function ChangePassword(props: PasswordType) {
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
   const passwordMutation = usePasswordChangeMutation();
-  const errorStyle = "text-red-400 block text-sm h-1";
-  const labelStyle = "font-medium text-base text-gray-700 ";
-  const inputStyle = "relative py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[40px]";
+  const errorStyle = 'text-red-400 block text-sm h-1';
+  const labelStyle = 'font-medium text-base text-gray-700 ';
+  const inputStyle =
+    'relative py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[40px]';
 
   const formik = useFormik<z.infer<typeof changePasswordSchema>>({
     initialValues: {
-      oldPassword: "",
-      password: "",
-      confirmPassword: "",
+      confirmPassword: '',
+      oldPassword: '',
+      password: '',
     },
-    validationSchema:toFormikValidationSchema(changePasswordSchema),
     onSubmit: (values, helper) => {
       passwordMutation.mutate(values, {
-        onSuccess(data) {
-          formik.resetForm();
-          handleClosePasswordPopUp();
-          setIsSubmitting(false);
-          toast.success(data.data.message);
-        },
         onError(error) {
           setIsSubmitting(false);
           if (isAxiosError(error)) {
@@ -56,13 +50,21 @@ function ChangePassword(props: PasswordType) {
             }
             if (!Array.isArray(error.response?.data.errors)) {
               toast.error(
-                error.response?.data?.message ?? "An unexpected error occurred."
+                error.response?.data?.message ??
+                  'An unexpected error occurred.',
               );
             }
           }
         },
+        onSuccess(data) {
+          formik.resetForm();
+          handleClosePasswordPopUp();
+          setIsSubmitting(false);
+          toast.success(data.data.message);
+        },
       });
     },
+    validationSchema: toFormikValidationSchema(changePasswordSchema),
   });
 
   const handleShowNewPassword = () => {
@@ -101,7 +103,7 @@ function ChangePassword(props: PasswordType) {
                     </label>
                     <div className="relative mt-1">
                       <input
-                        type={`${showOldPassword ? "text" : "password"}`}
+                        type={`${showOldPassword ? 'text' : 'password'}`}
                         name="oldPassword"
                         className={inputStyle}
                         value={formik.values.oldPassword}
@@ -111,8 +113,8 @@ function ChangePassword(props: PasswordType) {
 
                       <Button
                         type="button"
-                        variant={"ghost"}
-                        size={"icon"}
+                        variant={'ghost'}
+                        size={'icon'}
                         onClick={handleShowOldPassword}
                         className="absolute top-1/2 right-1 -translate-y-1/2 mt-[3px]"
                       >
@@ -134,7 +136,7 @@ function ChangePassword(props: PasswordType) {
                     </label>
                     <div className="relative mt-1">
                       <input
-                        type={`${showNewdPassword ? "text" : "password"}`}
+                        type={`${showNewdPassword ? 'text' : 'password'}`}
                         name="password"
                         className={inputStyle}
                         value={formik.values.password}
@@ -143,8 +145,8 @@ function ChangePassword(props: PasswordType) {
                       />
                       <Button
                         type="button"
-                        variant={"ghost"}
-                        size={"icon"}
+                        variant={'ghost'}
+                        size={'icon'}
                         onClick={handleShowNewPassword}
                         className="absolute top-1/2 right-1 -translate-y-1/2 mt-[3px]"
                       >
@@ -166,7 +168,7 @@ function ChangePassword(props: PasswordType) {
                     </label>
                     <div className="relative mt-1">
                       <input
-                        type={`${showConfirmPassword ? "text" : "password"}`}
+                        type={`${showConfirmPassword ? 'text' : 'password'}`}
                         name="confirmPassword"
                         className={inputStyle}
                         value={formik.values.confirmPassword}
@@ -175,8 +177,8 @@ function ChangePassword(props: PasswordType) {
                       />
                       <Button
                         type="button"
-                        variant={"ghost"}
-                        size={"icon"}
+                        variant={'ghost'}
+                        size={'icon'}
                         onClick={handleShowConfirmPassword}
                         className="absolute top-1/2 right-1 -translate-y-1/2 mt-[3px]"
                       >
@@ -198,7 +200,7 @@ function ChangePassword(props: PasswordType) {
               <div className="flex justify-center gap-4 mt-4">
                 <Button
                   type="submit"
-                  variant={"primary"}
+                  variant={'primary'}
                   className="font-medium text-lg"
                   isLoading={isSubmitting}
                   disabled={isSubmitting}
@@ -207,7 +209,7 @@ function ChangePassword(props: PasswordType) {
                 </Button>
                 <Button
                   type="submit"
-                  variant={"primary_outline"}
+                  variant={'primary_outline'}
                   className="font-medium text-lg"
                   onClick={handleClosePasswordPopUp}
                   isLoading={isSubmitting}

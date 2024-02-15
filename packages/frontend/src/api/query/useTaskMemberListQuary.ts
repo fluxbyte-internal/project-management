@@ -1,26 +1,26 @@
-import { useQuery } from "@tanstack/react-query";
-import { requestURLs } from "../../Environment";
-import { QUERY_KEYS } from "./querykeys";
+import { useQuery } from '@tanstack/react-query';
+import { requestURLs } from '../../Environment';
 import {
   AxiosResponseAndError,
   ResponseType,
-} from "../types/axiosResponseType";
-import ApiRequest from "../ApiRequest";
-import { UserOrganisationType } from "./useOrganisationDetailsQuery";
+} from '../types/axiosResponseType';
+import ApiRequest from '../ApiRequest';
+import { QUERY_KEYS } from './querykeys';
+import { UserOrganisationType } from './useOrganisationDetailsQuery';
 
 type TaskMemberListApiResponse = ResponseType<UserOrganisationType[]>;
 
-function useTaskMemberListQuery(projectId:string) {
+function useTaskMemberListQuery(projectId: string) {
   return useQuery<
-    AxiosResponseAndError<TaskMemberListApiResponse>["response"],
-    AxiosResponseAndError<TaskMemberListApiResponse>["error"]
+    AxiosResponseAndError<TaskMemberListApiResponse>['response'],
+    AxiosResponseAndError<TaskMemberListApiResponse>['error']
   >({
-    queryKey: [QUERY_KEYS.taskMamber],
+    enabled: true,
     queryFn: async () =>
       await ApiRequest.get(`${requestURLs.task}/taskAssignUsers/${projectId}`, {
-        headers: { "organisation-id": localStorage.getItem("organisation-id") },
+        headers: { 'organisation-id': localStorage.getItem('organisation-id') },
       }),
-    enabled: true,
+    queryKey: [QUERY_KEYS.taskMamber],
   });
 }
 

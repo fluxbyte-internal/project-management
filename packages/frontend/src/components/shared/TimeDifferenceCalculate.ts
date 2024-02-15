@@ -1,6 +1,7 @@
 export default function calculateTimeDifference(previousDate: Date) {
   const currentDate = new Date();
-  const timeDifference = currentDate.valueOf() - new Date(previousDate).valueOf();
+  const timeDifference =
+    currentDate.valueOf() - new Date(previousDate).valueOf();
   const seconds = Math.floor(timeDifference / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
@@ -9,16 +10,15 @@ export default function calculateTimeDifference(previousDate: Date) {
   const years = Math.floor(months / 12);
 
   if (years > 0) {
-    return `${years} year${years > 1 ? "s" : ""} ago`;
+    return `${years} year${years > 1 ? 's' : ''} ago`;
   } else if (months > 0) {
-    return `${months} month${months > 1 ? "s" : ""} ago`;
+    return `${months} month${months > 1 ? 's' : ''} ago`;
   } else if (days > 0) {
-    return `${days} day${days > 1 ? "s" : ""} ago`;
+    return `${days} day${days > 1 ? 's' : ''} ago`;
   } else if (hours > 0) {
-    return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+    return `${hours} hour${hours > 1 ? 's' : ''} ago`;
   } else if (minutes > 0) {
-    return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
-  } else {
-    return "Just now";
+    return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
   }
+  return 'Just now';
 }

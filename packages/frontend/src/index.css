@@ -74,11 +74,9 @@ img {
 
 .Toastify__progress-bar--success {
   @apply bg-primary-500;
-
 }
 .Toastify__toast-theme--colored.Toastify__toast--success {
   @apply bg-primary-500;
-
 }
 
 :root {

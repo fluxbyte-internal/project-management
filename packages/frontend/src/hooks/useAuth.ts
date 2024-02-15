@@ -1,8 +1,9 @@
-import useLogOutMutation from "@/api/mutation/useLogOutMutation";
-import { AuthContext } from "@/context/AuthContext";
-import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { AuthContext } from '@/context/AuthContext';
+import useLogOutMutation from '@/api/mutation/useLogOutMutation';
+
 export function useAuth() {
   const navigate = useNavigate();
   const { setAuthUser } = useContext(AuthContext);
@@ -16,11 +17,11 @@ export function useAuth() {
     });
 
     setAuthUser(null);
-    navigate("/login");
+    navigate('/login');
   };
 
   const login = () => {
-    navigate("/");
+    navigate('/');
   };
 
   return { login, logout };

@@ -1,17 +1,17 @@
-import PieChart, { ChartProps } from "@/components/charts/PieChart";
-import Table, { ColumeDef } from "@/components/shared/Table";
-import {} from "@/api/query/usePortfolioDashboardQuery";
+import PieChart, { ChartProps } from '@/components/charts/PieChart';
+import Table, { ColumeDef } from '@/components/shared/Table';
+import {} from '@/api/query/usePortfolioDashboardQuery';
 import useProjectManagerPortfolioDashboardQuery, {
   managerDashboardPortfolioDataType,
-} from "@/api/query/useProjectManagerPortfolioDashboardQuery";
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ProjectType } from "../adminDashboard";
-import HorizontalBarChart from "@/components/charts/HorizontalBarChart";
-import { Button } from "@/components/ui/button";
-import dateFormater from "@/helperFuntions/dateFormater";
-import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
-import { Project } from "@/api/query/useProjectQuery";
+} from '@/api/query/useProjectManagerPortfolioDashboardQuery';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ProjectType } from '../adminDashboard';
+import HorizontalBarChart from '@/components/charts/HorizontalBarChart';
+import { Button } from '@/components/ui/button';
+import dateFormater from '@/helperFuntions/dateFormater';
+import CreateUpdateProjectForm from '@/components/project/CreateProjectForm';
+import { Project } from '@/api/query/useProjectQuery';
 
 function ManagerDashboard() {
   const projectManagerPortfolioDashboardQuery =
@@ -38,38 +38,38 @@ function ManagerDashboard() {
     setTableData(data?.projects);
     const statusPieChartData = data?.statusChartData?.labels.map(
       (name, index) => ({
-        value: Number(data?.statusChartData?.data[index]),
         name,
-      })
+        value: Number(data?.statusChartData?.data[index]),
+      }),
     );
 
     setstatusPieChartProp({
       chartData: statusPieChartData!,
-      color: ["#DD7102", "#943B0C", "#461802", "#555555"],
-      title: "Projects Per Status",
-      radius: ["45%", "60%"],
-      height: "300px",
+      color: ['#DD7102', '#943B0C', '#461802', '#555555'],
+      height: '300px',
+      radius: ['45%', '60%'],
+      title: 'Projects Per Status',
     });
     const overallSituationPieChartData =
       data?.overallSituationChartData?.labels.map((name, index) => ({
-        value: Number(data?.overallSituationChartData?.data[index]),
         name,
+        value: Number(data?.overallSituationChartData?.data[index]),
       }));
     setOverallStatusPieChartProp({
       chartData: overallSituationPieChartData!,
-      color: ["#FFD04A", "#FFB819", "#B74E06", "#461802"],
-      title: "Projects Per Overall Situation",
-      radius: ["0%", "80%"],
-      height: "500px",
+      color: ['#FFD04A', '#FFB819', '#B74E06', '#461802'],
+      height: '500px',
+      radius: ['0%', '80%'],
+      title: 'Projects Per Overall Situation',
     });
   }, [data]);
 
   const chartProp2: ChartProps = {
     chartData: [],
-    color: ["#FFD04A", "#FFB819", "#B74E06"],
-    title: "Project With Delays",
-    radius: ["45%", "60%"],
-    height: "300px",
+    color: ['#FFD04A', '#FFB819', '#B74E06'],
+    height: '300px',
+    radius: ['45%', '60%'],
+    title: 'Project With Delays',
   };
 
   // const chartProp4: ChartProps = {
@@ -81,25 +81,25 @@ function ManagerDashboard() {
   // };
   const chartProp5: ChartProps = {
     chartData: [],
-    color: ["#FFD04A", "#FFB819", "#B74E06"],
-    title: "Risks",
-    radius: ["70%", "80%"],
-    height: "500px",
+    color: ['#FFD04A', '#FFB819', '#B74E06'],
+    height: '500px',
+    radius: ['70%', '80%'],
+    title: 'Risks',
   };
   const columnDef: ColumeDef[] = [
     {
-      key: "projectName",
-      header: "Project Name",
-      sorting: true,
+      header: 'Project Name',
+      key: 'projectName',
       onCellRender: (projectData) => {
         return (
           <>
-            <Link to={"/projectDashboard/" + projectData?.projectId}>
+            <Link to={'/projectDashboard/' + projectData?.projectId}>
               {projectData.projectName}
             </Link>
           </>
         );
       },
+      sorting: true,
     },
 
     // {
@@ -110,25 +110,25 @@ function ManagerDashboard() {
     //   ),
     // },
     {
-      key: "CPI",
-      header: "CPI",
+      header: 'CPI',
+      key: 'CPI',
       onCellRender: (item: Project) => (
         <>
-          {item.CPI ? item.CPI.toFixed(2) : (0.0).toFixed(2)}{" "}
+          {item.CPI ? item.CPI.toFixed(2) : (0.0).toFixed(2)}{' '}
           {console.log(item.CPI)}
         </>
       ),
     },
 
     {
-      key: "startDate",
-      header: "Start Date",
-      sorting: true,
+      header: 'Start Date',
+      key: 'startDate',
       onCellRender: (item) => <>{dateFormater(new Date(item.startDate))}</>,
+      sorting: true,
     },
     {
-      key: "actualEndDate",
-      header: "End Date",
+      header: 'End Date',
+      key: 'actualEndDate',
       onCellRender: (item) => (
         <>
           {item.estimatedEndDate &&
@@ -153,8 +153,8 @@ function ManagerDashboard() {
     //   ),
     // },
     {
-      key: "estimatedBudget",
-      header: "Budget",
+      header: 'Budget',
+      key: 'estimatedBudget',
       sorting: true,
     },
   ];
@@ -181,13 +181,13 @@ function ManagerDashboard() {
                   onClick={() => filterRoutes(labelData)}
                   key={index}
                   className={`flex flex-col gap-2 cursor-pointer lg:gap-5 w-full lg:w-2/5 h-1/5 lg:h-full  rounded-2xl p-2 lg:py-3 text-start items-start justify-start px-10 border-l-[12px] ${
-                    labelData === "ACTIVE"
-                      ? "text-primary-600  border-2 border-primary-600 "
-                      : labelData === "ON_HOLD"
-                        ? "text-primary-800 border-2 border-primary-800"
-                        : labelData === "NOT_STARTED"
-                          ? "text-primary-950 border-2 border-primary-950"
-                          : "text-gray-800 border-2 border-gray-300  "
+                    labelData === 'ACTIVE'
+                      ? 'text-primary-600  border-2 border-primary-600 '
+                      : labelData === 'ON_HOLD'
+                        ? 'text-primary-800 border-2 border-primary-800'
+                        : labelData === 'NOT_STARTED'
+                          ? 'text-primary-950 border-2 border-primary-950'
+                          : 'text-gray-800 border-2 border-gray-300  '
                   }`}
                 >
                   <a className="text-base font-bold items-end">{labelData}</a>
@@ -221,7 +221,7 @@ function ManagerDashboard() {
         </div>
         <div className="w-full flex flex-col md:flex-col gap-10 justify-center px-5 md:px-20 lg:px-0 self-center">
           <div className="w-full lg:w-4/5 self-center">
-            <Button variant={"primary"} onClick={() => setIsOpenPopUp(true)}>
+            <Button variant={'primary'} onClick={() => setIsOpenPopUp(true)}>
               Add Project
             </Button>
           </div>

@@ -1,9 +1,10 @@
-import { Task } from "@/api/mutation/useTaskCreateMutation";
-import Clock from "../../assets/svg/Clock.svg";
-import UserAvatar from "../ui/userAvatar";
-import calculateTimeDifference from "../shared/TimeDifferenceCalculate";
-import { useState } from "react";
-import dateFormater from "@/helperFuntions/dateFormater";
+import { useState } from 'react';
+import Clock from '../../assets/svg/Clock.svg';
+import UserAvatar from '../ui/userAvatar';
+import calculateTimeDifference from '../shared/TimeDifferenceCalculate';
+import { Task } from '@/api/mutation/useTaskCreateMutation';
+import dateFormater from '@/helperFuntions/dateFormater';
+
 function TaskHistory(props: { task: Task | undefined }) {
   const [showAll, setShowAll] = useState<boolean>(false);
 
@@ -11,9 +12,9 @@ function TaskHistory(props: { task: Task | undefined }) {
     const regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
     return regex.test(dateString);
   }
-  
-  const messageCreate = (history: Task["histories"][0]): string => {
-    let message = history.message;
+
+  const messageCreate = (history: Task['histories'][0]): string => {
+    let { message } = history;
     if (history.data.newValue && history.data.oldValue) {
       if (
         isValidDate(history.data.newValue) &&
@@ -21,28 +22,23 @@ function TaskHistory(props: { task: Task | undefined }) {
       ) {
         message =
           dateFormater(new Date(history.data.newValue)) +
-          " " +
+          ' ' +
           message +
-          " to " +
+          ' to ' +
           dateFormater(new Date(history.data.oldValue));
       } else {
         message =
           history.data.newValue +
-          " " +
+          ' ' +
           message +
-          " to " +
+          ' to ' +
           history.data.oldValue;
       }
+    } else if (isValidDate(history.data.newValue)) {
+      message = dateFormater(new Date(history.data.newValue)) + ' ' + message;
     } else {
-      if (isValidDate(history.data.newValue)) {
-        message =
-          dateFormater(new Date(history.data.newValue)) + " " + message;
-      } else {
-        message =
-          (history.data.oldValue ?? history.data.newValue) +
-          " " +
-          message;
-      }
+      message =
+        (history.data.oldValue ?? history.data.newValue) + ' ' + message;
     }
     return message;
   };
@@ -70,7 +66,7 @@ function TaskHistory(props: { task: Task | undefined }) {
                       {history.createdByUser.firstName &&
                       history.createdByUser.lastName
                         ? history.createdByUser.firstName +
-                          " " +
+                          ' ' +
                           history.createdByUser.lastName
                         : history.createdByUser.email}
                       <p className="text-gray-400 text-xs">
@@ -94,7 +90,7 @@ function TaskHistory(props: { task: Task | undefined }) {
               className="text-center cursor-pointer"
               onClick={() => setShowAll((prev) => !prev)}
             >
-              {!showAll ? "Show all" : "Less"}
+              {!showAll ? 'Show all' : 'Less'}
             </div>
           </div>
         )}

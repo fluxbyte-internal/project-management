@@ -1,16 +1,17 @@
-import { useContext, useEffect, useRef } from "react";
-import { AuthContext } from "@/context/AuthContext";
-import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { useContext, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { AuthContext } from '@/context/AuthContext';
+import useCurrentUserQuery from '@/api/query/useCurrentUserQuery';
 
 export function useUser() {
-  const { setAuthUser, authUser } = useContext(AuthContext);
+  const { authUser, setAuthUser } = useContext(AuthContext);
   const fetchingUser = useRef(false);
-  const { data, refetch ,isFetching, isFetched,isError,error } = useCurrentUserQuery();
+  const { data, error, isError, isFetched, isFetching, refetch } =
+    useCurrentUserQuery();
   const navigate = useNavigate();
   useEffect(() => {
-    if(!authUser){
+    if (!authUser) {
       refetch();
     }
   }, [authUser]);
@@ -23,18 +24,18 @@ export function useUser() {
       setAuthUser(user);
 
       if (user && !user.isVerified) {
-        navigate("/verify-email");
+        navigate('/verify-email');
       }
       if (!user) {
         if (isError) {
           toast.error(error.response?.data.message);
         }
-        navigate("/login");
+        navigate('/login');
       }
       if (user && user.userOrganisation.length) {
         localStorage.setItem(
-          "organisation-id",
-          user.userOrganisation[0].organisationId
+          'organisation-id',
+          user.userOrganisation[0].organisationId,
         );
       }
     }

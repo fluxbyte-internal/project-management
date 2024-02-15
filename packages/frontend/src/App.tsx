@@ -1,21 +1,22 @@
-import "./App.css";
-import { RouterProvider } from "react-router-dom";
-import { router } from "./routes";
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import { AuthProvider } from "./context/AuthContext";
-import { useState } from "react";
-import RootAuth from "./rootAuth";
-import Page404 from "./rootAuth/404page";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { GoogleOAuthProvider } from "@react-oauth/google";
-import { googleCredentialsClientId } from "./Environment";
+import './App.css';
+import { RouterProvider } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState } from 'react';
+import { ToastContainer } from 'react-toastify';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { router } from './routes';
+import { AuthProvider } from './context/AuthContext';
+import RootAuth from './rootAuth';
+import Page404 from './rootAuth/404page';
+import 'react-toastify/dist/ReactToastify.css';
+import { googleCredentialsClientId } from './Environment';
+
 function App() {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
         refetchOnWindowFocus: false,
-        retry:0,
+        retry: 0,
       },
     },
   });

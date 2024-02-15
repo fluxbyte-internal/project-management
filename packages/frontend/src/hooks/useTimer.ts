@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 const useTimer = (initialTime = 0) => {
   const [time, setTime] = useState(initialTime);
@@ -9,9 +9,7 @@ const useTimer = (initialTime = 0) => {
       timer = setInterval(() => {
         setTime((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
       }, 1000);
-    } else {
-      if (timer) clearInterval(timer);
-    }
+    } else if (timer) clearInterval(timer);
     return () => {
       if (timer) clearInterval(timer);
     };
@@ -21,7 +19,7 @@ const useTimer = (initialTime = 0) => {
     setTime(newTime);
   };
 
-  return { time, resetTimer };
+  return { resetTimer, time };
 };
 
 export default useTimer;

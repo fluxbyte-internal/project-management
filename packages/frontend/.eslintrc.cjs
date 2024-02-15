@@ -1,41 +1,80 @@
 module.exports = {
-  root: true,
-  env: { browser: true, es2020: true },
+  env: {
+    browser: true,
+    es6: true,
+    jest: true,
+    node: true,
+  },
   extends: [
-    'eslint:recommended',
+    'plugin:import/typescript',
     'plugin:@typescript-eslint/recommended',
     'plugin:react-hooks/recommended',
+    'prettier',
   ],
-  ignorePatterns: ['dist', '.eslintrc.cjs'],
   parser: '@typescript-eslint/parser',
-  plugins: ['react-refresh'],
-  rules: {
-    'react-refresh/only-export-components': [
-      'warn',
-      { allowConstantExport: true },
-    ],
-    '@typescript-eslint/no-explicit-any': 'warn',
-    'indent': ['warn', 2],
-    'semi': [
-      'warn', 'always', {
-        omitLastInOneLineClassBody: true
-      }
-    ],
-    'comma-dangle': [
-      'warn',
-      {
-        'arrays': 'always-multiline',
-        'objects': 'always-multiline',
-        'imports': 'always-multiline',
-        'exports': 'always-multiline',
-        'functions': 'never'
-      }
-    ],
-    'no-duplicate-imports': ['warn'],
-    'no-console': ['warn', { 'allow': ['warn', 'error'] }],
-    'no-eval': ['warn', { 'allowIndirect': true }],
-    'no-debugger': 'error',
-    'require-await': 'warn',
-    'no-promise-executor-return': 'warn'
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true,
+    },
+    ecmaVersion: 2020,
+    sourceType: 'module',
+    tsconfigRootDir: __dirname,
   },
-}
+  plugins: [
+    '@typescript-eslint/eslint-plugin',
+    'better-styled-components',
+    'import',
+    'sort-destructure-keys',
+    'sort-keys-fix',
+    'prettier',
+  ],
+  rules: {
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/interface-name-prefix': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-non-null-asserted-optional-chain': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        argsIgnorePattern: '^_',
+      },
+    ],
+    eqeqeq: ['error'],
+    'import/newline-after-import': 'error',
+    'new-cap': ['error', { capIsNewExceptionPattern: '^@*' }],
+    'no-dupe-class-members': 'error',
+    'no-duplicate-imports': ['error', { includeExports: true }],
+    'no-else-return': 'error',
+    'no-implicit-coercion': 'error',
+    'no-lonely-if': 'error',
+    //'no-negated-condition': 'error',
+    'no-new-wrappers': 'error',
+    'no-param-reassign': 'error',
+    'no-unneeded-ternary': 'error',
+    'no-useless-constructor': 'warn',
+    'no-useless-rename': [
+      'error',
+      {
+        ignoreDestructuring: false,
+        ignoreExport: false,
+        ignoreImport: false,
+      },
+    ],
+    'prefer-destructuring': 'error',
+    'prettier/prettier': ['error', { endOfLine: 'auto' }],
+    // 'react/destructuring-assignment': 'error',
+    // 'react/jsx-pascal-case': 'error',
+    'react/no-unescaped-entities': 'off',
+    // 'react/no-unused-state': 'error',
+    'react/prop-types': 'off',
+    'react/react-in-jsx-scope': 'off',
+    //'spaced-comment': 'error',
+  },
+  settings: {
+    react: {
+      version: 'detect',
+    },
+  },
+};

@@ -1,24 +1,24 @@
-import { useFormik } from "formik";
-import closeImage from "../../../assets/png/close.png";
-import { toFormikValidationSchema } from "zod-formik-adapter";
+import { useFormik } from 'formik';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
+import { isAxiosError } from 'axios';
+import { z } from 'zod';
+import { useEffect, useState } from 'react';
+import Select, { MultiValue, SingleValue } from 'react-select';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import closeImage from '../../../assets/png/close.png';
 import {
   createOrganisationSchema,
   updateOrganisationSchema,
-} from "../../../../../backend/src/schemas/organisationSchema";
+} from '../../../../../backend/src/schemas/organisationSchema';
+import countries from '../../../assets/json/countries.json';
 import useOrganisationMutation, {
   OrganisationType,
-} from "@/api/mutation/useOrganisationMutation";
-import { isAxiosError } from "axios";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
-import { useEffect, useState } from "react";
-import Select, { SingleValue, MultiValue } from "react-select";
-import { useNavigate } from "react-router-dom";
-import countries from "../../../assets/json/countries.json";
-import ErrorMessage from "@/components/common/ErrorMessage";
-import useOrganisationUpdateMutation from "@/api/mutation/useOrganisationUpdateMutation";
-import { toast } from "react-toastify";
+} from '@/api/mutation/useOrganisationMutation';
+import { Button } from '@/components/ui/button';
+import useCurrentUserQuery from '@/api/query/useCurrentUserQuery';
+import ErrorMessage from '@/components/common/ErrorMessage';
+import useOrganisationUpdateMutation from '@/api/mutation/useOrganisationUpdateMutation';
 
 interface Props {
   close: () => void;
@@ -28,13 +28,13 @@ type Options = { label: string; value: string };
 
 function OrganisationForm(props: Props) {
   const { close, editData } = props;
-  const labelStyle = "block text-gray-500 text-sm font-bold mb-1";
+  const labelStyle = 'block text-gray-500 text-sm font-bold mb-1';
   const inputStyle =
-    "block w-full p-2.5 border border-gray-100 text-gray-500 text-sm rounded-md shadow-sm placeholder:text-gray-400";
+    'block w-full p-2.5 border border-gray-100 text-gray-500 text-sm rounded-md shadow-sm placeholder:text-gray-400';
   const organisationMutation = useOrganisationMutation();
 
   const organisationUpdateMutation = useOrganisationUpdateMutation(
-    editData && editData.organisationId ? editData.organisationId : ""
+    editData && editData.organisationId ? editData.organisationId : '',
   );
   const { refetch } = useCurrentUserQuery();
   const navigate = useNavigate();
@@ -47,62 +47,47 @@ function OrganisationForm(props: Props) {
 
   const formik = useFormik<z.infer<typeof createOrganisationSchema>>({
     initialValues: {
-      organisationName: "",
-      industry: "",
-      status: "ACTIVE",
+      country: '',
+      industry: '',
       nonWorkingDays: [],
-      country: "",
+      organisationName: '',
+      status: 'ACTIVE',
     },
-    validationSchema: editData
-      ? toFormikValidationSchema(updateOrganisationSchema)
-      : toFormikValidationSchema(createOrganisationSchema),
     onSubmit: (values, helper) => {
       setIsSubmitting(true);
       if (editData && editData.organisationId) {
         organisationUpdateMutation.mutate(values, {
+          onError(error) {
+            if (isAxiosError(error)) {
+              if (
+                error.response?.status === 400 &&
+                error.response.data?.errors &&
+                Array.isArray(error.response?.data.errors)
+              ) {
+                error.response.data.errors.map(
+                  (item: { message: string; path: [string] }) => {
+                    helper.setFieldError(item.path[0], item.message);
+                  },
+                );
+              }
+              if (!Array.isArray(error.response?.data.errors)) {
+                toast.error(
+                  error.response?.data?.message ??
+                    'An unexpected error occurred.',
+                );
+              }
+              setIsSubmitting(false);
+            }
+          },
           onSuccess(data) {
             toast.success(data.data.message);
             close();
             refetch();
             setIsSubmitting(false);
           },
-          onError(error) {
-            if (isAxiosError(error)) {
-              if (
-                error.response?.status === 400 &&
-                error.response.data?.errors &&
-                Array.isArray(error.response?.data.errors)
-              ) {
-                error.response.data.errors.map(
-                  (item: { message: string; path: [string] }) => {
-                    helper.setFieldError(item.path[0], item.message);
-                  }
-                );
-              }
-              if (!Array.isArray(error.response?.data.errors)) {
-                toast.error(
-                  error.response?.data?.message ??
-                    "An unexpected error occurred."
-                );
-              }
-              setIsSubmitting(false);
-            }
-          },
         });
       } else {
         organisationMutation.mutate(values, {
-          onSuccess(data) {
-            toast.success(data.data.message);
-            localStorage.setItem(
-              "organisation-id",
-              data.data.data.organisationId
-            );
-            close();
-            refetch().then(() => {
-              navigate("/projects");
-            });
-            setIsSubmitting(false);
-          },
           onError(error) {
             if (isAxiosError(error)) {
               if (
@@ -113,21 +98,36 @@ function OrganisationForm(props: Props) {
                 error.response.data.errors.map(
                   (item: { message: string; path: [string] }) => {
                     helper.setFieldError(item.path[0], item.message);
-                  }
+                  },
                 );
               }
               if (!Array.isArray(error.response?.data.errors)) {
                 toast.error(
                   error.response?.data?.message ??
-                    "An unexpected error occurred."
+                    'An unexpected error occurred.',
                 );
               }
             }
+            setIsSubmitting(false);
+          },
+          onSuccess(data) {
+            toast.success(data.data.message);
+            localStorage.setItem(
+              'organisation-id',
+              data.data.data.organisationId,
+            );
+            close();
+            refetch().then(() => {
+              navigate('/projects');
+            });
             setIsSubmitting(false);
           },
         });
       }
     },
+    validationSchema: editData
+      ? toFormikValidationSchema(updateOrganisationSchema)
+      : toFormikValidationSchema(createOrganisationSchema),
   });
   useEffect(() => {
     if (editData) {
@@ -140,8 +140,8 @@ function OrganisationForm(props: Props) {
       });
       if (editData.industry) {
         setIndustryValue({
-          value: editData.industry,
           label: editData.industry,
+          value: editData.industry,
         });
       }
       const country = countries.find((item) => {
@@ -150,7 +150,7 @@ function OrganisationForm(props: Props) {
         }
       });
       const setNonWorkingDays = editData.nonWorkingDays.map((item) => {
-        return nonWorkingDays.find((i) => item == i.value);
+        return nonWorkingDays.find((i) => item === i.value);
       });
       if (country && setNonWorkingDays) {
         setContryValue({ label: country?.name, value: country?.isoCode });
@@ -162,32 +162,32 @@ function OrganisationForm(props: Props) {
   const reactSelectStyle = {
     control: (
       provided: Record<string, unknown>,
-      state: { isFocused: boolean }
+      state: { isFocused: boolean },
     ) => ({
       ...provided,
-      border: state.isFocused ? "2px solid #943B0C" : "0px solid #943B0C",
-      boxShadow: state.isFocused ? "2px #943B0C" : "none",
-      "&:hover": {
-        border: state.isFocused ? "2px solid #943B0C" : "0px solid #943B0C",
-        boxShadow: "1px 0px 0px #943B0C",
+      '&:hover': {
+        border: state.isFocused ? '2px solid #943B0C' : '0px solid #943B0C',
+        boxShadow: '1px 0px 0px #943B0C',
       },
+      border: state.isFocused ? '2px solid #943B0C' : '0px solid #943B0C',
+      boxShadow: state.isFocused ? '2px #943B0C' : 'none',
     }),
   };
   const nonWorkingDays: Options[] = [
-    { label: "Sunday", value: "SUN" },
-    { label: "Monday", value: "MON" },
-    { label: "Tuesday", value: "TUE" },
-    { label: "Wednesday", value: "WED" },
-    { label: "Thursday", value: "THU" },
-    { label: "Friday", value: "FRI" },
-    { label: "Saturday", value: "SAT" },
+    { label: 'Sunday', value: 'SUN' },
+    { label: 'Monday', value: 'MON' },
+    { label: 'Tuesday', value: 'TUE' },
+    { label: 'Wednesday', value: 'WED' },
+    { label: 'Thursday', value: 'THU' },
+    { label: 'Friday', value: 'FRI' },
+    { label: 'Saturday', value: 'SAT' },
   ];
   const industriesData: Options[] = [
-    { label: "IT", value: "IT" },
-    { label: "Banking", value: "Banking" },
-    { label: "Insurance", value: "Insurance" },
-    { label: "Education", value: "Education" },
-    { label: "Chemicals", value: "Chemicals" },
+    { label: 'IT', value: 'IT' },
+    { label: 'Banking', value: 'Banking' },
+    { label: 'Insurance', value: 'Insurance' },
+    { label: 'Education', value: 'Education' },
+    { label: 'Chemicals', value: 'Chemicals' },
   ];
 
   const contrysFn = () => {
@@ -199,24 +199,24 @@ function OrganisationForm(props: Props) {
   const handleCountry = (val: SingleValue<Options>) => {
     if (val) {
       setContryValue(val);
-      formik.setFieldValue("country", val.value);
+      formik.setFieldValue('country', val.value);
     }
   };
   const handleNonWorkingDays = (val: MultiValue<Options>) => {
     if (val) {
       setNonWorkingDaysValue(val);
       formik.setFieldValue(
-        "nonWorkingDays",
+        'nonWorkingDays',
         val.map((item) => {
           return item.value;
-        })
+        }),
       );
     }
   };
   const handleIndustries = (val: SingleValue<Options>) => {
     if (val) {
       setIndustryValue(val);
-      formik.setFieldValue("industry", val.value);
+      formik.setFieldValue('industry', val.value);
     }
   };
   return (
@@ -225,8 +225,8 @@ function OrganisationForm(props: Props) {
         <div className="flex justify-between my-1 mb-5">
           <h1 className="text-2xl lg:text-3xl font-bold text-gray-500">
             {editData && editData.organisationId
-              ? "Update Organisation"
-              : "Create Organisation"}
+              ? 'Update Organisation'
+              : 'Create Organisation'}
           </h1>
           <button onClick={close} className="cursor-pointer">
             <img src={closeImage} alt="close" className="w-5" />
@@ -313,7 +313,7 @@ function OrganisationForm(props: Props) {
           <div>
             <Button
               type="submit"
-              variant={"primary"}
+              variant={'primary'}
               isLoading={isSubmitting}
               disabled={isSubmitting}
               className="w-full py-2.5 mt-5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"

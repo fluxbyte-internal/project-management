@@ -1,27 +1,27 @@
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
-import show from "../../../assets/eye-alt.svg";
-import hide from "../../../assets/eye-slash.svg";
-import { useFormik } from "formik";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import useSignupMutation from "../../../api/mutation/useSignupMutation";
-import { isAxiosError } from "axios";
-import ErrorMessage from "@/components/common/ErrorMessage";
-import { authSignUpSchema } from "@backend/src/schemas/authSchema";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
-import InputEmail from "@/components/common/InputEmail";
-import { toast } from "react-toastify";
-import SignUp from "../../../assets/svg/signup.svg";
-import Google from "../../../assets/svg/google.svg";
+import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
+import { useFormik } from 'formik';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
+import { isAxiosError } from 'axios';
+import { authSignUpSchema } from '@backend/src/schemas/authSchema';
+import { toast } from 'react-toastify';
+import useSignupMutation from '../../../api/mutation/useSignupMutation';
+import hide from '../../../assets/eye-slash.svg';
+import show from '../../../assets/eye-alt.svg';
+import SignUp from '../../../assets/svg/signup.svg';
+import Google from '../../../assets/svg/google.svg';
 // import Facebook from "../../../assets/svg/facebook.svg";
-import { baseURL } from "../../../Environment";
+import { baseURL } from '../../../Environment';
+import InputEmail from '@/components/common/InputEmail';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import ErrorMessage from '@/components/common/ErrorMessage';
 
 function Signup() {
   const { login } = useAuth();
-  const labelStyle = "font-medium text-base text-gray-8 ";
+  const labelStyle = 'font-medium text-base text-gray-8 ';
   const inputStyle =
-    "py-1.5 px-3 rounded-md border border-gray-100 w-full h-[46px] focus:outline-[#943B0C]";
+    'py-1.5 px-3 rounded-md border border-gray-100 w-full h-[46px] focus:outline-[#943B0C]';
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmationPassword, setShowConfirmationPassword] =
     useState(false);
@@ -36,29 +36,24 @@ function Signup() {
     country: string;
     timeZone: string;
     jobTitle: string;
-    privacyPolicy:boolean
+    privacyPolicy: boolean;
   };
 
   const formik = useFormik<FormValues>({
     initialValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-      country: "",
-      timeZone: "",
-      jobTitle: "",
-      privacyPolicy:false,
+      confirmPassword: '',
+      country: '',
+      email: '',
+      firstName: '',
+      jobTitle: '',
+      lastName: '',
+      password: '',
+      privacyPolicy: false,
+      timeZone: '',
     },
-    validationSchema: toFormikValidationSchema(authSignUpSchema),
     onSubmit: (values, helper) => {
       setIsLoading(true);
       signupMutation.mutate(values, {
-        onSuccess(data) {
-          login();
-          toast.success(data.data.message);
-        },
         onError(error) {
           if (isAxiosError(error)) {
             setIsLoading(false);
@@ -70,18 +65,24 @@ function Signup() {
               error.response.data.errors.map(
                 (item: { message: string; path: string[] }) => {
                   helper.setFieldError(item.path[0], item.message);
-                }
+                },
               );
             }
             if (!Array.isArray(error.response?.data.errors)) {
               toast.error(
-                error.response?.data?.message ?? "An unexpected error occurred."
+                error.response?.data?.message ??
+                  'An unexpected error occurred.',
               );
             }
           }
         },
+        onSuccess(data) {
+          login();
+          toast.success(data.data.message);
+        },
       });
     },
+    validationSchema: toFormikValidationSchema(authSignUpSchema),
   });
 
   const handleShowPassword = () => {
@@ -92,7 +93,7 @@ function Signup() {
   };
 
   const google = () => {
-    window.open(`${baseURL}/api/auth/google`, "_self");
+    window.open(`${baseURL}/api/auth/google`, '_self');
   };
   return (
     <div className="flex justify-center min-h-screen">
@@ -178,7 +179,7 @@ function Signup() {
 
               <div className="relative mt-1">
                 <input
-                  type={`${showPassword ? "text" : "password"}`}
+                  type={`${showPassword ? 'text' : 'password'}`}
                   name="password"
                   className={inputStyle}
                   placeholder="Enter password"
@@ -187,8 +188,8 @@ function Signup() {
                 />
                 <Button
                   type="button"
-                  variant={"ghost"}
-                  size={"icon"}
+                  variant={'ghost'}
+                  size={'icon'}
                   onClick={handleShowPassword}
                   className="absolute top-1/2 right-1 -translate-y-1/2 mt-[1px]"
                 >
@@ -213,7 +214,7 @@ function Signup() {
 
               <div className="relative mt-1">
                 <input
-                  type={`${showConfirmationPassword ? "text" : "password"}`}
+                  type={`${showConfirmationPassword ? 'text' : 'password'}`}
                   name="confirmPassword"
                   className={inputStyle}
                   placeholder="Enter password again"
@@ -222,8 +223,8 @@ function Signup() {
                 />
                 <Button
                   type="button"
-                  variant={"ghost"}
-                  size={"icon"}
+                  variant={'ghost'}
+                  size={'icon'}
                   className="absolute top-1/2 right-1 -translate-y-1/2 mt-[1px]"
                   onClick={handleShowConfirmationPassword}
                 >
@@ -247,12 +248,23 @@ function Signup() {
                 type="checkbox"
                 onChange={formik.handleChange}
               />
-              <div>I agree to the <a className="text-primary-500" href="#"> term of use </a>and <a href="#" className="text-primary-500">privacy policy</a>.</div>
+              <div>
+                I agree to the{' '}
+                <a className="text-primary-500" href="#">
+                  {' '}
+                  term of use{' '}
+                </a>
+                and{' '}
+                <a href="#" className="text-primary-500">
+                  privacy policy
+                </a>
+                .
+              </div>
             </div>
             <div className="flex items-center">
               <Button
                 type="submit"
-                variant={"primary"}
+                variant={'primary'}
                 isLoading={isLoading}
                 disabled={isLoading}
                 className="w-full py-2.5 mt-1.5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
@@ -261,30 +273,34 @@ function Signup() {
               </Button>
             </div>
             <div className="mt-4 text-grey-600">
-              Already have an account?{" "}
+              Already have an account?{' '}
               <NavLink className="text-warning hover:underline" to="/login">
                 Log in
               </NavLink>
             </div>
           </form>
           <div className="flex items-center p-4">
-            <div className="w-full pr-2"><hr /></div>
-            <div className="w-full bg-[#E7E7E7] text-xs py-1 rounded-lg text-center">Or continue with</div>
-            <div className="w-full pl-2"><hr /></div>
+            <div className="w-full pr-2">
+              <hr />
+            </div>
+            <div className="w-full bg-[#E7E7E7] text-xs py-1 rounded-lg text-center">
+              Or continue with
+            </div>
+            <div className="w-full pl-2">
+              <hr />
+            </div>
           </div>
           <div className="flex flex-col px-4 gap-4">
             <Button
               type="button"
-              variant={"outline"}
+              variant={'outline'}
               isLoading={isLoading}
               disabled={isLoading}
               onClick={google}
               className="w-full flex py-2.5 mt-1.5 rounded-md gap-2.5 hover:bg-opacity-80 disabled:bg-opacity-50"
             >
               <img src={Google} />
-              <span>
-                Google
-              </span>
+              <span>Google</span>
             </Button>
             {/* <Button
               type="button"

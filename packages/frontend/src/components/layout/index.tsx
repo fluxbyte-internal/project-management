@@ -1,5 +1,6 @@
-import { Outlet } from "react-router-dom";
-import NavBar from "./NavBar";
+import { Outlet } from 'react-router-dom';
+import NavBar from './NavBar';
+
 function Layout() {
   return (
     <>
@@ -7,7 +8,10 @@ function Layout() {
         <div>
           <NavBar />
         </div>
-        <div id="detail" className="h-[calc(100vh-3.5rem)] mt-14 flex flex-col overflow-auto">
+        <div
+          id="detail"
+          className="h-[calc(100vh-3.5rem)] mt-14 flex flex-col overflow-auto"
+        >
           <Outlet />
         </div>
       </div>

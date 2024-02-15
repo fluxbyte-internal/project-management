@@ -1,22 +1,26 @@
 .scheduler {
-    --smart-ui-state-active: theme('colors.primary.400');
-    --smart-primary: theme('colors.primary.400');
-    --smart-surface: theme('colors.white/00');
-    --smart-scheduler-event-collector-background:theme('colors.primary.200');
-    --smart-scheduler-event-collector-color:theme('colors.primary.900');
-    --smart-background: @apply bg-transparent;
-    --smart-scheduler-timeline-weekend-color: @apply bg-transparent;
-    @apply rounded-xl;
+  --smart-ui-state-active: theme('colors.primary.400');
+  --smart-primary: theme('colors.primary.400');
+  --smart-surface: theme('colors.white/00');
+  --smart-scheduler-event-collector-background: theme('colors.primary.200');
+  --smart-scheduler-event-collector-color: theme('colors.primary.900');
+  --smart-background: @apply bg-transparent;
+  --smart-scheduler-timeline-weekend-color: @apply bg-transparent;
+  @apply rounded-xl;
 
-    .smart-scheduler-event-content {
-        @apply rounded-full
-    }
+  .smart-scheduler-event-content {
+    @apply rounded-full;
+  }
 }
-.smart-scheduler .smart-scheduler-event[collector][hover] .smart-scheduler-event-content{
-    --smart-scheduler-event-collector-hover:theme('colors.primary.300');
-    --smart-scheduler-event-collector-color-hover:theme('colors.primary.900')
+.smart-scheduler
+  .smart-scheduler-event[collector][hover]
+  .smart-scheduler-event-content {
+  --smart-scheduler-event-collector-hover: theme('colors.primary.300');
+  --smart-scheduler-event-collector-color-hover: theme('colors.primary.900');
 }
-.smart-scheduler .smart-scheduler-event[collector][Focus] .smart-scheduler-event-content{
-    --smart-scheduler-event-collector-focus:theme('colors.primary.300');
-    --smart-scheduler-event-collector-color-focus:theme('colors.primary.900')
+.smart-scheduler
+  .smart-scheduler-event[collector][Focus]
+  .smart-scheduler-event-content {
+  --smart-scheduler-event-collector-focus: theme('colors.primary.300');
+  --smart-scheduler-event-collector-color-focus: theme('colors.primary.900');
 }

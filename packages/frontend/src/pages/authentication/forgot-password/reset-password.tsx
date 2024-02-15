@@ -1,47 +1,42 @@
-import { Button } from "@/components/ui/button";
-import { resetPasswordTokenSchema } from "@backend/src/schemas/authSchema";
-import { isAxiosError } from "axios";
-import { useFormik } from "formik";
-import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import ErrorMessage from "@/components/common/ErrorMessage";
-import PasswordReset from "../../../assets/svg/PasswordReset.svg";
-import { z } from "zod";
-import useResetPasswordMutation from "@/api/mutation/useResetPasswordMutation";
-import InputPassword from "@/components/common/inputPassword";
-import { toast } from "react-toastify";
+import { resetPasswordTokenSchema } from '@backend/src/schemas/authSchema';
+import { isAxiosError } from 'axios';
+import { useFormik } from 'formik';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
+import { z } from 'zod';
+import { toast } from 'react-toastify';
+import PasswordReset from '../../../assets/svg/PasswordReset.svg';
+import ErrorMessage from '@/components/common/ErrorMessage';
+import useResetPasswordMutation from '@/api/mutation/useResetPasswordMutation';
+import InputPassword from '@/components/common/inputPassword';
+import { Button } from '@/components/ui/button';
+
 function ResetPassword() {
   const [searchParams] = useSearchParams();
 
   const resetPasswordMutation = useResetPasswordMutation(
-    searchParams.get("token") ?? ""
+    searchParams.get('token') ?? '',
   );
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmited] = useState(false);
-  const [iserror, setIsError] = useState("");
-  const labelStyle = "font-medium text-base text-gray-8 ";
+  const [iserror, setIsError] = useState('');
+  const labelStyle = 'font-medium text-base text-gray-8 ';
   const inputStyle =
-    "py-1.5 px-3 rounded-md border border-gray-100 w-full h-[46px] focus:outline-[#943B0C]";
+    'py-1.5 px-3 rounded-md border border-gray-100 w-full h-[46px] focus:outline-[#943B0C]';
   const navigate = useNavigate();
   const formik = useFormik<z.infer<typeof resetPasswordTokenSchema>>({
     initialValues: {
-      password: "",
-      confirmPassword: "",
+      confirmPassword: '',
+      password: '',
     },
-    validationSchema: toFormikValidationSchema(resetPasswordTokenSchema),
     onSubmit: (values, helper) => {
       setIsLoading(true);
       resetPasswordMutation.mutate(values, {
-        onSuccess(data) {
-          setIsLoading(false);
-          setIsSubmited(true);
-          toast.success(data.data.message);
-        },
         onError(error) {
           if (isAxiosError(error)) {
             setIsLoading(false);
-            setIsError(error.response?.data.message ?? "");
+            setIsError(error.response?.data.message ?? '');
             if (
               error.response?.status === 400 &&
               error.response.data?.errors &&
@@ -53,18 +48,25 @@ function ResetPassword() {
             }
             if (!Array.isArray(error.response?.data.errors)) {
               toast.error(
-                error.response?.data?.message ?? "An unexpected error occurred."
+                error.response?.data?.message ??
+                  'An unexpected error occurred.',
               );
             }
           }
         },
+        onSuccess(data) {
+          setIsLoading(false);
+          setIsSubmited(true);
+          toast.success(data.data.message);
+        },
       });
     },
+    validationSchema: toFormikValidationSchema(resetPasswordTokenSchema),
   });
   useEffect(() => {
-    const token = searchParams.get("token");
+    const token = searchParams.get('token');
     if (!token) {
-      navigate("/login");
+      navigate('/login');
     }
   }, []);
 
@@ -73,7 +75,7 @@ function ResetPassword() {
       <div className="w-[min(400px,100%)] space-y-4 py-4 overflow-hidden bg-white shadow-md sm:max-w-lg sm:rounded-lg">
         <div className="px-4">
           <h3 className="text-2xl text-center font-bold text-primary-900">
-            {!isSubmitted ? "Reset Password" : ""}
+            {!isSubmitted ? 'Reset Password' : ''}
           </h3>
         </div>
         <hr />
@@ -91,9 +93,9 @@ function ResetPassword() {
             <div className="w-full p-3 mt-3">
               <Button
                 type="submit"
-                variant={"primary"}
+                variant={'primary'}
                 className="w-full"
-                onClick={() => navigate("/login")}
+                onClick={() => navigate('/login')}
               >
                 Login
               </Button>
@@ -144,7 +146,7 @@ function ResetPassword() {
             <div className="flex flex-col justify-center mt-1.5">
               <Button
                 type="submit"
-                variant={"primary"}
+                variant={'primary'}
                 className="w-full"
                 isLoading={isLoading}
                 disabled={isLoading}

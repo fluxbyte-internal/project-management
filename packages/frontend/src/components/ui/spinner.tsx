@@ -1,5 +1,5 @@
 function Spinner(
-  props: { color?: string; className?: string } = { color: "#fff" }
+  props: { color?: string; className?: string } = { color: '#fff' },
 ) {
   return (
     <svg

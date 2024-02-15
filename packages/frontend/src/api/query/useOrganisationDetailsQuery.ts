@@ -1,14 +1,17 @@
+import { useQuery } from '@tanstack/react-query';
+import {
+  OrgStatusEnumValue,
+  UserRoleEnumValue,
+} from '@backend/src/schemas/enums';
+import { TaskColorPaletteEnum } from '@backend/src/schemas/userSchema';
+import { OrgListOfNonWorkingDaysEnum } from '@backend/src/schemas/organisationSchema';
+import ApiRequest from '../ApiRequest';
 import {
   AxiosResponseAndError,
   ResponseType,
-} from "../types/axiosResponseType";
-import { QUERY_KEYS } from "./querykeys";
-import ApiRequest from "../ApiRequest";
-import { requestURLs } from "@/Environment";
-import { useQuery } from "@tanstack/react-query";
-import { OrgStatusEnumValue, UserRoleEnumValue } from "@backend/src/schemas/enums";
-import { TaskColorPaletteEnum } from "@backend/src/schemas/userSchema";
-import { OrgListOfNonWorkingDaysEnum } from "@backend/src/schemas/organisationSchema";
+} from '../types/axiosResponseType';
+import { QUERY_KEYS } from './querykeys';
+import { requestURLs } from '@/Environment';
 
 export type UserOrganisationType = {
   userOrganisationId: string;
@@ -40,12 +43,12 @@ export type OrganisationResponseType = ResponseType<{
 
 function useOrganisationDetailsQuery(organisationId: string) {
   return useQuery<
-    AxiosResponseAndError<OrganisationResponseType>["response"],
-    AxiosResponseAndError<OrganisationResponseType>["error"]
+    AxiosResponseAndError<OrganisationResponseType>['response'],
+    AxiosResponseAndError<OrganisationResponseType>['error']
   >({
-    queryKey: [QUERY_KEYS.organisation, organisationId],
     queryFn: async () =>
       await ApiRequest.get(`${requestURLs.organisation}/${organisationId}`),
+    queryKey: [QUERY_KEYS.organisation, organisationId],
   });
 }
 

@@ -1,28 +1,27 @@
-import { useQuery } from "@tanstack/react-query";
-import { requestURLs } from "../../Environment";
-import { QUERY_KEYS } from "./querykeys";
+import { useQuery } from '@tanstack/react-query';
+import { requestURLs } from '../../Environment';
 import {
   AxiosResponseAndError,
   ResponseType,
-} from "../types/axiosResponseType";
-import ApiRequest from "../ApiRequest";
-import { KanbanColumnType } from "../mutation/useKanbanCreateColumn";
-
+} from '../types/axiosResponseType';
+import ApiRequest from '../ApiRequest';
+import { KanbanColumnType } from '../mutation/useKanbanCreateColumn';
+import { QUERY_KEYS } from './querykeys';
 
 type KanbanColumnResponse = ResponseType<KanbanColumnType[]>;
 
-function useAllKanbanColumnQuery(projectId:string|undefined) {
+function useAllKanbanColumnQuery(projectId: string | undefined) {
   return useQuery<
-    AxiosResponseAndError<KanbanColumnResponse>["response"],
-    AxiosResponseAndError<KanbanColumnResponse>["error"]
+    AxiosResponseAndError<KanbanColumnResponse>['response'],
+    AxiosResponseAndError<KanbanColumnResponse>['error']
   >({
-    queryKey: [QUERY_KEYS.allKanbanColumn],
-    queryFn: async () =>
-      await ApiRequest.get(requestURLs.kanbanColumn+projectId, {
-        headers: { "organisation-id": localStorage.getItem("organisation-id") },
-      }),
     enabled: true,
-    refetchOnMount : false,
+    queryFn: async () =>
+      await ApiRequest.get(requestURLs.kanbanColumn + projectId, {
+        headers: { 'organisation-id': localStorage.getItem('organisation-id') },
+      }),
+    queryKey: [QUERY_KEYS.allKanbanColumn],
+    refetchOnMount: false,
   });
 }
 

@@ -3,20 +3,20 @@ type Props = {
 };
 function PercentageCircle(props: Props) {
   const { percentage } = props;
-  let color = "#ff06068f";
+  let color = '#ff06068f';
   const per = Number(percentage);
   if (percentage) {
     if (per > 0 && per < 25) {
-      color = "#ff06068f";
+      color = '#ff06068f';
     }
     if (per > 25 && per < 50) {
-      color = "#ffa2068f";
+      color = '#ffa2068f';
     }
     if (per > 50 && per < 75) {
-      color = "#060fff8f";
+      color = '#060fff8f';
     }
     if (per > 75 && per <= 100) {
-      color = "#15A687";
+      color = '#15A687';
     }
   }
 

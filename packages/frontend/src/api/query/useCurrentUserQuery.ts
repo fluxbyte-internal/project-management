@@ -1,10 +1,13 @@
-import { AxiosResponseAndError, ResponseType } from "../types/axiosResponseType";
-import { QUERY_KEYS } from "./querykeys";
-import ApiRequest from "../ApiRequest";
-import { requestURLs } from "@/Environment";
-import { useQuery } from "@tanstack/react-query";
-import {UserRoleEnumValue} from '@backend/src/schemas/enums';
-import { OrganisationType } from "../mutation/useOrganisationMutation";
+import { useQuery } from '@tanstack/react-query';
+import { UserRoleEnumValue } from '@backend/src/schemas/enums';
+import {
+  AxiosResponseAndError,
+  ResponseType,
+} from '../types/axiosResponseType';
+import ApiRequest from '../ApiRequest';
+import { OrganisationType } from '../mutation/useOrganisationMutation';
+import { QUERY_KEYS } from './querykeys';
+import { requestURLs } from '@/Environment';
 
 export type UserType = {
   userId: string;
@@ -15,11 +18,11 @@ export type UserType = {
   timezone: string | null;
   country: string | null;
   avatarImg: string | null;
-  isVerified:boolean
+  isVerified: boolean;
   createdAt: string;
   updatedAt: string;
   userOrganisation: UserOrganisationType[];
-  provider?:Provider;
+  provider?: Provider;
 };
 
 export type UserOrganisationType = {
@@ -31,25 +34,24 @@ export type UserOrganisationType = {
   taskColour: null;
   createdAt: Date;
   updatedAt: Date;
-  organisation:OrganisationType
+  organisation: OrganisationType;
 };
 
 export interface Provider {
-
-  providerType?: string
+  providerType?: string;
 }
 
 export type UserResponseType = ResponseType<UserType>;
 
 function useCurrentUserQuery() {
   return useQuery<
-    AxiosResponseAndError<UserResponseType>["response"],
-    AxiosResponseAndError<UserResponseType>["error"]
+    AxiosResponseAndError<UserResponseType>['response'],
+    AxiosResponseAndError<UserResponseType>['error']
   >({
-    queryKey: [QUERY_KEYS.currentUser],
-    queryFn: async () => await ApiRequest.get(requestURLs.me),
     enabled: false,
-    retry:0,
+    queryFn: async () => await ApiRequest.get(requestURLs.me),
+    queryKey: [QUERY_KEYS.currentUser],
+    retry: 0,
   });
 }
 

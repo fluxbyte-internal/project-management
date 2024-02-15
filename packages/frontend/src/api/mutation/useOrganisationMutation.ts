@@ -1,13 +1,16 @@
-import { useMutation } from "@tanstack/react-query";
-import { requestURLs } from "../../Environment";
-import type { OrgListOfNonWorkingDaysEnum, createOrganisationSchema } from "backend/src/schemas/organisationSchema";
-import { z } from "zod";
+import { useMutation } from '@tanstack/react-query';
+import { z } from 'zod';
+import { OrgStatusEnumValue } from '@backend/src/schemas/enums';
+import { requestURLs } from '../../Environment';
+import ApiRequest from '../ApiRequest';
+import type {
+  createOrganisationSchema,
+  OrgListOfNonWorkingDaysEnum,
+} from 'backend/src/schemas/organisationSchema';
 import {
   AxiosResponseAndError,
   ResponseType,
-} from "@/api/types/axiosResponseType";
-import ApiRequest from "../ApiRequest";
-import { OrgStatusEnumValue } from "@backend/src/schemas/enums";
+} from '@/api/types/axiosResponseType';
 
 export type OrganisationType = {
   organisationId: string;
@@ -21,13 +24,13 @@ export type OrganisationType = {
   tenantId: string;
   createdByUserId: string;
   updatedByUserId?: string;
-}
+};
 type OrganisationApiResponse = ResponseType<OrganisationType>;
 
 function useOrganisationMutation() {
   const mutation = useMutation<
-    AxiosResponseAndError<OrganisationApiResponse>["response"],
-    AxiosResponseAndError<OrganisationApiResponse>["error"],
+    AxiosResponseAndError<OrganisationApiResponse>['response'],
+    AxiosResponseAndError<OrganisationApiResponse>['error'],
     z.infer<typeof createOrganisationSchema>
   >({
     mutationFn: (data) =>

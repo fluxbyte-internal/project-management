@@ -1,15 +1,18 @@
-import { useMutation } from "@tanstack/react-query";
-import { requestURLs } from "../../Environment";
-import { z } from "zod";
+import { useMutation } from '@tanstack/react-query';
+import { z } from 'zod';
+import { createTaskSchema } from '@backend/src/schemas/taskSchema';
+import {
+  TaskDependenciesEnumValue,
+  TaskStatusEnumValue,
+} from '@backend/src/schemas/enums';
+import ApiRequest from '../ApiRequest';
+import { requestURLs } from '../../Environment';
+import { UserType } from '../query/useCurrentUserQuery';
+import { UserOrganisationType } from '../query/useOrganisationDetailsQuery';
 import {
   AxiosResponseAndError,
   ResponseType,
-} from "@/api/types/axiosResponseType";
-import { createTaskSchema } from "@backend/src/schemas/taskSchema";
-import ApiRequest from "../ApiRequest";
-import { TaskDependenciesEnumValue, TaskStatusEnumValue } from "@backend/src/schemas/enums";
-import { UserType } from "../query/useCurrentUserQuery";
-import { UserOrganisationType } from "../query/useOrganisationDetailsQuery";
+} from '@/api/types/axiosResponseType';
 
 export type Task = {
   taskId: string;
@@ -34,7 +37,7 @@ export type Task = {
   flag: string;
   subtasks: Task[];
   assignedUsers: [
-    { taskAssignUsersId: string; user: UserOrganisationType["user"] }
+    { taskAssignUsersId: string; user: UserOrganisationType['user'] },
   ];
   histories: History[];
 };
@@ -47,7 +50,7 @@ export interface History {
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
-  createdByUser: UserOrganisationType["user"];
+  createdByUser: UserOrganisationType['user'];
 }
 
 export interface HistoryData {
@@ -105,14 +108,14 @@ type CreateTaskResponseType = ResponseType<Task>;
 
 function useCreateTaskMutation(projectId?: string, taskId?: string) {
   const mutation = useMutation<
-    AxiosResponseAndError<CreateTaskResponseType>["response"],
-    AxiosResponseAndError<CreateTaskResponseType>["error"],
+    AxiosResponseAndError<CreateTaskResponseType>['response'],
+    AxiosResponseAndError<CreateTaskResponseType>['error'],
     z.infer<typeof createTaskSchema>
   >({
     mutationFn: (data) =>
       ApiRequest.post<CreateTaskResponseType>(
         `${requestURLs.task}${projectId}/${taskId}`,
-        data
+        data,
       ),
   });
 

@@ -1,42 +1,45 @@
-import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
-import UserAvatar from "@/components/ui/userAvatar";
-import dateFormater from "@/helperFuntions/dateFormater";
-import DiamondIcon from "../../../assets/svg/DiamondIcon.svg";
-import ParentTaskIcon from "../../../assets/svg/ParentTaskIcon.svg";
-import { ExtendedKanbanDataSource } from "./index";
-import PercentageCircle from "@/components/shared/PercentageCircle";
+import DiamondIcon from '../../../assets/svg/DiamondIcon.svg';
+import ParentTaskIcon from '../../../assets/svg/ParentTaskIcon.svg';
+import { ExtendedKanbanDataSource } from './index';
+import { UserOrganisationType } from '@/api/query/useOrganisationDetailsQuery';
+import UserAvatar from '@/components/ui/userAvatar';
+import dateFormater from '@/helperFuntions/dateFormater';
+import PercentageCircle from '@/components/shared/PercentageCircle';
+
 function TaskShellView(props: { taskData: ExtendedKanbanDataSource }) {
   const users: UserOrganisationType[] = JSON.parse(
-    props.taskData?.users ?? "[]"
+    props.taskData?.users ?? '[]',
   );
   // function getRandomArbitrary() {
   //   return Math.round(Math.random() * (4-0) + 0);
   // }
   const colors = [
-    "bg-[#E9F2FF]",
-    "bg-[#FFE9E9]",
-    "bg-[#F9E9FF]",
-    "bg-[#E9FFEE]",
+    'bg-[#E9F2FF]',
+    'bg-[#FFE9E9]',
+    'bg-[#F9E9FF]',
+    'bg-[#E9FFEE]',
   ];
-  
+
   return (
-    <div className={`w-full h-full px-2 py-1.5 border rounded-md shadow-sm border-l-4  ${
-      props.taskData?.color == "#008000"
-        ? "border-l-green-500/60"
-        : props.taskData?.color == "#FF0000"
-          ? "border-l-red-500/60"
-          : props.taskData?.color == "#FF0000"
-            ? "border-l-primary-500/60"
-            : ""
-    }`}>
+    <div
+      className={`w-full h-full px-2 py-1.5 border rounded-md shadow-sm border-l-4  ${
+        props.taskData?.color === '#008000'
+          ? 'border-l-green-500/60'
+          : props.taskData?.color === '#FF0000'
+            ? 'border-l-red-500/60'
+            : props.taskData?.color === '#FF0000'
+              ? 'border-l-primary-500/60'
+              : ''
+      }`}
+    >
       <div className="flex justify-between w-full">
         <div className="text-lg text-gray-500 flex gap-1">
-          {props.taskData.subTask>0 && (
-            <img src={ParentTaskIcon} className="w-3 h-3 mt-2 rotate-90"/>
+          {props.taskData.subTask > 0 && (
+            <img src={ParentTaskIcon} className="w-3 h-3 mt-2 rotate-90" />
           )}
           <div className=" w-[18ch]  truncate">{props.taskData?.text}</div>
           {props.taskData.mileStone && (
-            <img src={DiamondIcon} className="w-3 h-3 mt-2"/>
+            <img src={DiamondIcon} className="w-3 h-3 mt-2" />
           )}
         </div>
         <div className="h-0">

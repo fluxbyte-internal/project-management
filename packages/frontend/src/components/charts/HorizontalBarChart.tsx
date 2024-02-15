@@ -1,87 +1,86 @@
-import React, {useEffect, useRef} from 'react'; 
+import React, { useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
 // export type chartDataType = { value: number; name: string }
 export type ChartProps = {
-  chartData: { value: number; name: string }[],
-  color:string[],
-  title: string,
-  radius: string[],
-  height: string
-}
+  chartData: { value: number; name: string }[];
+  color: string[];
+  title: string;
+  radius: string[];
+  height: string;
+};
 interface HorizontalBarChartProps {
-  chartProps: ChartProps
+  chartProps: ChartProps;
 }
-const HorizontalBarChart:  React.FC<HorizontalBarChartProps> = ({ chartProps }) =>{
+const HorizontalBarChart: React.FC<HorizontalBarChartProps> = ({
+  chartProps,
+}) => {
   const chartref = useRef<HTMLDivElement>(null);
-  useEffect(()=>{
+  useEffect(() => {
     const myChart = echarts.init(chartref.current as HTMLDivElement);
     const labelRight = {
       position: 'right',
     } as const;
-      
-    const option:echarts.EChartsOption = {
+
+    const option: echarts.EChartsOption = {
       color: chartProps.color,
+      grid: {
+        bottom: 30,
+        top: 80,
+      },
+      series: [
+        {
+          data: [
+            { label: labelRight, value: 0 },
+            { label: labelRight, value: 0 },
+            0,
+          ],
+          label: {
+            formatter: '{b}',
+            show: true,
+          },
+          name: 'Cost',
+          stack: 'Total',
+          type: 'bar',
+        },
+      ],
       title: {
+        left: 'center',
         text: chartProps.title,
-        top:'2%',
-        left:"center",
+        top: '2%',
       },
       tooltip: {
-        trigger: 'axis',
         axisPointer: {
           type: 'shadow',
         },
-      },
-      grid: {
-        top: 80,
-        bottom: 30,
+        trigger: 'axis',
       },
       xAxis: {
-        type: 'value',
         position: 'top',
         splitLine: {
           lineStyle: {
             type: 'dashed',
           },
         },
+        type: 'value',
       },
       yAxis: {
-        type: 'category',
-        axisLine: { show: false },
         axisLabel: { show: false },
+        axisLine: { show: false },
         axisTick: { show: false },
+        data: ['low', 'high', 'medium'],
         splitLine: { show: false },
-        data: [
-          'low',
-          'high',
-          'medium',
-        ],
+        type: 'category',
       },
-      series: [
-        {
-          name: 'Cost',
-          type: 'bar',
-          stack: 'Total',
-          label: {
-            show: true,
-            formatter: '{b}',
-          },
-          data: [
-            { value: 0, label: labelRight },
-            { value: 0, label: labelRight },
-            0,
-          ],
-        },
-      ],
     };
     myChart.setOption(option);
 
-    return()=>{
+    return () => {
       myChart.dispose();
     };
-  },[chartProps]);
+  }, [chartProps]);
 
-  return <div ref={chartref} style={{width: '100%', height: chartProps?.height}} />;
-    
+  return (
+    <div ref={chartref} style={{ height: chartProps?.height, width: '100%' }} />
+  );
 };
 export default HorizontalBarChart;

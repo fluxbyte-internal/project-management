@@ -1,19 +1,20 @@
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ScheduleAndBudgetTrend } from '@backend/src/schemas/enums';
 import useProjectDashboardQuery, {
   projectDashboardPortfolioDataType,
-} from "@/api/query/useProjectDashboardQuery";
-import PieChart, { ChartProps } from "@/components/charts/PieChart";
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import dateFormatter from "@/helperFuntions/dateFormater";
-import BarChart, { BarChartPropsType } from "@/components/charts/BarChart";
-import Sunny from "@/assets/png/Sunny.png";
-import Cloudy from "@/assets/png/Cloudy.png";
-import Rainy from "@/assets/png/Rainy.png";
-import Stormy from "@/assets/png/Stormy.png";
-import { ScheduleAndBudgetTrend } from "@backend/src/schemas/enums";
-import Increasing from "@/assets/increase.svg";
-import Decreasing from "@/assets/decrease.svg";
-import Stable from "@/assets/stable.svg";
+} from '@/api/query/useProjectDashboardQuery';
+import PieChart, { ChartProps } from '@/components/charts/PieChart';
+import dateFormatter from '@/helperFuntions/dateFormater';
+import BarChart, { BarChartPropsType } from '@/components/charts/BarChart';
+import Sunny from '@/assets/png/Sunny.png';
+import Cloudy from '@/assets/png/Cloudy.png';
+import Rainy from '@/assets/png/Rainy.png';
+import Stormy from '@/assets/png/Stormy.png';
+import Increasing from '@/assets/increase.svg';
+import Decreasing from '@/assets/decrease.svg';
+import Stable from '@/assets/stable.svg';
+
 export type ThemeColorData = {
   theme: string;
   colors: {
@@ -39,66 +40,66 @@ function ProjectDashboard() {
 
   const colorThemeArr: ThemeColorData[] = [
     {
-      theme: "SUNNY",
       colors: {
-        tabTexts: "text-white",
-        tabGradient: "bg-gradient-to-r  from-primary-500 to-primary-300",
-        tabBorders: "border-primary-900 ",
-        mainTexts: "text-primary-800",
-        subTexts: "text-primary-800",
-        chartColors: ["#FFD04A", "#FFB819", "#943B0C"],
-        chartGradient: "",
-        chartBorders: "border border-gray-500",
-        chartHeadingTexts: "#000000",
+        chartBorders: 'border border-gray-500',
+        chartColors: ['#FFD04A', '#FFB819', '#943B0C'],
+        chartGradient: '',
+        chartHeadingTexts: '#000000',
+        mainTexts: 'text-primary-800',
+        subTexts: 'text-primary-800',
+        tabBorders: 'border-primary-900 ',
+        tabGradient: 'bg-gradient-to-r  from-primary-500 to-primary-300',
+        tabTexts: 'text-white',
       },
+      theme: 'SUNNY',
     },
     {
-      theme: "CLOUDY",
       colors: {
-        tabTexts: "text-white",
-        tabGradient: "bg-gradient-to-r  from-gray-500 to-gray-300",
-        tabBorders: "border-gray-900 ",
-        mainTexts: "text-gray-500",
-        subTexts: "text-gray-800",
-        chartColors: ["#FFD04A", "#FFB819", "#B74E06"],
-        chartGradient: "bg-gradient-to-r from-gray-400 to-gray-200 ",
-        chartBorders: "border border-gray-300",
-        chartHeadingTexts: "#000000",
+        chartBorders: 'border border-gray-300',
+        chartColors: ['#FFD04A', '#FFB819', '#B74E06'],
+        chartGradient: 'bg-gradient-to-r from-gray-400 to-gray-200 ',
+        chartHeadingTexts: '#000000',
+        mainTexts: 'text-gray-500',
+        subTexts: 'text-gray-800',
+        tabBorders: 'border-gray-900 ',
+        tabGradient: 'bg-gradient-to-r  from-gray-500 to-gray-300',
+        tabTexts: 'text-white',
       },
+      theme: 'CLOUDY',
     },
     {
-      theme: "RAINY",
       colors: {
-        tabTexts: "text-white",
-        tabGradient: "bg-gradient-to-r  from-gray-500 to-gray-300",
-        tabBorders: "border-cyan-500 ",
-        mainTexts: "text-gray-500",
-        subTexts: "text-cyan-300",
-        chartColors: ["#cffafe", "#6fe9f9", "#06b6d4"],
-        chartGradient: "",
-        chartBorders: "border border-gray-300",
-        chartHeadingTexts: "#000000",
+        chartBorders: 'border border-gray-300',
+        chartColors: ['#cffafe', '#6fe9f9', '#06b6d4'],
+        chartGradient: '',
+        chartHeadingTexts: '#000000',
+        mainTexts: 'text-gray-500',
+        subTexts: 'text-cyan-300',
+        tabBorders: 'border-cyan-500 ',
+        tabGradient: 'bg-gradient-to-r  from-gray-500 to-gray-300',
+        tabTexts: 'text-white',
       },
+      theme: 'RAINY',
     },
     {
-      theme: "STORMY",
       colors: {
-        tabTexts: "text-white",
-        tabGradient: "bg-gradient-to-r  from-gray-500 to-gray-300",
-        tabBorders: "border-cyan-500 ",
-        mainTexts: "text-gray-500",
-        subTexts: "text-primary-300",
-        chartColors: ["#FFD04A", "#7becff", "#06b6d4"],
-        chartBorders: "border border-gray-300",
-        chartGradient: "",
-        chartHeadingTexts: "#000000",
+        chartBorders: 'border border-gray-300',
+        chartColors: ['#FFD04A', '#7becff', '#06b6d4'],
+        chartGradient: '',
+        chartHeadingTexts: '#000000',
+        mainTexts: 'text-gray-500',
+        subTexts: 'text-primary-300',
+        tabBorders: 'border-cyan-500 ',
+        tabGradient: 'bg-gradient-to-r  from-gray-500 to-gray-300',
+        tabTexts: 'text-white',
       },
+      theme: 'STORMY',
     },
   ];
   const setTheme = () => {
     if (data && colorThemeArr) {
       const statusThemeData = colorThemeArr.find(
-        (key) => key?.theme === data?.projectOverAllSituation
+        (key) => key?.theme === data?.projectOverAllSituation,
       );
 
       setSelectedStatusTheme(statusThemeData);
@@ -116,81 +117,80 @@ function ProjectDashboard() {
     if (selectedStatusTheme) {
       const statusPieChartData = data?.taskStatusChartData?.labels.map(
         (name, index) => ({
-          value: Number(data?.taskStatusChartData?.data[index]),
           name,
-        })
+          value: Number(data?.taskStatusChartData?.data[index]),
+        }),
       );
       if (statusPieChartData) {
         setstatusPieChartProp({
           chartData: statusPieChartData,
           color: selectedStatusTheme?.colors.chartColors,
-          title: "Task Per Status",
-          height: "100%",
-          radius: ["0%", "70%"],
+          height: '100%',
+          radius: ['0%', '70%'],
+          title: 'Task Per Status',
         });
       }
       const delayCounts = {
-        red: 0,
         green: 0,
         orange: 0,
+        red: 0,
       };
       data?.taskDelayChartData?.forEach((task) => {
-        if (task.tpiFlag === "Red") {
+        if (task.tpiFlag === 'Red') {
           delayCounts.red += 1;
-        } else if (task.tpiFlag === "Green") {
+        } else if (task.tpiFlag === 'Green') {
           delayCounts.green += 1;
-        } else if (task.tpiFlag === "Orange") {
+        } else if (task.tpiFlag === 'Orange') {
           delayCounts.orange += 1;
         }
       });
       setBarChartProp({
         chartData: [
           {
-            value: delayCounts.red,
             itemStyle: { color: selectedStatusTheme?.colors?.chartColors[2] },
+            value: delayCounts.red,
           },
           {
-            value: delayCounts.green,
             itemStyle: { color: selectedStatusTheme?.colors?.chartColors[1] },
+            value: delayCounts.green,
           },
           {
-            value: delayCounts.orange,
             itemStyle: { color: selectedStatusTheme?.colors?.chartColors[0] },
+            value: delayCounts.orange,
           },
         ],
-        title: "Task Delays",
+        title: 'Task Delays',
       });
     }
   }, [selectedStatusTheme]);
   const formatStatus = (status: string): string => {
     return status
-      .replace(/_/g, " ")
+      .replace(/_/g, ' ')
       .toLowerCase()
       .replace(/\b\w/g, (c) => c.toUpperCase());
   };
   const navigate = useNavigate();
   const filterRoutes = (item: string) => {
     switch (item) {
-    case "Milestones":
-      navigate(`/tasks/${projectId}?milestones=true`);
-      break;
-    case "Tasks":
-      navigate(`/tasks/${projectId}`);
-      break;
-    default:
-      break;
+      case 'Milestones':
+        navigate(`/tasks/${projectId}?milestones=true`);
+        break;
+      case 'Tasks':
+        navigate(`/tasks/${projectId}`);
+        break;
+      default:
+        break;
     }
   };
   const getSPI = () => {
     let val = 0;
     if (data && data.spi.length) {
       data?.spi.forEach((e) => {
-        val =+ e.spi;
+        val = Number(e.spi);
       });
-      return Number((val / data?.spi.length) * 100).toFixed(2) ;
-    } else {
-      return 0;
+      return Number((val / data?.spi.length) * 100).toFixed(2);
     }
+    return 0;
   };
   return (
     <>
@@ -202,15 +202,15 @@ function ProjectDashboard() {
                 <img
                   className="h-[65%] md:h-3/4 lg:h-[125%] select-none"
                   src={`${
-                    data?.projectOverAllSituation === "SUNNY"
+                    data?.projectOverAllSituation === 'SUNNY'
                       ? Sunny
-                      : data?.projectOverAllSituation === "CLOUDY"
+                      : data?.projectOverAllSituation === 'CLOUDY'
                         ? Cloudy
-                        : data?.projectOverAllSituation === "RAINY"
+                        : data?.projectOverAllSituation === 'RAINY'
                           ? Rainy
-                          : data?.projectOverAllSituation === "STORMY"
+                          : data?.projectOverAllSituation === 'STORMY'
                             ? Stormy
-                            : ""
+                            : ''
                   }`}
                 />
               </div>
@@ -230,7 +230,7 @@ function ProjectDashboard() {
               </div>
 
               <div
-                onClick={() => filterRoutes("Tasks")}
+                onClick={() => filterRoutes('Tasks')}
                 className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer  ${selectedStatusTheme?.colors.tabBorders}`}
               >
                 <div className="text-lg ">No. of Tasks</div>
@@ -238,7 +238,7 @@ function ProjectDashboard() {
                 <div className="absolute right-3 bottom-3">oo</div>
               </div>
               <div
-                onClick={() => filterRoutes("Milestones")}
+                onClick={() => filterRoutes('Milestones')}
                 className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer  ${selectedStatusTheme?.colors.tabBorders}`}
               >
                 <div className="text-lg ">No. of Milestones</div>
@@ -261,7 +261,7 @@ function ProjectDashboard() {
                   <div>Creation Date</div>
                   <div className="text-lg md:text-xl font-bold text-gray-500">
                     {dateFormatter(
-                      new Date(data?.projectDates?.projectCreatedAt)
+                      new Date(data?.projectDates?.projectCreatedAt),
                     )}
                   </div>
                 </div>
@@ -277,7 +277,7 @@ function ProjectDashboard() {
                   <div>Est. End Date</div>
                   <div className="text-lg md:text-xl font-bold text-gray-500">
                     {dateFormatter(
-                      new Date(data?.projectDates?.estimatedEndDate)
+                      new Date(data?.projectDates?.estimatedEndDate),
                     )}
                   </div>
                 </div>
@@ -316,8 +316,12 @@ function ProjectDashboard() {
                       >
                         <div className="m-1">
                           {data?.projectProgression
-                            ? Number(Number(data?.projectProgression).toFixed(2)) * 100 + "%"
-                            : "NA"}
+                            ? Number(
+                                Number(data?.projectProgression).toFixed(2),
+                              ) *
+                                100 +
+                              '%'
+                            : 'NA'}
                         </div>
                       </div>
                     </div>
@@ -361,12 +365,12 @@ function ProjectDashboard() {
                         data?.scheduleTrend === ScheduleAndBudgetTrend.STABLE
                           ? Stable
                           : data?.scheduleTrend ===
-                            ScheduleAndBudgetTrend.INCREASING
+                              ScheduleAndBudgetTrend.INCREASING
                             ? Increasing
                             : data?.scheduleTrend ===
-                            ScheduleAndBudgetTrend.DECREASING
+                                ScheduleAndBudgetTrend.DECREASING
                               ? Decreasing
-                              : ""
+                              : ''
                       }
                     ></img>
                   </div>
@@ -382,12 +386,12 @@ function ProjectDashboard() {
                         data?.scheduleTrend === ScheduleAndBudgetTrend.STABLE
                           ? Stable
                           : data?.scheduleTrend ===
-                            ScheduleAndBudgetTrend.INCREASING
+                              ScheduleAndBudgetTrend.INCREASING
                             ? Increasing
                             : data?.scheduleTrend ===
-                            ScheduleAndBudgetTrend.DECREASING
+                                ScheduleAndBudgetTrend.DECREASING
                               ? Decreasing
-                              : ""
+                              : ''
                       }
                     ></img>
                   </div>
@@ -397,7 +401,9 @@ function ProjectDashboard() {
                 <div className="w-full h-full text-center text-base md:text-lg font-semibold ">
                   SPI
                 </div>
-                <div className={`w-full h-full text-lg md:text-xl font-bold text-gray-500 text-center ${Number(getSPI()) < 0.8 ? "text-red-700/60":Number(getSPI()) >= 0.8 && Number(getSPI()) < 0.95 ? "text-orange-400/80" :Number(getSPI()) >= 0.95 ? "text-green-700/60" :"" }`}>
+                <div
+                  className={`w-full h-full text-lg md:text-xl font-bold text-gray-500 text-center ${Number(getSPI()) < 0.8 ? 'text-red-700/60' : Number(getSPI()) >= 0.8 && Number(getSPI()) < 0.95 ? 'text-orange-400/80' : Number(getSPI()) >= 0.95 ? 'text-green-700/60' : ''}`}
+                >
                   {getSPI()}
                 </div>
               </div>

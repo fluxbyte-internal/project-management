@@ -1,30 +1,30 @@
-import z from "zod";
-import { cn } from "@/lib/utils";
-import { useFormik } from "formik";
-import { Button } from "../ui/button";
-import Dialog from "../common/Dialog";
+import z from 'zod';
+import { useFormik } from 'formik';
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-} from "@radix-ui/react-dropdown-menu";
-import { toast } from "react-toastify";
-import { CheckIcon } from "lucide-react";
-import { useState } from "react";
-import Link from "../../assets/svg/Link.svg";
-import PlusSvg from "../../assets/svg/Plus.svg";
-import ErrorMessage from "../common/ErrorMessage";
-import Select, { SingleValue } from "react-select";
-import TrashCan from "../../assets/svg/TrashCan.svg";
-import DownArrow from "../../assets/svg/DownArrow.svg";
-import useAllTaskQuery from "@/api/query/useAllTaskQuery";
-import { Task } from "@/api/mutation/useTaskCreateMutation";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import { TaskDependenciesEnumValue } from "@backend/src/schemas/enums";
-import { dependenciesTaskSchema } from "@backend/src/schemas/taskSchema";
-import useTaskDependenciesMutation from "@/api/mutation/useTaskDependenciesmutaion";
-import useRemoveTaskDependenciesMutation from "@/api/mutation/useTaskRemoveDependencies";
+  DropdownMenuTrigger,
+} from '@radix-ui/react-dropdown-menu';
+import { toast } from 'react-toastify';
+import { CheckIcon } from 'lucide-react';
+import { useState } from 'react';
+import Select, { SingleValue } from 'react-select';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
+import { TaskDependenciesEnumValue } from '@backend/src/schemas/enums';
+import { dependenciesTaskSchema } from '@backend/src/schemas/taskSchema';
+import { Button } from '../ui/button';
+import Dialog from '../common/Dialog';
+import Link from '../../assets/svg/Link.svg';
+import PlusSvg from '../../assets/svg/Plus.svg';
+import ErrorMessage from '../common/ErrorMessage';
+import TrashCan from '../../assets/svg/TrashCan.svg';
+import DownArrow from '../../assets/svg/DownArrow.svg';
+import useAllTaskQuery from '@/api/query/useAllTaskQuery';
+import { Task } from '@/api/mutation/useTaskCreateMutation';
+import { cn } from '@/lib/utils';
+import useTaskDependenciesMutation from '@/api/mutation/useTaskDependenciesmutaion';
+import useRemoveTaskDependenciesMutation from '@/api/mutation/useTaskRemoveDependencies';
 
 type Props = {
   task: Task;
@@ -37,36 +37,36 @@ type Options = { value: string; label: string };
 const reactSelectStyle = {
   control: (
     provided: Record<string, unknown>,
-    state: { isFocused: boolean }
+    state: { isFocused: boolean },
   ) => ({
     ...provided,
-    border: "1px solid #E7E7E7",
-    outline: state.isFocused ? "2px solid #943B0C" : "1px solid #E7E7E7",
-    boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
-    "&:hover": {
-      outline: state.isFocused ? "2px solid #943B0C" : "1px solid #E7E7E7",
-      boxShadow: "0px 0px 0px #943B0C",
+    '&:hover': {
+      boxShadow: '0px 0px 0px #943B0C',
+      outline: state.isFocused ? '2px solid #943B0C' : '1px solid #E7E7E7',
     },
+    border: '1px solid #E7E7E7',
+    boxShadow: state.isFocused ? '0px 0px 0px #943B0C' : 'none',
+    outline: state.isFocused ? '2px solid #943B0C' : '1px solid #E7E7E7',
   }),
 };
 
 function TaskDependencies(props: Props) {
   const allTask = useAllTaskQuery(props.task.projectId);
   const [dependenciesShow, setDependenciesShow] = useState<boolean>(
-    Boolean(props.endTask) ?? false
+    Boolean(props.endTask) ?? false,
   );
-  const [showConfirmDelete, setShowConfirmDelete] = useState("");
+  const [showConfirmDelete, setShowConfirmDelete] = useState('');
   const taskDependenciesMutation = useTaskDependenciesMutation(
-    props.task.taskId
+    props.task.taskId,
   );
   const removeTaskDependenciesMutation = useRemoveTaskDependenciesMutation();
-  const val = allTask.data?.data.data.find((d) => d.taskId == props.endTask);
+  const val = allTask.data?.data.data.find((d) => d.taskId === props.endTask);
 
   const [defaultsValue, setDefaultsValue] = useState<Options>(
-    val ? { label: val?.taskName, value: val?.taskId } : ({} as Options)
+    val ? { label: val?.taskName, value: val?.taskId } : ({} as Options),
   );
   const dependencies = (): Options[] => {
-    const dependenciesArr: Options[] = [{ label: "select", value: "" }];
+    const dependenciesArr: Options[] = [{ label: 'select', value: '' }];
     allTask.data?.data.data.forEach((task) => {
       if (
         task.taskId !== props.task.taskId &&
@@ -74,7 +74,7 @@ function TaskDependencies(props: Props) {
       ) {
         if (
           !props.task.dependencies.some(
-            (e) => e.dependendentOnTaskId === task.taskId
+            (e) => e.dependendentOnTaskId === task.taskId,
           )
         ) {
           dependenciesArr.push({ label: task.taskName, value: task.taskId });
@@ -88,13 +88,13 @@ function TaskDependencies(props: Props) {
     if (val) {
       setDefaultsValue({ label: val.label, value: val.value });
       dependenciesFormik.setFieldValue(
-        "dependendentOnTaskId",
-        val.value ?? null
+        'dependendentOnTaskId',
+        val.value ?? null,
       );
       if (!val.value) {
         dependenciesFormik.setFieldValue(
-          "dependentType",
-          TaskDependenciesEnumValue.BLOCKING
+          'dependentType',
+          TaskDependenciesEnumValue.BLOCKING,
         );
       }
     }
@@ -102,36 +102,36 @@ function TaskDependencies(props: Props) {
 
   const dependenciesFormik = useFormik<z.infer<typeof dependenciesTaskSchema>>({
     initialValues: {
+      dependendentOnTaskId: props.endTask ? defaultsValue.value : '',
       dependentType: TaskDependenciesEnumValue.BLOCKING,
-      dependendentOnTaskId: props.endTask ? defaultsValue.value : "",
     },
-    validationSchema: toFormikValidationSchema(dependenciesTaskSchema),
     onSubmit: (values) => {
       taskDependenciesMutation.mutate(values, {
-        onSuccess(data) {
-          props.refetch();
-          dependenciesFormik.resetForm();
-          setDefaultsValue({ label: "select", value: "" });
-          setDependenciesShow(false);
-          toast.success(data.data.message);
-        },
         onError(error) {
           toast.error(error.response?.data.message);
         },
+        onSuccess(data) {
+          props.refetch();
+          dependenciesFormik.resetForm();
+          setDefaultsValue({ label: 'select', value: '' });
+          setDependenciesShow(false);
+          toast.success(data.data.message);
+        },
       });
     },
+    validationSchema: toFormikValidationSchema(dependenciesTaskSchema),
   });
 
   const removeDependency = () => {
     removeTaskDependenciesMutation.mutate(showConfirmDelete, {
+      onError(error) {
+        toast.error(error.response?.data.message);
+        setShowConfirmDelete('');
+      },
       onSuccess(data) {
         props.refetch();
         toast.success(data.data.message);
-        setShowConfirmDelete("");
-      },
-      onError(error) {
-        toast.error(error.response?.data.message);
-        setShowConfirmDelete("");
+        setShowConfirmDelete('');
       },
     });
   };
@@ -144,13 +144,13 @@ function TaskDependencies(props: Props) {
           <div className="text-xl font-medium">Dependencies</div>
         </div>
         {!dependenciesShow && (
-          <Button variant={"ghost"} onClick={() => setDependenciesShow(true)}>
+          <Button variant={'ghost'} onClick={() => setDependenciesShow(true)}>
             <img src={PlusSvg} width={20} height={20} />
           </Button>
         )}
       </div>
       {Boolean(
-        props.task?.dependencies && props.task?.dependencies.length > 0
+        props.task?.dependencies && props.task?.dependencies.length > 0,
       ) &&
         props.task?.dependencies.map((dependency) => {
           return (
@@ -173,9 +173,9 @@ function TaskDependencies(props: Props) {
                         return (
                           <DropdownMenuItem
                             className={`p-2 ${
-                              dependency.dependentType == item
-                                ? "bg-gray-100"
-                                : ""
+                              dependency.dependentType === item
+                                ? 'bg-gray-100'
+                                : ''
                             }`}
                             key={index}
                           >
@@ -188,17 +188,17 @@ function TaskDependencies(props: Props) {
                                 </div>
                                 <CheckIcon
                                   className={cn(
-                                    "ml-auto h-4 w-4",
+                                    'ml-auto h-4 w-4',
                                     item === dependency.dependentType
-                                      ? "opacity-100"
-                                      : "opacity-0"
+                                      ? 'opacity-100'
+                                      : 'opacity-0',
                                   )}
                                 />
                               </div>
                             </div>
                           </DropdownMenuItem>
                         );
-                      }
+                      },
                     )}
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -216,7 +216,7 @@ function TaskDependencies(props: Props) {
               </div>
               <div>
                 <Button
-                  variant={"none"}
+                  variant={'none'}
                   className="p-0 h-6 w-6"
                   onClick={() =>
                     setShowConfirmDelete(dependency.taskDependenciesId)
@@ -249,17 +249,17 @@ function TaskDependencies(props: Props) {
                       return (
                         <DropdownMenuItem
                           className={`p-2 ${
-                            dependenciesFormik.values.dependentType == item
-                              ? "bg-gray-100"
-                              : ""
+                            dependenciesFormik.values.dependentType === item
+                              ? 'bg-gray-100'
+                              : ''
                           }`}
                           key={index}
                           onClick={() => {
                             dependenciesFormik.setFieldValue(
-                              "dependentType",
+                              'dependentType',
                               TaskDependenciesEnumValue[
                                 item as keyof typeof TaskDependenciesEnumValue
-                              ]
+                              ],
                             );
                           }}
                         >
@@ -272,18 +272,18 @@ function TaskDependencies(props: Props) {
                               </div>
                               <CheckIcon
                                 className={cn(
-                                  "ml-auto h-4 w-4",
+                                  'ml-auto h-4 w-4',
                                   item ===
                                     dependenciesFormik.values.dependentType
-                                    ? "opacity-100"
-                                    : "opacity-0"
+                                    ? 'opacity-100'
+                                    : 'opacity-0',
                                 )}
                               />
                             </div>
                           </div>
                         </DropdownMenuItem>
                       );
-                    }
+                    },
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -309,7 +309,7 @@ function TaskDependencies(props: Props) {
           <div className="flex justify-end gap-2">
             <div>
               <Button
-                variant={"secondary"}
+                variant={'secondary'}
                 onClick={() => {
                   dependenciesFormik.resetForm(), setDependenciesShow(false);
                 }}
@@ -319,7 +319,7 @@ function TaskDependencies(props: Props) {
             </div>
             <div>
               <Button
-                variant={"primary_outline"}
+                variant={'primary_outline'}
                 onClick={dependenciesFormik.submitForm}
               >
                 Create
@@ -329,7 +329,7 @@ function TaskDependencies(props: Props) {
         </>
       )}
       <Dialog
-        isOpen={showConfirmDelete ? true : false}
+        isOpen={Boolean(showConfirmDelete)}
         onClose={() => {}}
         modalClass="rounded-lg"
       >
@@ -338,14 +338,14 @@ function TaskDependencies(props: Props) {
           to delete ?
           <div className="flex gap-2 ml-auto">
             <Button
-              variant={"outline"}
+              variant={'outline'}
               isLoading={removeTaskDependenciesMutation.isPending}
               disabled={removeTaskDependenciesMutation.isPending}
-              onClick={() => setShowConfirmDelete("")}
+              onClick={() => setShowConfirmDelete('')}
             >
               Cancel
             </Button>
-            <Button variant={"primary"} onClick={removeDependency}>
+            <Button variant={'primary'} onClick={removeDependency}>
               Delete
             </Button>
           </div>

@@ -1,51 +1,52 @@
-import { useParams } from "react-router-dom";
-import UserAvatar from "@/components/ui/userAvatar";
-import { Button } from "@/components/ui/button";
-import { UserRoleEnumValue } from "@backend/src/schemas/enums";
-import ErrorMessage from "@/components/common/ErrorMessage";
-import Dialog from "@/components/common/Dialog";
-import { SingleValue } from "react-select";
-import { useEffect, useState } from "react";
-import FormLabel from "@/components/common/FormLabel";
-import InputEmail from "@/components/common/InputEmail";
-import InputSelect from "@/components/common/InputSelect";
-import useOrganisationDetailsQuery, {
-  UserOrganisationType,
-} from "@/api/query/useOrganisationDetailsQuery";
-import Loader from "@/components/common/Loader";
-import CrossIcon from "../../assets/svg/CrossIcon.svg";
-import { useFormik } from "formik";
-import { z } from "zod";
+import { useParams } from 'react-router-dom';
+import { UserRoleEnumValue } from '@backend/src/schemas/enums';
+import { SingleValue } from 'react-select';
+import { useEffect, useState } from 'react';
+import { useFormik } from 'formik';
+import { z } from 'zod';
 import {
   addOrganisationMemberSchema,
   memberRoleSchema,
   reAssginedTaskSchema,
-} from "@backend/src/schemas/organisationSchema";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import { isAxiosError } from "axios";
-import useAddOrganisationMemberMutation from "@/api/mutation/useAddOrganisationMemberMutation";
-import { useUser } from "@/hooks/useUser";
-import InputText from "@/components/common/InputText";
-import useDebounce from "@/hooks/useDebounce";
+} from '@backend/src/schemas/organisationSchema';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
+import { isAxiosError } from 'axios';
+import { toast } from 'react-toastify';
+import { CheckIcon } from 'lucide-react';
+import CrossIcon from '../../assets/svg/CrossIcon.svg';
+import TrashCan from '../../assets/svg/TrashCan.svg';
+import OrganisationForm from './organisationForm';
+import OrganisationNoPopUpForm from './organisationForm/organisationNoPopupForm';
+import UserAvatar from '@/components/ui/userAvatar';
+import { Button } from '@/components/ui/button';
+import ErrorMessage from '@/components/common/ErrorMessage';
+import Dialog from '@/components/common/Dialog';
+import FormLabel from '@/components/common/FormLabel';
+import InputEmail from '@/components/common/InputEmail';
+import InputSelect from '@/components/common/InputSelect';
+import useOrganisationDetailsQuery, {
+  UserOrganisationType,
+} from '@/api/query/useOrganisationDetailsQuery';
+import Loader from '@/components/common/Loader';
+import useAddOrganisationMemberMutation from '@/api/mutation/useAddOrganisationMemberMutation';
+import { useUser } from '@/hooks/useUser';
+import InputText from '@/components/common/InputText';
+import useDebounce from '@/hooks/useDebounce';
 // import Setting from "../../assets/svg/Setting.svg";
-import OrganisationForm from "./organisationForm";
-import { OrganisationType } from "@/api/mutation/useOrganisationMutation";
-import { toast } from "react-toastify";
-import OrganisationNoPopUpForm from "./organisationForm/organisationNoPopupForm";
-import TrashCan from "../../assets/svg/TrashCan.svg";
-import useOrganisationRemoveMemberMutation from "@/api/mutation/useOrganisationRemoveMemberMutation";
-import useUpdateOrganisationMemberMutation from "@/api/mutation/useUpdateOrganisationMemberMutation";
-import { cn } from "@/lib/utils";
-import { CheckIcon } from "lucide-react";
-import useReAssignTaskMutation from "@/api/mutation/useReAssingTaskMutation";
+import { OrganisationType } from '@/api/mutation/useOrganisationMutation';
+import useOrganisationRemoveMemberMutation from '@/api/mutation/useOrganisationRemoveMemberMutation';
+import useUpdateOrganisationMemberMutation from '@/api/mutation/useUpdateOrganisationMemberMutation';
+import { cn } from '@/lib/utils';
+import useReAssignTaskMutation from '@/api/mutation/useReAssingTaskMutation';
+
 const memberRoleOptions = [
   {
+    label: 'Project Manager',
     value: UserRoleEnumValue.PROJECT_MANAGER,
-    label: "Project Manager",
   },
   {
+    label: 'Team member',
     value: UserRoleEnumValue.TEAM_MEMBER,
-    label: "Team member",
   },
 ];
 
@@ -59,37 +60,29 @@ function OrganisationDetails() {
   const organisationId = useParams().organisationId!;
   const addOrganisationMemberMutation =
     useAddOrganisationMemberMutation(organisationId);
-  const removeOrganisationMemberMutation = useOrganisationRemoveMemberMutation();
-  const updateOrganisationMemberMutation = useUpdateOrganisationMemberMutation();
+  const removeOrganisationMemberMutation =
+    useOrganisationRemoveMemberMutation();
+  const updateOrganisationMemberMutation =
+    useUpdateOrganisationMemberMutation();
   const [reAssing, setReAssign] = useState(false);
   const [reAssingUser, setReAssignUser] = useState<
     z.infer<typeof reAssginedTaskSchema> & { organisationUserId?: string }
   >();
 
   const reAssgingTaskMutation = useReAssignTaskMutation();
-  
+
   const addOrgMemberForm = useFormik<
     z.infer<typeof addOrganisationMemberSchema>
   >({
     initialValues: {
-      email: UpdateData?.user.email ?? "",
-      role: UpdateData?.role ?? "TEAM_MEMBER",
+      email: UpdateData?.user.email ?? '',
+      role: UpdateData?.role ?? 'TEAM_MEMBER',
     },
-    validationSchema: UpdateData
-      ? toFormikValidationSchema(memberRoleSchema)
-      : toFormikValidationSchema(addOrganisationMemberSchema),
     onSubmit: (values, helper) => {
       if (UpdateData && UpdateData.user.userId) {
         updateOrganisationMemberMutation.mutate(
           { ...values, userId: UpdateData?.userOrganisationId },
           {
-            onSuccess(data) {
-              refetch();
-              setIsAddOrgMemberSubmitting(false);
-              closeAddMember();
-              toast.success(data.data.message);
-            },
-
             onError(error) {
               if (isAxiosError(error)) {
                 if (
@@ -104,24 +97,24 @@ function OrganisationDetails() {
                 if (!Array.isArray(error.response?.data.errors)) {
                   toast.error(
                     error.response?.data?.message ??
-                    "An unexpected error occurred."
+                      'An unexpected error occurred.',
                   );
                 }
               }
               setIsAddOrgMemberSubmitting(false);
             },
-          }
 
+            onSuccess(data) {
+              refetch();
+              setIsAddOrgMemberSubmitting(false);
+              closeAddMember();
+              toast.success(data.data.message);
+            },
+          },
         );
       } else {
         setIsAddOrgMemberSubmitting(true);
         addOrganisationMemberMutation.mutate(values, {
-          onSuccess(data) {
-            toast.success(data.data.message);
-            setIsAddOrgMemberSubmitting(false);
-            closeAddMember();
-            refetch();
-          },
           onError(error) {
             if (isAxiosError(error)) {
               if (
@@ -136,36 +129,45 @@ function OrganisationDetails() {
               if (!Array.isArray(error.response?.data.errors)) {
                 toast.error(
                   error.response?.data?.message ??
-                  "An unexpected error occurred."
+                    'An unexpected error occurred.',
                 );
               }
             }
             setIsAddOrgMemberSubmitting(false);
           },
+          onSuccess(data) {
+            toast.success(data.data.message);
+            setIsAddOrgMemberSubmitting(false);
+            closeAddMember();
+            refetch();
+          },
         });
       }
     },
+    validationSchema: UpdateData
+      ? toFormikValidationSchema(memberRoleSchema)
+      : toFormikValidationSchema(addOrganisationMemberSchema),
   });
-  const { data, isLoading, status, refetch } =
+  const { data, isLoading, refetch, status } =
     useOrganisationDetailsQuery(organisationId);
   const organisation = data?.data.data;
   const { user } = useUser();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [filterString, setFilterString] = useDebounce("", 400);
+  const [filterString, setFilterString] = useDebounce('', 400);
   const [selectedRole, setSelectedRole] =
     useState<SingleValue<(typeof memberRoleOptions)[number]>>(null);
 
   const [filteredOrganisationUsers, setFilteredOrganisationUsers] = useState(
-    organisation?.userOrganisation ?? []
+    organisation?.userOrganisation ?? [],
   );
   const [organisationForm, setOrganisationForm] = useState(false);
-  const [showConfirmDelete, setShowConfirmDelete] = useState("");
+  const [showConfirmDelete, setShowConfirmDelete] = useState('');
 
   const closeAddMember = () => {
     addOrgMemberForm.setValues({
-      email: UpdateData?.user.email ?? "",
-      role: UpdateData?.role ?? "TEAM_MEMBER",
+      email: UpdateData?.user.email ?? '',
+      role: UpdateData?.role ?? 'TEAM_MEMBER',
     });
     setIsOpen(false);
     setUpdateData(undefined);
@@ -173,12 +175,12 @@ function OrganisationDetails() {
 
   useEffect(() => {
     addOrgMemberForm.setValues({
-      email: UpdateData?.user.email ?? "",
-      role: UpdateData?.role ?? "TEAM_MEMBER",
+      email: UpdateData?.user.email ?? '',
+      role: UpdateData?.role ?? 'TEAM_MEMBER',
     });
 
     const defaultRole = memberRoleOptions.find(
-      (m) => m.value === UpdateData?.role
+      (m) => m.value === UpdateData?.role,
     );
 
     if (defaultRole) {
@@ -197,7 +199,7 @@ function OrganisationDetails() {
             String(o.user.lastName).toLowerCase().includes(stringToFilter) ||
             String(o.user.email).toLowerCase().includes(stringToFilter)
           );
-        })
+        }),
       );
     } else {
       setFilteredOrganisationUsers(organisation.userOrganisation);
@@ -205,21 +207,21 @@ function OrganisationDetails() {
     if (organisation) {
       setEditData({
         country: organisation.country,
-        industry: organisation.industry,
-        organisationId: organisation.organisationId,
-        nonWorkingDays: organisation.nonWorkingDays,
-        status: organisation.status,
-        organisationName: data?.data.data.organisationName,
-        tenantId: organisation.tenantId,
-        createdByUserId: organisation.createdBy,
         createdAt: organisation.createdAt,
+        createdByUserId: organisation.createdBy,
+        industry: organisation.industry,
+        nonWorkingDays: organisation.nonWorkingDays,
+        organisationId: organisation.organisationId,
+        organisationName: data?.data.data.organisationName,
+        status: organisation.status,
+        tenantId: organisation.tenantId,
         updatedAt: organisation.updatedAt,
       });
     }
   }, [filterString, organisation?.userOrganisation, organisation]);
 
   if (isLoading) return <Loader />;
-  if (status === "error" || !organisation)
+  if (status === 'error' || !organisation)
     return (
       <div className="text-red-500 text-lg text-center">
         Organisation with id "{organisationId}" not found
@@ -228,7 +230,7 @@ function OrganisationDetails() {
 
   const currentUserIsAdmin =
     user?.userOrganisation.find((org) => org.organisationId === organisationId)
-      ?.role === "ADMINISTRATOR";
+      ?.role === 'ADMINISTRATOR';
   // const organisationFormOpen = () => {
   //   if (organisation) {
   //     setEditData({
@@ -253,27 +255,30 @@ function OrganisationDetails() {
   };
   const handleRemoveMember = (id: string) => {
     removeOrganisationMemberMutation.mutate(id, {
-      onSuccess(data) {
-        setShowConfirmDelete("");
-        refetch();
-        toast.success(data.data.message);
-        setReAssignUser(undefined);
-      },
       onError(error) {
         toast.error(error.response?.data.message);
         if (
-          error.response?.data.message ==
-          "Pending tasks is already exists for this user!"
+          error.response?.data.message ===
+          'Pending tasks is already exists for this user!'
         ) {
           setReAssign(true);
-          setShowConfirmDelete("");
+          setShowConfirmDelete('');
         }
+      },
+      onSuccess(data) {
+        setShowConfirmDelete('');
+        refetch();
+        toast.success(data.data.message);
+        setReAssignUser(undefined);
       },
     });
   };
   const handleReAssign = () => {
     if (reAssingUser) {
       reAssgingTaskMutation.mutate(reAssingUser, {
+        onError(error) {
+          toast.error(error.message);
+        },
         onSuccess(data) {
           if (reAssingUser.organisationUserId) {
             handleRemoveMember(reAssingUser.organisationUserId);
@@ -281,9 +286,6 @@ function OrganisationDetails() {
           toast.success(data.data.message);
           setReAssignUser(undefined);
           setReAssign(false);
-        },
-        onError(error) {
-          toast.error(error.message);
         },
       });
     }
@@ -308,7 +310,7 @@ function OrganisationDetails() {
             {data && (
               <OrganisationNoPopUpForm
                 editData={editData}
-                viewOnly={currentUserIsAdmin ? false : true}
+                viewOnly={!currentUserIsAdmin}
                 refetch={refetch}
               />
             )}
@@ -326,14 +328,14 @@ function OrganisationDetails() {
               {currentUserIsAdmin && (
                 <Button
                   onClick={() => setIsOpen(true)}
-                  variant={"primary_outline"}
+                  variant={'primary_outline'}
                   className="ml-auto h-auto"
                 >
                   Add member
                 </Button>
               )}
             </div>
-            <div key={"filteredOrganisationUsers"}>
+            <div key={'filteredOrganisationUsers'}>
               {filteredOrganisationUsers.map((userOrg) => (
                 <>
                   <div
@@ -342,23 +344,23 @@ function OrganisationDetails() {
                   >
                     <div
                       className={`flex w-full sm:w-auto gap-2 items-center grow ${
-                        currentUserIsAdmin ? "cursor-pointer" : ""
+                        currentUserIsAdmin ? 'cursor-pointer' : ''
                       }`}
                       onClick={() => {
                         setUpdateData(userOrg),
-                        setIsOpen(true),
-                        setReAssignUser((prev) => ({
-                          oldUserId: userOrg.user.userId ?? "",
-                          newUserId: prev?.newUserId ?? "",
-                          organisationUserId: prev?.organisationUserId ?? "",
-                        }));
+                          setIsOpen(true),
+                          setReAssignUser((prev) => ({
+                            newUserId: prev?.newUserId ?? '',
+                            oldUserId: userOrg.user.userId ?? '',
+                            organisationUserId: prev?.organisationUserId ?? '',
+                          }));
                       }}
                     >
                       <UserAvatar user={userOrg.user}></UserAvatar>
                       <div className="text-sm">
                         <div className="text-slate-800 font-medium">
-                          {userOrg.user.firstName ?? ""}{" "}
-                          {userOrg.user.lastName ?? ""}
+                          {userOrg.user.firstName ?? ''}{' '}
+                          {userOrg.user.lastName ?? ''}
                         </div>
                         <div className="text-gray-400">
                           {userOrg.user.email}
@@ -368,32 +370,32 @@ function OrganisationDetails() {
                         {userOrg.user.firstName
                           ? userOrg.user.lastName
                             ? `${userOrg.user.firstName.charAt(
-                              0
-                            )}${userOrg.user.lastName.charAt(
-                              0
-                            )}`.toUpperCase()
+                                0,
+                              )}${userOrg.user.lastName.charAt(
+                                0,
+                              )}`.toUpperCase()
                             : `${userOrg.user.firstName.charAt(
-                              0
-                            )}${userOrg.user.firstName.charAt(
-                              1
-                            )}`.toUpperCase()
+                                0,
+                              )}${userOrg.user.firstName.charAt(
+                                1,
+                              )}`.toUpperCase()
                           : `${userOrg.user.email.charAt(
-                            0
-                          )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
+                              0,
+                            )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
                       </div>
                     </div>
                     <div className="capitalize text-gray-700 text-sm">
-                      {userOrg.role?.toLowerCase().replaceAll("_", " ")}
+                      {userOrg.role?.toLowerCase().replaceAll('_', ' ')}
                     </div>
                     {currentUserIsAdmin && (
                       <Button
                         variant="primary_outline"
-                        disabled={userOrg.role === "ADMINISTRATOR"}
+                        disabled={userOrg.role === 'ADMINISTRATOR'}
                         className="ml-auto text-danger border-danger hover:bg-danger hover:bg-opacity-10 hover:text-danger py-1.5 h-auto"
                         onClick={() => {
                           setReAssignUser((prev) => ({
+                            newUserId: prev?.newUserId ?? '',
                             oldUserId: userOrg.user.userId,
-                            newUserId: prev?.newUserId ?? "",
                             organisationUserId: userOrg.userOrganisationId,
                           }));
                           setShowConfirmDelete(userOrg.userOrganisationId);
@@ -419,12 +421,12 @@ function OrganisationDetails() {
         >
           <div>
             <div className="text-xl">
-              {UpdateData ? "Update Member" : "Add Member"}
+              {UpdateData ? 'Update Member' : 'Add Member'}
             </div>
             <Button
               onClick={() => closeAddMember()}
-              variant={"ghost"}
-              size={"icon"}
+              variant={'ghost'}
+              size={'icon'}
               className="absolute top-1 right-1"
             >
               <img src={CrossIcon}></img>
@@ -438,7 +440,7 @@ function OrganisationDetails() {
                   placeholder="Enter member email"
                   value={addOrgMemberForm.values.email}
                   onChange={addOrgMemberForm.handleChange}
-                  disabled={UpdateData ? true : false}
+                  disabled={Boolean(UpdateData)}
                 />
                 <ErrorMessage>
                   {addOrgMemberForm.touched.email &&
@@ -454,7 +456,7 @@ function OrganisationDetails() {
                         val as (typeof memberRoleOptions)[number];
                       const selectedRoleValue = selectedRole?.value;
                       setSelectedRole(selectedRole);
-                      addOrgMemberForm.setFieldValue("role", selectedRoleValue);
+                      addOrgMemberForm.setFieldValue('role', selectedRoleValue);
                     }
                   }}
                   onBlur={addOrgMemberForm.handleBlur}
@@ -471,12 +473,12 @@ function OrganisationDetails() {
               </div>
               <div className="text-right">
                 <Button
-                  variant={"primary"}
+                  variant={'primary'}
                   type="submit"
                   isLoading={isAddOrgMemberSubmitting}
                   disabled={isAddOrgMemberSubmitting}
                 >
-                  {UpdateData ? "Update" : "Add"}
+                  {UpdateData ? 'Update' : 'Add'}
                 </Button>
               </div>
             </form>
@@ -493,33 +495,35 @@ function OrganisationDetails() {
         modalClass="sm:rounded-lg p-4 h-full md:h-auto w-full max-w-md"
       >
         <div className="flex flex-col">
-          <div className="text-lg font-semibold text-gray-600">Task reassign to other user</div>
+          <div className="text-lg font-semibold text-gray-600">
+            Task reassign to other user
+          </div>
           <div className="border rounded-md border-gray-100 mt-3 ">
             {filteredOrganisationUsers.map((userOrg) => {
               return (
-                reAssingUser?.oldUserId != userOrg.user.userId && (
+                reAssingUser?.oldUserId !== userOrg.user.userId && (
                   <>
                     <div
                       key={userOrg.userOrganisationId}
                       className="flex flex-wrap md:flex-nowrap items-center px-2 py-1.5 sm:px-5 sm:py-3 gap-9 hover:bg-slate-50"
                       onClick={() => {
                         setReAssignUser((prev) => ({
-                          oldUserId: prev?.oldUserId ?? "",
                           newUserId: userOrg.user.userId,
-                          organisationUserId: prev?.organisationUserId ?? "",
+                          oldUserId: prev?.oldUserId ?? '',
+                          organisationUserId: prev?.organisationUserId ?? '',
                         }));
                       }}
                     >
                       <div
                         className={`flex w-full sm:w-auto gap-2 items-center grow ${
-                          currentUserIsAdmin ? "cursor-pointer" : ""
+                          currentUserIsAdmin ? 'cursor-pointer' : ''
                         }`}
                       >
                         <UserAvatar user={userOrg.user}></UserAvatar>
                         <div className="text-sm">
                           <div className="text-slate-800 font-medium">
-                            {userOrg.user.firstName ?? ""}{" "}
-                            {userOrg.user.lastName ?? ""}
+                            {userOrg.user.firstName ?? ''}{' '}
+                            {userOrg.user.lastName ?? ''}
                           </div>
                           <div className="text-gray-400">
                             {userOrg.user.email}
@@ -529,30 +533,30 @@ function OrganisationDetails() {
                           {userOrg.user.firstName
                             ? userOrg.user.lastName
                               ? `${userOrg.user.firstName.charAt(
-                                0
-                              )}${userOrg.user.lastName.charAt(
-                                0
-                              )}`.toUpperCase()
+                                  0,
+                                )}${userOrg.user.lastName.charAt(
+                                  0,
+                                )}`.toUpperCase()
                               : `${userOrg.user.firstName.charAt(
-                                0
-                              )}${userOrg.user.firstName.charAt(
-                                1
-                              )}`.toUpperCase()
+                                  0,
+                                )}${userOrg.user.firstName.charAt(
+                                  1,
+                                )}`.toUpperCase()
                             : `${userOrg.user.email.charAt(
-                              0
-                            )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
+                                0,
+                              )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
                         </div>
                       </div>
                       <div className="capitalize text-gray-700 text-sm">
-                        {userOrg.role?.toLowerCase().replaceAll("_", " ")}
+                        {userOrg.role?.toLowerCase().replaceAll('_', ' ')}
                       </div>
                       <div>
                         <CheckIcon
                           className={cn(
-                            "ml-auto h-4 w-4",
+                            'ml-auto h-4 w-4',
                             userOrg.user.userId === reAssingUser?.newUserId
-                              ? "opacity-100"
-                              : "opacity-0"
+                              ? 'opacity-100'
+                              : 'opacity-0',
                           )}
                         />
                       </div>
@@ -569,8 +573,8 @@ function OrganisationDetails() {
           </div>
           <div className="flex justify-end gap-2">
             <Button
-              size={"sm"}
-              variant={"destructive"}
+              size={'sm'}
+              variant={'destructive'}
               onClick={() => {
                 setReAssign(false);
                 setReAssignUser(undefined);
@@ -579,8 +583,8 @@ function OrganisationDetails() {
               Cancel
             </Button>
             <Button
-              size={"sm"}
-              variant={"primary"}
+              size={'sm'}
+              variant={'primary'}
               onClick={() => handleReAssign()}
             >
               Submit
@@ -598,15 +602,15 @@ function OrganisationDetails() {
           to delete ?
           <div className="flex gap-2 ml-auto">
             <Button
-              variant={"outline"}
+              variant={'outline'}
               isLoading={removeOrganisationMemberMutation.isPending}
               disabled={removeOrganisationMemberMutation.isPending}
-              onClick={() => setShowConfirmDelete("")}
+              onClick={() => setShowConfirmDelete('')}
             >
               Cancel
             </Button>
             <Button
-              variant={"primary"}
+              variant={'primary'}
               // onClick={removeTask}
               isLoading={removeOrganisationMemberMutation.isPending}
               disabled={removeOrganisationMemberMutation.isPending}

@@ -1,16 +1,21 @@
-import { useQuery } from "@tanstack/react-query";
-import { requestURLs } from "../../Environment";
-import { QUERY_KEYS } from "./querykeys";
+import { useQuery } from '@tanstack/react-query';
+import {
+  OverAllTrackEnumValue,
+  ProjectDefaultViewEnumValue,
+  ScheduleAndBudgetTrend,
+  UserRoleEnumValue,
+} from '@backend/src/schemas/enums';
+import { requestURLs } from '../../Environment';
 import {
   AxiosResponseAndError,
   ResponseType,
-} from "../types/axiosResponseType";
-import ApiRequest from "../ApiRequest";
-import { OverAllTrackEnumValue, ProjectDefaultViewEnumValue, ScheduleAndBudgetTrend, UserRoleEnumValue } from "@backend/src/schemas/enums";
+} from '../types/axiosResponseType';
+import ApiRequest from '../ApiRequest';
+import { QUERY_KEYS } from './querykeys';
 
 export type Project = {
-  CPI?:number
-  overallTrack:  keyof typeof OverAllTrackEnumValue;
+  CPI?: number;
+  overallTrack: keyof typeof OverAllTrackEnumValue;
   projectId: string;
   assignedUsers: AssignedUsers[];
   organisationId: string;
@@ -28,33 +33,33 @@ export type Project = {
   createdAt: string;
   updatedAt: string;
   createdByUser: CreatedByUser;
-  currency:string;
-  projectManagerInfo:{user:CreatedByUser}[]
-  scheduleTrend:keyof typeof ScheduleAndBudgetTrend
-budgetTrend:keyof typeof ScheduleAndBudgetTrend
-consumedBudget:string
+  currency: string;
+  projectManagerInfo: { user: CreatedByUser }[];
+  scheduleTrend: keyof typeof ScheduleAndBudgetTrend;
+  budgetTrend: keyof typeof ScheduleAndBudgetTrend;
+  consumedBudget: string;
 };
 export interface AssignedUsers {
   projectAssignUsersId: string;
-  projectId:            string;
-  assginedToUserId:     string;
-  createdAt:            Date;
-  updatedAt:            Date;
-  user:                 User;
+  projectId: string;
+  assginedToUserId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  user: User;
 }
 
 export interface User {
-  userId:           string;
-  email:            string;
-  status:           string;
-  firstName:        null;
-  lastName:         null;
-  timezone:         null;
-  country:          null;
-  avatarImg:        null;
-  isVerified:       boolean;
-  createdAt:        Date;
-  updatedAt:        Date;
+  userId: string;
+  email: string;
+  status: string;
+  firstName: null;
+  lastName: null;
+  timezone: null;
+  country: null;
+  avatarImg: null;
+  isVerified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
   userOrganisation: UserOrganisation[];
 }
 
@@ -71,15 +76,15 @@ type ProjectApiResponse = ResponseType<Project[]>;
 
 function useProjectQuery() {
   return useQuery<
-    AxiosResponseAndError<ProjectApiResponse>["response"],
-    AxiosResponseAndError<ProjectApiResponse>["error"]
+    AxiosResponseAndError<ProjectApiResponse>['response'],
+    AxiosResponseAndError<ProjectApiResponse>['error']
   >({
-    queryKey: [QUERY_KEYS.getProjects],
+    enabled: true,
     queryFn: async () =>
       await ApiRequest.get(requestURLs.project, {
-        headers: { "organisation-id": localStorage.getItem("organisation-id") },
+        headers: { 'organisation-id': localStorage.getItem('organisation-id') },
       }),
-    enabled: true,
+    queryKey: [QUERY_KEYS.getProjects],
   });
 }
 

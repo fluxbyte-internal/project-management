@@ -1,24 +1,24 @@
-import { useMutation } from "@tanstack/react-query";
-import { requestURLs } from "../../Environment";
+import { useMutation } from '@tanstack/react-query';
+import { requestURLs } from '../../Environment';
+import ApiRequest from '../ApiRequest';
+import { Comment } from './useTaskAddCommentMutation';
 import {
   AxiosResponseAndError,
   ResponseType,
-} from "@/api/types/axiosResponseType";
-import ApiRequest from "../ApiRequest";
-import { Comment } from "./useTaskAddCommentMutation";
+} from '@/api/types/axiosResponseType';
 
 type TaskCreateCommentResponseType = ResponseType<Comment>;
 
 function useTaskStatusUpdateMutation(taskId: string) {
   const mutation = useMutation<
-    AxiosResponseAndError<TaskCreateCommentResponseType>["response"],
-    AxiosResponseAndError<TaskCreateCommentResponseType>["error"],
-    {status:string}
+    AxiosResponseAndError<TaskCreateCommentResponseType>['response'],
+    AxiosResponseAndError<TaskCreateCommentResponseType>['error'],
+    { status: string }
   >({
     mutationFn: (data) => {
       return ApiRequest.put<TaskCreateCommentResponseType>(
         `${requestURLs.task}status/${taskId}`,
-        data
+        data,
       );
     },
   });

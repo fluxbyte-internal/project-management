@@ -1,9 +1,10 @@
-import organisationImage from "../../assets/png/organisation.png";
-import { useState } from "react";
-import BackgroundImage from "../../components/layout/BackgroundImage";
-import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
-type Props ={projectId:string,refetch:()=>void}
-function NoTask(props:Props) {
+import { useState } from 'react';
+import organisationImage from '../../assets/png/organisation.png';
+import BackgroundImage from '../../components/layout/BackgroundImage';
+import TaskSubTaskForm from '@/components/tasks/taskSubTaskForm';
+
+type Props = { projectId: string; refetch: () => void };
+function NoTask(props: Props) {
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
   const close = () => {
     setIsOpenPopUp(false);
@@ -40,7 +41,9 @@ function NoTask(props:Props) {
           </div>
         </div>
       </div>
-      {isOpenPopUp && <TaskSubTaskForm taskId="" projectId={props.projectId} close={close} />}
+      {isOpenPopUp && (
+        <TaskSubTaskForm taskId="" projectId={props.projectId} close={close} />
+      )}
     </>
   );
 }

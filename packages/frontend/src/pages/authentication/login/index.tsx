@@ -1,21 +1,21 @@
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
-import show from "../../../assets/eye-alt.svg";
-import hide from "../../../assets/eye-slash.svg";
-import { useFormik } from "formik";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import useLoginMutation from "@/api/mutation/useLoginMutation";
-import ErrorMessage from "@/components/common/ErrorMessage";
-import { authLoginSchema } from "@backend/src/schemas/authSchema";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
-import { isAxiosError } from "axios";
-import InputEmail from "@/components/common/InputEmail";
-import { toast } from "react-toastify";
-import SignUp from "../../../assets/svg/signup.svg";
-import Google from "../../../assets/svg/google.svg";
+import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
+import { useFormik } from 'formik';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
+import { authLoginSchema } from '@backend/src/schemas/authSchema';
+import { isAxiosError } from 'axios';
+import { toast } from 'react-toastify';
+import hide from '../../../assets/eye-slash.svg';
+import show from '../../../assets/eye-alt.svg';
+import SignUp from '../../../assets/svg/signup.svg';
+import Google from '../../../assets/svg/google.svg';
 // import Facebook from "../../../assets/svg/facebook.svg";
-import { baseURL } from "../../../Environment";
+import { baseURL } from '../../../Environment';
+import InputEmail from '@/components/common/InputEmail';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import ErrorMessage from '@/components/common/ErrorMessage';
+import useLoginMutation from '@/api/mutation/useLoginMutation';
 
 export type LoginValues = {
   email: string;
@@ -25,25 +25,20 @@ export type LoginValues = {
 function Login() {
   const { login } = useAuth();
   const loginMutation = useLoginMutation();
-  const labelStyle = "font-medium text-base text-gray-8 ";
+  const labelStyle = 'font-medium text-base text-gray-8 ';
   const inputStyle =
-    "py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[46px] focus:outline-[#943B0C]";
+    'py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[46px] focus:outline-[#943B0C]';
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const formik = useFormik<LoginValues>({
     initialValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
-    validationSchema: toFormikValidationSchema(authLoginSchema),
     onSubmit: (values, helper) => {
       setIsLoading(true);
       loginMutation.mutate(values, {
-        onSuccess(data) {
-          login();
-          toast.success(data.data.message);
-        },
         onError(error) {
           if (isAxiosError(error)) {
             setIsLoading(false);
@@ -58,13 +53,19 @@ function Login() {
             }
             if (!Array.isArray(error.response?.data.errors)) {
               toast.error(
-                error.response?.data?.message ?? "An unexpected error occurred."
+                error.response?.data?.message ??
+                  'An unexpected error occurred.',
               );
             }
           }
         },
+        onSuccess(data) {
+          login();
+          toast.success(data.data.message);
+        },
       });
     },
+    validationSchema: toFormikValidationSchema(authLoginSchema),
   });
 
   const handleShowPassword = () => {
@@ -72,7 +73,7 @@ function Login() {
   };
 
   const google = () => {
-    window.open(`${baseURL}/api/auth/google`, "_self");
+    window.open(`${baseURL}/api/auth/google`, '_self');
   };
 
   return (
@@ -113,7 +114,7 @@ function Login() {
               </label>
               <div className="relative mt-1">
                 <input
-                  type={`${showPassword ? "text" : "password"}`}
+                  type={`${showPassword ? 'text' : 'password'}`}
                   name="password"
                   className={inputStyle}
                   placeholder="Enter password"
@@ -122,8 +123,8 @@ function Login() {
                 />
                 <Button
                   type="button"
-                  variant={"ghost"}
-                  size={"icon"}
+                  variant={'ghost'}
+                  size={'icon'}
                   onClick={handleShowPassword}
                   className="absolute top-[30px] right-1 -translate-y-1/2 mt-[1px]"
                 >
@@ -143,7 +144,7 @@ function Login() {
             <div className="flex items-center">
               <Button
                 type="submit"
-                variant={"primary"}
+                variant={'primary'}
                 isLoading={isLoading}
                 disabled={isLoading}
                 className="w-full py-2.5 mt-1.5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
@@ -158,21 +159,27 @@ function Login() {
               Forget Password?
             </NavLink>
             <div className="mt-4 text-grey-600">
-              New user?{" "}
+              New user?{' '}
               <NavLink className="text-warning hover:underline" to="/signup">
                 Sign Up
               </NavLink>
             </div>
           </form>
           <div className="flex items-center p-4">
-            <div className="w-full pr-2"><hr /></div>
-            <div className="w-full bg-[#E7E7E7] text-xs py-1 rounded-lg text-center">Or continue with</div>
-            <div className="w-full pl-2"><hr /></div>
+            <div className="w-full pr-2">
+              <hr />
+            </div>
+            <div className="w-full bg-[#E7E7E7] text-xs py-1 rounded-lg text-center">
+              Or continue with
+            </div>
+            <div className="w-full pl-2">
+              <hr />
+            </div>
           </div>
           <div className="flex flex-col px-4 gap-4">
             <Button
               type="button"
-              variant={"outline"}
+              variant={'outline'}
               isLoading={isLoading}
               disabled={isLoading}
               onClick={google}

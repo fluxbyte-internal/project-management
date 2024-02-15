@@ -1,9 +1,10 @@
-import { useState } from "react";
-import organisationImage from "../../assets/png/organisation.png";
-import OrganisationForm from "./organisationForm";
-import { useUser } from "@/hooks/useUser";
-import { useNavigate } from "react-router-dom";
-import BackgroundImage from "@/components/layout/BackgroundImage";
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import organisationImage from '../../assets/png/organisation.png';
+import OrganisationForm from './organisationForm';
+import { useUser } from '@/hooks/useUser';
+import BackgroundImage from '@/components/layout/BackgroundImage';
+
 function Organisation() {
   const [organisationForm, setOrganisationForm] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ function Organisation() {
                 </div>
                 <div className="flex items-center ">
                   <button
-                    onClick={() => navigate("/projects")}
+                    onClick={() => navigate('/projects')}
                     className="w-full mt-3 tracking-wide lg:mt-0 lg:w-fit bg-warning hover:bg-opacity-80 text-lg font-medium text-orange-800 py-3 px-7 rounded-md gap-4"
                   >
                     Go to projects

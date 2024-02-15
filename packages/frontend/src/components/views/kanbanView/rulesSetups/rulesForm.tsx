@@ -1,16 +1,16 @@
+import { createKanbanSchema } from '@backend/src/schemas/projectSchema';
+import { useFormik } from 'formik';
+import { toast } from 'react-toastify';
+import { z } from 'zod';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
 import useKanbanColumnMutation, {
   KanbanColumnType,
-} from "@/api/mutation/useKanbanCreateColumn";
-import ErrorMessage from "@/components/common/ErrorMessage";
-import FormLabel from "@/components/common/FormLabel";
-import InputText from "@/components/common/InputText";
-import InputNumber from "@/components/common/InputNumber";
-import { Button } from "@/components/ui/button";
-import { createKanbanSchema } from "@backend/src/schemas/projectSchema";
-import { useFormik } from "formik";
-import { toast } from "react-toastify";
-import { z } from "zod";
-import { toFormikValidationSchema } from "zod-formik-adapter";
+} from '@/api/mutation/useKanbanCreateColumn';
+import ErrorMessage from '@/components/common/ErrorMessage';
+import FormLabel from '@/components/common/FormLabel';
+import InputText from '@/components/common/InputText';
+import InputNumber from '@/components/common/InputNumber';
+import { Button } from '@/components/ui/button';
 
 type Props = {
   projectId: string;
@@ -23,13 +23,15 @@ function RulesForm(props: Props) {
   const kanbanColumnMutation = useKanbanColumnMutation(props.projectId);
   const kanbanColumnFormik = useFormik<z.infer<typeof createKanbanSchema>>({
     initialValues: {
-      name: "",
+      name: '',
       percentage: 0,
     },
-    validationSchema: toFormikValidationSchema(createKanbanSchema),
     onSubmit: (values) => {
       if (setPercentage(values.percentage)) {
         kanbanColumnMutation.mutate(values, {
+          onError(err) {
+            toast.error(err.response?.data.message);
+          },
           onSuccess() {
             kanbanColumnFormik.resetForm();
             if (props?.close) {
@@ -39,12 +41,10 @@ function RulesForm(props: Props) {
               props.refetch();
             }
           },
-          onError(err) {
-            toast.error(err.response?.data.message);
-          },
         });
       }
     },
+    validationSchema: toFormikValidationSchema(createKanbanSchema),
   });
   const handleSave = () => {
     kanbanColumnFormik.submitForm();
@@ -52,12 +52,11 @@ function RulesForm(props: Props) {
   const setPercentage = (value: number) => {
     if (props.rules?.some((d) => d.percentage === Number(value))) {
       kanbanColumnFormik.setErrors({
-        percentage: "Rule already exists. Choose a unique one.",
+        percentage: 'Rule already exists. Choose a unique one.',
       });
       return false;
-    } else {
-      return true;
     }
+    return true;
   };
 
   return (
@@ -90,8 +89,8 @@ function RulesForm(props: Props) {
       </div>
       <div className="w-full">
         <Button
-          variant={"primary_outline"}
-          size={"sm"}
+          variant={'primary_outline'}
+          size={'sm'}
           className="w-full"
           onClick={() => handleSave()}
         >

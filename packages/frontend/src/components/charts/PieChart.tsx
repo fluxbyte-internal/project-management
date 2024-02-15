@@ -1,18 +1,18 @@
-import React, {useEffect, useRef} from 'react'; 
+import React, { useEffect, useRef } from 'react';
 import * as echarts from 'echarts';
 import { useNavigate, useParams } from 'react-router-dom';
 // export type chartDataType = { value: number; name: string }
 export type ChartProps = {
-  chartData: { value: number; name: string }[],
-  color:string[],
-  title: string,
-  radius: string[],
-  height: string
-}
+  chartData: { value: number; name: string }[];
+  color: string[];
+  title: string;
+  radius: string[];
+  height: string;
+};
 interface PieChartProps {
-  chartProps: ChartProps
+  chartProps: ChartProps;
 }
-const PieChart:  React.FC<PieChartProps> = ({ chartProps }) =>{
+const PieChart: React.FC<PieChartProps> = ({ chartProps }) => {
   const projectId = useParams()?.projectId;
   const navigate = useNavigate();
 
@@ -20,53 +20,53 @@ const PieChart:  React.FC<PieChartProps> = ({ chartProps }) =>{
     navigate(`/tasks/${projectId}?status=${item}`);
   };
   const chartref = useRef<HTMLDivElement>(null);
-  useEffect(()=>{
+  useEffect(() => {
     const myChart = echarts.init(chartref.current as HTMLDivElement);
-    const option:echarts.EChartsOption = {
+    const option: echarts.EChartsOption = {
       color: chartProps?.color,
-      title:{ 
-        text:chartProps?.title,
-        bottom: '4%',
-        left: 'center',
-        textStyle: {color:'#000000'},
-      },
-      tooltip: {
-        trigger: 'item',
-      },
       legend: {
-        top: '5%',
         left: 'center',
-        textStyle:{
-          fontSize : 14,
-          fontWeight : 'bold',
+        textStyle: {
           color: '#000000',
+          fontSize: 14,
+          fontWeight: 'bold',
         },
+        top: '5%',
       },
       series: [
         {
-          name: '',
-          type: 'pie',
-          radius: chartProps?.radius,
           avoidLabelOverlap: false,
-          label: {
-            show: false,
-            position: 'center',
-          },
+          data: chartProps?.chartData,
           emphasis: {
             label: {
-              show: true,
               fontSize: 20,
               fontWeight: 'bolder',
+              show: true,
             },
+          },
+          label: {
+            position: 'center',
+            show: false,
           },
           labelLine: {
             show: false,
           },
-          data:chartProps?.chartData,
+          name: '',
+          radius: chartProps?.radius,
+          type: 'pie',
         },
       ],
+      title: {
+        bottom: '4%',
+        left: 'center',
+        text: chartProps?.title,
+        textStyle: { color: '#000000' },
+      },
+      tooltip: {
+        trigger: 'item',
+      },
     };
-    
+
     myChart.on('click', (params: any) => {
       if (projectId) {
         filterRoutes(params.name);
@@ -74,12 +74,13 @@ const PieChart:  React.FC<PieChartProps> = ({ chartProps }) =>{
     });
     myChart.setOption(option);
 
-    return()=>{
+    return () => {
       myChart.dispose();
     };
-  },[chartProps]);
+  }, [chartProps]);
 
-  return <div ref={chartref} style={{width: '100%', height: chartProps?.height}} />;
-    
+  return (
+    <div ref={chartref} style={{ height: chartProps?.height, width: '100%' }} />
+  );
 };
 export default PieChart;

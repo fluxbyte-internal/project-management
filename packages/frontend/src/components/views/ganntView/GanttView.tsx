@@ -1,70 +1,71 @@
-import { useEffect, useRef, useState } from "react";
-import GanttChart from "smart-webcomponents-react/ganttchart";
-import { useParams } from "react-router-dom";
-import Select, { SingleValue } from "react-select";
-import useAllTaskQuery from "@/api/query/useAllTaskQuery";
-import "./SmartElement.css";
-import useUpdateTaskMutation from "@/api/mutation/useTaskUpdateMutation";
-import { toast } from "react-toastify";
-import { useUser } from "@/hooks/useUser";
-import TaskDependencies from "../../tasks/taskDependencies";
-import { Task } from "@/api/mutation/useTaskCreateMutation";
-import Dialog from "../../common/Dialog";
-import CrossSvg from "@/assets/svg/CrossIcon.svg";
-import { Button } from "../../ui/button";
-import TaskFilter from "../TaskFilter";
-import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
-import TrashCan from "@/assets/svg/TrashCan.svg";
-import Edit from "@/assets/svg/EditPen.svg";
-import useRemoveTaskMutation from "@/api/mutation/useTaskRemove";
-import UserAvatar from "@/components/ui/userAvatar";
-import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
-import ReactDOMServer from "react-dom/server";
+import { useEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import Select, { SingleValue } from 'react-select';
+import ReactDOMServer from 'react-dom/server';
 import {
+  GanttChart,
   GanttChartTask,
   GanttChartTaskColumn,
-} from "smart-webcomponents-react/ganttchart";
-import PercentageCircle from "@/components/shared/PercentageCircle";
-import addIcon from "@/assets/svg/AddProjectIcon.svg";
-import { FIELDS } from "@/api/types/enums";
+} from 'smart-webcomponents-react/ganttchart';
+import { toast } from 'react-toastify';
+import Dialog from '../../common/Dialog';
+import TaskDependencies from '../../tasks/taskDependencies';
+import { Button } from '../../ui/button';
+import useAllTaskQuery from '@/api/query/useAllTaskQuery';
+import './SmartElement.css';
+import useUpdateTaskMutation from '@/api/mutation/useTaskUpdateMutation';
+import { useUser } from '@/hooks/useUser';
+import { Task } from '@/api/mutation/useTaskCreateMutation';
+import CrossSvg from '@/assets/svg/CrossIcon.svg';
+import TaskFilter from '../TaskFilter';
+import TaskSubTaskForm from '@/components/tasks/taskSubTaskForm';
+import TrashCan from '@/assets/svg/TrashCan.svg';
+import Edit from '@/assets/svg/EditPen.svg';
+import useRemoveTaskMutation from '@/api/mutation/useTaskRemove';
+import UserAvatar from '@/components/ui/userAvatar';
+import { UserOrganisationType } from '@/api/query/useOrganisationDetailsQuery';
+import PercentageCircle from '@/components/shared/PercentageCircle';
+import addIcon from '@/assets/svg/AddProjectIcon.svg';
+import { FIELDS } from '@/api/types/enums';
+
 export interface Options {
   label: string;
   value: string;
 }
 enum BUTTON_EVENT {
-  EDIT = "EDIT",
-  REMOVE = "REMOVE",
+  EDIT = 'EDIT',
+  REMOVE = 'REMOVE',
 }
 const reactSelectStyle = {
   control: (
     provided: Record<string, unknown>,
-    state: { isFocused: boolean }
+    state: { isFocused: boolean },
   ) => ({
     ...provided,
-    border: "1px solid #E7E7E7",
-    outline: state.isFocused ? "2px solid #943B0C" : "1px solid #E7E7E7",
-    boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
-    "&:hover": {
-      outline: state.isFocused ? "2px solid #943B0C" : "1px solid #E7E7E7",
-      boxShadow: "0px 0px 0px #943B0C",
+    '&:hover': {
+      boxShadow: '0px 0px 0px #943B0C',
+      outline: state.isFocused ? '2px solid #943B0C' : '1px solid #E7E7E7',
     },
+    border: '1px solid #E7E7E7',
+    boxShadow: state.isFocused ? '0px 0px 0px #943B0C' : 'none',
+    outline: state.isFocused ? '2px solid #943B0C' : '1px solid #E7E7E7',
   }),
 } as const;
 
 function GanttView() {
-  const treeSize = "35%";
-  const durationUnit = "hour";
-  const sortMode = "one";
+  const treeSize = '35%';
+  const durationUnit = 'hour';
+  const sortMode = 'one';
   const showProgressLabel = true;
   const { projectId } = useParams();
-  const [filterUnit, setFilterUnit] = useState<string>("month");
+  const [filterUnit, setFilterUnit] = useState<string>('month');
   const ganttChart = useRef<GanttChart>(null);
   const { user } = useUser();
   const allTaskQuery = useAllTaskQuery(projectId);
   const taskUpdateMutation = useUpdateTaskMutation();
   const [filterData, setFilterData] = useState<Task[]>();
-  const [taskRemove, setTaskRemove] = useState("");
-  const [taskEdit, setTaskEdit] = useState("");
+  const [taskRemove, setTaskRemove] = useState('');
+  const [taskEdit, setTaskEdit] = useState('');
   const [taskId, setTaskId] = useState<string>();
   const [isTaskOpen, setIsTaskOpen] = useState<boolean>(false);
   const [taskData, setTaskData] = useState<GanttChartTask[]>();
@@ -81,57 +82,57 @@ function GanttView() {
     if (filterData) {
       filterData.forEach((task) => {
         task.subtasks = filterData.filter(
-          (subtask) => subtask.parentTaskId === task.taskId
+          (subtask) => subtask.parentTaskId === task.taskId,
         );
       });
       const topLevelTasks = filterData.filter(
-        (task) => task.parentTaskId === null
+        (task) => task.parentTaskId === null,
       );
       const convertedData = topLevelTasks.map((task) => convertTask(task));
       convertedData.push({
-        id: "",
-        value: "false",
-        label: "add task",
-        dateStart: new Date(),
         dateEnd: new Date(),
+        dateStart: new Date(),
+        id: '',
+        label: 'add task',
+        value: 'false',
       });
       setTaskData(convertedData);
     }
-  }, [filterData,filterUnit]);
+  }, [filterData, filterUnit]);
 
   const convertTask = (originalTask: Task) => {
     const convertedTask: GanttChartTask = {
-      id: originalTask.taskId,
-      label: originalTask.taskName,
-      dateStart: originalTask.startDate,
-      dateEnd: originalTask.endDate,
-      disableResources: true,
-      resources: [{ id: JSON.stringify(originalTask.assignedUsers) }],
-      tasks: [],
-      progress: originalTask.completionPecentage
-        ? Number(originalTask.completionPecentage)
-        : 0,
       connections:
         originalTask.dependencies && originalTask.dependencies.length > 0
           ? connections(originalTask)
           : null,
-      type: originalTask.milestoneIndicator ? "milestone" : "task",
+      dateEnd: originalTask.endDate,
+      dateStart: originalTask.startDate,
+      disableResources: true,
+      id: originalTask.taskId,
+      label: originalTask.taskName,
+      progress: originalTask.completionPecentage
+        ? Number(originalTask.completionPecentage)
+        : 0,
+      resources: [{ id: JSON.stringify(originalTask.assignedUsers) }],
+      tasks: [],
+      type: originalTask.milestoneIndicator ? 'milestone' : 'task',
     };
 
     if (originalTask.subtasks) {
       convertedTask.tasks = originalTask.subtasks.map((subtask) =>
-        convertTask(subtask)
+        convertTask(subtask),
       );
       convertedTask.tasks.push({
-        id: convertedTask.id,
-        value: "false",
         disableResources: false,
+        id: convertedTask.id,
+        value: 'false',
       });
     }
 
     return convertedTask;
   };
-  
+
   const connections = (originalTask: Task) => {
     return originalTask.dependencies.map((dependence) => {
       return {
@@ -143,39 +144,36 @@ function GanttView() {
   };
 
   const viewData: Options[] = [
-    { label: "Day", value: "day" },
-    { label: "Week", value: "week" },
-    { label: "Month", value: "month" },
-    { label: "Year", value: "year" },
+    { label: 'Day', value: 'day' },
+    { label: 'Week', value: 'week' },
+    { label: 'Month', value: 'month' },
+    { label: 'Year', value: 'year' },
   ];
   const taskColumns: GanttChartTaskColumn[] = [
     {
-      label: "Tasks",
-      value: "label",
       formatFunction: function (item: string, task: GanttChartTask) {
-        if (task.value == "false") {
+        if (task.value === 'false') {
           return `<div class="rounded-full flex gap-2" id=${task.id}>
               <img src=${addIcon} /> <div>Task</div>
             </div>`;
-        } else {
-          return ReactDOMServer.renderToString(
-            <TitleHover title={item} taskId={task.id} />
-          );
         }
+        return ReactDOMServer.renderToString(
+          <TitleHover title={item} taskId={task.id} />,
+        );
       },
+      label: 'Tasks',
+      value: 'label',
     },
     {
-      label: "Assignee",
-      value: "resources",
       formatFunction: function (item: string, data: GanttChartTask) {
-        let html = "";
-        if (item && item.length && data.value !== "false") {
+        let html = '';
+        if (item && item.length && data.value !== 'false') {
           const resources: UserOrganisationType[] = JSON.parse(item);
           html = ReactDOMServer.renderToString(
-            <div className="w-full my-3" key={"resources1"}>
+            <div className="w-full my-3" key={'resources1'}>
               <div
                 className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2"
-                key={"resources1"}
+                key={'resources1'}
               >
                 {resources.slice(0, 3).map((item, index) => {
                   const zIndex = Math.abs(index - 2);
@@ -184,7 +182,7 @@ function GanttView() {
                       <div key={index} style={{ zIndex: zIndex }}>
                         <UserAvatar
                           className={`shadow-sm p-0 h-6 w-6`}
-                          fontClass={"text-xs"}
+                          fontClass={'text-xs'}
                           user={item.user}
                         ></UserAvatar>
                       </div>
@@ -197,26 +195,26 @@ function GanttView() {
                   </div>
                 )}
               </div>
-            </div>
+            </div>,
           );
           return `<div class="flex gap-1 items-center rounded-md"> ${html} </div>`;
-        } else {
-          return "";
         }
+        return '';
       },
+      label: 'Assignee',
+      value: 'resources',
     },
     {
-      label: "Progress",
-      value: "progress",
       formatFunction: function (item: string, task: GanttChartTask) {
-        if (task.value !== "false") {
+        if (task.value !== 'false') {
           return ReactDOMServer.renderToString(
-            <PercentageCircle percentage={item} />
+            <PercentageCircle percentage={item} />,
           );
-        } else {
-          return "";
         }
+        return '';
       },
+      label: 'Progress',
+      value: 'progress',
     },
   ];
 
@@ -230,18 +228,18 @@ function GanttView() {
     const duration = calculateDuration(e?.detail.dateStart, e?.detail.dateEnd);
     taskUpdateMutation.mutate(
       {
+        duration: parseFloat(duration),
         id: e?.detail.id,
         startDate: e?.detail.dateStart,
-        duration: parseFloat(duration),
       },
       {
-        onSuccess(data) {
-          toast.success(data.data.message);
-        },
         onError(error) {
           toast.error(error.response?.data.message);
         },
-      }
+        onSuccess(data) {
+          toast.success(data.data.message);
+        },
+      },
     );
   };
   function calculateDuration(startDate: Date, endDate: Date) {
@@ -249,7 +247,7 @@ function GanttView() {
     const end: number = new Date(endDate).getTime();
     const durationMs = end - start;
     const durationDays = durationMs / (1000 * 60 * 60 * 24);
-    return parseFloat(durationDays + "").toFixed(2);
+    return parseFloat(String(durationDays)).toFixed(2);
   }
 
   const HandleNonWorkingDays = () => {
@@ -259,22 +257,22 @@ function GanttView() {
 
     const mapDayToNumber = (day: string) => {
       switch (day) {
-      case "SUN":
-        return 0;
-      case "MON":
-        return 1;
-      case "TUE":
-        return 2;
-      case "WED":
-        return 3;
-      case "THU":
-        return 4;
-      case "FRI":
-        return 5;
-      case "SAT":
-        return 6;
-      default:
-        return 0;
+        case 'SUN':
+          return 0;
+        case 'MON':
+          return 1;
+        case 'TUE':
+          return 2;
+        case 'WED':
+          return 3;
+        case 'THU':
+          return 4;
+        case 'FRI':
+          return 5;
+        case 'SAT':
+          return 6;
+        default:
+          return 0;
       }
     };
 
@@ -291,12 +289,12 @@ function GanttView() {
     segment: any,
     taskElement: Element,
     segmentElement: Element,
-    labelElement: Element
+    labelElement: Element,
   ) => {
-    if (task.value == "false" && segment.value == "false") {
-      taskElement.classList.add("hidden");
-      segmentElement.classList.add("hidden");
-      labelElement.classList.add("hidden");
+    if (task.value === 'false' && segment.value === 'false') {
+      taskElement.classList.add('hidden');
+      segmentElement.classList.add('hidden');
+      labelElement.classList.add('hidden');
     }
   };
   const [task, setTask] = useState<Task>();
@@ -304,8 +302,8 @@ function GanttView() {
   const onConnection = (e: (Event & CustomEvent) | undefined) => {
     setTask(
       allTaskQuery.data?.data.data.find(
-        (t) => t.taskId === e?.detail.startTaskId
-      )
+        (t) => t.taskId === e?.detail.startTaskId,
+      ),
     );
     setEndTask(e?.detail.endTaskId);
   };
@@ -313,14 +311,14 @@ function GanttView() {
 
   const removeTask = (id: string) => {
     removeTaskMutation.mutate(id, {
-      onSuccess(data) {
-        toast.success(data.data.message);
-        setTaskRemove("");
-        allTaskQuery.refetch();
-      },
       onError(error) {
         toast.success(error.message);
-        setTaskRemove("");
+        setTaskRemove('');
+      },
+      onSuccess(data) {
+        toast.success(data.data.message);
+        setTaskRemove('');
+        allTaskQuery.refetch();
       },
     });
   };
@@ -330,34 +328,34 @@ function GanttView() {
   }) => {
     return (
       <>
-        <div className="group" title={props.taskId ?? ""}>
+        <div className="group" title={props.taskId ?? ''}>
           {props.title}
           <div className="!mt-2 opacity-0 !flex !gap-1 transition ease-in-out delay-150 absolute group-hover:opacity-100 group-hover:block z-50 bg-gra rounded-lg">
             <Button
               id={BUTTON_EVENT.REMOVE}
-              value={"remove"}
-              variant={"none"}
-              size={"sm"}
+              value={'remove'}
+              variant={'none'}
+              size={'sm'}
               className="p-0 h-0"
             >
               <img
                 src={TrashCan}
                 id={BUTTON_EVENT.REMOVE}
-                alt={props.taskId ?? ""}
+                alt={props.taskId ?? ''}
                 className="h-4 w-4 mt-1"
               />
             </Button>
             <Button
               id={BUTTON_EVENT.EDIT}
-              variant={"none"}
-              size={"sm"}
+              variant={'none'}
+              size={'sm'}
               className="p-0 h-0"
             >
               <img
                 src={Edit}
                 id={BUTTON_EVENT.EDIT}
                 className="h-3 w-3 mt-1"
-                alt={props.taskId ?? ""}
+                alt={props.taskId ?? ''}
               />
             </Button>
           </div>
@@ -368,8 +366,8 @@ function GanttView() {
   const handleItemClick = async (event: (Event & CustomEvent) | undefined) => {
     event?.preventDefault();
     const eventDetails = event?.detail;
-    const target = eventDetails.originalEvent.target;
-    if (eventDetails.item.value == "false") {
+    const { target } = eventDetails.originalEvent;
+    if (eventDetails.item.value === 'false') {
       setTaskId(eventDetails.item.id);
       setIsTaskOpen(true);
     }
@@ -406,7 +404,7 @@ function GanttView() {
             onChange={handleView}
             placeholder="Select Filter"
             styles={reactSelectStyle}
-            defaultValue={{ label: "month", value: "month" }}
+            defaultValue={{ label: 'month', value: 'month' }}
           />
         </div>
       </div>
@@ -457,7 +455,7 @@ function GanttView() {
         <div className="w-full p-6">
           <div className="flex justify-between">
             <div className="text-lg">{task?.taskName}</div>
-            <Button variant={"none"} onClick={() => setEndTask(undefined)}>
+            <Button variant={'none'} onClick={() => setEndTask(undefined)}>
               <img src={CrossSvg} />
             </Button>
           </div>
@@ -481,11 +479,11 @@ function GanttView() {
           <img src={TrashCan} className="w-12 m-auto" /> Are you sure you want
           to delete ?
           <div className="flex gap-2 ml-auto">
-            <Button variant={"outline"} onClick={() => setTaskRemove("")}>
+            <Button variant={'outline'} onClick={() => setTaskRemove('')}>
               Cancel
             </Button>
             <Button
-              variant={"primary"}
+              variant={'primary'}
               isLoading={removeTaskMutation.isPending}
               disabled={removeTaskMutation.isPending}
               onClick={() => removeTask(taskRemove)}
@@ -500,7 +498,7 @@ function GanttView() {
           taskId={taskEdit}
           projectId={projectId}
           close={() => {
-            setTaskEdit(""), allTaskQuery.refetch();
+            setTaskEdit(''), allTaskQuery.refetch();
           }}
         />
       )}
@@ -509,7 +507,7 @@ function GanttView() {
           projectId={projectId}
           createSubtask={taskId}
           close={() => {
-            setTaskId(""), setIsTaskOpen(false), allTaskQuery.refetch();
+            setTaskId(''), setIsTaskOpen(false), allTaskQuery.refetch();
           }}
         />
       )}

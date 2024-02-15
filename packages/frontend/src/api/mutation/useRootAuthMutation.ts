@@ -1,18 +1,18 @@
-import { useMutation } from "@tanstack/react-query";
-import { requestURLs } from "../../Environment";
-import axios from "axios";
+import { useMutation } from '@tanstack/react-query';
+import axios from 'axios';
+import { requestURLs } from '../../Environment';
 import {
   AxiosResponseAndError,
   ResponseType,
-} from "@/api/types/axiosResponseType";
+} from '@/api/types/axiosResponseType';
 
 export type LoginApiResponse = ResponseType<boolean>;
 type rootUser = { username: string; password: string };
 
 function useRootAuthMutation() {
   const mutation = useMutation<
-    AxiosResponseAndError<LoginApiResponse>["response"],
-    AxiosResponseAndError<LoginApiResponse>["error"],
+    AxiosResponseAndError<LoginApiResponse>['response'],
+    AxiosResponseAndError<LoginApiResponse>['error'],
     rootUser
   >({
     mutationFn: (data) =>

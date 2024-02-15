@@ -1,20 +1,21 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import Select, { SingleValue } from "react-select";
+import { useState } from 'react';
+import Select, { SingleValue } from 'react-select';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@radix-ui/react-popover";
-import CalendarSvg from "../../assets/svg/Calendar.svg";
-import { DateRange } from "react-day-picker";
-import dateFormater from "@/helperFuntions/dateFormater";
-import { Calendar } from "@/components/ui/calendar";
-import InputText from "@/components/common/InputText";
-import { Task } from "@/api/mutation/useTaskCreateMutation";
-import FilterIcon from "../../assets/svg/Filter.svg";
-import { FIELDS } from "@/api/types/enums";
-import FilterResetIcon from "@/assets/svg/FilterReset.svg";
+} from '@radix-ui/react-popover';
+import { DateRange } from 'react-day-picker';
+import CalendarSvg from '../../assets/svg/Calendar.svg';
+import FilterIcon from '../../assets/svg/Filter.svg';
+import { Button } from '@/components/ui/button';
+import dateFormater from '@/helperFuntions/dateFormater';
+import { Calendar } from '@/components/ui/calendar';
+import InputText from '@/components/common/InputText';
+import { Task } from '@/api/mutation/useTaskCreateMutation';
+import { FIELDS } from '@/api/types/enums';
+import FilterResetIcon from '@/assets/svg/FilterReset.svg';
+
 type Options = { label: string; value: string };
 
 type Filter = {
@@ -32,33 +33,33 @@ type FilterField = {
   flag: SingleValue<Options> | null;
 };
 function TaskFilter(props: Filter) {
-  const { tasks, fieldToShow } = props;
+  const { fieldToShow, tasks } = props;
   const [popOverCLose, setPopOverCLose] = useState(false);
   const [filter, setFilter] = useState<FilterField>({
     assigned: null,
-    tasks: null,
     date: undefined,
     dueSevenDays: false,
-    overdueDays: false,
-    todayDueDays: false,
     flag: null,
+    overdueDays: false,
+    tasks: null,
+    todayDueDays: false,
   });
 
   const flags: Options[] = [
-    { label: "Select flag", value: "" },
-    { label: "Green", value: "Green" },
-    { label: "Red", value: "Red" },
-    { label: "Orange", value: "Orange" },
+    { label: 'Select flag', value: '' },
+    { label: 'Green', value: 'Green' },
+    { label: 'Red', value: 'Red' },
+    { label: 'Orange', value: 'Orange' },
   ];
 
   const taskOption: Options[] = [
-    { label: "both", value: "" },
-    { label: "Parent task", value: "1" },
-    { label: "Sub task", value: "2" },
+    { label: 'both', value: '' },
+    { label: 'Parent task', value: '1' },
+    { label: 'Sub task', value: '2' },
   ];
   const assignedTask = (): Options[] | undefined => {
     const projectManagerData: Options[] | undefined = [
-      { label: "Select assigned user", value: "" },
+      { label: 'Select assigned user', value: '' },
     ];
     tasks?.forEach((item) => {
       item.assignedUsers?.forEach((user) => {
@@ -97,18 +98,18 @@ function TaskFilter(props: Filter) {
   const reactSelectStyle = {
     control: (
       provided: Record<string, unknown>,
-      state: { isFocused: boolean }
+      state: { isFocused: boolean },
     ) => ({
       ...provided,
-      border: "1px solid #E7E7E7",
-      paddingTop: "0rem",
-      paddingBottom: "0rem",
-      outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
-      boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
-      "&:hover": {
-        outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
-        boxShadow: "0px 0px 0px #943B0C",
+      '&:hover': {
+        boxShadow: '0px 0px 0px #943B0C',
+        outline: state.isFocused ? '2px solid #943B0C' : '0px solid #E7E7E7',
       },
+      border: '1px solid #E7E7E7',
+      boxShadow: state.isFocused ? '0px 0px 0px #943B0C' : 'none',
+      outline: state.isFocused ? '2px solid #943B0C' : '0px solid #E7E7E7',
+      paddingBottom: '0rem',
+      paddingTop: '0rem',
     }),
   };
 
@@ -131,7 +132,7 @@ function TaskFilter(props: Filter) {
   const removeDuplicatesById = (arr: Task[]) => {
     const uniqueIds = new Set();
     return arr.filter(
-      ({ taskId }) => !uniqueIds.has(taskId) && uniqueIds.add(taskId)
+      ({ taskId }) => !uniqueIds.has(taskId) && uniqueIds.add(taskId),
     );
   };
   const [filterApplyed, setFilterApplyed] = useState(false);
@@ -139,15 +140,15 @@ function TaskFilter(props: Filter) {
     let filteredData: Task[] | undefined = tasks;
     if (filter && filter.flag && filter.flag.value) {
       filteredData = filteredData?.filter(
-        (d) => d.flag === filter?.flag?.value
+        (d) => d.flag === filter?.flag?.value,
       );
     }
 
     if (filter && filter.date?.from && filter.date?.to) {
       filteredData = filteredData?.filter((d) => {
         return (
-          new Date(d.startDate ?? "") >= (filter?.date?.from ?? new Date()) &&
-          new Date(d.startDate ?? "") <= (filter?.date?.to ?? new Date())
+          new Date(d.startDate ?? '') >= (filter?.date?.from ?? new Date()) &&
+          new Date(d.startDate ?? '') <= (filter?.date?.to ?? new Date())
         );
       });
     }
@@ -155,7 +156,7 @@ function TaskFilter(props: Filter) {
     if (filter && filter.assigned && filter.assigned.value) {
       let arr: Task[] | undefined = [];
       filteredData?.forEach((data) => {
-        data.assignedUsers.forEach((u: Task["assignedUsers"][number]) => {
+        data.assignedUsers.forEach((u: Task['assignedUsers'][number]) => {
           if (u.user.email === filter?.assigned?.value) {
             arr?.push(data);
           } else {
@@ -170,29 +171,29 @@ function TaskFilter(props: Filter) {
 
     if (filter && filter.dueSevenDays) {
       filteredData = filteredData?.filter((data) =>
-        isDateSevenDays(data.endDate)
+        isDateSevenDays(data.endDate),
       );
     }
 
     if (filter && filter.overdueDays) {
       filteredData = filteredData?.filter((data) =>
-        isOverDueDays(data.endDate)
+        isOverDueDays(data.endDate),
       );
     }
 
     if (filter && filter.todayDueDays) {
       filteredData = filteredData?.filter((data) =>
-        isDueTodayDays(data.endDate)
+        isDueTodayDays(data.endDate),
       );
     }
 
     if (filter && filter.tasks) {
       let val;
-      if (filter.tasks.value === "1") {
+      if (filter.tasks.value === '1') {
         val = filteredData?.filter((data) => !data.parentTaskId);
       }
-      if (filter.tasks.value === "2") {
-        val = filteredData?.filter((data) => !!data.parentTaskId);
+      if (filter.tasks.value === '2') {
+        val = filteredData?.filter((data) => Boolean(data.parentTaskId));
       }
       if (val && val.length > 0) {
         filteredData = val;
@@ -200,7 +201,7 @@ function TaskFilter(props: Filter) {
     }
 
     const applyFilter = Object.keys(filter).filter(
-      (key) => filter[key as keyof FilterField]
+      (key) => filter[key as keyof FilterField],
     ).length;
     if (applyFilter !== 0 && filteredData) {
       setFilterApplyed(true);
@@ -216,12 +217,12 @@ function TaskFilter(props: Filter) {
     setFilterApplyed(false);
     setFilter({
       assigned: null,
-      tasks: null,
       date: undefined,
       dueSevenDays: false,
-      overdueDays: false,
-      todayDueDays: false,
       flag: null,
+      overdueDays: false,
+      tasks: null,
+      todayDueDays: false,
     });
     props.filteredData(tasks);
   };
@@ -241,12 +242,12 @@ function TaskFilter(props: Filter) {
               <Popover open={popOverCLose}>
                 <PopoverTrigger className="w-full">
                   <Button
-                    variant={"outline"}
+                    variant={'outline'}
                     className="w-fit h-8 rounded px-2"
                     onClick={() => setPopOverCLose(!popOverCLose)}
                   >
                     <div className="flex items-center justify-between gap-2">
-                      Filters{" "}
+                      Filters{' '}
                       <div className="w-3 h-3">
                         <img src={FilterIcon} />
                       </div>
@@ -332,16 +333,16 @@ function TaskFilter(props: Filter) {
                         <Popover>
                           <PopoverTrigger className="w-full">
                             <Button
-                              variant={"outline"}
+                              variant={'outline'}
                               className="w-full h-10 rounded p-0 px-2"
                             >
                               <div className="flex justify-between text-base items-center w-full text-gray-950 font-normal">
                                 {filter.date
                                   ? `${dateFormater(
-                                      filter.date.from ?? new Date()
+                                      filter.date.from ?? new Date(),
                                     )}-
                           ${dateFormater(filter.date.to ?? new Date())}`
-                                  : "Select start date"}
+                                  : 'Select start date'}
                                 <img src={CalendarSvg} width={20} />
                               </div>
                             </Button>
@@ -367,13 +368,13 @@ function TaskFilter(props: Filter) {
                           className="p-0 z-40"
                           value={
                             filter.assigned || {
-                              label: "Select assigned user",
-                              value: "",
+                              label: 'Select assigned user',
+                              value: '',
                             }
                           }
                           options={assignedTask()}
                           onChange={(e) => {
-                            if (e && e.value == "") {
+                            if (e && e.value === '') {
                               setFilter((prev) => ({
                                 ...prev,
                                 assigned: null,
@@ -392,11 +393,11 @@ function TaskFilter(props: Filter) {
                         <Select
                           className="p-0 "
                           value={
-                            filter.flag || { label: "Select flag", value: "" }
+                            filter.flag || { label: 'Select flag', value: '' }
                           }
                           options={flags}
                           onChange={(e) => {
-                            if (e && e.value == "") {
+                            if (e && e.value === '') {
                               setFilter((prev) => ({ ...prev, flag: null }));
                             } else {
                               setFilter((prev) => ({ ...prev, flag: e }));
@@ -411,10 +412,10 @@ function TaskFilter(props: Filter) {
                       <div className="w-full">
                         <Select
                           className="p-0 "
-                          value={filter.tasks || { label: "Both", value: "" }}
+                          value={filter.tasks || { label: 'Both', value: '' }}
                           options={taskOption}
                           onChange={(e) => {
-                            if (e && e.value == "") {
+                            if (e && e.value === '') {
                               setFilter((prev) => ({ ...prev, tasks: null }));
                             } else {
                               setFilter((prev) => ({ ...prev, tasks: e }));
@@ -425,18 +426,18 @@ function TaskFilter(props: Filter) {
                         />
                       </div>
                     )}
-                    {fieldToShow.length != 0 && (
+                    {fieldToShow.length !== 0 && (
                       <div className="w-full flex gap-2">
                         <Button
                           className="w-full mt-4"
-                          variant={"destructive"}
+                          variant={'destructive'}
                           onClick={() => setPopOverCLose(false)}
                         >
                           Close
                         </Button>
                         <Button
                           className="w-full mt-4"
-                          variant={"primary_outline"}
+                          variant={'primary_outline'}
                           onClick={ApplyFilter}
                         >
                           Apply
@@ -450,9 +451,9 @@ function TaskFilter(props: Filter) {
             {filterApplyed && (
               <div>
                 <Button
-                  size={"sm"}
+                  size={'sm'}
                   className="w-fit h-8 rounded px-2"
-                  variant={"outline"}
+                  variant={'outline'}
                   onClick={resetFilter}
                 >
                   <div className="flex items-center justify-between gap-2">

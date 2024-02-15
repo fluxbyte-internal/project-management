@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from 'react';
+import { cn } from '@/lib/utils';
 
 const Dialog = (
   props: React.PropsWithChildren<{
@@ -8,15 +8,15 @@ const Dialog = (
     onClose: () => void;
     hasBackdropClose?: boolean;
     hasEscClose?: boolean;
-  }>
+  }>,
 ) => {
   const {
-    isOpen,
-    onClose,
     children,
     hasBackdropClose,
     hasEscClose,
+    isOpen,
     modalClass,
+    onClose,
   } = props;
   const dialogModalRef = useRef<HTMLDivElement>(null);
 
@@ -29,7 +29,7 @@ const Dialog = (
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (
-        event.code === "Escape" &&
+        event.code === 'Escape' &&
         (event.target === document.body ||
           dialogModalRef.current === document.activeElement) &&
         isOpen &&
@@ -39,10 +39,10 @@ const Dialog = (
       }
     };
 
-    document.addEventListener("keydown", handleEscape);
+    document.addEventListener('keydown', handleEscape);
 
     return () => {
-      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener('keydown', handleEscape);
     };
   }, [isOpen, onClose, hasEscClose]);
 
@@ -63,8 +63,8 @@ const Dialog = (
         >
           <div
             className={cn(
-              "overflow-auto max-h-full max-w-full bg-white relative",
-              modalClass
+              'overflow-auto max-h-full max-w-full bg-white relative',
+              modalClass,
             )}
           >
             {children}

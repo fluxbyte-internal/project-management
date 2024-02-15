@@ -1,33 +1,33 @@
-import DownArrow from "../../assets/svg/DownArrow.svg";
-import Notification from "../../assets/svg/Notification.svg";
-import Information from "../../assets/svg/Information.svg";
-import { Button } from "../ui/button";
+import { CheckCheck, LogOut, Settings } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import io from 'socket.io-client';
+import { toast } from 'react-toastify';
+import { UserRoleEnumValue } from '@backend/src/schemas/enums';
+import DownArrow from '../../assets/svg/DownArrow.svg';
+import Notification from '../../assets/svg/Notification.svg';
+import Information from '../../assets/svg/Information.svg';
+import { Button } from '../ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuTrigger,
   DropdownMenuSeparator,
-} from "../ui/dropdown-menu";
-import { CheckCheck, LogOut, Settings } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import CreateProjectForm from "../project/CreateProjectForm";
-import { useAuth } from "@/hooks/useAuth";
-import { useUser } from "@/hooks/useUser";
-import UserAvatar from "../ui/userAvatar";
-import io from "socket.io-client";
-import timeAgo from "@/helperFuntions/notificationFormatter";
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import CreateProjectForm from '../project/CreateProjectForm';
+import UserAvatar from '../ui/userAvatar';
+import Dialog from '../common/Dialog';
+import { useAuth } from '@/hooks/useAuth';
+import { useUser } from '@/hooks/useUser';
+import timeAgo from '@/helperFuntions/notificationFormatter';
 import useAllNotificationQuery, {
   NotificationType,
-} from "@/api/query/useAllNotificationQuery";
-import useReadAllNotificationMutation from "@/api/mutation/useReadAllNotificationMutation";
-import { toast } from "react-toastify";
-import useSingleReadNotificationMutation from "@/api/mutation/useSingleReadNotificationMutation";
-import Dialog from "../common/Dialog";
-import { baseURL } from "@/Environment";
-import { UserRoleEnumValue } from "@backend/src/schemas/enums";
+} from '@/api/query/useAllNotificationQuery';
+import useReadAllNotificationMutation from '@/api/mutation/useReadAllNotificationMutation';
+import useSingleReadNotificationMutation from '@/api/mutation/useSingleReadNotificationMutation';
+import { baseURL } from '@/Environment';
 
 type NavItemType =
   | {
@@ -54,19 +54,19 @@ function hasSubItem(item: NavItemType): item is {
     contentLink: string;
   }>;
 } {
-  return !!(item as { dropDown: unknown }).dropDown;
+  return Boolean((item as { dropDown: unknown }).dropDown);
 }
 
 const navbarData: NavItemType[] = [
   {
     id: 1,
-    name: "Dashboard",
-    link: "/dashboard",
+    link: '/dashboard',
+    name: 'Dashboard',
   },
   {
     id: 2,
-    name: "Project",
-    link: "/projects",
+    link: '/projects',
+    name: 'Project',
   },
 ] as NavItemType[];
 
@@ -85,47 +85,47 @@ function NavBar() {
     setisOpenPopUp(!isOpenPopUp);
   };
   const openAccountSettings = () => {
-    navigate("/account-settings");
+    navigate('/account-settings');
   };
   const openOrganisationSettings = () => {
-    navigate("/organisation/" + user?.userOrganisation[0]?.organisationId);
+    navigate('/organisation/' + user?.userOrganisation[0]?.organisationId);
   };
 
   useEffect(() => {
     setNotifications(useAllNotification.data?.data.data ?? []);
     const socket = io(baseURL, {
-      path: "/socket.io",
       forceNew: true,
-      reconnectionAttempts: 3,
-      timeout: 2000,
+      path: '/socket.io',
       query: {
         roomName: user?.userId,
       },
+      reconnectionAttempts: 3,
+      timeout: 2000,
     });
-    socket.emit("join", user?.userId);
-    socket.on("notification", (notificationObject) => {
+    socket.emit('join', user?.userId);
+    socket.on('notification', (notificationObject) => {
       if (notificationObject) {
         setNotifications((prevNotifications) => [
           ...(prevNotifications ? prevNotifications : []),
           {
-            notificationId: notificationObject.notificationId,
-            type: notificationObject.type,
-            referenceId: notificationObject.referenceId,
-            sentBy: notificationObject.sentBy,
-            sentTo: notificationObject.sentTo,
+            ReadAt: notificationObject.ReadAt,
+            createdAt: notificationObject.createdAt,
             details: notificationObject.details,
             isRead: notificationObject.isRead,
-            createdAt: notificationObject.createdAt,
-            ReadAt: notificationObject.ReadAt,
+            notificationId: notificationObject.notificationId,
+            referenceId: notificationObject.referenceId,
+            sentBy: notificationObject.sentBy,
             sentNotificationBy: notificationObject.sentNotificationBy,
             sentNotificationTo: notificationObject.sentNotificationTo,
+            sentTo: notificationObject.sentTo,
             task: notificationObject.task,
+            type: notificationObject.type,
           },
         ]);
       }
     });
     return () => {
-      socket.off("notification");
+      socket.off('notification');
     };
   }, [useAllNotification.data?.data.data]);
 
@@ -139,14 +139,14 @@ function NavBar() {
       useReadAllNotification.mutate(
         updatedNotifications as unknown as NotificationType,
         {
+          onError(error) {
+            toast.error(error.response?.data.message);
+          },
           onSuccess(data) {
             toast.success(data.data.message);
             setNotifications([]);
           },
-          onError(error) {
-            toast.error(error.response?.data.message);
-          },
-        }
+        },
       );
     }
   };
@@ -157,21 +157,21 @@ function NavBar() {
     singleReadNotificationMutation.mutate(
       { ...notificationData, isRead: true },
       {
+        onError: (error) => {
+          toast.error(error.response?.data.message);
+        },
         onSuccess: (data) => {
           toast.success(data.data.message);
           setNotifications((prevNotifications) => {
             if (prevNotifications) {
               return prevNotifications.filter(
-                (n) => n.notificationId !== notificationData.notificationId
+                (n) => n.notificationId !== notificationData.notificationId,
               );
             }
             return prevNotifications;
           });
         },
-        onError: (error) => {
-          toast.error(error.response?.data.message);
-        },
-      }
+      },
     );
   };
   return (
@@ -189,12 +189,12 @@ function NavBar() {
                     <div
                       key={index}
                       className={`hidden gap-2 items-center ${
-                        item.id === 2 && "lg:flex"
-                      } ${item.id === 1 && "md:flex"} ${
-                        user?.userOrganisation[0].role ==
+                        item.id === 2 && 'lg:flex'
+                      } ${item.id === 1 && 'md:flex'} ${
+                        user?.userOrganisation[0].role ===
                           UserRoleEnumValue.TEAM_MEMBER &&
                         item.id === 1 &&
-                        "!hidden"
+                        '!hidden'
                       }`}
                     >
                       {hasSubItem(item) ? (
@@ -211,7 +211,7 @@ function NavBar() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="w-auto">
                             {item.dropDown.map(
-                              ({ contentName, contentLink }, contentIndex) => (
+                              ({ contentLink, contentName }, contentIndex) => (
                                 <DropdownMenuItem key={contentIndex}>
                                   <div className="flex justify-between items-center">
                                     <div className="flex break-all">
@@ -225,7 +225,7 @@ function NavBar() {
                                     </div>
                                   </div>
                                 </DropdownMenuItem>
-                              )
+                              ),
                             )}
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -259,8 +259,8 @@ function NavBar() {
                         <DropdownMenuItem className="p-0" key={index}>
                           <div
                             className={`flex justify-between text-sm font-medium text-gray-500 relative cursor-pointer p-1 w-full ${
-                              item.id === 2 ? "lg:hidden" : ""
-                            } ${item.id === 1 ? "md:hidden" : ""}`}
+                              item.id === 2 ? 'lg:hidden' : ''
+                            } ${item.id === 1 ? 'md:hidden' : ''}`}
                           >
                             {hasSubItem(item) ? (
                               <div className="flex items-center justify-between w-full gap-2">
@@ -286,18 +286,18 @@ function NavBar() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              {user?.userOrganisation[0]?.role !== "TEAM_MEMBER" && (
+              {user?.userOrganisation[0]?.role !== 'TEAM_MEMBER' && (
                 <>
                   <Button
                     className="hidden lg:block"
-                    variant={"primary"}
+                    variant={'primary'}
                     onClick={handleOpenPopUp}
                   >
                     Create
                   </Button>
                   <Button
                     className="block lg:hidden p-2"
-                    variant={"primary"}
+                    variant={'primary'}
                     onClick={handleOpenPopUp}
                   >
                     <svg
@@ -380,7 +380,7 @@ function NavBar() {
                 Are you sure you want to Read All Notifications ?
                 <div className="flex gap-2 ml-auto">
                   <Button
-                    variant={"outline"}
+                    variant={'outline'}
                     isLoading={useReadAllNotification.isPending}
                     disabled={useReadAllNotification.isPending}
                     onClick={() => setisOpenPopUpRead(false)}
@@ -388,7 +388,7 @@ function NavBar() {
                     Cancel
                   </Button>
                   <Button
-                    variant={"primary"}
+                    variant={'primary'}
                     onClick={() => {
                       handleReadAll();
                       setisOpenPopUpRead(false);
@@ -407,7 +407,7 @@ function NavBar() {
               className=" w-6 h-6 rounded-full bg-red-700 
             absolute bottom-5 left-5 text-xs p-2 flex justify-center items-center text-white"
             >
-              {notifications.length <= 99 ? notifications.length : "99+"}
+              {notifications.length <= 99 ? notifications.length : '99+'}
             </div>
           )}
           <Button className="relative w-8 h-8 aspect-square rounded-full bg-transparent active:bg-primary-100 hover:bg-primary-100 md:block hidden cursor-pointer">
@@ -425,31 +425,31 @@ function NavBar() {
                 <div className="mr-2 h-5 w-5">
                   <img src={Information} className="mr-2 h-full w-full" />
                 </div>
-                <Button className="p-0 font-normal h-auto" variant={"ghost"}>
+                <Button className="p-0 font-normal h-auto" variant={'ghost'}>
                   Information
                 </Button>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={openAccountSettings}>
                 <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
-                <Button className="p-0 font-normal h-auto" variant={"ghost"}>
+                <Button className="p-0 font-normal h-auto" variant={'ghost'}>
                   Account Settings
                 </Button>
               </DropdownMenuItem>
               {user?.userOrganisation[0] &&
                 user?.userOrganisation[0].organisationId && (
-                <DropdownMenuItem onClick={openOrganisationSettings}>
-                  <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
-                  <Button
-                    className="p-0 font-normal h-auto"
-                    variant={"ghost"}
-                  >
+                  <DropdownMenuItem onClick={openOrganisationSettings}>
+                    <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
+                    <Button
+                      className="p-0 font-normal h-auto"
+                      variant={'ghost'}
+                    >
                       Organisations Settings
-                  </Button>
-                </DropdownMenuItem>
-              )}
+                    </Button>
+                  </DropdownMenuItem>
+                )}
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4 text-[#44546F]" />
-                <Button className="p-0 font-normal h-auto" variant={"ghost"}>
+                <Button className="p-0 font-normal h-auto" variant={'ghost'}>
                   Log out
                 </Button>
               </DropdownMenuItem>

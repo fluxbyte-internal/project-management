@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import arrowImg from "../../assets/svg/Arrow.svg";
-import downArrow from "../../assets/svg/DownArrow.svg";
-import Select from "react-select";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import Select from 'react-select';
+import arrowImg from '../../assets/svg/Arrow.svg';
+import downArrow from '../../assets/svg/DownArrow.svg';
+
 export type ColumeDef = {
   key: string;
   header: string;
@@ -25,7 +26,7 @@ const pageOptions = [
 ];
 
 function Table(props: Props) {
-  const { columnDef, data, className } = props;
+  const { className, columnDef, data } = props;
   const [dataSource, setDataSource] = useState(data);
 
   const [dataPerPage, setDataPerPage] = useState(pageOptions[0].value);
@@ -64,18 +65,18 @@ function Table(props: Props) {
   const reactSelectStyle = {
     control: (
       provided: Record<string, unknown>,
-      state: { isFocused: boolean }
+      state: { isFocused: boolean },
     ) => ({
       ...provided,
-      border: "1px solid #E7E7E7",
-      paddingTop: "0.2rem",
-      paddingBottom: "0.2rem",
-      outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
-      boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
-      "&:hover": {
-        outline: state.isFocused ? "1px solid #943B0C" : "1px solid #E7E7E7",
-        boxShadow: "0px 0px 0px #943B0C",
+      '&:hover': {
+        boxShadow: '0px 0px 0px #943B0C',
+        outline: state.isFocused ? '1px solid #943B0C' : '1px solid #E7E7E7',
       },
+      border: '1px solid #E7E7E7',
+      boxShadow: state.isFocused ? '0px 0px 0px #943B0C' : 'none',
+      outline: state.isFocused ? '2px solid #943B0C' : '0px solid #E7E7E7',
+      paddingBottom: '0.2rem',
+      paddingTop: '0.2rem',
     }),
   };
 
@@ -85,7 +86,7 @@ function Table(props: Props) {
       const endIndex = startIndex + dataPerPage;
       return [startIndex, endIndex];
     },
-    [dataPerPage]
+    [dataPerPage],
   );
 
   const changePage = useCallback(
@@ -93,7 +94,7 @@ function Table(props: Props) {
       setCurrentPage(newPage);
       setDataSource(data.slice(startIndex, endIndex));
     },
-    [data]
+    [data],
   );
 
   function dynamicSort(property: any) {
@@ -103,7 +104,7 @@ function Table(props: Props) {
       aValue = a[property];
       bValue = b[property];
 
-      if (typeof aValue === "string") {
+      if (typeof aValue === 'string') {
         aValue = aValue.toUpperCase();
         bValue = bValue.toUpperCase();
       }
@@ -115,11 +116,11 @@ function Table(props: Props) {
         aValue = new Date(`${aYear}-${aMonth}-${aDay}`);
         bValue = new Date(`${bYear}-${bMonth}-${bDay}`);
       }
-      if (typeof aValue === "string" && !isNaN(Number(aValue))) {
+      if (typeof aValue === 'string' && !isNaN(Number(aValue))) {
         aValue = Number(aValue);
       }
 
-      if (typeof bValue === "string" && !isNaN(Number(bValue))) {
+      if (typeof bValue === 'string' && !isNaN(Number(bValue))) {
         bValue = Number(bValue);
       }
       let comparison = 0;
@@ -134,7 +135,7 @@ function Table(props: Props) {
     };
   }
   function toggle(index: number) {
-    if (index == accordions) {
+    if (index === accordions) {
       setAccordionshow(null);
     } else {
       setAccordionshow(index);
@@ -146,7 +147,7 @@ function Table(props: Props) {
     return regex.test(dateString);
   }
   function parseDate(dateString: string) {
-    const [day, month, year] = dateString.split("/").map(Number);
+    const [day, month, year] = dateString.split('/').map(Number);
     return [day, month, year];
   }
 
@@ -162,7 +163,7 @@ function Table(props: Props) {
       <div
         ref={table}
         className={`py-9 pb-3 flex flex-col justify-between bg-white px-6 border rounded-md text-sm h-full w-full ${
-          className ?? ""
+          className ?? ''
         }`}
       >
         <div className="overflow-auto">
@@ -187,7 +188,7 @@ function Table(props: Props) {
                                 <img
                                   src={downArrow}
                                   className={`${
-                                    !ascendingToggle ? "rotate-180" : ""
+                                    !ascendingToggle ? 'rotate-180' : ''
                                   } group-hover:opacity-50 opacity-0 `}
                                 />
                               </div>
@@ -234,8 +235,8 @@ function Table(props: Props) {
                             className={`rounded-xl flex justify-center ${
                               props.onAccordionRender &&
                               props.onAccordionRender(item).props.children
-                                ? "p-2 py-3  bg-slate-200/30"
-                                : ""
+                                ? 'p-2 py-3  bg-slate-200/30'
+                                : ''
                             } `}
                           >
                             {props.onAccordionRender &&
@@ -258,7 +259,7 @@ function Table(props: Props) {
                 <Select
                   className="w-24"
                   defaultValue={pageOptions.find(
-                    (page) => page.value == dataPerPage
+                    (page) => page.value === dataPerPage,
                   )}
                   options={pageOptions}
                   menuPlacement="auto"
@@ -268,10 +269,10 @@ function Table(props: Props) {
               </div>
               <div className="flex gap-2 items-center">
                 <div className="text-gray-400/80 mr-5">
-                  {calculateIndices(currentPage)[0] + 1} -{" "}
+                  {calculateIndices(currentPage)[0] + 1} -{' '}
                   {calculateIndices(currentPage)[1] > data.length
                     ? data.length
-                    : calculateIndices(currentPage)[1]}{" "}
+                    : calculateIndices(currentPage)[1]}{' '}
                   of {data.length}
                 </div>
                 <button

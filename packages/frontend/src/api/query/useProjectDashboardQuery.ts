@@ -1,12 +1,12 @@
+import { useQuery } from '@tanstack/react-query';
+import { ScheduleAndBudgetTrend } from '@backend/src/schemas/enums';
 import {
   AxiosResponseAndError,
   ResponseType,
-} from "../types/axiosResponseType";
-import { QUERY_KEYS } from "./querykeys";
-import ApiRequest from "../ApiRequest";
-import { requestURLs } from "@/Environment";
-import { useQuery } from "@tanstack/react-query";
-import { ScheduleAndBudgetTrend } from "@backend/src/schemas/enums";
+} from '../types/axiosResponseType';
+import ApiRequest from '../ApiRequest';
+import { QUERY_KEYS } from './querykeys';
+import { requestURLs } from '@/Environment';
 
 export type projectDashboardResponseType = ResponseType<{
   numTasks: number;
@@ -20,10 +20,10 @@ export type projectDashboardResponseType = ResponseType<{
   projectStatus: string;
   spi: any[];
   cpi: any;
-  budgetTrend:typeof ScheduleAndBudgetTrend;
-  scheduleTrend: "STABLE";
+  budgetTrend: typeof ScheduleAndBudgetTrend;
+  scheduleTrend: 'STABLE';
   actualCost: string;
-  consumedBudget:string;
+  consumedBudget: string;
   estimatedBudget: string;
   projectProgression: string;
 }>;
@@ -32,7 +32,7 @@ export interface ProjectDates {
   estimatedEndDate: string;
   actualEndDate: string;
   projectCreatedAt: string;
-  duration: number
+  duration: number;
 }
 export interface TaskStatusChartData {
   labels: any[];
@@ -51,23 +51,23 @@ export type projectDashboardPortfolioDataType = {
   projectStatus: string;
   spi: any[];
   cpi: any;
-  budgetTrend:typeof ScheduleAndBudgetTrend;
-  scheduleTrend: "STABLE";
+  budgetTrend: typeof ScheduleAndBudgetTrend;
+  scheduleTrend: 'STABLE';
   actualCost: string;
-  consumedBudget:string;
+  consumedBudget: string;
   estimatedBudget: string;
   projectProgression: string;
 };
 function useProjectDashboardQuery(projectId: string | undefined) {
   return useQuery<
-    AxiosResponseAndError<projectDashboardResponseType>["response"],
-    AxiosResponseAndError<projectDashboardResponseType>["error"]
+    AxiosResponseAndError<projectDashboardResponseType>['response'],
+    AxiosResponseAndError<projectDashboardResponseType>['error']
   >({
-    queryKey: [QUERY_KEYS.organisation],
     queryFn: async () =>
       await ApiRequest.get(
-        `${requestURLs.projectDashboardData + "/" + projectId}`
+        `${requestURLs.projectDashboardData + '/' + projectId}`,
       ),
+    queryKey: [QUERY_KEYS.organisation],
   });
 }
 

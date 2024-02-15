@@ -1,17 +1,17 @@
-import { cn } from "@/lib/utils";
-import React from "react";
+import React from 'react';
+import { cn } from '@/lib/utils';
 
 function InputNumber({
-  className,
   children,
+  className,
   ...otherProps
-}: Omit<React.InputHTMLAttributes<HTMLInputElement>, "type">) {
+}: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'>) {
   return (
     <input
       type="number"
       className={cn(
-        "py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[46px] focus:outline-[#943B0C]",
-        className
+        'py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[46px] focus:outline-[#943B0C]',
+        className,
       )}
       {...otherProps}
     >

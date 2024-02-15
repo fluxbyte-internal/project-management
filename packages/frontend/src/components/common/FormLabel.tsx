@@ -1,14 +1,14 @@
-import { cn } from "@/lib/utils";
-import React from "react";
+import React from 'react';
+import { cn } from '@/lib/utils';
 
 function FormLabel({
-  className,
   children,
+  className,
   ...otherProps
 }: React.LabelHTMLAttributes<HTMLLabelElement>) {
   return (
     <label
-      className={cn("font-medium text-base text-gray-8", className)}
+      className={cn('font-medium text-base text-gray-8', className)}
       {...otherProps}
     >
       {children}

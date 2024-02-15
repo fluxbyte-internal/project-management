@@ -1,12 +1,12 @@
-import { useMutation } from "@tanstack/react-query";
-import { requestURLs } from "../../Environment";
-import { z } from "zod";
+import { useMutation } from '@tanstack/react-query';
+import { z } from 'zod';
+import { createCommentTaskSchema } from '@backend/src/schemas/taskSchema';
+import { requestURLs } from '../../Environment';
+import ApiRequest from '../ApiRequest';
 import {
   AxiosResponseAndError,
   ResponseType,
-} from "@/api/types/axiosResponseType";
-import { createCommentTaskSchema } from "@backend/src/schemas/taskSchema";
-import ApiRequest from "../ApiRequest";
+} from '@/api/types/axiosResponseType';
 
 export type Comment = {
   commentId: string;
@@ -21,14 +21,14 @@ type TaskCreateCommentResponseType = ResponseType<Comment>;
 
 function useCreateTaskCommentMutation(taskId?: string) {
   const mutation = useMutation<
-    AxiosResponseAndError<TaskCreateCommentResponseType>["response"],
-    AxiosResponseAndError<TaskCreateCommentResponseType>["error"],
+    AxiosResponseAndError<TaskCreateCommentResponseType>['response'],
+    AxiosResponseAndError<TaskCreateCommentResponseType>['error'],
     z.infer<typeof createCommentTaskSchema>
   >({
     mutationFn: (data) =>
       ApiRequest.post<TaskCreateCommentResponseType>(
         `${requestURLs.task}/comment/${taskId}`,
-        data
+        data,
       ),
   });
 

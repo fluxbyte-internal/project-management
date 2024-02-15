@@ -1,68 +1,67 @@
-import z from "zod";
-import { cn } from "@/lib/utils";
-import { useFormik } from "formik";
-import { toast } from "react-toastify";
-import { CheckIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-
-import { Button } from "../ui/button";
-import TaskComment from "./taskComment";
-import UserAvatar from "../ui/userAvatar";
-import InputText from "../common/InputText";
-import TaskAttachment from "./taskAttachment";
-import TaskDependencies from "./taskDependencies";
-import ErrorMessage from "../common/ErrorMessage";
-import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover";
-import {
-  createTaskSchema,
-  milestoneTaskSchema,
-} from "../../../../backend/src/schemas/taskSchema";
-import { Calendar } from "@/components/ui/calendar";
-
-import { useUser } from "@/hooks/useUser";
-import useTaskQuery from "@/api/query/useTaskQuery";
-import dateFormater from "@/helperFuntions/dateFormater";
-import useTaskAddMembersMutation from "@/api/mutation/useTaskAddMember";
-import useTaskMemberListQuery from "@/api/query/useTaskMemberListQuary";
-import useCreateTaskMutation from "@/api/mutation/useTaskCreateMutation";
-import useUpdateTaskMutation from "@/api/mutation/useTaskUpdateMutation";
-import useRemoveTaskMemberMutation from "@/api/mutation/useTaskRemoveMember";
-import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
-import useTaskAttechmentAddMutation from "@/api/mutation/useTaskAttechmentAddMutation";
-import useTaskAddUpdateMilestoneMutation from "@/api/mutation/useTaskAddUpdateMilestone";
-
-import Tag from "../../assets/svg/Tag.svg";
-import Users from "../../assets/svg/Users.svg";
-import Route from "../../assets/svg/Route.svg";
-import TaskSvg from "../../assets/svg/Task.svg";
-import PlusSvg from "../../assets/svg/Plus.svg";
-import Edit from "../../assets/svg/EditPen.svg";
-// import Clock from "../../assets/svg/Clock.svg";
-import Folder from "../../assets/svg/Folders.svg";
-import Close from "../../assets/svg/CrossIcon.svg";
-import SubTask from "../../assets/svg/SubTask.svg";
-import MultiLine from "../../assets/svg/MultiLine.svg";
-import PapperClip from "../../assets/svg/Paperclip.svg";
-import InfoCircle from "../../assets/svg/Info circle.svg";
-import TopRightArrow from "../../assets/svg/TopRightArrow.svg";
-import BackIcon from "../../assets/svg/BackIcon.svg";
-import CalendarIcon from "../../assets/svg/Calendar.svg";
-import InputNumber from "@/components/common/InputNumber";
-import TaskHistory from "./taskHistory";
+import z from 'zod';
+import { useFormik } from 'formik';
+import { toast } from 'react-toastify';
+import { CheckIcon } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { toFormikValidationSchema } from 'zod-formik-adapter';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@radix-ui/react-tooltip";
+} from '@radix-ui/react-tooltip';
+import { TaskStatusEnumValue } from '@backend/src/schemas/enums';
+import { Button } from '../ui/button';
+
+import UserAvatar from '../ui/userAvatar';
+import InputText from '../common/InputText';
+import ErrorMessage from '../common/ErrorMessage';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import {
+  createTaskSchema,
+  milestoneTaskSchema,
+} from '../../../../backend/src/schemas/taskSchema';
+
+import Tag from '../../assets/svg/Tag.svg';
+import Users from '../../assets/svg/Users.svg';
+import Route from '../../assets/svg/Route.svg';
+import TaskSvg from '../../assets/svg/Task.svg';
+import PlusSvg from '../../assets/svg/Plus.svg';
+import Edit from '../../assets/svg/EditPen.svg';
+// import Clock from "../../assets/svg/Clock.svg";
+import Folder from '../../assets/svg/Folders.svg';
+import Close from '../../assets/svg/CrossIcon.svg';
+import SubTask from '../../assets/svg/SubTask.svg';
+import MultiLine from '../../assets/svg/MultiLine.svg';
+import PapperClip from '../../assets/svg/Paperclip.svg';
+import InfoCircle from '../../assets/svg/Info circle.svg';
+import TopRightArrow from '../../assets/svg/TopRightArrow.svg';
+import BackIcon from '../../assets/svg/BackIcon.svg';
+import CalendarIcon from '../../assets/svg/Calendar.svg';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { TaskStatusEnumValue } from "@backend/src/schemas/enums";
-import useTaskStatusUpdateMutation from "@/api/mutation/useTaskStatusUpdateMutation";
+} from '../ui/dropdown-menu';
+import TaskHistory from './taskHistory';
+import TaskDependencies from './taskDependencies';
+import TaskAttachment from './taskAttachment';
+import TaskComment from './taskComment';
+import InputNumber from '@/components/common/InputNumber';
+import useTaskAddUpdateMilestoneMutation from '@/api/mutation/useTaskAddUpdateMilestone';
+import useTaskAttechmentAddMutation from '@/api/mutation/useTaskAttechmentAddMutation';
+import { UserOrganisationType } from '@/api/query/useOrganisationDetailsQuery';
+import useRemoveTaskMemberMutation from '@/api/mutation/useTaskRemoveMember';
+import useUpdateTaskMutation from '@/api/mutation/useTaskUpdateMutation';
+import useCreateTaskMutation from '@/api/mutation/useTaskCreateMutation';
+import useTaskMemberListQuery from '@/api/query/useTaskMemberListQuary';
+import useTaskAddMembersMutation from '@/api/mutation/useTaskAddMember';
+import dateFormater from '@/helperFuntions/dateFormater';
+import useTaskQuery from '@/api/query/useTaskQuery';
+import { useUser } from '@/hooks/useUser';
+import { Calendar } from '@/components/ui/calendar';
+import { cn } from '@/lib/utils';
+import useTaskStatusUpdateMutation from '@/api/mutation/useTaskStatusUpdateMutation';
 
 type Props = {
   projectId: string | undefined;
@@ -74,18 +73,18 @@ type Props = {
 
 function TaskSubTaskForm(props: Props) {
   const currantUser = useUser();
-  const [subTask, setSubtask] = useState("");
+  const [subTask, setSubtask] = useState('');
   const fileInput = useRef<HTMLInputElement>(null);
   const [taskNameField, setTaskNameField] = useState(false);
   const [taskDurationField, setTaskDurationField] = useState(false);
   const [taskProgressField, setTaskProgressField] = useState(false);
-  const [taskId, setTaskId] = useState<string>(props.taskId ?? "");
+  const [taskId, setTaskId] = useState<string>(props.taskId ?? '');
   const [subTaskFieldShow, setSubTaskFieldShow] = useState<boolean>(false);
-  const [member, setMambers] = useState<UserOrganisationType["user"][]>([]);
+  const [member, setMambers] = useState<UserOrganisationType['user'][]>([]);
   const [attachmentUploading, setAttachmentUploading] =
     useState<boolean>(false);
   const taskQuery = useTaskQuery(taskId);
-  const taskMemberList = useTaskMemberListQuery(props.projectId ?? "");
+  const taskMemberList = useTaskMemberListQuery(props.projectId ?? '');
   const taskUpdateMutation = useUpdateTaskMutation(taskId);
   const taskRemoveMembersMutation = useRemoveTaskMemberMutation();
   const taskAddMembersMutation = useTaskAddMembersMutation(taskId);
@@ -94,7 +93,7 @@ function TaskSubTaskForm(props: Props) {
   const taskAttachmentAddMutation = useTaskAttechmentAddMutation(taskId);
   const taskCreateMutation = useCreateTaskMutation(
     props.projectId,
-    props.createSubtask ? props.createSubtask : taskId ? taskId : ""
+    props.createSubtask ? props.createSubtask : taskId ? taskId : '',
   );
   const taskAddUpdateMilestoneMutation =
     useTaskAddUpdateMilestoneMutation(taskId);
@@ -105,103 +104,103 @@ function TaskSubTaskForm(props: Props) {
   useEffect(() => {
     if (taskId && tasks) {
       taskFormik.setValues({
-        taskName: tasks.taskName,
-        taskDescription: tasks.taskDescription,
-        startDate: tasks.startDate,
         duration: tasks.duration,
+        startDate: tasks.startDate,
+        taskDescription: tasks.taskDescription,
+        taskName: tasks.taskName,
       });
       milestoneFormik.setValues({
-        milestoneIndicator: tasks.milestoneIndicator,
         dueDate: tasks.dueDate ?? undefined,
+        milestoneIndicator: tasks.milestoneIndicator,
       });
       setMambers(
         tasks.assignedUsers.map((u) => {
           return u.user;
-        })
+        }),
       );
     }
   }, [taskId, taskQuery.data]);
 
   const taskFormik = useFormik<z.infer<typeof createTaskSchema>>({
     initialValues: {
-      taskName: "",
-      taskDescription: "",
+      duration: 1.0,
       startDate: props.initialValues?.startDate
         ? new Date(props.initialValues?.startDate)
         : new Date(),
-      duration: 1.0,
+      taskDescription: '',
+      taskName: '',
     },
-    validationSchema: toFormikValidationSchema(createTaskSchema),
     onSubmit: (values) => {
       if (taskId) {
         taskUpdateMutation.mutate(values, {
-          onSuccess(data) {
-            toast.success(data.data.message);
-          },
           onError(error) {
             toast.error(error.response?.data.message);
+          },
+          onSuccess(data) {
+            toast.success(data.data.message);
           },
         });
       } else {
         taskCreateMutation.mutate(values, {
+          onError(error) {
+            toast.error(error.response?.data.message);
+          },
           onSuccess(data) {
             setTaskId(data.data.data.taskId);
             toast.success(data.data.message);
           },
-          onError(error) {
-            toast.error(error.response?.data.message);
-          },
         });
       }
     },
+    validationSchema: toFormikValidationSchema(createTaskSchema),
   });
 
   const milestoneFormik = useFormik<z.infer<typeof milestoneTaskSchema>>({
     initialValues: {
-      milestoneIndicator: false,
       dueDate: undefined,
+      milestoneIndicator: false,
     },
-    validationSchema: toFormikValidationSchema(milestoneTaskSchema),
     onSubmit: (values) => {
       milestoneSubmit(values);
     },
+    validationSchema: toFormikValidationSchema(milestoneTaskSchema),
   });
   const milestoneSubmit = (values: z.infer<typeof milestoneTaskSchema>) => {
     taskAddUpdateMilestoneMutation.mutate(values, {
+      onError(error) {
+        toast.error(error.response?.data.message);
+      },
       onSuccess(data) {
         toast.success(data.data.message);
         refetch();
       },
-      onError(error) {
-        toast.error(error.response?.data.message);
-      },
     });
   };
   const milestoneHandlechange = (e: boolean) => {
-    milestoneFormik.setFieldValue("milestoneIndicator", e);
+    milestoneFormik.setFieldValue('milestoneIndicator', e);
     if (!e) {
-      milestoneFormik.setFieldValue("dueDate", null);
-      milestoneSubmit({ milestoneIndicator: false, dueDate: undefined });
+      milestoneFormik.setFieldValue('dueDate', null);
+      milestoneSubmit({ dueDate: undefined, milestoneIndicator: false });
     }
   };
 
   const createSubTask = () => {
     const value = {
-      taskName: subTask,
-      taskDescription: "",
-      startDate: new Date(),
+      assginedToUserId: [currantUser.user?.userId ?? ''],
       duration: 1,
-      assginedToUserId: [currantUser.user?.userId ?? ""],
       milestoneIndicator: false,
+      startDate: new Date(),
+      taskDescription: '',
+      taskName: subTask,
     };
     taskCreateMutation.mutate(value, {
-      onSuccess(data) {
-        refetch();
-        setSubtask("");
-        toast.success(data.data.message);
-      },
       onError(error) {
         toast.error(error.response?.data.message);
+      },
+      onSuccess(data) {
+        refetch();
+        setSubtask('');
+        toast.success(data.data.message);
       },
     });
   };
@@ -215,27 +214,27 @@ function TaskSubTaskForm(props: Props) {
       taskAddMembersMutation.mutate(
         { assginedToUserId: user.user.userId },
         {
+          onError(error) {
+            toast.error(error.response?.data.message);
+          },
           onSuccess(data) {
             refetch();
             toast.success(data.data.message);
             setMambers((prev) => [...prev, user.user]);
           },
-          onError(error) {
-            toast.error(error.response?.data.message);
-          },
-        }
+        },
       );
     }
   };
 
   const removeMembers = (id: string) => {
     taskRemoveMembersMutation.mutate(id, {
+      onError(error) {
+        toast.error(error.response?.data.message);
+      },
       onSuccess(data) {
         refetch();
         toast.success(data.data.message);
-      },
-      onError(error) {
-        toast.error(error.response?.data.message);
       },
     });
   };
@@ -245,39 +244,39 @@ function TaskSubTaskForm(props: Props) {
       setAttachmentUploading(true);
       const formData = new FormData();
       for (let i = 0; i < e.target.files.length; ++i) {
-        formData.append("taskAttachment", e.target.files[i]);
+        formData.append('taskAttachment', e.target.files[i]);
       }
       taskAttachmentAddMutation.mutate(formData, {
+        onError(error) {
+          toast.error(error.response?.data.message);
+          setAttachmentUploading(false);
+        },
         onSuccess(data) {
           refetch();
           toast.success(data.data.message);
-          setAttachmentUploading(false);
-        },
-        onError(error) {
-          toast.error(error.response?.data.message);
           setAttachmentUploading(false);
         },
       });
     }
   };
 
-  const [progressError, setProgressError] = useState("");
+  const [progressError, setProgressError] = useState('');
   const onProgressUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     if (Number(val) > 100 || Number(val) < 0) {
-      setProgressError("Progress must be within the range of 0 to 100.");
+      setProgressError('Progress must be within the range of 0 to 100.');
     } else {
-      setProgressError("");
+      setProgressError('');
       taskUpdateMutation.mutate(
         { completionPecentage: Number(val) ?? 0 },
         {
-          onSuccess() {
-            refetch();
-          },
           onError(err) {
             toast.error(err.message);
           },
-        }
+          onSuccess() {
+            refetch();
+          },
+        },
       );
     }
   };
@@ -286,13 +285,13 @@ function TaskSubTaskForm(props: Props) {
     taskStatusUpdateMutation.mutate(
       { status },
       {
-        onSuccess() {
-          taskQuery.refetch();
-        },
         onError(error) {
           toast.error(error.message);
         },
-      }
+        onSuccess() {
+          taskQuery.refetch();
+        },
+      },
     );
   };
   const taskStatus = () => {
@@ -302,22 +301,21 @@ function TaskSubTaskForm(props: Props) {
     ];
     if (tasks?.milestoneIndicator && tasks?.dueDate) {
       return Object.keys(TaskStatusEnumValue).filter(
-        (e) => !removeStatus.some((r) => e === r)
+        (e) => !removeStatus.some((r) => e === r),
       );
-    } else {
-      return Object.keys(TaskStatusEnumValue);
     }
+    return Object.keys(TaskStatusEnumValue);
   };
   return (
     <div className="absolute w-full h-full z-50 top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-gray-900 bg-opacity-50">
       <div className="bg-white rounded-lg text-gray-700 p-6 lg:p-10 w-full md:max-w-[95%] lg:max-w-[80%] h-full md:max-h-[80%] overflow-auto ">
         <div className="flex justify-between items-center">
           <div>
-            <div className={`${tasks?.parentTaskId ? "block" : "hidden"}`}>
+            <div className={`${tasks?.parentTaskId ? 'block' : 'hidden'}`}>
               <Button
-                variant={"link"}
+                variant={'link'}
                 className="flex justify-start p-0"
-                onClick={() => setTaskId(tasks?.parentTaskId ?? "")}
+                onClick={() => setTaskId(tasks?.parentTaskId ?? '')}
               >
                 <img src={BackIcon} width={24} height={24} />
               </Button>
@@ -325,7 +323,7 @@ function TaskSubTaskForm(props: Props) {
           </div>
           <div>
             <Button
-              variant={"ghost"}
+              variant={'ghost'}
               onClick={() => {
                 props.close(), (tasks = undefined);
               }}
@@ -359,7 +357,7 @@ function TaskSubTaskForm(props: Props) {
                 )}
               </div>
               <Button
-                variant={"ghost"}
+                variant={'ghost'}
                 onClick={() => setTaskNameField((prev) => !prev)}
               >
                 <img src={Edit} width={10} height={10} />
@@ -389,7 +387,7 @@ function TaskSubTaskForm(props: Props) {
                   <div>
                     {tasks?.assignedUsers && tasks?.assignedUsers?.length > 4
                       ? `${tasks?.assignedUsers.length - 4} +`
-                      : ""}
+                      : ''}
                   </div>
                 </div>
               </div>
@@ -403,14 +401,12 @@ function TaskSubTaskForm(props: Props) {
                   <div className="text-xl font-medium">Sub-tasks</div>
                 </div>
                 {!subTaskFieldShow && (
-                  <Button variant={"ghost"}>
+                  <Button variant={'ghost'}>
                     <img
                       src={PlusSvg}
                       width={20}
                       height={20}
-                      onClick={() =>
-                        setSubTaskFieldShow((prev) => (prev = !prev))
-                      }
+                      onClick={() => setSubTaskFieldShow((prev) => !prev)}
                     />
                   </Button>
                 )}
@@ -420,7 +416,7 @@ function TaskSubTaskForm(props: Props) {
                   return (
                     <div className="mt-3" key={index}>
                       <Button
-                        variant={"secondary"}
+                        variant={'secondary'}
                         className="flex justify-between items-center w-full"
                         onClick={() => setTaskId(task.taskId)}
                       >
@@ -449,14 +445,14 @@ function TaskSubTaskForm(props: Props) {
                   </div>
                   <div className="flex gap-3 justify-end mt-3">
                     <Button
-                      variant={"secondary"}
+                      variant={'secondary'}
                       onClick={() => setSubTaskFieldShow(false)}
                       className="py-2 px-4"
                     >
                       Cancel
                     </Button>
                     <Button
-                      variant={"primary_outline"}
+                      variant={'primary_outline'}
                       onClick={createSubTask}
                       className="py-2 px-4"
                     >
@@ -475,7 +471,7 @@ function TaskSubTaskForm(props: Props) {
             tasks?.documentAttachments.length > 0 ? (
               <TaskAttachment refetch={refetch} task={tasks}></TaskAttachment>
             ) : (
-              ""
+              ''
             )}
 
             <div className="flex items-center gap-2.5 mt-4">
@@ -510,15 +506,15 @@ function TaskSubTaskForm(props: Props) {
                   <DropdownMenuTrigger asChild>
                     <div className="text-sm font-normal cursor-pointer">
                       <Button
-                        variant={"secondary"}
+                        variant={'secondary'}
                         className="py-1.5 px-3 flex w-full gap-3 justify-start"
                       >
                         {tasks?.status
                           ? `Status: ${tasks?.status
                               .toLowerCase()
-                              .replace(/_/g, " ")
+                              .replace(/_/g, ' ')
                               .replace(/\b\w/g, (char) => char.toUpperCase())}`
-                          : "Select Status"}
+                          : 'Select Status'}
                       </Button>
                     </div>
                   </DropdownMenuTrigger>
@@ -533,14 +529,14 @@ function TaskSubTaskForm(props: Props) {
                         >
                           {status
                             .toLowerCase()
-                            .replace(/_/g, " ")
+                            .replace(/_/g, ' ')
                             .replace(/\b\w/g, (char) => char.toUpperCase())}
                           <CheckIcon
                             className={cn(
-                              "ml-auto h-4 w-4",
+                              'ml-auto h-4 w-4',
                               status === tasks?.status
-                                ? "opacity-100"
-                                : "opacity-0"
+                                ? 'opacity-100'
+                                : 'opacity-0',
                             )}
                           />
                         </div>
@@ -553,7 +549,7 @@ function TaskSubTaskForm(props: Props) {
                 <Popover>
                   <PopoverTrigger className="w-full">
                     <Button
-                      variant={"secondary"}
+                      variant={'secondary'}
                       className="py-1.5 px-3 flex w-full gap-3 justify-start"
                     >
                       <img src={Users} />
@@ -572,20 +568,20 @@ function TaskSubTaskForm(props: Props) {
                               key={index}
                               className={`flex items-center p-1 my-1 gap-4 hover:bg-slate-100 rounded-md ${
                                 tasks?.assignedUsers.some(
-                                  (u) => u.user.userId == data.user.userId
+                                  (u) => u.user.userId === data.user.userId,
                                 )
-                                  ? "bg-slate-100/80"
-                                  : ""
+                                  ? 'bg-slate-100/80'
+                                  : ''
                               }`}
                               onClick={() => {
                                 tasks?.assignedUsers.some(
-                                  (u) => u.user.userId == data.user.userId
+                                  (u) => u.user.userId === data.user.userId,
                                 )
                                   ? removeMembers(
                                       tasks?.assignedUsers.find(
                                         (id) =>
-                                          id.user.userId == data.user.userId
-                                      )?.taskAssignUsersId ?? ""
+                                          id.user.userId === data.user.userId,
+                                      )?.taskAssignUsersId ?? '',
                                     )
                                   : submitMembers(data);
                               }}
@@ -604,12 +600,12 @@ function TaskSubTaskForm(props: Props) {
                               </div>
                               <CheckIcon
                                 className={cn(
-                                  "ml-auto h-4 w-4",
+                                  'ml-auto h-4 w-4',
                                   member.some(
-                                    (u) => u.userId == data.user.userId
+                                    (u) => u.userId === data.user.userId,
                                   )
-                                    ? "opacity-100"
-                                    : "opacity-0"
+                                    ? 'opacity-100'
+                                    : 'opacity-0',
                                 )}
                               />
                             </div>
@@ -629,7 +625,7 @@ function TaskSubTaskForm(props: Props) {
                   multiple
                 />
                 <Button
-                  variant={"secondary"}
+                  variant={'secondary'}
                   className="py-1.5 px-3 w-full"
                   onClick={() => fileInput.current?.click()}
                   isLoading={attachmentUploading}
@@ -645,7 +641,7 @@ function TaskSubTaskForm(props: Props) {
                 <Popover>
                   <PopoverTrigger className="w-full">
                     <Button
-                      variant={"secondary"}
+                      variant={'secondary'}
                       className="py-1.5 px-3 w-full"
                       isLoading={attachmentUploading}
                       disabled={attachmentUploading}
@@ -653,7 +649,7 @@ function TaskSubTaskForm(props: Props) {
                       <div className="flex w-full gap-3 justify-start">
                         <img src={CalendarIcon} className="w-3.5" />
                         <div>
-                          Start date{" "}
+                          Start date{' '}
                           <span className="text-red-500 text-sm">*</span>
                         </div>
                         <div className="text-gray-400 text-sm">
@@ -665,12 +661,12 @@ function TaskSubTaskForm(props: Props) {
                   <PopoverContent className="p-0">
                     <Calendar
                       mode="single"
-                      selected={new Date(taskFormik.values.startDate ?? "")}
+                      selected={new Date(taskFormik.values.startDate ?? '')}
                       onSelect={(e) => {
                         {
                           taskFormik.setFieldValue(
-                            "startDate",
-                            e ? e : undefined
+                            'startDate',
+                            e ? e : undefined,
                           );
                         }
                       }}
@@ -688,13 +684,13 @@ function TaskSubTaskForm(props: Props) {
               <div className="mt-2">
                 <div
                   className={`py-1.5 px-3 flex w-full gap-3 rounded-md justify-start font-semibold ${
-                    tasks?.flag == "Green"
-                      ? "bg-green-500/60"
-                      : tasks?.flag == "Red"
-                      ? "bg-red-500/60"
-                      : tasks?.flag == "Orange"
-                      ? "bg-primary-500/60"
-                      : ""
+                    tasks?.flag === 'Green'
+                      ? 'bg-green-500/60'
+                      : tasks?.flag === 'Red'
+                        ? 'bg-red-500/60'
+                        : tasks?.flag === 'Orange'
+                          ? 'bg-primary-500/60'
+                          : ''
                   }`}
                 >
                   <img src={Tag} className="w-3.5" />
@@ -703,11 +699,11 @@ function TaskSubTaskForm(props: Props) {
               </div>
               <div className="mt-2">
                 <Button
-                  variant={"secondary"}
+                  variant={'secondary'}
                   className="py-1.5 px-3 flex w-full gap-3 justify-between"
                   onClick={() => {
                     milestoneHandlechange(
-                      !milestoneFormik.values.milestoneIndicator
+                      !milestoneFormik.values.milestoneIndicator,
                     );
                   }}
                 >
@@ -741,13 +737,13 @@ function TaskSubTaskForm(props: Props) {
                         <div className="text-sm  text-gray-300">
                           {milestoneFormik.values.dueDate
                             ? dateFormater(
-                                new Date(milestoneFormik.values.dueDate)
+                                new Date(milestoneFormik.values.dueDate),
                               )
-                            : "Select date"}
+                            : 'Select date'}
                           <ErrorMessage>
                             {!milestoneFormik.values.dueDate &&
                               milestoneFormik.values.milestoneIndicator &&
-                              "Please select due date"}
+                              'Please select due date'}
                           </ErrorMessage>
                         </div>
                       </PopoverTrigger>
@@ -755,13 +751,13 @@ function TaskSubTaskForm(props: Props) {
                         <Calendar
                           mode="single"
                           selected={
-                            new Date(milestoneFormik.values.dueDate ?? "")
+                            new Date(milestoneFormik.values.dueDate ?? '')
                           }
                           onDayBlur={milestoneFormik.submitForm}
                           onSelect={(e) => {
                             milestoneFormik.setFieldValue(
-                              "dueDate",
-                              e ? new Date(e) : undefined
+                              'dueDate',
+                              e ? new Date(e) : undefined,
                             );
                           }}
                           className="rounded-md border"
@@ -798,7 +794,7 @@ function TaskSubTaskForm(props: Props) {
                   <div className="flex flex-col">
                     <div className="flex gap-5">
                       <div className="text-xs font-medium text-gray-400">
-                        Duration:{" "}
+                        Duration:{' '}
                         <span className="text-red-500 text-sm">*</span>
                       </div>
                       <div className="flex items-center justify-center relative">
@@ -814,7 +810,7 @@ function TaskSubTaskForm(props: Props) {
                             <TooltipContent className="z-50 bg-white p-2 rounded-md shadow-md">
                               <div>
                                 <p>
-                                  Enter the duration in days, using decimals if{" "}
+                                  Enter the duration in days, using decimals if{' '}
                                   <br />
                                   needed. For example, you can input 0.5 for
                                   half
@@ -849,7 +845,7 @@ function TaskSubTaskForm(props: Props) {
                       </div>
                       {!(tasks?.milestoneIndicator && tasks?.dueDate) && (
                         <Button
-                          variant={"ghost"}
+                          variant={'ghost'}
                           onClick={() => setTaskDurationField((prev) => !prev)}
                         >
                           <img src={Edit} className="w-2.5 h-2.5" />
@@ -882,13 +878,13 @@ function TaskSubTaskForm(props: Props) {
                     <div className="flex items-center">
                       <div className="text-sm  text-gray-300">
                         {tasks?.completionPecentage ?? 0}%
-                      </div>{" "}
+                      </div>{' '}
                       {tasks &&
                         tasks.subtasks?.length === 0 &&
                         !(tasks?.milestoneIndicator && tasks?.dueDate) && (
                           <div>
                             <Button
-                              variant={"none"}
+                              variant={'none'}
                               onClick={() =>
                                 setTaskProgressField((prev) => !prev)
                               }
@@ -908,7 +904,7 @@ function TaskSubTaskForm(props: Props) {
           {taskId && (
             <div>
               <Button
-                variant={"destructive"}
+                variant={'destructive'}
                 onClick={() => {
                   props.close();
                 }}
@@ -919,7 +915,7 @@ function TaskSubTaskForm(props: Props) {
           )}
           <div>
             <Button
-              variant={"primary"}
+              variant={'primary'}
               onClick={() => {
                 props.close();
                 taskFormik.submitForm();

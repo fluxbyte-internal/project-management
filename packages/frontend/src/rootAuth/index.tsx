@@ -1,5 +1,6 @@
-import useRootAuthMutation from "@/api/mutation/useRootAuthMutation";
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import useRootAuthMutation from '@/api/mutation/useRootAuthMutation';
+
 interface RootCredState {
   username: string;
   password: string;
@@ -10,12 +11,12 @@ type Props = {
 };
 function RootAuth(props: Props) {
   const [RootCred, setRootCred] = useState<RootCredState>({
-    username: "",
-    password: "",
+    password: '',
+    username: '',
   });
   const rootAuth = useRootAuthMutation();
   const handleInputChange = (
-    e: React.ChangeEvent<{ name: string; value: string }>
+    e: React.ChangeEvent<{ name: string; value: string }>,
   ) => {
     const { name, value } = e.target;
 
@@ -26,11 +27,11 @@ function RootAuth(props: Props) {
   };
   const handleSubmit = () => {
     rootAuth.mutate(RootCred, {
-      onSuccess() {
-        props.allow(true);
-      },
       onError() {
         props.notfound(true);
+      },
+      onSuccess() {
+        props.allow(true);
       },
     });
   };

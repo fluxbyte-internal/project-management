@@ -1,10 +1,10 @@
-import { requestURLs } from "@/Environment";
-import ApiRequest from "@/api/ApiRequest";
-import { useEffect } from "react";
+import { useEffect } from 'react';
+import { requestURLs } from '@/Environment';
+import ApiRequest from '@/api/ApiRequest';
 
 function Test() {
   useEffect(() => {
-    const token = localStorage.getItem("Token");
+    const token = localStorage.getItem('Token');
     try {
       if (token) {
         ApiRequest.get(requestURLs.me);

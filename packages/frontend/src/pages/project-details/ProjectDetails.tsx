@@ -1,11 +1,11 @@
-import SideBar from "@/components/layout/SideBar";
-import { useState } from "react";
-import Cloudy from "../../assets/svg/cloudy.svg";
-import Stormy from "../../assets/svg/stormy.svg";
-import Sunny from "../../assets/svg/sunny.svg";
-import Rainy from "../../assets/svg/Rainy.svg";
-import useProjectDetail from "../../api/query/useProjectDetailQuery";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import Cloudy from '../../assets/svg/cloudy.svg';
+import Stormy from '../../assets/svg/stormy.svg';
+import Sunny from '../../assets/svg/sunny.svg';
+import Rainy from '../../assets/svg/Rainy.svg';
+import useProjectDetail from '../../api/query/useProjectDetailQuery';
+import SideBar from '@/components/layout/SideBar';
 // import ClockProjectDetail from "../../assets/svg/ClockProjectDetail.svg";
 
 // import InfoCircle from "../../assets/svg/Info circle.svg";
@@ -16,11 +16,11 @@ import { useNavigate, useParams } from "react-router-dom";
 // } from "@/components/ui/tooltip";
 // import { Tooltip } from "@radix-ui/react-tooltip";
 // import dateFormater from "@/helperFuntions/dateFormater";
-import Loader from "@/components/common/Loader";
-import CreateProjectNoPopUpForm from "@/components/project/CreateProjectNoPopupForm";
-import { Project } from "@/api/query/useProjectQuery";
-import { useUser } from "@/hooks/useUser";
-import dateFormater from "@/helperFuntions/dateFormater";
+import Loader from '@/components/common/Loader';
+import CreateProjectNoPopUpForm from '@/components/project/CreateProjectNoPopupForm';
+import { Project } from '@/api/query/useProjectQuery';
+import { useUser } from '@/hooks/useUser';
+import dateFormater from '@/helperFuntions/dateFormater';
 
 function ProjectDetails() {
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
@@ -36,56 +36,56 @@ function ProjectDetails() {
 
   const HandleStatus = () => {
     switch (projectDetailQuery.data?.data.data.status) {
-    case "NOT_STARTED":
-      return "Not Started";
-    case "ACTIVE":
-      return "Active";
-    case "ON_HOLD":
-      return "On Hold";
-    case "CLOSED":
-      return "Closed";
-    default:
-      return "Not Started";
+      case 'NOT_STARTED':
+        return 'Not Started';
+      case 'ACTIVE':
+        return 'Active';
+      case 'ON_HOLD':
+        return 'On Hold';
+      case 'CLOSED':
+        return 'Closed';
+      default:
+        return 'Not Started';
     }
   };
 
   const HandleOverallTrack = () => {
     switch (projectDetailQuery.data?.data.data.overallTrack) {
-    case "STORMY":
-      return <img src={Stormy} className="h-full w-full" />;
-    case "CLOUDY":
-      return <img src={Cloudy} className="h-full w-full" />;
-    case "SUNNY":
-      return <img src={Sunny} className="h-full w-full" />;
-    case "RAINY":
-      return <img src={Rainy} className="h-full w-full" />;
+      case 'STORMY':
+        return <img src={Stormy} className="h-full w-full" />;
+      case 'CLOUDY':
+        return <img src={Cloudy} className="h-full w-full" />;
+      case 'SUNNY':
+        return <img src={Sunny} className="h-full w-full" />;
+      case 'RAINY':
+        return <img src={Rainy} className="h-full w-full" />;
 
-    default:
-      return <img src={Sunny} className="h-full w-full" />;
+      default:
+        return <img src={Sunny} className="h-full w-full" />;
     }
   };
 
   const handleProjectClick = () => {
-    navigate("/projects");
+    navigate('/projects');
   };
 
   const verification = () => {
-    if (user?.userOrganisation[0].role === "ADMINISTRATOR") {
+    if (user?.userOrganisation[0].role === 'ADMINISTRATOR') {
       return true;
-    } else {
-      const projectMenager =
-        projectDetailQuery.data?.data.data.assignedUsers.filter((item) => {
-          if (item.user.userOrganisation[0].role === "PROJECT_MANAGER") {
-            return item;
-          }
-        });
-      const manager = projectMenager?.find(
-        (manager) => manager?.user.userId === user?.userId
-      );
-      if (manager?.user.userId) {
-        return true;
-      }
     }
+    const projectMenager =
+      projectDetailQuery.data?.data.data.assignedUsers.filter((item) => {
+        if (item.user.userOrganisation[0].role === 'PROJECT_MANAGER') {
+          return item;
+        }
+      });
+    const manager = projectMenager?.find(
+      (manager) => manager?.user.userId === user?.userId,
+    );
+    if (manager?.user.userId) {
+      return true;
+    }
+
     return false;
   };
   const currentUserIsAdmin = verification();
@@ -102,7 +102,7 @@ function ProjectDetails() {
           />
           <div
             className={`mt-14 overflow-auto ${
-              isSidebarExpanded ? "ml-64" : "ml-4"
+              isSidebarExpanded ? 'ml-64' : 'ml-4'
             }`}
           >
             <div className="sm:px-10 px-3">
@@ -152,16 +152,19 @@ function ProjectDetails() {
                   <div className="ml-auto text-sm text-gray-400 font-semibold">
                     {projectDetailQuery.data?.data.data.actualEndDate && (
                       <div>
-                      Actual end date: &nbsp;
-                        { dateFormater(new
-                        Date(projectDetailQuery.data?.data.data.actualEndDate))}
+                        Actual end date: &nbsp;
+                        {dateFormater(
+                          new Date(
+                            projectDetailQuery.data?.data.data.actualEndDate,
+                          ),
+                        )}
                       </div>
                     )}
                   </div>
                 </div>
                 <div className="my-4 border border-[#E2E8F0] rounded-lg sm:px-8 px-4 py-6">
                   <CreateProjectNoPopUpForm
-                    viewOnly={currentUserIsAdmin ? false : true}
+                    viewOnly={!currentUserIsAdmin}
                     refetch={projectDetailQuery.refetch}
                     editData={
                       projectDetailQuery.data?.data.data as unknown as Project

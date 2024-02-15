@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
-import * as echarts from "echarts";
+import React, { useEffect, useRef } from 'react';
+import * as echarts from 'echarts';
 
 export type BarChartPropsType = {
   chartData: { value: number; itemStyle: { color: string } }[];
@@ -14,50 +14,50 @@ const BarChart: React.FC<BarChartProps> = ({ chartProps }) => {
   useEffect(() => {
     const myChart = echarts.init(chartref.current as HTMLDivElement);
     const option: echarts.EChartsOption = {
-      title: {
-        text: chartProps?.title,
-        textStyle: { color: "#000000" },
-        left: "center",
-      },
-      tooltip: {
-        trigger: "axis",
-        axisPointer: {
-          type: "shadow",
-        },
-      },
       grid: {
-        top: 80,
         bottom: 30,
-      },
-      xAxis: {
-        type: "value",
-        position: "top",
-        splitLine: {
-          lineStyle: {
-            type: "dashed",
-          },
-        },
-      },
-      yAxis: {
-        type: "category",
-        axisLine: { show: false },
-        axisLabel: { show: false },
-        axisTick: { show: false },
-        splitLine: { show: false },
-        data: ["Red", "Green", "Orange"],
+        top: 80,
       },
       series: [
         {
-          name: "Delay",
-          type: "bar",
-          stack: "Total",
-          label: {
-            show: true,
-            formatter: "{b}",
-          },
           data: chartProps?.chartData,
+          label: {
+            formatter: '{b}',
+            show: true,
+          },
+          name: 'Delay',
+          stack: 'Total',
+          type: 'bar',
         },
       ],
+      title: {
+        left: 'center',
+        text: chartProps?.title,
+        textStyle: { color: '#000000' },
+      },
+      tooltip: {
+        axisPointer: {
+          type: 'shadow',
+        },
+        trigger: 'axis',
+      },
+      xAxis: {
+        position: 'top',
+        splitLine: {
+          lineStyle: {
+            type: 'dashed',
+          },
+        },
+        type: 'value',
+      },
+      yAxis: {
+        axisLabel: { show: false },
+        axisLine: { show: false },
+        axisTick: { show: false },
+        data: ['Red', 'Green', 'Orange'],
+        splitLine: { show: false },
+        type: 'category',
+      },
     };
 
     myChart.setOption(option);
@@ -67,6 +67,6 @@ const BarChart: React.FC<BarChartProps> = ({ chartProps }) => {
     };
   }, [chartProps]);
 
-  return <div ref={chartref} style={{ width: "100%", height: "500px" }} />;
+  return <div ref={chartref} style={{ height: '500px', width: '100%' }} />;
 };
 export default BarChart;

@@ -1,31 +1,32 @@
-import { Task } from "@/api/mutation/useTaskCreateMutation";
-import useAllTaskQuery from "@/api/query/useAllTaskQuery";
-import PercentageCircle from "@/components/shared/PercentageCircle";
-import Table, { ColumeDef } from "@/components/shared/Table";
-import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
-import { Button } from "@/components/ui/button";
-import dateFormater from "@/helperFuntions/dateFormater";
-import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
-import NoTask from "./NoTask";
-import Dialog from "@/components/common/Dialog";
-import useRemoveTaskMutation from "@/api/mutation/useTaskRemove";
-import TrashCan from "../../assets/svg/TrashCan.svg";
-import Edit from "../../assets/svg/EditPen.svg";
-import { toast } from "react-toastify";
+import { useEffect, useState } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { Settings } from 'lucide-react';
+import TrashCan from '../../assets/svg/TrashCan.svg';
+import Edit from '../../assets/svg/EditPen.svg';
+import DimondIcon from '../../assets/svg/DiamondIcon.svg';
+import DownArrowIcon from '../../assets/svg/DownArrow.svg';
+import NoTask from './NoTask';
+import { Task } from '@/api/mutation/useTaskCreateMutation';
+import useAllTaskQuery from '@/api/query/useAllTaskQuery';
+import PercentageCircle from '@/components/shared/PercentageCircle';
+import Table, { ColumeDef } from '@/components/shared/Table';
+import TaskSubTaskForm from '@/components/tasks/taskSubTaskForm';
+import { Button } from '@/components/ui/button';
+import dateFormater from '@/helperFuntions/dateFormater';
+import Dialog from '@/components/common/Dialog';
+import useRemoveTaskMutation from '@/api/mutation/useTaskRemove';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuTrigger,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
-import { Settings } from "lucide-react";
-import DimondIcon from "../../assets/svg/DiamondIcon.svg";
-import DownArrowIcon from "../../assets/svg/DownArrow.svg";
-import UserAvatar from "@/components/ui/userAvatar";
-import TaskFilter from "@/components/views/TaskFilter";
-import { FIELDS } from "@/api/types/enums";
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import UserAvatar from '@/components/ui/userAvatar';
+import TaskFilter from '@/components/views/TaskFilter';
+import { FIELDS } from '@/api/types/enums';
+
 function Tasks() {
   const [taskData, setTaskData] = useState<Task[]>();
   const [filterData, setFilterData] = useState<Task[] | undefined>(taskData);
@@ -34,7 +35,7 @@ function Tasks() {
   const { projectId } = useParams();
   const allTaskQuery = useAllTaskQuery(projectId);
   const [showConfirmDelete, setShowConfirmDelete] = useState<string | null>(
-    null
+    null,
   );
   const close = () => {
     setTaskId(undefined);
@@ -44,8 +45,8 @@ function Tasks() {
 
   const columnDef: ColumeDef[] = [
     {
-      key: "dropdown",
-      header: " ",
+      header: ' ',
+      key: 'dropdown',
       onCellRender: (item: Task) => (
         <div>
           {item.subtasks.length > 0 && (
@@ -57,31 +58,30 @@ function Tasks() {
       ),
     },
     {
-      key: "flag",
-      header: "Flag",
-      sorting: true,
+      header: 'Flag',
+      key: 'flag',
       onCellRender: (item: Task) => (
         <div
           className={`h-4 w-4 rounded-full ${
-            item?.flag == "Green"
-              ? "bg-green-500/60 border border-green-500"
-              : item?.flag == "Red"
-              ? "bg-red-500/60 border border-red-500/60"
-              : item?.flag == "Orange"
-              ? "bg-primary-500/60 border border-primary-500/60"
-              : ""
+            item?.flag === 'Green'
+              ? 'bg-green-500/60 border border-green-500'
+              : item?.flag === 'Red'
+                ? 'bg-red-500/60 border border-red-500/60'
+                : item?.flag === 'Orange'
+                  ? 'bg-primary-500/60 border border-primary-500/60'
+                  : ''
           }`}
         ></div>
       ),
+      sorting: true,
     },
     {
-      key: "taskName",
-      header: "Task Name",
-      sorting: true,
+      header: 'Task Name',
+      key: 'taskName',
       onCellRender: (item: Task) => (
         <div
           className={`flex gap-2 items-center ${
-            item.subtasks.length > 0 ? "cursor-pointer" : "cursor-not-allowed"
+            item.subtasks.length > 0 ? 'cursor-pointer' : 'cursor-not-allowed'
           }`}
         >
           <div>{item.taskName}</div>
@@ -92,17 +92,18 @@ function Tasks() {
           )}
         </div>
       ),
+      sorting: true,
     },
     {
-      key: "status",
-      header: "Status",
+      header: 'Status',
+      key: 'status',
       onCellRender: (item: Task) => (
         <>
           <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
             <div className="text-cyan-700 text-xs font-medium leading-tight">
               {item.status
                 .toLowerCase()
-                .replace(/_/g, " ")
+                .replace(/_/g, ' ')
                 .replace(/\b\w/g, (char) => char.toUpperCase())}
             </div>
           </div>
@@ -110,28 +111,28 @@ function Tasks() {
       ),
     },
     {
-      key: "startDate",
-      header: "Start Date",
-      sorting: true,
+      header: 'Start Date',
+      key: 'startDate',
       onCellRender: (item: Task) => (
         <>{dateFormater(new Date(item.startDate))}</>
       ),
+      sorting: true,
     },
     {
-      key: "actualEndDate",
-      header: "End Date",
+      header: 'End Date',
+      key: 'actualEndDate',
       onCellRender: (item: Task) => (
         <>{dateFormater(new Date(item.dueDate ?? item.endDate))}</>
       ),
     },
     {
-      key: "duration",
-      header: "Duration",
+      header: 'Duration',
+      key: 'duration',
       onCellRender: (item: Task) => <>{item.duration ?? 0}</>,
     },
     {
-      key: "assigned",
-      header: "Assigned to",
+      header: 'Assigned to',
+      key: 'assigned',
       onCellRender: (item: Task) => (
         <div className="w-full my-3">
           <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
@@ -153,21 +154,21 @@ function Tasks() {
                 {`${item.assignedUsers.length - 3}+`}
               </div>
             )}
-            {item.assignedUsers.length <= 0 ? "N/A" : ""}
+            {item.assignedUsers.length <= 0 ? 'N/A' : ''}
           </div>
         </div>
       ),
     },
     {
-      key: "progress",
-      header: "Progress",
+      header: 'Progress',
+      key: 'progress',
       onCellRender: (item: Task) => (
         <PercentageCircle percentage={item.completionPecentage ?? 0} />
       ),
     },
     {
-      key: "Action",
-      header: "Action",
+      header: 'Action',
+      key: 'Action',
       onCellRender: (item: Task) => (
         <>
           <DropdownMenu>
@@ -202,25 +203,21 @@ function Tasks() {
       setTaskData(setData(allTaskQuery.data?.data.data));
       setFilterData(setData(allTaskQuery.data?.data.data));
     }
-   
   }, [allTaskQuery.data?.data.data]);
 
   useEffect(() => {
-    if (searchParams.get("milestones")) {
-      setFilterData(
-         taskData?.filter((d) => d.milestoneIndicator)
-      );
+    if (searchParams.get('milestones')) {
+      setFilterData(taskData?.filter((d) => d.milestoneIndicator));
     }
-    if (searchParams.get("status")) {
+    if (searchParams.get('status')) {
       setFilterData(
         findParentTasksWithDoneStatus(
           taskData ?? [],
-          searchParams.get("status") ?? ""
-        )
+          searchParams.get('status') ?? '',
+        ),
       );
     }
-  }, [taskData])
-  
+  }, [taskData]);
 
   useEffect(() => {
     allTaskQuery.refetch();
@@ -232,7 +229,7 @@ function Tasks() {
     if (data) {
       data.forEach((task) => {
         task.subtasks = data.filter(
-          (subtask) => subtask.parentTaskId === task.taskId
+          (subtask) => subtask.parentTaskId === task.taskId,
         );
       });
       const topLevelTasks = data.filter((task) => task.parentTaskId === null);
@@ -244,45 +241,44 @@ function Tasks() {
     const convertedTask: Task & { tasks?: Task[] } = originalTask;
     if (originalTask.subtasks) {
       convertedTask.tasks = originalTask.subtasks.map((subtask) =>
-        convertTask(subtask)
+        convertTask(subtask),
       );
     }
 
     return convertedTask;
   };
 
-  
   const checkTaskStatus = (task: Task, status: string) => {
-    if(task.subtasks && task.subtasks.length > 0){
-      const index = task.subtasks.findIndex((subtask)=>{
+    if (task.subtasks && task.subtasks.length > 0) {
+      const index = task.subtasks.findIndex((subtask) => {
         return checkTaskStatus(subtask, status);
-      })
-      return index !== -1
+      });
+      return index !== -1;
     }
-    return task.status === status
-  }
+    return task.status === status;
+  };
 
   function findParentTasksWithDoneStatus(tasks: Task[], status: string) {
     return tasks.filter((task) => {
-      return checkTaskStatus(task,status);
+      return checkTaskStatus(task, status);
     });
   }
 
   const createTask = () => {
-    setTaskId("");
+    setTaskId('');
     setTaskCreate(true);
   };
   const removeTaskMutation = useRemoveTaskMutation();
   const removeTask = () => {
     if (showConfirmDelete) {
       removeTaskMutation.mutate(showConfirmDelete, {
+        onError(error) {
+          toast.error(error.response?.data.message);
+        },
         onSuccess(data) {
           setShowConfirmDelete(null);
           allTaskQuery.refetch();
           toast.success(data.data.message);
-        },
-        onError(error) {
-          toast.error(error.response?.data.message);
         },
       });
     }
@@ -326,7 +322,7 @@ function Tasks() {
                 tasks={taskData}
               />
               <div>
-                <Button variant={"primary"} size={"sm"} onClick={createTask}>
+                <Button variant={'primary'} size={'sm'} onClick={createTask}>
                   Add Task
                 </Button>
               </div>
@@ -344,7 +340,7 @@ function Tasks() {
       ) : (
         projectId &&
         taskData &&
-        taskData.length == 0 && (
+        taskData.length === 0 && (
           <NoTask
             projectId={projectId}
             refetch={() => allTaskQuery.refetch()}
@@ -364,7 +360,7 @@ function Tasks() {
           to delete ?
           <div className="flex gap-2 ml-auto">
             <Button
-              variant={"outline"}
+              variant={'outline'}
               isLoading={removeTaskMutation.isPending}
               disabled={removeTaskMutation.isPending}
               onClick={() => setShowConfirmDelete(null)}
@@ -372,7 +368,7 @@ function Tasks() {
               Cancel
             </Button>
             <Button
-              variant={"primary"}
+              variant={'primary'}
               onClick={removeTask}
               isLoading={removeTaskMutation.isPending}
               disabled={removeTaskMutation.isPending}
