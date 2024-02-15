@@ -15,7 +15,7 @@ import { OtpService } from "../services/userOtp.services.js";
 import { generateOTP } from "../utils/otpHelper.js";
 import { AwsUploadService } from "../services/aws.services.js";
 import { compareEncryption, encrypt } from "../utils/encryption.js";
-import { OrgStatusEnum, UserStatusEnum, UserProviderTypeEnum } from "@prisma/client";
+import { OrgStatusEnum, UserStatusEnum, UserProviderTypeEnum, UserRoleEnum } from "@prisma/client";
 
 export const me = async (req: express.Request, res: express.Response) => {
   const prisma = await getClientByTenantId(req.tenantId);
@@ -34,8 +34,13 @@ export const me = async (req: express.Request, res: express.Response) => {
     },
   });
 
+  let errorMessage = "Your account is blocked, please contact your administrator";
+  if (user.userOrganisation[0]?.role === UserRoleEnum.ADMINISTRATOR) {
+    errorMessage = "Your account is blocked, please contact our support at support@projectchef.io";
+  }
+
   if (user?.status === UserStatusEnum.INACTIVE) {
-    throw new BadRequestError('User is DEACTIVE');
+    throw new BadRequestError(errorMessage);
   }
 
   if (user.userOrganisation.length > 0) {

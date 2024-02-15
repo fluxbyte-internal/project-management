@@ -1,5 +1,5 @@
 import express from "express";
-import { OrgStatusEnum, UserProviderTypeEnum, UserStatusEnum } from "@prisma/client";
+import { OrgStatusEnum, UserProviderTypeEnum, UserRoleEnum, UserStatusEnum } from "@prisma/client";
 import { getClientByTenantId } from "../config/db.js";
 import { settings } from "../config/settings.js";
 import { createJwtToken, verifyJwtToken } from "../utils/jwtHelper.js";
@@ -122,8 +122,13 @@ export const login = async (req: express.Request, res: express.Response) => {
       provider: true,
     },
   });
+  let errorMessage = "Your account is blocked, please contact your administrator";
+  if (user.userOrganisation[0]?.role === UserRoleEnum.ADMINISTRATOR) {
+    errorMessage = "Your account is blocked, please contact our support at support@projectchef.io";
+  }
+
   if (user?.status === UserStatusEnum.INACTIVE) {
-    throw new BadRequestError('User is DEACTIVE');
+    throw new BadRequestError(errorMessage);
   }
   
   if (user.userOrganisation.length > 0) {

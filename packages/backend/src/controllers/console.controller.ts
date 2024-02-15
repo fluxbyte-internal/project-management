@@ -48,8 +48,10 @@ export const me = async (req: express.Request, res: express.Response) => {
       deletedAt: null,
     },
   });
+  
+  let errorMessage = "Your account is blocked, please contact your super admin";
   if (user?.status === ConsoleStatusEnum.INACTIVE) {
-    throw new BadRequestError("User is DEACTIVE");
+    throw new BadRequestError(errorMessage);
   }
   const { password, ...infoWithoutPassword } = user;
   return new SuccessResponse(
@@ -68,8 +70,9 @@ export const loginConsole = async (
   const user = await prisma.consoleUser.findUnique({
     where: { email, deletedAt: null, },
   });
+  let errorMessage = "Your account is blocked, please contact your super admin";
   if (user?.status === ConsoleStatusEnum.INACTIVE) {
-    throw new BadRequestError("User is DEACTIVE");
+    throw new BadRequestError(errorMessage);
   }
   if (user && (await compareEncryption(password, user.password))) {
     const tokenPayload = {
