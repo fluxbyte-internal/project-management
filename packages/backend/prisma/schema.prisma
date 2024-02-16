@@ -115,7 +115,7 @@ model User {
   createdProject Project[] @relation("createdByUser")
   updatedProject Project[] @relation("updatedByUser")
 
-  provider UserProvider[]
+  provider UserProvider?
 
   createdTask         Task[]            @relation("createdByUser")
   updatedTask         Task[]            @relation("updatedByUser")
@@ -137,7 +137,7 @@ model User {
 
 model UserProvider {
   userProviderId String @id @default(uuid()) @map("user_provider_id")
-  userId         String @map("user_id")
+  userId         String @unique @map("user_id")
   user           User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   idOrPassword String               @map("id_or_password")
@@ -333,7 +333,6 @@ model Task {
   deletedAt DateTime? @map("deleted_at")
 
   @@index([taskId, projectId])
-  @@unique([projectId, taskName])
 }
 
 model TaskAssignUsers {
