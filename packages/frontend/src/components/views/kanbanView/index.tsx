@@ -13,7 +13,7 @@ import { createRoot } from "react-dom/client";
 import TaskShellView from "./taskShellView";
 import { TaskStatusEnumValue } from "@backend/src/schemas/enums";
 import { toast } from "react-toastify";
-import TaskFilter from "../TaskFilter";
+import TaskFilter, { TaskFilterRef } from "../TaskFilter";
 import RulesSetups from "./rulesSetups/rulesSetups";
 import { KanbanColumnType } from "@/api/mutation/useKanbanCreateColumn";
 import { Button } from "@/components/ui/button";
@@ -43,10 +43,10 @@ export type ExtendedKanbanDataSource = KanbanDataSource & {
   mileStone: boolean;
 };
 function KanbanView(
-  props: (HTMLAttributes<Element> & KanbanProps) | undefined
+  props: (HTMLAttributes<Element> & KanbanProps) | undefined,
 ) {
   const [dialogRendered, setDialogRendered] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [isTaskShow, setIsTaskShow] = useState<boolean>(false);
   const childRef = useRef<Kanban>(null);
@@ -77,6 +77,7 @@ function KanbanView(
     setIsTaskShow(false);
     allTasks.refetch();
   };
+  const filterRef = useRef<TaskFilterRef|null>(null);
 
   useEffect(() => {
     refetch();
@@ -85,10 +86,11 @@ function KanbanView(
   useEffect(() => {
     if (allKanbanColumn.data?.data.data) {
       allKanbanColumn.data?.data.data.sort(
-        (a, b) => (a.percentage ?? 0) - (b.percentage ?? 0)
+        (a, b) => (a.percentage ?? 0) - (b.percentage ?? 0),
       );
       handleColumn(allKanbanColumn.data?.data.data);
     }
+    filterRef.current?.callFilter();
   }, [allKanbanColumn.data?.data.data]);
   useEffect(() => {
     setDataSource([]);
@@ -133,7 +135,7 @@ function KanbanView(
           allTasks.refetch();
           toast.error(error.response?.data.message);
         },
-      }
+      },
     );
   };
 
@@ -200,7 +202,7 @@ function KanbanView(
   };
   const onTaskRender = (
     taskElement: HTMLElement,
-    data: ExtendedKanbanDataSource
+    data: ExtendedKanbanDataSource,
   ) => {
     const root = createRoot(taskElement);
     root.render(<TaskShellView taskData={data} />);
@@ -211,18 +213,18 @@ function KanbanView(
   }) => {
     const className = "";
     switch (data.dataField) {
-    case TaskStatusEnumValue.PLANNED:
-      className.concat("!bg-rose-500/20");
-      break;
-    case TaskStatusEnumValue.TODO:
-      className.concat("!bg-slate-500/20");
-      break;
-    case TaskStatusEnumValue.IN_PROGRESS:
-      className.concat("!bg-primary-500/20");
-      break;
-    case TaskStatusEnumValue.DONE:
-      className.concat("!bg-green-500/20");
-      break;
+      case TaskStatusEnumValue.PLANNED:
+        className.concat("!bg-rose-500/20");
+        break;
+      case TaskStatusEnumValue.TODO:
+        className.concat("!bg-slate-500/20");
+        break;
+      case TaskStatusEnumValue.IN_PROGRESS:
+        className.concat("!bg-primary-500/20");
+        break;
+      case TaskStatusEnumValue.DONE:
+        className.concat("!bg-green-500/20");
+        break;
     }
     // header.classList.add(...className.split(" "));
   };
@@ -265,6 +267,7 @@ function KanbanView(
         <div className="flex flex-col h-full w-full">
           <div className="flex justify-between  w-full">
             <TaskFilter
+              ref={filterRef}
               fieldToShow={[
                 FIELDS.ASSIGNED,
                 FIELDS.DATE,

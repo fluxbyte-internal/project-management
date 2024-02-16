@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import Select, { SingleValue } from "react-select";
+import Select from "react-select";
 import {
   Popover,
   PopoverContent,
@@ -15,6 +15,8 @@ import { Task } from "@/api/mutation/useTaskCreateMutation";
 import FilterIcon from "../../assets/svg/Filter.svg";
 import { FIELDS } from "@/api/types/enums";
 import FilterResetIcon from "@/assets/svg/FilterReset.svg";
+import { useSearchParams } from "react-router-dom";
+import { forwardRef, useImperativeHandle } from "react";
 type Options = { label: string; value: string };
 
 type Filter = {
@@ -22,27 +24,18 @@ type Filter = {
   fieldToShow: FIELDS[];
   filteredData: (data: Task[] | undefined) => void;
 };
-type FilterField = {
-  assigned: SingleValue<Options> | null;
-  tasks: SingleValue<Options> | null;
-  dueSevenDays: boolean;
-  overdueDays: boolean;
-  todayDueDays: boolean;
-  date: DateRange | undefined;
-  flag: SingleValue<Options> | null;
-};
-function TaskFilter(props: Filter) {
+export type TaskFilterRef = {
+  callFilter: () => void;
+}
+const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
+  useImperativeHandle(ref, () => ({
+    callFilter() {
+      ApplyFilter();
+    },
+  }));
   const { tasks, fieldToShow } = props;
   const [popOverCLose, setPopOverCLose] = useState(false);
-  const [filter, setFilter] = useState<FilterField>({
-    assigned: null,
-    tasks: null,
-    date: undefined,
-    dueSevenDays: false,
-    overdueDays: false,
-    todayDueDays: false,
-    flag: null,
-  });
+  const [filter, setFilter] = useSearchParams();
 
   const flags: Options[] = [
     { label: "Select flag", value: "" },
@@ -71,6 +64,7 @@ function TaskFilter(props: Filter) {
     return projectManagerData;
   };
 
+
   const searchTask = (searchString: string) => {
     const tempData: Task[] = [];
     tasks?.forEach((element) => {
@@ -97,7 +91,7 @@ function TaskFilter(props: Filter) {
   const reactSelectStyle = {
     control: (
       provided: Record<string, unknown>,
-      state: { isFocused: boolean }
+      state: { isFocused: boolean },
     ) => ({
       ...provided,
       border: "1px solid #E7E7E7",
@@ -131,32 +125,36 @@ function TaskFilter(props: Filter) {
   const removeDuplicatesById = (arr: Task[]) => {
     const uniqueIds = new Set();
     return arr.filter(
-      ({ taskId }) => !uniqueIds.has(taskId) && uniqueIds.add(taskId)
+      ({ taskId }) => !uniqueIds.has(taskId) && uniqueIds.add(taskId),
     );
   };
-  const [filterApplyed, setFilterApplyed] = useState(false);
+  const [filterApplyed, setFilterApplied] = useState(false);
   const ApplyFilter = () => {
     let filteredData: Task[] | undefined = tasks;
-    if (filter && filter.flag && filter.flag.value) {
-      filteredData = filteredData?.filter(
-        (d) => d.flag === filter?.flag?.value
-      );
+    if (filter && Boolean(filter.get("flag"))) {
+      filteredData = filteredData?.filter((d) => d.flag == filter?.get("flag"));
     }
 
-    if (filter && filter.date?.from && filter.date?.to) {
+    if (
+      filter.size &&
+      Boolean(filter.get("from")) &&
+      Boolean(filter.get("to"))
+    ) {
       filteredData = filteredData?.filter((d) => {
         return (
-          new Date(d.startDate ?? "") >= (filter?.date?.from ?? new Date()) &&
-          new Date(d.startDate ?? "") <= (filter?.date?.to ?? new Date())
+          new Date(d.startDate ?? "") >=
+            new Date(filter?.get("from") ?? new Date()) &&
+          new Date(d.startDate ?? "") <=
+            new Date(filter?.get("to") ?? new Date())
         );
       });
     }
 
-    if (filter && filter.assigned && filter.assigned.value) {
+    if (filter && filter.get("assigned") && filter.get("assigned")) {
       let arr: Task[] | undefined = [];
       filteredData?.forEach((data) => {
         data.assignedUsers.forEach((u: Task["assignedUsers"][number]) => {
-          if (u.user.email === filter?.assigned?.value) {
+          if (u.user.email === filter.get("assigned")) {
             arr?.push(data);
           } else {
             arr = arr?.filter((u) => u.taskId !== data.taskId);
@@ -168,30 +166,30 @@ function TaskFilter(props: Filter) {
       }
     }
 
-    if (filter && filter.dueSevenDays) {
+    if (filter && filter.get("dueSevenDays")) {
       filteredData = filteredData?.filter((data) =>
-        isDateSevenDays(data.endDate)
+        isDateSevenDays(data.endDate),
       );
     }
 
-    if (filter && filter.overdueDays) {
+    if (filter && filter.get("overdueDays")) {
       filteredData = filteredData?.filter((data) =>
-        isOverDueDays(data.endDate)
+        isOverDueDays(data.endDate),
       );
     }
 
-    if (filter && filter.todayDueDays) {
+    if (filter && filter.get("todayDueDays")) {
       filteredData = filteredData?.filter((data) =>
-        isDueTodayDays(data.endDate)
+        isDueTodayDays(data.endDate),
       );
     }
 
-    if (filter && filter.tasks) {
+    if (filter && filter.get("tasks")) {
       let val;
-      if (filter.tasks.value === "1") {
+      if (filter.get("tasks") === "1") {
         val = filteredData?.filter((data) => !data.parentTaskId);
       }
-      if (filter.tasks.value === "2") {
+      if (filter.get("tasks") === "2") {
         val = filteredData?.filter((data) => !!data.parentTaskId);
       }
       if (val && val.length > 0) {
@@ -199,32 +197,51 @@ function TaskFilter(props: Filter) {
       }
     }
 
-    const applyFilter = Object.keys(filter).filter(
-      (key) => filter[key as keyof FilterField]
-    ).length;
+    let applyFilter = 0;
+    filter.forEach((e) => {
+      if (Boolean(e) || e !== "false") {
+        applyFilter++;
+      }
+    });
+
     if (applyFilter !== 0 && filteredData) {
-      setFilterApplyed(true);
+      setFilterApplied(true);
       filteredData = removeDuplicatesById(filteredData);
       props.filteredData(filteredData);
     } else {
       props.filteredData(tasks);
+      setFilterApplied(false);
     }
 
     setPopOverCLose(false);
   };
   const resetFilter = () => {
-    setFilterApplyed(false);
-    setFilter({
-      assigned: null,
-      tasks: null,
-      date: undefined,
-      dueSevenDays: false,
-      overdueDays: false,
-      todayDueDays: false,
-      flag: null,
-    });
+    setFilterApplied(false);
+    setFilter({});
     props.filteredData(tasks);
   };
+  const setParamFilter = (key: string, value: string) => {
+    filter.set(key, value);
+    setFilter(filter);
+    if ((value == "undefined" && !value) || value == "false") {
+      filter.delete(key);
+      setFilter(filter);
+    }
+  };
+
+  const selectedDate = () => {
+    const formDate = filter.get("from");
+    const toDate = filter.get("to");
+    const data: DateRange = { from: new Date(), to: new Date() };
+    if (Boolean(formDate) && formDate !== "undefined" && formDate !== null) {
+      data.from = new Date(formDate);
+    }
+    if (Boolean(toDate) && toDate !== "undefined" && toDate !== null) {
+      data.to = new Date(toDate);
+    }
+    return data;
+  };
+
   return (
     <div>
       <div className="flex w-full justify-between items-center gap-2">
@@ -268,12 +285,16 @@ function TaskFilter(props: Filter) {
                               <input
                                 type="checkbox"
                                 name="sevenDays"
-                                checked={filter.dueSevenDays}
+                                checked={
+                                  filter.get("dueSevenDays") == "true"
+                                    ? true
+                                    : false
+                                }
                                 onChange={(e) =>
-                                  setFilter((prev) => ({
-                                    ...prev,
-                                    dueSevenDays: e.target.checked,
-                                  }))
+                                  setParamFilter(
+                                    "dueSevenDays",
+                                    String(e.target.checked),
+                                  )
                                 }
                                 className="sr-only peer"
                               />
@@ -290,12 +311,16 @@ function TaskFilter(props: Filter) {
                               <input
                                 type="checkbox"
                                 name="dueDays"
-                                checked={filter.overdueDays}
+                                checked={
+                                  filter.get("overdueDays") == "true"
+                                    ? true
+                                    : false
+                                }
                                 onChange={(e) =>
-                                  setFilter((prev) => ({
-                                    ...prev,
-                                    overdueDays: e.target.checked,
-                                  }))
+                                  setParamFilter(
+                                    "overdueDays",
+                                    String(e.target.checked),
+                                  )
                                 }
                                 className="sr-only peer"
                               />
@@ -312,12 +337,16 @@ function TaskFilter(props: Filter) {
                               <input
                                 type="checkbox"
                                 name="todayDays"
-                                checked={filter.todayDueDays}
+                                checked={
+                                  filter.get("todayDueDays") == "true"
+                                    ? true
+                                    : false
+                                }
                                 onChange={(e) =>
-                                  setFilter((prev) => ({
-                                    ...prev,
-                                    todayDueDays: e.target.checked,
-                                  }))
+                                  setParamFilter(
+                                    "todayDueDays",
+                                    String(e.target.checked),
+                                  )
                                 }
                                 className="sr-only peer"
                               />
@@ -336,11 +365,16 @@ function TaskFilter(props: Filter) {
                               className="w-full h-10 rounded p-0 px-2"
                             >
                               <div className="flex justify-between text-base items-center w-full text-gray-950 font-normal">
-                                {filter.date
+                                {Boolean(filter.get("from")) &&
+                                Boolean(filter.get("to"))
                                   ? `${dateFormater(
-                                      filter.date.from ?? new Date()
+                                      new Date(
+                                        filter.get("from") ?? new Date(),
+                                      ),
                                     )}-
-                          ${dateFormater(filter.date.to ?? new Date())}`
+                          ${dateFormater(
+                            new Date(filter.get("to") ?? new Date()),
+                          )}`
                                   : "Select start date"}
                                 <img src={CalendarSvg} width={20} />
                               </div>
@@ -350,10 +384,15 @@ function TaskFilter(props: Filter) {
                             <div>
                               <Calendar
                                 mode="range"
-                                selected={filter.date}
-                                onSelect={(e) =>
-                                  setFilter((prev) => ({ ...prev, date: e }))
-                                }
+                                selected={selectedDate()}
+                                onSelect={(e) => {
+                                  e?.from
+                                    ? setParamFilter("from", String(e?.from))
+                                    : "",
+                                    e?.to
+                                      ? setParamFilter("to", String(e?.to))
+                                      : "";
+                                }}
                                 className="rounded-md border"
                               />
                             </div>
@@ -366,20 +405,22 @@ function TaskFilter(props: Filter) {
                         <Select
                           className="p-0 z-40"
                           value={
-                            filter.assigned || {
-                              label: "Select assigned user",
-                              value: "",
-                            }
+                            filter.get("assigned")
+                              ? {
+                                  label: filter.get("assigned"),
+                                  value: filter.get("assigned"),
+                                }
+                              : {
+                                  label: "Select assigned user",
+                                  value: "",
+                                }
                           }
                           options={assignedTask()}
                           onChange={(e) => {
                             if (e && e.value == "") {
-                              setFilter((prev) => ({
-                                ...prev,
-                                assigned: null,
-                              }));
+                              setParamFilter("assigned", "");
                             } else {
-                              setFilter((prev) => ({ ...prev, assigned: e }));
+                              setParamFilter("assigned", String(e?.value));
                             }
                           }}
                           placeholder="Select assigned user"
@@ -392,14 +433,19 @@ function TaskFilter(props: Filter) {
                         <Select
                           className="p-0 "
                           value={
-                            filter.flag || { label: "Select flag", value: "" }
+                            filter.get("flag")
+                              ? {
+                                  label: filter.get("flag"),
+                                  value: filter.get("flag"),
+                                }
+                              : { label: "Select flag", value: "" }
                           }
                           options={flags}
                           onChange={(e) => {
                             if (e && e.value == "") {
-                              setFilter((prev) => ({ ...prev, flag: null }));
+                              setParamFilter("flag", "");
                             } else {
-                              setFilter((prev) => ({ ...prev, flag: e }));
+                              setParamFilter("flag", String(e?.value));
                             }
                           }}
                           placeholder="Select flags"
@@ -411,13 +457,20 @@ function TaskFilter(props: Filter) {
                       <div className="w-full">
                         <Select
                           className="p-0 "
-                          value={filter.tasks || { label: "Both", value: "" }}
+                          value={
+                            filter.get("tasks")
+                              ? {
+                                  label: filter.get("tasks"),
+                                  value: filter.get("tasks"),
+                                }
+                              : { label: "Both", value: "" }
+                          }
                           options={taskOption}
                           onChange={(e) => {
                             if (e && e.value == "") {
-                              setFilter((prev) => ({ ...prev, tasks: null }));
+                              setParamFilter("tasks", "");
                             } else {
-                              setFilter((prev) => ({ ...prev, tasks: e }));
+                              setParamFilter("tasks", String(e?.value));
                             }
                           }}
                           placeholder="Select Task"
@@ -469,6 +522,6 @@ function TaskFilter(props: Filter) {
       </div>
     </div>
   );
-}
+});
 
 export default TaskFilter;

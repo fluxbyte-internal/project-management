@@ -12,7 +12,7 @@ import { Task } from "@/api/mutation/useTaskCreateMutation";
 import Dialog from "../../common/Dialog";
 import CrossSvg from "@/assets/svg/CrossIcon.svg";
 import { Button } from "../../ui/button";
-import TaskFilter from "../TaskFilter";
+import TaskFilter, { TaskFilterRef } from "../TaskFilter";
 import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
 import TrashCan from "@/assets/svg/TrashCan.svg";
 import Edit from "@/assets/svg/EditPen.svg";
@@ -38,7 +38,7 @@ enum BUTTON_EVENT {
 const reactSelectStyle = {
   control: (
     provided: Record<string, unknown>,
-    state: { isFocused: boolean }
+    state: { isFocused: boolean },
   ) => ({
     ...provided,
     border: "1px solid #E7E7E7",
@@ -72,20 +72,22 @@ function GanttView() {
     enabled: true,
   };
 
+  const filterRef = useRef<TaskFilterRef | null>(null);
   useEffect(() => {
     setFilterData(allTaskQuery.data?.data.data);
     ganttChart.current?.refresh();
+    filterRef.current?.callFilter();
   }, [allTaskQuery.data?.data.data, projectId]);
 
   useEffect(() => {
     if (filterData) {
       filterData.forEach((task) => {
         task.subtasks = filterData.filter(
-          (subtask) => subtask.parentTaskId === task.taskId
+          (subtask) => subtask.parentTaskId === task.taskId,
         );
       });
       const topLevelTasks = filterData.filter(
-        (task) => task.parentTaskId === null
+        (task) => task.parentTaskId === null,
       );
       const convertedData = topLevelTasks.map((task) => convertTask(task));
       convertedData.push({
@@ -97,7 +99,7 @@ function GanttView() {
       });
       setTaskData(convertedData);
     }
-  }, [filterData,filterUnit]);
+  }, [filterData, filterUnit]);
 
   const convertTask = (originalTask: Task) => {
     const convertedTask: GanttChartTask = {
@@ -120,7 +122,7 @@ function GanttView() {
 
     if (originalTask.subtasks) {
       convertedTask.tasks = originalTask.subtasks.map((subtask) =>
-        convertTask(subtask)
+        convertTask(subtask),
       );
       convertedTask.tasks.push({
         id: convertedTask.id,
@@ -131,7 +133,7 @@ function GanttView() {
 
     return convertedTask;
   };
-  
+
   const connections = (originalTask: Task) => {
     return originalTask.dependencies.map((dependence) => {
       return {
@@ -159,7 +161,7 @@ function GanttView() {
             </div>`;
         } else {
           return ReactDOMServer.renderToString(
-            <TitleHover title={item} taskId={task.id} />
+            <TitleHover title={item} taskId={task.id} />,
           );
         }
       },
@@ -197,7 +199,7 @@ function GanttView() {
                   </div>
                 )}
               </div>
-            </div>
+            </div>,
           );
           return `<div class="flex gap-1 items-center rounded-md"> ${html} </div>`;
         } else {
@@ -211,7 +213,7 @@ function GanttView() {
       formatFunction: function (item: string, task: GanttChartTask) {
         if (task.value !== "false") {
           return ReactDOMServer.renderToString(
-            <PercentageCircle percentage={item} />
+            <PercentageCircle percentage={item} />,
           );
         } else {
           return "";
@@ -241,7 +243,7 @@ function GanttView() {
         onError(error) {
           toast.error(error.response?.data.message);
         },
-      }
+      },
     );
   };
   function calculateDuration(startDate: Date, endDate: Date) {
@@ -259,22 +261,22 @@ function GanttView() {
 
     const mapDayToNumber = (day: string) => {
       switch (day) {
-      case "SUN":
-        return 0;
-      case "MON":
-        return 1;
-      case "TUE":
-        return 2;
-      case "WED":
-        return 3;
-      case "THU":
-        return 4;
-      case "FRI":
-        return 5;
-      case "SAT":
-        return 6;
-      default:
-        return 0;
+        case "SUN":
+          return 0;
+        case "MON":
+          return 1;
+        case "TUE":
+          return 2;
+        case "WED":
+          return 3;
+        case "THU":
+          return 4;
+        case "FRI":
+          return 5;
+        case "SAT":
+          return 6;
+        default:
+          return 0;
       }
     };
 
@@ -291,7 +293,7 @@ function GanttView() {
     segment: any,
     taskElement: Element,
     segmentElement: Element,
-    labelElement: Element
+    labelElement: Element,
   ) => {
     if (task.value == "false" && segment.value == "false") {
       taskElement.classList.add("hidden");
@@ -304,8 +306,8 @@ function GanttView() {
   const onConnection = (e: (Event & CustomEvent) | undefined) => {
     setTask(
       allTaskQuery.data?.data.data.find(
-        (t) => t.taskId === e?.detail.startTaskId
-      )
+        (t) => t.taskId === e?.detail.startTaskId,
+      ),
     );
     setEndTask(e?.detail.endTaskId);
   };
@@ -387,6 +389,7 @@ function GanttView() {
         <div className="flex justify-center items-center gap-2 my-2 ">
           <TaskFilter
             tasks={allTaskQuery.data?.data.data}
+            ref={filterRef}
             fieldToShow={[
               FIELDS.ASSIGNED,
               FIELDS.DATE,
