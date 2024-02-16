@@ -16,6 +16,7 @@ import TaskViews from "./components/views";
 import Page404 from "./rootAuth/404page";
 import Dashboard from "./pages/dashboard";
 import ProjectDashboard from "./pages/dashboard/projectDashboard";
+import ProjectMember from "./pages/project-details/projectMember";
 
 export const router = createBrowserRouter([
   {
@@ -85,6 +86,10 @@ export const router = createBrowserRouter([
           {
             path: "/tasks/:projectId",
             element: <TaskViews />,
+          },
+          {
+            path: "/members/:projectId",
+            element: <ProjectMember />,
           },
         ],
       },

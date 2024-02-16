@@ -26,19 +26,19 @@ import {
   OverAllTrackEnumValue,
   ProjectStatusEnumValue,
   ScheduleAndBudgetTrend,
-  UserRoleEnumValue,
+  // UserRoleEnumValue,
 } from "@backend/src/schemas/enums";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import UsersIcon from "@/assets/svg/Users.svg";
-import UserAvatar from "../ui/userAvatar";
-import useProjectMemberListQuery from "@/api/query/useAllUserOfOrganition";
-import { CheckIcon } from "lucide-react";
-import useProjectAddMembersMutation from "@/api/mutation/useAddMemberProject";
-import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
-import { cn } from "@/lib/utils";
-import useRemoveProjectMemberMutation from "@/api/mutation/useRemoveMemberProject";
-import { useNavigate } from "react-router-dom";
-import { useUser } from "@/hooks/useUser";
+// import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+// import UsersIcon from "@/assets/svg/Users.svg";
+// import UserAvatar from "../ui/userAvatar";
+// import useProjectMemberListQuery from "@/api/query/useAllUserOfOrganition";
+// import { CheckIcon } from "lucide-react";
+// import useProjectAddMembersMutation from "@/api/mutation/useAddMemberProject";
+// import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
+// import { cn } from "@/lib/utils";
+// import useRemoveProjectMemberMutation from "@/api/mutation/useRemoveMemberProject";
+// import { useNavigate } from "react-router-dom";
+// import { useUser } from "@/hooks/useUser";
 
 type Options = { label: string; value: string };
 
@@ -76,7 +76,7 @@ const RADIO_BUTTON_OPTIONS = [
 ];
 
 function CreateProjectNoPopUpForm(props: AddProjectType) {
-  const projectMemberListQuery = useProjectMemberListQuery();
+  // const projectMemberListQuery = useProjectMemberListQuery();
   const { editData, refetch, viewOnly } = props;
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const errorStyle = "text-red-400 block text-sm h-1";
@@ -89,11 +89,11 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
   const [currencyValue, setCurrencyValue] = useState<SingleValue<Options>>();
 
   const projectQuery = useProjectQuery();
-  const projectAddMembersMutation = useProjectAddMembersMutation(
-    editData?.projectId,
-  );
-  const removeProjectMemberMutation = useRemoveProjectMemberMutation();
-  const user = useUser()
+  // const projectAddMembersMutation = useProjectAddMembersMutation(
+  //   editData?.projectId,
+  // );
+  // const removeProjectMemberMutation = useRemoveProjectMemberMutation();
+  // const user = useUser()
   const formik = useFormik<z.infer<typeof updateProjectSchema>>({
     initialValues: {
       projectName: "",
@@ -204,36 +204,36 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
       formik.setFieldValue("currency", val.value);
     }
   };
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
 
-  const submitMembers = (user: UserOrganisationType) => {
-    if (user) {
-      projectAddMembersMutation.mutate(
-        { assginedToUserId: user.user.userId },
-        {
-          onSuccess(data) {
-            refetch();
-            toast.success(data.data.message);
-          },
-          onError(error) {
-            toast.error(error.response?.data.message);
-          },
-        },
-      );
-    }
-  };
+  // const submitMembers = (user: UserOrganisationType) => {
+  //   if (user) {
+  //     projectAddMembersMutation.mutate(
+  //       { assginedToUserId: user.user.userId },
+  //       {
+  //         onSuccess(data) {
+  //           refetch();
+  //           toast.success(data.data.message);
+  //         },
+  //         onError(error) {
+  //           toast.error(error.response?.data.message);
+  //         },
+  //       },
+  //     );
+  //   }
+  // };
 
-  const removeMembers = (id: string) => {
-    removeProjectMemberMutation.mutate(id, {
-      onSuccess(data) {
-        refetch();
-        toast.success(data.data.message);
-      },
-      onError(error) {
-        toast.error(error.response?.data.message);
-      },
-    });
-  };
+  // const removeMembers = (id: string) => {
+  //   removeProjectMemberMutation.mutate(id, {
+  //     onSuccess(data) {
+  //       refetch();
+  //       toast.success(data.data.message);
+  //     },
+  //     onError(error) {
+  //       toast.error(error.response?.data.message);
+  //     },
+  //   });
+  // };
   return (
     <div className="mt-4">
       <div className="">
@@ -433,7 +433,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
             Project Management
             <hr className="w-2/5" />
           </div>
-          <div className="lg:flex lg:flex-row flex-col  gap-16 lg:my-3">
+          {/* <div className="lg:flex lg:flex-row flex-col  gap-16 lg:my-3">
             <div className="lg:w-[50%] w-full my-6 lg:my-0">
               <Popover>
                 <PopoverTrigger className="w-full" disabled={viewOnly}>
@@ -588,7 +588,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 </PopoverContent>
               </Popover>
             </div>
-          </div>
+          </div> */}
           <div className="sm:flex gap-16 my-3">
             <div className="sm:w-[50%] w-full">
               <div className={labelStyle}>Status</div>
@@ -707,14 +707,14 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 {formik.touched.consumedBudget && formik.errors.consumedBudget}
               </span>
             </div>
-            {user.user?.userOrganisation[0].role === UserRoleEnumValue.ADMINISTRATOR && <div className="sm:w-[50%] w-full mt-8">
+            {/* {user.user?.userOrganisation[0].role === UserRoleEnumValue.ADMINISTRATOR && <div className="sm:w-[50%] w-full mt-8">
               <Button variant={"outline"} className="h-12 w-full" onClick={()=>navigate(`organization/${localStorage.getItem("organization-id")}`)}>
                 <div className="text-left flex items-center text-gray-400" > 
                   <div className="text-2xl text-center">&#x2b;</div> 
                   <div className="mt-1">Add member to organization</div>
                 </div>
               </Button>
-            </div>}
+            </div>} */}
           </div>
 
           {!viewOnly && (
