@@ -16,11 +16,34 @@ const loginWithGoogle = new GoogleStrategy(
       const email =
         profile.emails && profile.emails[0] ? profile.emails[0].value : "";
       let user = await prisma.user.findUnique({
-        where: { email: email },
+        where: { email, deletedAt: null },
       });
       if (user) {
-        return done(null, { ...user, googleToken: token, provider: "google" });
-      } else {
+        const findGoogleProvider = await prisma.userProvider.findFirst({
+          where: {
+            userId: user.userId,
+            providerType: UserProviderTypeEnum.GOOGLE,
+            deletedAt: null,
+          }
+        });
+        if(findGoogleProvider) {
+          return done(null, { ...user, googleToken: token, provider: UserProviderTypeEnum.GOOGLE });
+        } else {
+          const newUser = await prisma.userProvider.create({
+            data: {
+              idOrPassword: profile.id,
+              providerType: UserProviderTypeEnum.GOOGLE,
+              userId: user.userId
+            }
+          })
+          return done(null, {
+            ...newUser,
+            googleToken: token,
+            provider: UserProviderTypeEnum.GOOGLE,
+          });
+        }
+      } 
+      else {
         const newUser = await prisma.user.create({
           data: {
             email: profile.emails?.[0]?.value!,
@@ -40,7 +63,7 @@ const loginWithGoogle = new GoogleStrategy(
         return done(null, {
           ...newUser,
           googleToken: token,
-          provider: "google",
+          provider: UserProviderTypeEnum.GOOGLE,
         });
       };
     } catch (error) {

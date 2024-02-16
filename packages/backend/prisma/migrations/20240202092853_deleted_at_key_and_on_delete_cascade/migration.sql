@@ -22,9 +22,6 @@ ALTER TABLE `task` DROP FOREIGN KEY `Task_created_by_user_id_fkey`;
 -- DropForeignKey
 ALTER TABLE `task` DROP FOREIGN KEY `Task_updated_by_user_id_fkey`;
 
--- DropForeignKey
-ALTER TABLE `userprovider` DROP FOREIGN KEY `UserProvider_user_id_fkey`;
-
 -- AlterTable
 ALTER TABLE `comments` ADD COLUMN `deleted_at` DATETIME(3) NULL;
 
@@ -69,12 +66,6 @@ ALTER TABLE `user` ADD COLUMN `deleted_at` DATETIME(3) NULL;
 
 -- AlterTable
 ALTER TABLE `userorganisation` ADD COLUMN `deleted_at` DATETIME(3) NULL;
-
--- AlterTable
-ALTER TABLE `userprovider` ADD COLUMN `deleted_at` DATETIME(3) NULL;
-
--- AddForeignKey
-ALTER TABLE `UserProvider` ADD CONSTRAINT `UserProvider_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Organisation` ADD CONSTRAINT `Organisation_created_by_user_id_fkey` FOREIGN KEY (`created_by_user_id`) REFERENCES `User`(`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;

@@ -174,31 +174,35 @@ export const changePassword = async (
     where: {
       userId: req.userId,
       deletedAt: null,
-      provider: {
-        providerType: UserProviderTypeEnum.EMAIL,
-      },
     },
     include: { provider: true },
   });
+  const findEmailProvider = await prisma.userProvider.findFirst({
+    where: {
+      userId: req.userId,
+      deletedAt: null,
+      providerType:  UserProviderTypeEnum.EMAIL,
+    }
+  });
+  if(!findEmailProvider) {
+    throw new UnAuthorizedError();
+  }
+
   const verifyPassword = await compareEncryption(
     oldPassword,
-    findUser?.provider?.idOrPassword!
+    findEmailProvider.idOrPassword
   );
   if (!verifyPassword) {
     throw new UnAuthorizedError();
   }
   const hashedPassword = await encrypt(password);
-  await prisma.user.update({
-    data: {
-      provider: {
-        update: {
-          idOrPassword: hashedPassword,
-        },
-      },
-    },
+  await prisma.userProvider.update({
     where: {
-      userId: req.userId,
+      userProviderId:findEmailProvider.userProviderId,
     },
+    data: {
+      idOrPassword: hashedPassword
+    }
   });
   return new SuccessResponse(
     StatusCodes.OK,
