@@ -287,9 +287,14 @@ export const removeOrganisationMember = async (
         user: {
           update: {
             provider: {
-              update: {
-                deletedAt: new Date(),
-              },
+              updateMany: {
+                where: {
+                  userId: findUserOrg.userId
+                },
+                data: {
+                  deletedAt: new Date(),
+                }
+              }
             },
             deletedAt: new Date(),
           },
