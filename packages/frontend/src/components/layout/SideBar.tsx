@@ -20,8 +20,8 @@ export type SideBarProps = {
 };
 
 function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
-  const { id } = useParams();
-  const [isSelected, setIsSelected] = useState<string | undefined>(id);
+  const { id,projectId } = useParams();
+  const [isSelected, setIsSelected] = useState<string | undefined>(id??projectId);
 
   const [isOpen, setIsOpen] = useState<boolean>(true);
   const [isProjectCreate, setProjectCreate] = useState(false);
