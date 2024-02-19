@@ -309,7 +309,7 @@ function ProjectDashboard() {
                         aria-valuemin={0}
                         aria-valuemax={100}
                         style={{
-                          background: `radial-gradient(closest-side, white 79%, transparent 80% 100%), conic-gradient(${selectedStatusTheme?.colors?.chartColors[0]} ${data?.projectProgression}%, #cecece 0)`,
+                          background: `radial-gradient(closest-side, white 79%, transparent 80% 100%), conic-gradient(${selectedStatusTheme?.colors?.chartColors[0]} ${Number(Number(data?.projectProgression).toFixed(2))*100}%, #cecece 0)`,
                         }}
                       >
                         <div className="m-1">

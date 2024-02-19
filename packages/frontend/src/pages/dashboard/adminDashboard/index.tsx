@@ -76,7 +76,7 @@ function AdminDashboard() {
     const statusPieChartData = datas?.statusChartData?.labels.map(
       (name, index) => ({
         value: Number(datas?.statusChartData?.data[index]),
-        name,
+        name: formatStatus(name),
       })
     );
 
@@ -209,7 +209,7 @@ function AdminDashboard() {
                       : "text-gray-800 border-2 border-gray-300  "
                   }`}
                 >
-                  <a className="text-base font-bold items-end">{labelData}</a>
+                  <a className="text-base font-bold items-end">{formatStatus(labelData)}</a>
                   <a className="text-4xl lg:text-5xl font-semibold">
                     {datas?.statusChartData?.data[index]}
                   </a>
