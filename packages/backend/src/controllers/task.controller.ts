@@ -11,8 +11,13 @@ import { MilestoneIndicatorStatusEnum } from '@prisma/client';
 import { HistoryTypeEnumValue } from '../schemas/enums.js';
 import { removeProperties } from "../types/removeProperties.js";
 import { selectUserFields } from '../utils/selectedFieldsOfUsers.js';
+import { calculateWorkingDays } from '../utils/removeNonWorkingDays.js';
 
 export const getTasks = async (req: express.Request, res: express.Response) => {
+  if (!req.organisationId) {
+    throw new BadRequestError("organisationId not found!!");
+  }
+  const organisationId = req.organisationId;
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const tasks = await prisma.task.findMany({
@@ -41,8 +46,8 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
       dependencies: true
     },
   });
-  const finalArray = tasks.map((task) => {
-    const duration = prisma.task.daysFromTwoDates(task.startDate, task.endDate);
+  const finalArray = await Promise.all(tasks.map(async (task) => {
+    const duration = await calculateWorkingDays(task.startDate, task.endDate, req.tenantId, organisationId);
     const completionPecentage = prisma.task.calculationSubTaskProgression(task);
     const updatedTask = {
       ...task,
@@ -50,12 +55,15 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
       completionPecentage,
     };
     return updatedTask;
-  });
+  }));
 
   return new SuccessResponse(StatusCodes.OK, finalArray, 'get all task successfully').send(res);
 };
 
 export const getTaskById = async (req: express.Request, res: express.Response) => {
+  if (!req.organisationId) {
+    throw new BadRequestError("organisationId not found!!");
+  }
   const taskId = uuidSchema.parse(req.params.taskId);
   const prisma = await getClientByTenantId(req.tenantId);
   const task = await prisma.task.findFirstOrThrow({
@@ -100,7 +108,7 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
       },
     },
   });
-  const duration = prisma.task.daysFromTwoDates(task.startDate, task.endDate);
+  const duration = await calculateWorkingDays(task.startDate, task.endDate, req.tenantId, req.organisationId);
   const completionPecentage = prisma.task.calculationSubTaskProgression(task)
   const finalResponse = { ...task, duration, completionPecentage };
   return new SuccessResponse(
