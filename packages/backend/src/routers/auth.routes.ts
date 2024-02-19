@@ -4,6 +4,7 @@ import passport from "passport";
 import { settings } from "../config/settings.js";
 import { User } from "@prisma/client";
 import { createJwtToken } from "../utils/jwtHelper.js";
+import { cookieConfig } from "../utils/setCookies.js";
 
 let router = express.Router();
 
@@ -38,21 +39,15 @@ router.get(
     // Token
     const token = createJwtToken(tokenPayload);
     res.cookie(settings.jwt.tokenCookieKey, token, {
-      maxAge: 1 * 24 * 60 * 60 * 1000,
-      httpOnly: false,
-      secure: true,
-      sameSite: 'none',
-      domain: settings.domain
+      ...cookieConfig,
+      maxAge: cookieConfig.maxAgeToken
     });
 
     // Refresh-Token
     const refreshToken = createJwtToken(tokenPayload, true);
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: false,
-      secure: true,
-      sameSite: 'none',
-      domain: settings.domain
+      ...cookieConfig,
+      maxAge: cookieConfig.maxAgeRefreshToken
     });
 
     res.redirect(`${settings.appURL}`);

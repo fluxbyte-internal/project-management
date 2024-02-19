@@ -220,7 +220,7 @@ export const addOrganisationMember = async (
       You are invited in Organisation ${newUserOrg?.organisation?.organisationName}
       
       URL: ${settings.appURL}/login
-      EMAIL: ${newUser.email}
+      LOGIN: ${newUser.email}
       PASSWORD: ${randomPassword}
       `
       await EmailService.sendEmail(newUser.email, subjectMessage, bodyMessage);
@@ -235,14 +235,6 @@ export const addOrganisationMember = async (
       throw new ZodError([{
         code: 'invalid_string',
         message: 'User already added in your organisation',
-        path: ['email'],
-        validation: "email",
-      }]);
-    }
-    if (user.userOrganisation.length !== 0) {
-      throw new ZodError([{
-        code: 'invalid_string',
-        message: 'User is part of other organisation',
         path: ['email'],
         validation: "email",
       }]);
@@ -295,9 +287,14 @@ export const removeOrganisationMember = async (
         user: {
           update: {
             provider: {
-              update: {
-                deletedAt: new Date(),
-              },
+              updateMany: {
+                where: {
+                  userId: findUserOrg.userId
+                },
+                data: {
+                  deletedAt: new Date(),
+                }
+              }
             },
             deletedAt: new Date(),
           },
