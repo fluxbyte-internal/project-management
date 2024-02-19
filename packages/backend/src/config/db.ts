@@ -301,6 +301,42 @@ function generatePrismaClient(datasourceUrl?: string) {
           });
           return maxEndDate;
         },
+        async getSubtasksTimeline(taskId: string) {
+          const task = await client.task.findFirst({
+            where: { taskId },
+            include: {
+              subtasks: true,
+            },
+          });
+          if (!task) {
+            return { earliestStartDate: null, lowestEndDate: null };
+          }
+
+          let earliestStartDate = task.startDate;
+          let lowestEndDate: Date | null = task.milestoneIndicator
+            ? task.dueDate
+            : new Date(task.startDate);
+          if (!task.milestoneIndicator && task.duration) {
+            const endDate = new Date(task.startDate);
+            endDate.setDate(task.startDate.getDate() + task.duration);
+            lowestEndDate = endDate;
+          }
+
+          if (task.subtasks.length > 0) {
+            task.subtasks.forEach((subtask) => {
+              if (subtask.startDate < earliestStartDate) {
+                earliestStartDate = subtask.startDate;
+              }
+              if (
+                subtask.dueDate &&
+                (lowestEndDate === null || subtask.dueDate < lowestEndDate)
+              ) {
+                lowestEndDate = subtask.dueDate;
+              }
+            });
+          }
+          return { earliestStartDate, lowestEndDate };
+        },
         calculationSPI(tasks: Task): number {
           const actualProgression = tasks.completionPecentage ?? 0;
           const plannedProgression =
@@ -330,11 +366,11 @@ function generatePrismaClient(datasourceUrl?: string) {
           tpiFlag: "Red" | "Orange" | "Green";
         } {
           let { duration, completionPecentage, startDate, status } = task;
-          const endDate = client.task.calculateEndDate(
-            startDate,
-            duration
+          const endDate = client.task.calculateEndDate(startDate, duration);
+          const newDuration = client.task.daysFromTwoDates(
+            task.startDate,
+            endDate
           );
-          const newDuration = client.task.daysFromTwoDates(task.startDate, endDate);
 
           if (
             status === TaskStatusEnum.TODO ||

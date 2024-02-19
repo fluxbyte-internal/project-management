@@ -223,6 +223,7 @@ export const updateTask = async (
     include: {
       documentAttachments: true,
       assignedUsers: true,
+      subtasks: true,
     },
   });
   const taskUpdateDB = await prisma.task.update({
@@ -235,9 +236,27 @@ export const updateTask = async (
       documentAttachments: true,
       assignedUsers: true,
       dependencies: true,
-      project: true
+      project: true,
+      parent: true,
     },
   });
+
+  if (taskUpdateDB.parent?.taskId) {
+    const taskTimeline = await prisma.task.getSubtasksTimeline(
+      taskUpdateDB.parent.taskId
+    );
+    const earliestStartDate = taskTimeline.earliestStartDate
+      ? taskTimeline.earliestStartDate
+      : taskUpdateDB.parent.startDate;
+    await prisma.task.update({
+      where: {
+        taskId: taskUpdateDB.parent.taskId,
+      },
+      data: {
+        startDate: earliestStartDate,
+      },
+    });
+  }
 
   // Project End Date  -  If any task's end date will be greater then It's own
   const maxEndDate = await prisma.task.findMaxEndDateAmongTasks(
