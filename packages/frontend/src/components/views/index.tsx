@@ -43,8 +43,6 @@ function TaskViews() {
   const projectQuery = useProjectDetail(projectId);
   useEffect(() => {
     if (projectQuery.data?.data.data) {
-      console.log(projectQuery.data.data.data.defaultView);
-      
       setViews(projectQuery.data.data.data.defaultView);
     }
   }, [projectQuery.data?.data.data]);

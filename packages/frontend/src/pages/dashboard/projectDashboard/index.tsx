@@ -14,6 +14,8 @@ import { ScheduleAndBudgetTrend } from "@backend/src/schemas/enums";
 import Increasing from "@/assets/increase.svg";
 import Decreasing from "@/assets/decrease.svg";
 import Stable from "@/assets/stable.svg";
+import LinkArrow from "@/assets/svg/linkArrow.svg";
+
 export type ThemeColorData = {
   theme: string;
   colors: {
@@ -115,9 +117,9 @@ function ProjectDashboard() {
   useEffect(() => {
     if (selectedStatusTheme) {
       const statusPieChartData = data?.taskStatusChartData?.labels.map(
-        (name, index) => ({
+        (name: string, index) => ({
           value: Number(data?.taskStatusChartData?.data[index]),
-          name,
+          name: formatStatus(name),
         })
       );
       if (statusPieChartData) {
@@ -171,23 +173,23 @@ function ProjectDashboard() {
   const navigate = useNavigate();
   const filterRoutes = (item: string) => {
     switch (item) {
-    case "Milestones":
-      navigate(`/tasks/${projectId}?milestones=true`);
-      break;
-    case "Tasks":
-      navigate(`/tasks/${projectId}`);
-      break;
-    default:
-      break;
+      case "Milestones":
+        navigate(`/tasks/${projectId}?milestones=true`);
+        break;
+      case "Tasks":
+        navigate(`/tasks/${projectId}`);
+        break;
+      default:
+        break;
     }
   };
   const getSPI = () => {
     let val = 0;
     if (data && data.spi.length) {
       data?.spi.forEach((e) => {
-        val =+ e.spi;
+        val = +e.spi;
       });
-      return Number((val / data?.spi.length) * 100).toFixed(2) ;
+      return Number((val / data?.spi.length) * 100).toFixed(2);
     } else {
       return 0;
     }
@@ -197,24 +199,6 @@ function ProjectDashboard() {
       {selectedStatusTheme && data && (
         <>
           <div className="overflow-auto w-full self-center py-2  px-5 lg:px-24 flex flex-col gap-10">
-            <div className="w-full h-full overflow-hidden fixed opacity-30 -z-10 -m-3">
-              <div className="statusImage absolute -top-[25%] -right-[50%] md:-right-[30%] md:-top-[10%] lg:-top-[40%] lg:-right-[20%]  h-full text-right">
-                <img
-                  className="h-[65%] md:h-3/4 lg:h-[125%] select-none"
-                  src={`${
-                    data?.projectOverAllSituation === "SUNNY"
-                      ? Sunny
-                      : data?.projectOverAllSituation === "CLOUDY"
-                        ? Cloudy
-                        : data?.projectOverAllSituation === "RAINY"
-                          ? Rainy
-                          : data?.projectOverAllSituation === "STORMY"
-                            ? Stormy
-                            : ""
-                  }`}
-                />
-              </div>
-            </div>
             <h2 className="font-medium text-3xl leading-normal text-gray-600">
               Project Dashboard
             </h2>
@@ -226,33 +210,47 @@ function ProjectDashboard() {
                 <div className="text-4xl font-semibold">
                   {data.numTeamMembersWorkingOnTasks}
                 </div>
-                <div className="absolute right-3 bottom-3">oo</div>
+                <img
+                  className=" absolute right-2 bottom-2 h-6 w-6 opacity-70 hover:opacity-100 cursor-pointer invert sepia-[0%] saturate-[7426%] hue-rotate-[16deg] brightness-[100%] contrast-[100%]" // onClick={() => filterRoutes(labelData)}
+                  src={LinkArrow}
+                />
               </div>
 
               <div
-                onClick={() => filterRoutes("Tasks")}
                 className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer  ${selectedStatusTheme?.colors.tabBorders}`}
               >
                 <div className="text-lg ">No. of Tasks</div>
                 <div className="text-4xl font-semibold">{data.numTasks}</div>
-                <div className="absolute right-3 bottom-3">oo</div>
+                <img
+                  className=" absolute right-2 bottom-2 h-6 w-6 opacity-70 hover:opacity-100 cursor-pointer invert sepia-[0%] saturate-[7426%] hue-rotate-[16deg] brightness-[100%] contrast-[100%]"
+                  onClick={() => filterRoutes("Tasks")}
+                  src={LinkArrow}
+                />
               </div>
               <div
-                onClick={() => filterRoutes("Milestones")}
                 className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer  ${selectedStatusTheme?.colors.tabBorders}`}
               >
                 <div className="text-lg ">No. of Milestones</div>
                 <div className="text-4xl font-semibold">
                   {data.numMilestones}
                 </div>
-                <div className="absolute right-3 bottom-3">oo</div>
+                <img
+                  className=" absolute right-2 bottom-2 h-6 w-6 opacity-70 hover:opacity-100 cursor-pointer invert sepia-[0%] saturate-[7426%] hue-rotate-[16deg] brightness-[100%] contrast-[100%]"
+                  onClick={() => filterRoutes("Milestones")}
+                  src={LinkArrow}
+                />
               </div>
               <div
                 className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer  ${selectedStatusTheme?.colors.tabBorders}`}
               >
                 <div className="text-lg ">No. of Risks</div>
                 <div className="text-4xl font-semibold">0</div>
-                <div className="absolute right-3 bottom-3">oo</div>
+                <img
+                  className=" absolute right-2 bottom-2 h-6 w-6 opacity-70 hover:opacity-100 cursor-pointer invert sepia-[0%] saturate-[7426%] hue-rotate-[16deg] brightness-[91%] contrast-[98%]"
+                  // onClick={() => filterRoutes("Tasks")}
+
+                  src={LinkArrow}
+                />
               </div>
             </div>
             <div className="datesDiv w-full flex flex-col md:flex-row lg:flex-col gap-1 md:gap-6 justify-center items-center py-3">
@@ -316,7 +314,11 @@ function ProjectDashboard() {
                       >
                         <div className="m-1">
                           {data?.projectProgression
-                            ? Number(Number(data?.projectProgression).toFixed(2)) * 100 + "%"
+                            ? Number(
+                                Number(data?.projectProgression).toFixed(2)
+                              ) *
+                                100 +
+                              "%"
                             : "NA"}
                         </div>
                       </div>
@@ -331,7 +333,7 @@ function ProjectDashboard() {
                     {formatStatus(data?.projectStatus)}
                   </div>
                 </div>
-                <div className="w-full h-full">
+                <div className="w-full h-full lg:pr-10">
                   <div className="flex flex-col gap-1 md:gap-3 w-full h-full text-center text-2xl md:text-3xl font-medium items-center justify-center">
                     <div className="text-base md:text-lg ">
                       Project OverAll Status:
@@ -342,6 +344,22 @@ function ProjectDashboard() {
                       {data?.projectOverAllSituation}
                     </div>
                   </div>
+                </div>
+                <div className="statusImage -z-10 absolute h-[75%] md:h-full top-[25%] -right-[30%] md:-right-[9%] md:-top-[0%] lg:-right-[8%] lg:-top-[50%] text-right">
+                  <img
+                    className="h-[65%] md:h-3/4 lg:h-[125%] select-none"
+                    src={`${
+                      data?.projectOverAllSituation === "SUNNY"
+                        ? Sunny
+                        : data?.projectOverAllSituation === "CLOUDY"
+                        ? Cloudy
+                        : data?.projectOverAllSituation === "RAINY"
+                        ? Rainy
+                        : data?.projectOverAllSituation === "STORMY"
+                        ? Stormy
+                        : ""
+                    }`}
+                  />
                 </div>
               </div>
             </div>
@@ -362,11 +380,11 @@ function ProjectDashboard() {
                           ? Stable
                           : data?.scheduleTrend ===
                             ScheduleAndBudgetTrend.INCREASING
-                            ? Increasing
-                            : data?.scheduleTrend ===
+                          ? Increasing
+                          : data?.scheduleTrend ===
                             ScheduleAndBudgetTrend.DECREASING
-                              ? Decreasing
-                              : ""
+                          ? Decreasing
+                          : ""
                       }
                     ></img>
                   </div>
@@ -383,11 +401,11 @@ function ProjectDashboard() {
                           ? Stable
                           : data?.scheduleTrend ===
                             ScheduleAndBudgetTrend.INCREASING
-                            ? Increasing
-                            : data?.scheduleTrend ===
+                          ? Increasing
+                          : data?.scheduleTrend ===
                             ScheduleAndBudgetTrend.DECREASING
-                              ? Decreasing
-                              : ""
+                          ? Decreasing
+                          : ""
                       }
                     ></img>
                   </div>
@@ -397,7 +415,17 @@ function ProjectDashboard() {
                 <div className="w-full h-full text-center text-base md:text-lg font-semibold ">
                   SPI
                 </div>
-                <div className={`w-full h-full text-lg md:text-xl font-bold text-gray-500 text-center ${Number(getSPI()) < 0.8 ? "text-red-700/60":Number(getSPI()) >= 0.8 && Number(getSPI()) < 0.95 ? "text-orange-400/80" :Number(getSPI()) >= 0.95 ? "text-green-700/60" :"" }`}>
+                <div
+                  className={`w-full h-full text-lg md:text-xl font-bold text-gray-500 text-center ${
+                    Number(getSPI()) < 0.8
+                      ? "text-red-700/60"
+                      : Number(getSPI()) >= 0.8 && Number(getSPI()) < 0.95
+                      ? "text-orange-400/80"
+                      : Number(getSPI()) >= 0.95
+                      ? "text-green-700/60"
+                      : ""
+                  }`}
+                >
                   {getSPI()}
                 </div>
               </div>

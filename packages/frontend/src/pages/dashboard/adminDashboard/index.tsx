@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 import HorizontalBarChart from "@/components/charts/HorizontalBarChart";
 import { Project } from "@/api/query/useProjectQuery";
-
+import LinkArrow from "@/assets/svg/linkArrow.svg";
 export interface ProjectType {
   projectId: string;
   organisationId: string;
@@ -61,7 +61,12 @@ function AdminDashboard() {
   //     name,
   //     value: data?.overallSituationChartData?.data[index],
   //   }));
-
+  const formatStatus = (status: string): string => {
+    return status
+      .replace(/_/g, " ")
+      .toLowerCase()
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  };
   useEffect(() => {
     setDatas(admninPortfolioDashboardQuery?.data?.data?.data);
   }, [admninPortfolioDashboardQuery?.data?.data?.data]);
@@ -83,9 +88,9 @@ function AdminDashboard() {
       height: "300px",
     });
     const overallSituationPieChartData =
-      datas?.overallSituationChartData?.labels.map((name, index) => ({
+      datas?.overallSituationChartData?.labels.map((name: string, index) => ({
         value: Number(datas?.overallSituationChartData?.data[index]),
-        name,
+        name: formatStatus(name),
       }));
     setOverallStatusPieChartProp({
       chartData: overallSituationPieChartData!,
@@ -104,13 +109,6 @@ function AdminDashboard() {
     height: "300px",
   };
 
-  // const chartProp4: ChartProps = {
-  //   chartData: [],
-  //   color: ["#FFD04A", "#FFB819", "#B74E06"],
-  //   title: "Projects Per Severity",
-  //   radius: ["70%", "80%"],
-  //   height: "500px",
-  // };
   const chartProp5: ChartProps = {
     chartData: [],
     color: ["#FFD04A", "#FFB819", "#B74E06"],
@@ -121,7 +119,7 @@ function AdminDashboard() {
   const columnDef: ColumeDef[] = [
     {
       key: "projectName",
-      header: "Project Name",
+      header: "Title",
       sorting: true,
       onCellRender: (projectData) => {
         return (
@@ -139,7 +137,6 @@ function AdminDashboard() {
       onCellRender: (item: Project) => (
         <>
           {item.CPI ? item.CPI.toFixed(2) : (0.0).toFixed(2)}{" "}
-          {console.log(item.CPI)}
         </>
       ),
     },
@@ -169,7 +166,7 @@ function AdminDashboard() {
               {item?.status
                 .toLowerCase()
                 .replace(/_/g, " ")
-                .replace(/\b\w/g, (char:string) => char.toUpperCase())}
+                .replace(/\b\w/g, (char: string) => char.toUpperCase())}
             </div>
           </div>
         </>
@@ -201,22 +198,26 @@ function AdminDashboard() {
             {datas?.statusChartData?.labels.map((labelData, index) => (
               <>
                 <div
-                  onClick={()=>filterRoutes(labelData)}
                   key={index}
-                  className={`flex flex-col gap-2 cursor-pointer lg:gap-5 w-full lg:w-2/5 h-1/5 lg:h-full  rounded-2xl p-2 lg:py-3 text-start items-start justify-start px-10 border-l-[12px] ${
+                  className={`relative flex flex-col gap-2 select-none lg:gap-5 w-full lg:w-2/5 h-1/5 lg:h-full  rounded-2xl p-2 lg:py-3 text-start items-start justify-start px-10 border-l-[12px] ${
                     labelData === "ACTIVE"
                       ? "text-primary-600  border-2 border-primary-600 "
                       : labelData === "ON_HOLD"
-                        ? "text-primary-800 border-2 border-primary-800"
-                        : labelData === "NOT_STARTED"
-                          ? "text-primary-950 border-2 border-primary-950"
-                          : "text-gray-800 border-2 border-gray-300  "
+                      ? "text-primary-800 border-2 border-primary-800"
+                      : labelData === "NOT_STARTED"
+                      ? "text-primary-950 border-2 border-primary-950"
+                      : "text-gray-800 border-2 border-gray-300  "
                   }`}
                 >
                   <a className="text-base font-bold items-end">{labelData}</a>
                   <a className="text-4xl lg:text-5xl font-semibold">
                     {datas?.statusChartData?.data[index]}
                   </a>
+                  <img
+                    className=" absolute right-2 bottom-2 h-6 w-6 opacity-50 hover:opacity-100 cursor-pointer"
+                    onClick={() => filterRoutes(labelData)}
+                    src={LinkArrow}
+                  />
                 </div>
               </>
             ))}
@@ -225,7 +226,7 @@ function AdminDashboard() {
           <div className="delays rounded-2xl w-3/4 lg:w-1/4 h-fit justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <PieChart chartProps={chartProp2} />
           </div>
-          
+
           <div className="status rounded-2xl w-3/4 lg:w-1/4  h-fit justify-center items-center flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300  ">
             <PieChart chartProps={statusPieChartProp!} />
           </div>
@@ -243,13 +244,9 @@ function AdminDashboard() {
           </div>
         </div>
         <div className="w-full flex flex-col md:flex-col gap-10 justify-center px-5 md:px-20 lg:px-0 self-center">
-       
           <div className="w-full lg:w-4/5 self-center">
-            <Button
-              variant={"primary"}
-              onClick={() => setIsOpenPopUp(true)}
-            >
-                      Add Project
+            <Button variant={"primary"} onClick={() => setIsOpenPopUp(true)}>
+              Add Project
             </Button>
           </div>
 
@@ -267,10 +264,7 @@ function AdminDashboard() {
         </div>
       </div>
       {isOpenPopUp && (
-        <CreateUpdateProjectForm
-          handleClosePopUp={close}
-          editData={editData}
-        />
+        <CreateUpdateProjectForm handleClosePopUp={close} editData={editData} />
       )}
     </>
   );
