@@ -24,12 +24,15 @@ function RulesForm(props: Props) {
   const kanbanColumnFormik = useFormik<z.infer<typeof createKanbanSchema>>({
     initialValues: {
       name: "",
-      percentage: 0,
     },
     validationSchema: toFormikValidationSchema(createKanbanSchema),
     onSubmit: (values) => {
+      let data: z.infer<typeof createKanbanSchema> = { name: values.name };
       if (setPercentage(values.percentage)) {
-        kanbanColumnMutation.mutate(values, {
+        if (typeof values.percentage == "number") {
+          data = { ...data, percentage: values.percentage };
+        }
+        kanbanColumnMutation.mutate(data, {
           onSuccess() {
             kanbanColumnFormik.resetForm();
             if (props?.close) {
@@ -49,8 +52,10 @@ function RulesForm(props: Props) {
   const handleSave = () => {
     kanbanColumnFormik.submitForm();
   };
-  const setPercentage = (value: number) => {
-    if (props.rules?.some((d) => d.percentage === Number(value))) {
+  const setPercentage = (value: number | undefined | null) => {
+    if (!value) {
+      return true;
+    } else if (props.rules?.some((d) => d.percentage === Number(value))) {
       kanbanColumnFormik.setErrors({
         percentage: "Rule already exists. Choose a unique one.",
       });
@@ -84,7 +89,7 @@ function RulesForm(props: Props) {
           onChange={(e) => {
             kanbanColumnFormik.handleChange(e);
           }}
-          value={kanbanColumnFormik.values.percentage}
+          value={kanbanColumnFormik.values.percentage ?? ""}
         />
         <ErrorMessage>{kanbanColumnFormik.errors.percentage}</ErrorMessage>
       </div>

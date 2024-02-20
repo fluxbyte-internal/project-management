@@ -11,7 +11,7 @@ function TaskHistory(props: { task: Task | undefined }) {
     const regex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
     return regex.test(dateString);
   }
-  
+
   const messageCreate = (history: Task["histories"][0]): string => {
     let message = history.message;
     if (history.data.newValue && history.data.oldValue) {
@@ -20,28 +20,25 @@ function TaskHistory(props: { task: Task | undefined }) {
         isValidDate(history.data.oldValue)
       ) {
         message =
-          dateFormater(new Date(history.data.newValue)) +
-          " " +
           message +
+          " " +
+          dateFormater(new Date(history.data.oldValue)) +
           " to " +
-          dateFormater(new Date(history.data.oldValue));
+          dateFormater(new Date(history.data.newValue));
       } else {
         message =
-          history.data.newValue +
-          " " +
           message +
+          history.data.oldValue +
+          " " +
           " to " +
-          history.data.oldValue;
+          history.data.newValue;
       }
     } else {
       if (isValidDate(history.data.newValue)) {
-        message =
-          dateFormater(new Date(history.data.newValue)) + " " + message;
+        message = dateFormater(new Date(history.data.newValue)) + " " + message;
       } else {
         message =
-          (history.data.oldValue ?? history.data.newValue) +
-          " " +
-          message;
+          (history.data.oldValue ?? history.data.newValue) + " " + message;
       }
     }
     return message;

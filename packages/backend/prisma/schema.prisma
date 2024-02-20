@@ -315,6 +315,7 @@ model Task {
   updatedByUser      User?                        @relation("updatedByUser", fields: [updatedByUserId], references: [userId], onDelete: Cascade)
   createdAt          DateTime                     @default(now()) @map("created_at")
   updatedAt          DateTime                     @updatedAt @map("updated_at")
+  kanbanColumnId     String?                      @map("kanban_column_Id")
 
   duration            Float  @map("duration")
   completionPecentage Float? @map("completion_percentage")

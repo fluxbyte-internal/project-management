@@ -25,6 +25,7 @@ import Dialog from "@/components/common/Dialog";
 import useRemoveKanbanColumnsMutation from "@/api/mutation/useKanbanColumnRemove";
 import useKanbanUpdateColumnMutation from "@/api/mutation/useKanbanUpdateColumn";
 import RulesForm from "./rulesForm";
+import ErrorMessage from "@/components/common/ErrorMessage";
 
 type Props = {
   setColumes: (column: KanbanColumnType[]) => void;
@@ -52,26 +53,31 @@ function RulesSetups(props: Props) {
         ...values,
         id: ruleEditData?.kanbanColumnId,
       };
-      kanbanUpdateColumnMutation.mutate(data, {
-        onSuccess() {
-          updateKanbanColumnFormik.setValues({
-            name: "",
-            percentage: 0,
-          });
-          setRuleEditData(undefined);
-          allKanbanColumn.refetch();
-        },
-        onError(err) {
-          toast.error(err.response?.data.message);
-        },
-      });
+      if (setPercentage(values.percentage)) {
+        if (typeof values.percentage == "string") {
+          data.percentage = null
+        }
+        kanbanUpdateColumnMutation.mutate(data, {
+          onSuccess() {
+            updateKanbanColumnFormik.setValues({
+              name: "",
+              percentage: 0,
+            });
+            setRuleEditData(undefined);
+            allKanbanColumn.refetch();
+          },
+          onError(err) {
+            toast.error(err.response?.data.message);
+          },
+        });
+      }
     },
   });
   const handleEdit = (data: KanbanColumnType) => {
     setRuleEditData(data);
     updateKanbanColumnFormik.setValues({
       name: data.name,
-      percentage: data.percentage || 0,
+      percentage: data.percentage,
     });
   };
   const handleRemove = (id: string) => {
@@ -84,7 +90,6 @@ function RulesSetups(props: Props) {
           (a, b) => (a.percentage ?? 0) - (b.percentage ?? 0)
         );
       }
-
       setRules(allKanbanColumn.data?.data.data);
       props.setColumes(allKanbanColumn.data?.data.data);
     }
@@ -105,7 +110,18 @@ function RulesSetups(props: Props) {
   const close = () => {
     props.close();
   };
-
+  const setPercentage = (value: number | undefined | null ) => {
+    if (!value) {
+      return true;
+    } else if (rules?.some((d) => d.percentage === Number(value))) {
+      updateKanbanColumnFormik.setErrors({
+        percentage: "Rule already exists. Choose a unique one.",
+      });
+      return false;
+    } else {
+      return true;
+    }
+  };
   return (
     <>
       <div className="w-full h-full flex flex-col p-9 border rounded-xl border-gray-300/30">
@@ -162,6 +178,8 @@ function RulesSetups(props: Props) {
                       className="h-8 rounded-sm mt-0"
                       onChange={updateKanbanColumnFormik.handleChange}
                     />
+                     {ruleEditData?.kanbanColumnId === r.kanbanColumnId&&<ErrorMessage>{updateKanbanColumnFormik.errors.name}</ErrorMessage>}
+
                   </div>
                   <div>
                     <FormLabel className="text-sm m-0 text-gray-500">
@@ -173,8 +191,8 @@ function RulesSetups(props: Props) {
                       }
                       value={
                         ruleEditData?.kanbanColumnId == r.kanbanColumnId
-                          ? updateKanbanColumnFormik.values.percentage
-                          : r.percentage ?? 0
+                          ? updateKanbanColumnFormik.values.percentage??''
+                          : r.percentage ??''
                       }
                       className="h-8 rounded-sm mt-0"
                       name="percentage"
@@ -182,6 +200,7 @@ function RulesSetups(props: Props) {
                       max={100}
                       onChange={updateKanbanColumnFormik.handleChange}
                     />
+                    { ruleEditData?.kanbanColumnId == r.kanbanColumnId&& <ErrorMessage>{updateKanbanColumnFormik.errors.percentage}</ErrorMessage>}
                   </div>
                   {ruleEditData?.kanbanColumnId == r.kanbanColumnId && (
                     <div className="flex justify-between mt-3">
