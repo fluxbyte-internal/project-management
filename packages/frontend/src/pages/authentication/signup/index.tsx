@@ -36,7 +36,7 @@ function Signup() {
     country: string;
     timeZone: string;
     jobTitle: string;
-    privacyPolicy:boolean
+    privacyPolicy: boolean;
   };
 
   const formik = useFormik<FormValues>({
@@ -49,7 +49,7 @@ function Signup() {
       country: "",
       timeZone: "",
       jobTitle: "",
-      privacyPolicy:false,
+      privacyPolicy: false,
     },
     validationSchema: toFormikValidationSchema(authSignUpSchema),
     onSubmit: (values, helper) => {
@@ -70,12 +70,13 @@ function Signup() {
               error.response.data.errors.map(
                 (item: { message: string; path: string[] }) => {
                   helper.setFieldError(item.path[0], item.message);
-                }
+                },
               );
             }
             if (!Array.isArray(error.response?.data.errors)) {
               toast.error(
-                error.response?.data?.message ?? "An unexpected error occurred."
+                error.response?.data?.message ??
+                  "An unexpected error occurred.",
               );
             }
           }
@@ -92,7 +93,13 @@ function Signup() {
   };
 
   const google = () => {
-    window.open(`${baseURL}/api/auth/google`, "_self");
+    if (formik.values.privacyPolicy) {
+      window.open(`${baseURL}/api/auth/google`, "_self");
+    } else {
+      formik.setErrors({
+        privacyPolicy: "Please agree to the Terms and Privacy Policy.",
+      });
+    }
   };
   return (
     <div className="flex justify-center min-h-screen">
@@ -247,7 +254,18 @@ function Signup() {
                 type="checkbox"
                 onChange={formik.handleChange}
               />
-              <div>I agree to the <a className="text-primary-500" href="#"> term of use </a>and <a href="#" className="text-primary-500">privacy policy</a>.</div>
+              <div>
+                I agree to the{" "}
+                <a className="text-primary-500" href="#">
+                  {" "}
+                  term of use{" "}
+                </a>
+                and{" "}
+                <a href="#" className="text-primary-500">
+                  privacy policy
+                </a>
+                .
+              </div>
             </div>
             <div className="flex items-center">
               <Button
@@ -268,9 +286,15 @@ function Signup() {
             </div>
           </form>
           <div className="flex items-center p-4">
-            <div className="w-full pr-2"><hr /></div>
-            <div className="w-full bg-[#E7E7E7] text-xs py-1 rounded-lg text-center">Or continue with</div>
-            <div className="w-full pl-2"><hr /></div>
+            <div className="w-full pr-2">
+              <hr />
+            </div>
+            <div className="w-full bg-[#E7E7E7] text-xs py-1 rounded-lg text-center">
+              Or continue with
+            </div>
+            <div className="w-full pl-2">
+              <hr />
+            </div>
           </div>
           <div className="flex flex-col px-4 gap-4">
             <Button
@@ -282,10 +306,9 @@ function Signup() {
               className="w-full flex py-2.5 mt-1.5 rounded-md gap-2.5 hover:bg-opacity-80 disabled:bg-opacity-50"
             >
               <img src={Google} />
-              <span>
-                Google
-              </span>
+              <span>Google</span>
             </Button>
+            {formik.errors.privacyPolicy && <span className="text-red-500 text-sm ">{formik.errors.privacyPolicy}</span>}
             {/* <Button
               type="button"
               variant={"secondary"}

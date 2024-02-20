@@ -20,6 +20,19 @@ import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
 import useProjectAddMembersMutation from "@/api/mutation/useAddMemberProject";
 import useRemoveProjectMemberMutation from "@/api/mutation/useRemoveMemberProject";
 import Dialog from "@/components/common/Dialog";
+import InputEmail from "@/components/common/InputEmail";
+import FormLabel from "@/components/common/FormLabel";
+import ErrorMessage from "@/components/common/ErrorMessage";
+import InputSelect from "@/components/common/InputSelect";
+import { z } from "zod";
+import { useFormik } from "formik";
+import { addOrganisationMemberSchema } from "@backend/src/schemas/organisationSchema";
+import { toFormikValidationSchema } from "zod-formik-adapter";
+import useAddOrganisationMemberMutation from "@/api/mutation/useAddOrganisationMemberMutation";
+import { isAxiosError } from "axios";
+import CrossIcon from "../../assets/svg/CrossIcon.svg";
+import { SingleValue } from "react-select";
+
 function ProjectMember() {
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
   const projectMemberListQuery = useProjectMemberListQuery();
@@ -33,11 +46,63 @@ function ProjectMember() {
   const [assignedUsers, setAssignedUsers] = useState<
     AssignedUsers[] | undefined
   >();
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedRole, setSelectedRole] =
+    useState<SingleValue<(typeof memberRoleOptions)[number]>>(null);
+
+  const addOrganisationMemberMutation = useAddOrganisationMemberMutation(
+    localStorage.getItem("organisation-id") ?? "",
+  );
+  const [isAddOrgMemberSubmitting, setIsAddOrgMemberSubmitting] =
+    useState(false);
+  const addOrgMemberForm = useFormik<
+    z.infer<typeof addOrganisationMemberSchema>
+  >({
+    initialValues: {
+      email: "",
+      role: "TEAM_MEMBER",
+    },
+    validationSchema: toFormikValidationSchema(addOrganisationMemberSchema),
+    onSubmit: (values, helper) => {
+      setIsAddOrgMemberSubmitting(true);
+      addOrganisationMemberMutation.mutate(values, {
+        onSuccess(data) {
+          toast.success(data.data.message);
+          setIsAddOrgMemberSubmitting(false);
+          setIsOpen(false)
+          projectMemberListQuery.refetch()
+        },
+        onError(error) {
+          if (isAxiosError(error)) {
+            if (
+              error.response?.status === 400 &&
+              error.response.data?.errors &&
+              Array.isArray(error.response?.data.errors)
+            ) {
+              error.response.data.errors.forEach((item) => {
+                helper.setFieldError(item.path[0], item.message);
+              });
+            }
+            if (!Array.isArray(error.response?.data.errors)) {
+              toast.error(
+                error.response?.data?.message ??
+                  "An unexpected error occurred.",
+              );
+            }
+          }
+          setIsAddOrgMemberSubmitting(false);
+        },
+      });
+    },
+  });
+
   const [OrganizationMember, setOrganizationMember] =
     useState<UserOrganisationType[]>();
+
   useEffect(() => {
     setAssignedUsers(projectDetailQuery.data?.data.data.assignedUsers);
   }, [projectDetailQuery.data?.data.data]);
+
   useEffect(() => {
     setOrganizationMember(
       projectMemberListQuery.data?.data.data.filter(
@@ -105,7 +170,20 @@ function ProjectMember() {
       },
     });
   };
-
+  const currentUserIsAdmin =
+    user?.userOrganisation.find(
+      (org) => org.organisationId === localStorage.getItem("organisation-id"),
+    )?.role === "ADMINISTRATOR";
+  const memberRoleOptions = [
+    {
+      value: UserRoleEnumValue.PROJECT_MANAGER,
+      label: "Project Manager",
+    },
+    {
+      value: UserRoleEnumValue.TEAM_MEMBER,
+      label: "Team member",
+    },
+  ];
   return (
     <div className="w-full relative h-full">
       {projectDetailQuery.isLoading ? (
@@ -117,13 +195,17 @@ function ProjectMember() {
             isSidebarExpanded={isSidebarExpanded}
           />
           <div
-            className={`mt-14 overflow-auto ${
+            className={`mt-5 overflow-auto ${
               isSidebarExpanded ? "ml-64" : "ml-4"
             }`}
           >
             <div className="h-full w-full p-3">
-              <div className="text-lg text-gray-400 font-semibold mb-3">
+              
+              <div className="text-lg text-gray-400 font-semibold mb-3 flex justify-between">
                 Administrator / Project Manager's
+                <div>
+               {currentUserIsAdmin && <Button variant={"primary"} size={"sm"} onClick={()=>setIsOpen(true)}>Add Member's</Button>}
+              </div>
               </div>
               <div className="flex gap-5 h-full w-full py-2 flex-wrap">
                 {assignedUsers
@@ -393,6 +475,76 @@ function ProjectMember() {
             </div>
           </div>
         </>
+      )}
+      {currentUserIsAdmin && (
+        <Dialog
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          hasEscClose={true}
+          modalClass="sm:rounded-lg p-4 h-full md:h-auto w-full max-w-md"
+        >
+          <div>
+            <div className="text-xl">Add Member</div>
+            <Button
+              onClick={() => setIsOpen(false)}
+              variant={"ghost"}
+              size={"icon"}
+              className="absolute top-1 right-1"
+            >
+              <img src={CrossIcon}></img>
+            </Button>
+            <form onSubmit={addOrgMemberForm.handleSubmit}>
+              <div>
+                <FormLabel htmlFor="email">Member Email</FormLabel>
+                <InputEmail
+                  name="email"
+                  id="email"
+                  placeholder="Enter member email"
+                  value={addOrgMemberForm.values.email}
+                  onChange={addOrgMemberForm.handleChange}
+                />
+                <ErrorMessage>
+                  {addOrgMemberForm.touched.email &&
+                    addOrgMemberForm.errors.email}
+                </ErrorMessage>
+              </div>
+              <div>
+                <FormLabel htmlFor="role">Role</FormLabel>
+                <InputSelect
+                  onChange={(val) => {
+                    if (val) {
+                      const selectedRole =
+                        val as (typeof memberRoleOptions)[number];
+                      const selectedRoleValue = selectedRole?.value;
+                      setSelectedRole(selectedRole);
+                      addOrgMemberForm.setFieldValue("role", selectedRoleValue);
+                    }
+                  }}
+                  onBlur={addOrgMemberForm.handleBlur}
+                  options={memberRoleOptions}
+                  value={selectedRole}
+                  placeholder="Select role"
+                  name="role"
+                  id="role"
+                />
+                <ErrorMessage>
+                  {addOrgMemberForm.touched.role &&
+                    addOrgMemberForm.errors.role}
+                </ErrorMessage>
+              </div>
+              <div className="text-right">
+                <Button
+                  variant={"primary"}
+                  type="submit"
+                  isLoading={isAddOrgMemberSubmitting}
+                  disabled={isAddOrgMemberSubmitting}
+                >
+                  Add
+                </Button>
+              </div>
+            </form>
+          </div>
+        </Dialog>
       )}
       <Dialog
         isOpen={Boolean(remove)}

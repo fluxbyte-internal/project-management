@@ -186,7 +186,7 @@ function AccountSettings() {
       userProfileForm.handleSubmit();
     }
     if (
-      user.userOrganisation[0].jobTitle !== userOrgSettingForm.values.jobTitle
+      user.userOrganisation[0]?.jobTitle !== userOrgSettingForm.values.jobTitle
     ) {
       userOrgSettingForm.handleSubmit();
     }
@@ -362,7 +362,7 @@ function AccountSettings() {
                     isJobTitleSubmitting ||
                     !(
                       userProfileHasChanges ||
-                      user.userOrganisation[0].jobTitle !==
+                      user.userOrganisation[0]?.jobTitle !==
                         userOrgSettingForm.values.jobTitle
                     )
                   }

@@ -39,9 +39,12 @@ function Tasks() {
   const close = () => {
     setTaskId(undefined);
     setTaskCreate(false);
-    allTaskQuery.refetch();
+    
   };
-
+  // useEffect(() => {
+  //   allTaskQuery.refetch();
+  // }, [third])
+  
   const columnDef: ColumeDef[] = [
     {
       key: "dropdown",
@@ -226,7 +229,7 @@ function Tasks() {
 
   useEffect(() => {
     allTaskQuery.refetch();
-  }, [projectId]);
+  }, [projectId,taskId]);
 
   const [searchParams] = useSearchParams();
 
@@ -323,6 +326,7 @@ function Tasks() {
                   FIELDS.OVERDUEDAYS,
                   FIELDS.TODAYDUEDAYS,
                 ]}
+                view="LIST"
                 ref={filterRef}
                 filteredData={(data) => setFilterData(setData(data))}
                 tasks={taskData}

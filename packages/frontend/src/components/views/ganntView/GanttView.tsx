@@ -432,7 +432,7 @@ function GanttView() {
         nonworkingDays={HandleNonWorkingDays()}
         monthScale={monthScale}
         monthFormat="long"
-        dayFormat="long"
+        dayFormat="numeric"
         weekFormat="long"
         disableSelection
         view={filterUnit}
