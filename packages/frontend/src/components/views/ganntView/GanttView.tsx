@@ -391,8 +391,6 @@ function GanttView() {
       setMonthScale("day");
     }
   }, [filterUnit]);
-  console.log(monthScale);
-
   return (
     <div className="h-full w-full flex flex-col py-5">
       <div className="flex justify-between">
