@@ -86,7 +86,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
       startDate: "" as unknown as Date,
       estimatedEndDate: "" as unknown as Date,
       estimatedBudget: "",
-      defaultView: "KANBAN",
+      defaultView: "LIST",
       currency: "USD",
     },
     validationSchema:

@@ -39,9 +39,12 @@ function Tasks() {
   const close = () => {
     setTaskId(undefined);
     setTaskCreate(false);
-    allTaskQuery.refetch();
+    
   };
-
+  // useEffect(() => {
+  //   allTaskQuery.refetch();
+  // }, [third])
+  
   const columnDef: ColumeDef[] = [
     {
       key: "dropdown",
@@ -66,10 +69,10 @@ function Tasks() {
             item?.flag == "Green"
               ? "bg-green-500/60 border border-green-500"
               : item?.flag == "Red"
-              ? "bg-red-500/60 border border-red-500/60"
-              : item?.flag == "Orange"
-              ? "bg-primary-500/60 border border-primary-500/60"
-              : ""
+                ? "bg-red-500/60 border border-red-500/60"
+                : item?.flag == "Orange"
+                  ? "bg-primary-500/60 border border-primary-500/60"
+                  : ""
           }`}
         ></div>
       ),
@@ -200,16 +203,19 @@ function Tasks() {
   useEffect(() => {
     if (allTaskQuery.data?.data.data) {
       setTaskData(setData(allTaskQuery.data?.data.data));
-      setFilterData(setData(allTaskQuery.data?.data.data));
+      setFilterData(
+        setData(allTaskQuery.data?.data.data)?.sort(
+          (a, b) =>
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+        ),
+      );
     }
     filterRef.current?.callFilter()
   }, [allTaskQuery.data?.data.data]);
 
   useEffect(() => {
     if (searchParams.get("milestones")) {
-      setFilterData(
-         taskData?.filter((d) => d.milestoneIndicator)
-      );
+      setFilterData(taskData?.filter((d) => d.milestoneIndicator));
     }
     if (searchParams.get("status")) {
       setFilterData(
@@ -219,12 +225,11 @@ function Tasks() {
         )
       );
     }
-  }, [taskData])
-  
+  }, [taskData]);
 
   useEffect(() => {
     allTaskQuery.refetch();
-  }, [projectId]);
+  }, [projectId,taskId]);
 
   const [searchParams] = useSearchParams();
 
@@ -251,20 +256,19 @@ function Tasks() {
     return convertedTask;
   };
 
-  
   const checkTaskStatus = (task: Task, status: string) => {
-    if(task.subtasks && task.subtasks.length > 0){
-      const index = task.subtasks.findIndex((subtask)=>{
+    if (task.subtasks && task.subtasks.length > 0) {
+      const index = task.subtasks.findIndex((subtask) => {
         return checkTaskStatus(subtask, status);
-      })
-      return index !== -1
+      });
+      return index !== -1;
     }
-    return task.status === status
-  }
+    return task.status === status;
+  };
 
   function findParentTasksWithDoneStatus(tasks: Task[], status: string) {
     return tasks.filter((task) => {
-      return checkTaskStatus(task,status);
+      return checkTaskStatus(task, status);
     });
   }
 
@@ -322,6 +326,7 @@ function Tasks() {
                   FIELDS.OVERDUEDAYS,
                   FIELDS.TODAYDUEDAYS,
                 ]}
+                view="LIST"
                 ref={filterRef}
                 filteredData={(data) => setFilterData(setData(data))}
                 tasks={taskData}

@@ -1,7 +1,10 @@
 import PercentageCircle from "@/components/shared/PercentageCircle";
 import Table, { ColumeDef } from "@/components/shared/Table";
 import dateFormatter from "@/helperFuntions/dateFormater";
-import useProjectQuery, { Project } from "../../api/query/useProjectQuery";
+import useProjectQuery, {
+  CreatedByUser,
+  Project,
+} from "../../api/query/useProjectQuery";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
@@ -47,18 +50,22 @@ function ProjectsList() {
   });
   const { user } = useUser();
   const navigate = useNavigate();
-
   const projectQuery = useProjectQuery();
-  const [searchParams,setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     setData(projectQuery.data?.data.data);
     setFilterData(projectQuery.data?.data.data);
     if (searchParams.get("status")) {
-      setFilter(prev => ({...prev,status:{label:searchParams.get("status")??"",value:searchParams.get("status")??""}}));
+      setFilter((prev) => ({
+        ...prev,
+        status: {
+          label: searchParams.get("status") ?? "",
+          value: searchParams.get("status") ?? "",
+        },
+      }));
     }
-  }, [projectQuery.data?.data.data,searchParams]);
-
+  }, [projectQuery.data?.data.data, searchParams]);
 
   const close = () => {
     setIsOpenPopUp(false);
@@ -76,12 +83,21 @@ function ProjectsList() {
       item.projectManagerInfo.forEach((element) => {
         const val = element.user.email;
         if (!projectManagerData.some((i) => i.value == element.user.email)) {
-          projectManagerData.push({ label: val, value: val });
+          projectManagerData.push({
+            label: projectManagerName(element.user),
+            value: val,
+          });
         }
       });
     });
 
     return projectManagerData;
+  };
+  const projectManagerName = (data: CreatedByUser): string => {
+    if (data.firstName && data.lastName) {
+      return data.firstName + " " + data.lastName;
+    }
+    return data.email;
   };
   const status = (): Options[] | undefined => {
     const statusData: Options[] | undefined = [
@@ -137,7 +153,7 @@ function ProjectsList() {
       onCellRender: (item: Project) => (
         <div className="w-full my-3">
           {item.assignedUsers.filter(
-            (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER"
+            (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER",
           )?.length > 0 ? (
               <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
                 {item.assignedUsers
@@ -160,18 +176,18 @@ function ProjectsList() {
                   })}
                 {item.projectManagerInfo &&
                 item.assignedUsers.filter(
-                  (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER"
+                  (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER",
                 )?.length > 3 && (
                   <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
                     {`${
                       item.assignedUsers.filter(
-                        (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER"
+                        (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER",
                       )?.length - 3
                     }+`}
                   </div>
                 )}
                 {item.assignedUsers.filter(
-                  (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER"
+                  (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER",
                 )?.length <= 0
                   ? "N/A"
                   : ""}
@@ -220,7 +236,13 @@ function ProjectsList() {
       key: "progress",
       header: "Progress",
       onCellRender: (item: Project) => (
-        <PercentageCircle percentage={item.progressionPercentage ? Number(item.progressionPercentage) * 100 : 0} />
+        <PercentageCircle
+          percentage={
+            item.progressionPercentage
+              ? Number(item.progressionPercentage) * 100
+              : 0
+          }
+        />
       ),
     },
     {
@@ -260,7 +282,7 @@ function ProjectsList() {
   const reactSelectStyle = {
     control: (
       provided: Record<string, unknown>,
-      state: { isFocused: boolean }
+      state: { isFocused: boolean },
     ) => ({
       ...provided,
       border: "1px solid #E7E7E7",
@@ -386,7 +408,7 @@ function ProjectsList() {
                           <div className="flex justify-between items-center w-full text-gray-400 font-normal">
                             {filter.date
                               ? `${dateFormatter(
-                                filter.date.from ?? new Date()
+                                filter.date.from ?? new Date(),
                               )}-
                               ${dateFormatter(filter.date.to ?? new Date())}`
                               : "End date"}

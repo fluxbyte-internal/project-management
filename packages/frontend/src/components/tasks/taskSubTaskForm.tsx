@@ -121,7 +121,6 @@ function TaskSubTaskForm(props: Props) {
       );
     }
   }, [taskId, taskQuery.data]);
-
   const taskFormik = useFormik<z.infer<typeof createTaskSchema>>({
     initialValues: {
       taskName: "",
@@ -307,6 +306,11 @@ function TaskSubTaskForm(props: Props) {
     } else {
       return Object.keys(TaskStatusEnumValue);
     }
+  };
+  const taskSubmit=()=>{
+    taskFormik.submitForm().finally(()=>{
+        props.close();
+    });
   };
   return (
     <div className="absolute w-full h-full z-50 top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-gray-900 bg-opacity-50">
@@ -920,10 +924,7 @@ function TaskSubTaskForm(props: Props) {
           <div>
             <Button
               variant={"primary"}
-              onClick={() => {
-                props.close();
-                taskFormik.submitForm();
-              }}
+              onClick={taskSubmit}
             >
               Submit
             </Button>
