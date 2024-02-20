@@ -20,8 +20,8 @@ export type SideBarProps = {
 };
 
 function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
-  const { id } = useParams();
-  const [isSelected, setIsSelected] = useState<string | undefined>(id);
+  const { id,projectId } = useParams();
+  const [isSelected, setIsSelected] = useState<string | undefined>(id??projectId);
 
   const [isOpen, setIsOpen] = useState<boolean>(true);
   const [isProjectCreate, setProjectCreate] = useState(false);
@@ -45,6 +45,10 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
   const handleTask = (id: string) => {
     setIsSelected(id);
     navigate("/tasks/" + id);
+  };
+  const handleProjectMember = (id: string) => {
+    setIsSelected(id);
+    navigate("/members/" + id);
   };
   const handleSidebarClick = () => {
     if (!isSidebarExpanded) {
@@ -147,6 +151,12 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
                         onClick={() => handleClick(item.projectId)}
                       >
                         Details
+                      </div>
+                      <div
+                        className="cursor-pointer text-sm font-medium text-gray-700 p-1 rounded-md px-4 hover:bg-slate-100/80"
+                        onClick={() => handleProjectMember(item.projectId)}
+                      >
+                        Project Member's
                       </div>
                       <div
                         className="cursor-pointer text-sm font-medium text-gray-700 p-1 rounded-md px-4 hover:bg-slate-100/80"

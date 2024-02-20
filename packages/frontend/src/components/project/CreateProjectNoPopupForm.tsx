@@ -26,16 +26,19 @@ import {
   OverAllTrackEnumValue,
   ProjectStatusEnumValue,
   ScheduleAndBudgetTrend,
+  // UserRoleEnumValue,
 } from "@backend/src/schemas/enums";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import UsersIcon from "@/assets/svg/Users.svg";
-import UserAvatar from "../ui/userAvatar";
-import useProjectMemberListQuery from "@/api/query/useAllUserOfOrganition";
-import { CheckIcon } from "lucide-react";
-import useProjectAddMembersMutation from "@/api/mutation/useAddMemberProject";
-import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
-import { cn } from "@/lib/utils";
-import useRemoveProjectMemberMutation from "@/api/mutation/useRemoveMemberProject";
+// import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+// import UsersIcon from "@/assets/svg/Users.svg";
+// import UserAvatar from "../ui/userAvatar";
+// import useProjectMemberListQuery from "@/api/query/useAllUserOfOrganition";
+// import { CheckIcon } from "lucide-react";
+// import useProjectAddMembersMutation from "@/api/mutation/useAddMemberProject";
+// import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
+// import { cn } from "@/lib/utils";
+// import useRemoveProjectMemberMutation from "@/api/mutation/useRemoveMemberProject";
+// import { useNavigate } from "react-router-dom";
+// import { useUser } from "@/hooks/useUser";
 
 type Options = { label: string; value: string };
 
@@ -73,7 +76,7 @@ const RADIO_BUTTON_OPTIONS = [
 ];
 
 function CreateProjectNoPopUpForm(props: AddProjectType) {
-  const projectMemberListQuery = useProjectMemberListQuery();
+  // const projectMemberListQuery = useProjectMemberListQuery();
   const { editData, refetch, viewOnly } = props;
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const errorStyle = "text-red-400 block text-sm h-1";
@@ -81,16 +84,16 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
   const inputStyle =
     "py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[46px]";
   const projectUpdateMutation = useProjectUpdateMutation(
-    editData ? editData.projectId : ""
+    editData ? editData.projectId : "",
   );
   const [currencyValue, setCurrencyValue] = useState<SingleValue<Options>>();
 
   const projectQuery = useProjectQuery();
-  const projectAddMembersMutation = useProjectAddMembersMutation(
-    editData?.projectId
-  );
-  const removeProjectMemberMutation = useRemoveProjectMemberMutation();
-
+  // const projectAddMembersMutation = useProjectAddMembersMutation(
+  //   editData?.projectId,
+  // );
+  // const removeProjectMemberMutation = useRemoveProjectMemberMutation();
+  // const user = useUser()
   const formik = useFormik<z.infer<typeof updateProjectSchema>>({
     initialValues: {
       projectName: "",
@@ -98,13 +101,13 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
       startDate: "" as unknown as Date,
       estimatedEndDate: "" as unknown as Date,
       estimatedBudget: "",
-      defaultView: "KANBAN",
+      defaultView: "LIST",
       currency: "USD",
       status: "NOT_STARTED",
       overallTrack: "SUNNY",
       scheduleTrend: "STABLE",
       budgetTrend: "STABLE",
-      consumedBudget:'',
+      consumedBudget: "",
     },
     validationSchema: toFormikValidationSchema(updateProjectSchema),
     onSubmit: (values, helper) => {
@@ -131,7 +134,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
               if (!Array.isArray(error.response?.data.errors)) {
                 toast.error(
                   error.response?.data?.message ??
-                    "An unexpected error occurred."
+                    "An unexpected error occurred.",
                 );
               }
             }
@@ -156,7 +159,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
       formik.setValues({
         startDate: formatDate(editData.startDate) as unknown as Date,
         estimatedEndDate: formatDate(
-          editData.estimatedEndDate
+          editData.estimatedEndDate,
         ) as unknown as Date,
         estimatedBudget: editData.estimatedBudget,
         projectDescription: editData.projectDescription,
@@ -166,7 +169,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
         overallTrack: editData.overallTrack,
         scheduleTrend: editData.scheduleTrend,
         budgetTrend: editData.budgetTrend,
-        consumedBudget:editData.consumedBudget,
+        consumedBudget: editData.consumedBudget,
       });
       setCurrencyValue({ label: editData.currency, value: editData.currency });
     }
@@ -182,7 +185,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
   const reactSelectStyle = {
     control: (
       provided: Record<string, unknown>,
-      state: { isFocused: boolean }
+      state: { isFocused: boolean },
     ) => ({
       ...provided,
       border: "1px solid #E7E7E7",
@@ -201,35 +204,36 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
       formik.setFieldValue("currency", val.value);
     }
   };
+  // const navigate = useNavigate()
 
-  const submitMembers = (user: UserOrganisationType) => {
-    if (user) {
-      projectAddMembersMutation.mutate(
-        { assginedToUserId: user.user.userId },
-        {
-          onSuccess(data) {
-            refetch();
-            toast.success(data.data.message);
-          },
-          onError(error) {
-            toast.error(error.response?.data.message);
-          },
-        }
-      );
-    }
-  };
+  // const submitMembers = (user: UserOrganisationType) => {
+  //   if (user) {
+  //     projectAddMembersMutation.mutate(
+  //       { assginedToUserId: user.user.userId },
+  //       {
+  //         onSuccess(data) {
+  //           refetch();
+  //           toast.success(data.data.message);
+  //         },
+  //         onError(error) {
+  //           toast.error(error.response?.data.message);
+  //         },
+  //       },
+  //     );
+  //   }
+  // };
 
-  const removeMembers = (id: string) => {
-    removeProjectMemberMutation.mutate(id, {
-      onSuccess(data) {
-        refetch();
-        toast.success(data.data.message);
-      },
-      onError(error) {
-        toast.error(error.response?.data.message);
-      },
-    });
-  };
+  // const removeMembers = (id: string) => {
+  //   removeProjectMemberMutation.mutate(id, {
+  //     onSuccess(data) {
+  //       refetch();
+  //       toast.success(data.data.message);
+  //     },
+  //     onError(error) {
+  //       toast.error(error.response?.data.message);
+  //     },
+  //   });
+  // };
   return (
     <div className="mt-4">
       <div className="">
@@ -429,7 +433,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
             Project Management
             <hr className="w-2/5" />
           </div>
-          <div className="lg:flex lg:flex-row flex-col  gap-16 lg:my-3">
+          {/* <div className="lg:flex lg:flex-row flex-col  gap-16 lg:my-3">
             <div className="lg:w-[50%] w-full my-6 lg:my-0">
               <Popover>
                 <PopoverTrigger className="w-full" disabled={viewOnly}>
@@ -458,20 +462,20 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                                 key={index}
                                 className={`flex items-center p-1 my-1 gap-4 hover:bg-slate-100 rounded-md ${
                                   editData?.assignedUsers.some(
-                                    (u) => u.user.userId == data.user.userId
+                                    (u) => u.user.userId == data.user.userId,
                                   )
                                     ? "bg-slate-100/80"
                                     : ""
                                 }`}
                                 onClick={() => {
                                   editData?.assignedUsers.some(
-                                    (u) => u.user.userId == data.user.userId
+                                    (u) => u.user.userId == data.user.userId,
                                   )
                                     ? removeMembers(
                                       editData?.assignedUsers.find(
                                         (id) =>
-                                          id.user.userId == data.user.userId
-                                      )?.projectAssignUsersId ?? ""
+                                          id.user.userId == data.user.userId,
+                                      )?.projectAssignUsersId ?? "",
                                     )
                                     : submitMembers(data);
                                 }}
@@ -492,16 +496,16 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                                   className={cn(
                                     "ml-auto h-4 w-4",
                                     editData?.assignedUsers.some(
-                                      (u) => u.user.userId == data.user.userId
+                                      (u) => u.user.userId == data.user.userId,
                                     )
                                       ? "opacity-100"
-                                      : "opacity-0"
+                                      : "opacity-0",
                                   )}
                                 />
                               </div>
                             )
                           );
-                        }
+                        },
                       )}
                     </div>
                   </div>
@@ -534,20 +538,20 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                                 key={index}
                                 className={`flex items-center p-1 my-1 gap-4 hover:bg-slate-100 rounded-md ${
                                   editData?.assignedUsers.some(
-                                    (u) => u.user.userId == data.user.userId
+                                    (u) => u.user.userId == data.user.userId,
                                   )
                                     ? "bg-slate-100/80"
                                     : ""
                                 }`}
                                 onClick={() => {
                                   editData?.assignedUsers.some(
-                                    (u) => u.user.userId == data.user.userId
+                                    (u) => u.user.userId == data.user.userId,
                                   )
                                     ? removeMembers(
                                       editData?.assignedUsers.find(
                                         (id) =>
-                                          id.user.userId == data.user.userId
-                                      )?.projectAssignUsersId ?? ""
+                                          id.user.userId == data.user.userId,
+                                      )?.projectAssignUsersId ?? "",
                                     )
                                     : submitMembers(data);
                                 }}
@@ -568,23 +572,23 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                                   className={cn(
                                     "ml-auto h-4 w-4",
                                     editData?.assignedUsers.some(
-                                      (u) => u.user.userId == data.user.userId
+                                      (u) => u.user.userId == data.user.userId,
                                     )
                                       ? "opacity-100"
-                                      : "opacity-0"
+                                      : "opacity-0",
                                   )}
                                 />
                               </div>
                             )
                           );
-                        }
+                        },
                       )}
                     </div>
                   </div>
                 </PopoverContent>
               </Popover>
             </div>
-          </div>
+          </div> */}
           <div className="sm:flex gap-16 my-3">
             <div className="sm:w-[50%] w-full">
               <div className={labelStyle}>Status</div>
@@ -683,9 +687,8 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
               </ErrorMessage>
             </div>
           </div>
-          <div className="grid lg:grid-cols-2 gap-14">
-
-            <div className="">
+          <div className="sm:flex gap-16 my-3">
+            <div className="sm:w-[50%] w-full">
               <div>
                 <label className={labelStyle}>Consumed Budget</label>
                 <span className="ml-0.5 text-red-500">*</span>
@@ -704,6 +707,14 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 {formik.touched.consumedBudget && formik.errors.consumedBudget}
               </span>
             </div>
+            {/* {user.user?.userOrganisation[0].role === UserRoleEnumValue.ADMINISTRATOR && <div className="sm:w-[50%] w-full mt-8">
+              <Button variant={"outline"} className="h-12 w-full" onClick={()=>navigate(`organization/${localStorage.getItem("organization-id")}`)}>
+                <div className="text-left flex items-center text-gray-400" > 
+                  <div className="text-2xl text-center">&#x2b;</div> 
+                  <div className="mt-1">Add member to organization</div>
+                </div>
+              </Button>
+            </div>} */}
           </div>
 
           {!viewOnly && (

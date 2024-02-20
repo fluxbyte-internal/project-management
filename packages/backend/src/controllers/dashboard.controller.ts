@@ -164,8 +164,7 @@ export const administartorProjects = async (req: Request, res: Response) => {
     data: Object.values(overallSituationCounts),
   };
 
-  // Fetch project manager information for each project
-  const projectsWithProjectManager = await Promise.all(
+  const projectsWithCPI = await Promise.all(
     orgCreatedByUser.projects.map(async (project) => {
       const CPI = await calculationCPI(project, req.tenantId, organisationId);
       const completedTasksCount = await prisma.task.count({
@@ -193,42 +192,32 @@ export const administartorProjects = async (req: Request, res: Response) => {
           user: true,
         },
       });
-      // If project manager not found, get administrators of the organization
-      if (projectManagerInfo.length === 0) {
-        const projectAdministartor = await prisma.userOrganisation.findMany({
-          where: {
-            role: {
-              equals: UserRoleEnum.ADMINISTRATOR,
-            },
-            organisationId: req.organisationId,
-            deletedAt: null,
+      const projectAdministartor = await prisma.userOrganisation.findMany({
+        where: {
+          role: {
+            equals: UserRoleEnum.ADMINISTRATOR,
           },
-          include: {
-            user: true,
-          },
-        });
-        return {
-          ...project,
-          projectManagerInfo: projectAdministartor,
-          CPI,
-          completedTasksCount
-        };
-      } else {
-        return {
-          ...project,
-          projectManagerInfo,
-          CPI,
-          completedTasksCount
-        };
-      }
+          organisationId: req.organisationId,
+          deletedAt: null,
+        },
+        include: {
+          user: true,
+        },
+      });
+      return {
+        ...project,
+        CPI,
+        completedTasksCount,
+        projectManager: projectManagerInfo.length === 0 ?  projectAdministartor : projectManagerInfo
+      };
     })
   );
+  orgCreatedByUser.projects = projectsWithCPI;
 
   const response = {
     orgCreatedByUser,
     statusChartData,
     overallSituationChartData,
-    projectsWithProjectManager,
   };
   return new SuccessResponse(
     StatusCodes.OK,

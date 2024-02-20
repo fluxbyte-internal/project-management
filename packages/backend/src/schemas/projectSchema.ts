@@ -10,6 +10,11 @@ export const createProjectSchema = z.object({
   estimatedBudget: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}),
   defaultView: z.nativeEnum(ProjectDefaultViewEnumValue,{required_error:ZodErrorMessageEnumValue.REQUIRED}),
   currency: z.string({required_error:ZodErrorMessageEnumValue.REQUIRED}),
+}).refine(data => {
+  return new Date(data.estimatedEndDate) >= new Date(data.startDate);
+}, {
+  message: 'End date precedes start date.',
+  path: ['estimatedEndDate'] 
 });
 
 export const updateProjectSchema = z.object({
@@ -29,6 +34,11 @@ export const updateProjectSchema = z.object({
   scheduleTrend: z.nativeEnum(ScheduleAndBudgetTrend).optional(),
   budgetTrend: z.nativeEnum(ScheduleAndBudgetTrend).optional(),
   consumedBudget: z.string().min(1).optional()
+}).refine(data => {
+  return new Date(data?.estimatedEndDate ?? new Date()) >= new Date(data.startDate?? new Date());
+}, {
+  message: 'End date precedes start date.',
+  path: ['estimatedEndDate'] 
 });
 
 export const projectIdSchema = z.string().uuid();

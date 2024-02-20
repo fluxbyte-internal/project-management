@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import dateFormater from "@/helperFuntions/dateFormater";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 import { Project } from "@/api/query/useProjectQuery";
+import LinkArrow from "@/assets/svg/linkArrow.svg";
 
 function ManagerDashboard() {
   const projectManagerPortfolioDashboardQuery =
@@ -29,7 +30,12 @@ function ManagerDashboard() {
   //     name,
   //     value: data?.overallSituationChartData?.data[index],
   //   }));
-
+  const formatStatus = (status: string): string => {
+    return status
+      .replace(/_/g, " ")
+      .toLowerCase()
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  };
   useEffect(() => {
     setData(projectManagerPortfolioDashboardQuery?.data?.data?.data);
   }, [projectManagerPortfolioDashboardQuery?.data?.data?.data]);
@@ -37,9 +43,9 @@ function ManagerDashboard() {
   useEffect(() => {
     setTableData(data?.projects);
     const statusPieChartData = data?.statusChartData?.labels.map(
-      (name, index) => ({
+      (name: string, index) => ({
         value: Number(data?.statusChartData?.data[index]),
-        name,
+        name: formatStatus(name),
       })
     );
 
@@ -89,7 +95,7 @@ function ManagerDashboard() {
   const columnDef: ColumeDef[] = [
     {
       key: "projectName",
-      header: "Project Name",
+      header: "Title",
       sorting: true,
       onCellRender: (projectData) => {
         return (
@@ -101,21 +107,12 @@ function ManagerDashboard() {
         );
       },
     },
-
-    // {
-    //   key: "progress",
-    //   header: "Progress",
-    //   onCellRender: (item: Project) => (
-    //     <PercentageCircle percentage={item.progressionPercentage} />
-    //   ),
-    // },
     {
       key: "CPI",
       header: "CPI",
       onCellRender: (item: Project) => (
         <>
           {item.CPI ? item.CPI.toFixed(2) : (0.0).toFixed(2)}{" "}
-          {console.log(item.CPI)}
         </>
       ),
     },
@@ -136,22 +133,7 @@ function ManagerDashboard() {
         </>
       ),
     },
-    // {
-    //   key: "status",
-    //   header: "Status",
-    //   onCellRender: (item) => (
-    //     <>
-    //       <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
-    //         <div className="text-cyan-700 text-xs font-medium leading-tight">
-    //           {item?.status
-    //             .toLowerCase()
-    //             .replace(/_/g, " ")
-    //             .replace(/\b\w/g, (char:string) => char.toUpperCase())}
-    //         </div>
-    //       </div>
-    //     </>
-    //   ),
-    // },
+
     {
       key: "estimatedBudget",
       header: "Budget",
@@ -180,20 +162,25 @@ function ManagerDashboard() {
                 <div
                   onClick={() => filterRoutes(labelData)}
                   key={index}
-                  className={`flex flex-col gap-2 cursor-pointer lg:gap-5 w-full lg:w-2/5 h-1/5 lg:h-full  rounded-2xl p-2 lg:py-3 text-start items-start justify-start px-10 border-l-[12px] ${
+                  className={`relative flex flex-col gap-2 lg:gap-5 w-full lg:w-2/5 h-1/5 lg:h-full  rounded-2xl p-2 lg:py-3 text-start items-start justify-start px-10 border-l-[12px] ${
                     labelData === "ACTIVE"
                       ? "text-primary-600  border-2 border-primary-600 "
                       : labelData === "ON_HOLD"
-                        ? "text-primary-800 border-2 border-primary-800"
-                        : labelData === "NOT_STARTED"
-                          ? "text-primary-950 border-2 border-primary-950"
-                          : "text-gray-800 border-2 border-gray-300  "
+                      ? "text-primary-800 border-2 border-primary-800"
+                      : labelData === "NOT_STARTED"
+                      ? "text-primary-950 border-2 border-primary-950"
+                      : "text-gray-800 border-2 border-gray-300  "
                   }`}
                 >
                   <a className="text-base font-bold items-end">{labelData}</a>
                   <a className="text-4xl lg:text-5xl font-semibold">
                     {data?.statusChartData?.data[index]}
                   </a>
+                  <img
+                    className=" absolute right-2 bottom-2 h-6 w-6 opacity-50 hover:opacity-100 cursor-pointer"
+                    onClick={() => filterRoutes(labelData)}
+                    src={LinkArrow}
+                  />
                 </div>
               </>
             ))}
@@ -212,9 +199,6 @@ function ManagerDashboard() {
           <div className="situation rounded-2xl w-3/4 lg:w-1/2 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <PieChart chartProps={overallStatusPieChartProp!} />
           </div>
-          {/* <div className="severity rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
-            <PieChart chartProps={chartProp4} />
-          </div> */}
           <div className="risks rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <HorizontalBarChart chartProps={chartProp5} />
           </div>

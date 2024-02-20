@@ -23,10 +23,11 @@ type Filter = {
   tasks: Task[] | undefined;
   fieldToShow: FIELDS[];
   filteredData: (data: Task[] | undefined) => void;
+  view?: string;
 };
 export type TaskFilterRef = {
   callFilter: () => void;
-}
+};
 const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
   useImperativeHandle(ref, () => ({
     callFilter() {
@@ -64,30 +65,46 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
     return projectManagerData;
   };
 
-
   const searchTask = (searchString: string) => {
-    const tempData: Task[] = [];
-    tasks?.forEach((element) => {
-      const searchStringLower = searchString.toLowerCase();
-      const searchStringUpper = searchString.toUpperCase();
-      const taskNameLower = element.taskName.toLowerCase();
-      const taskDescriptionLower = element.taskDescription.toLowerCase();
-      const taskNameUpper = element.taskName.toUpperCase();
-      const taskDescriptionUpper = element.taskDescription.toUpperCase();
+    let tempData: Task[] = [];
+    if (props.view == "LIST") {
+      tempData = findParentTasksWithTaskName(tasks ?? [], searchString);
+    } else {
+      tasks?.forEach((element) => {
+        const searchStringLower = searchString.toLowerCase();
+        const searchStringUpper = searchString.toUpperCase();
+        const taskNameLower = element.taskName.toLowerCase();
+        const taskDescriptionLower = element.taskDescription.toLowerCase();
+        const taskNameUpper = element.taskName.toUpperCase();
+        const taskDescriptionUpper = element.taskDescription.toUpperCase();
 
-      if (
-        taskNameLower.includes(searchStringLower) ||
-        taskDescriptionLower.includes(searchStringLower) ||
-        taskNameUpper.includes(searchStringUpper) ||
-        taskDescriptionUpper.includes(searchStringUpper)
-      ) {
-        tempData.push(element);
-      }
-    });
+        if (
+          taskNameLower.includes(searchStringLower) ||
+          taskDescriptionLower.includes(searchStringLower) ||
+          taskNameUpper.includes(searchStringUpper) ||
+          taskDescriptionUpper.includes(searchStringUpper)
+        ) {
+          tempData.push(element);
+        }
+      });
+    }
 
     props.filteredData(tempData);
   };
+  const checkTaskName = (task: Task, name: string): boolean => {
+    if (task.taskName.toLowerCase().includes(name.toLowerCase())) {
+      return true;
+    }
+    if (task.subtasks && task.subtasks.length > 0) {
+      return task.subtasks.some((subtask) => checkTaskName(subtask, name));
+    }
+    return false;
+  };
 
+  function findParentTasksWithTaskName(tasks: Task[], name: string): Task[] {
+    const searchName = name.toLowerCase();
+    return tasks.filter((task) => checkTaskName(task, searchName));
+  }
   const reactSelectStyle = {
     control: (
       provided: Record<string, unknown>,

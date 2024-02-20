@@ -239,6 +239,7 @@ function GanttView() {
       {
         onSuccess(data) {
           toast.success(data.data.message);
+          allTaskQuery.refetch();
         },
         onError(error) {
           toast.error(error.response?.data.message);
@@ -382,7 +383,14 @@ function GanttView() {
       setTaskEdit(target.alt);
     }
   };
-
+  const [monthScale, setMonthScale] = useState("week");
+  useEffect(() => {
+    if (filterUnit === "month") {
+      setMonthScale("week");
+    } else {
+      setMonthScale("day");
+    }
+  }, [filterUnit]);
   return (
     <div className="h-full w-full flex flex-col py-5">
       <div className="flex justify-between">
@@ -420,8 +428,9 @@ function GanttView() {
         treeSize={treeSize}
         durationUnit={durationUnit}
         nonworkingDays={HandleNonWorkingDays()}
-        monthScale="week"
-        dayFormat="short"
+        monthScale={monthScale}
+        monthFormat="long"
+        dayFormat="numeric"
         weekFormat="long"
         disableSelection
         view={filterUnit}
