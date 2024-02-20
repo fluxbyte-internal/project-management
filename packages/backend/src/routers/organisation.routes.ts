@@ -8,6 +8,12 @@ let router = express.Router();
 router.get("/:organisationId", OrganisationControlller.getOrganisationById);
 
 router.put(
+  "/holiday-csv/:organisationId",
+  roleMiddleware([UserRoleEnum.ADMINISTRATOR]),
+  OrganisationControlller.uploadHolidayCSV
+);
+
+router.put(
   "/re-assigned-task/",
   roleMiddleware([UserRoleEnum.ADMINISTRATOR]),
   OrganisationControlller.reassignTasks

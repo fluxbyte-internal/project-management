@@ -10,9 +10,16 @@ import {
 } from "@prisma/client";
 import { StatusCounts } from "../types/statusCount.js";
 import { uuidSchema } from "../schemas/commonSchema.js";
+import { calculationSPI } from "../utils/calculateSPI.js";
+import { calculationCPI } from "../utils/calculateCPI.js";
+import { calculationTPI } from "../utils/calculationFlag.js";
 
 export const projectManagerProjects = async (req: Request, res: Response) => {
+  if(!req.organisationId) {
+    throw new BadRequestError("OrganisationId not found!")
+  }
   const userId = req.userId;
+  const organisationId = req.organisationId;
   const prisma = await getClientByTenantId(req.tenantId);
 
   const projectManagersProjects = await prisma.project.findMany({
@@ -78,7 +85,7 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
   };
 
   const projects = await Promise.all(projectManagersProjects.map(async (project) => {
-    const CPI = await prisma.project.calculationCPI(project);
+    const CPI = await calculationCPI(project, req.tenantId, organisationId);
     const completedTasksCount = await prisma.task.count({
       where: {
         projectId: project.projectId,
@@ -104,11 +111,12 @@ export const administartorProjects = async (req: Request, res: Response) => {
   if (!req.organisationId) {
     throw new BadRequestError("organisationId not found!");
   }
+  const organisationId = req.organisationId;
   const prisma = await getClientByTenantId(req.tenantId);
   const orgCreatedByUser = await prisma.organisation.findFirstOrThrow({
     where: {
       createdByUserId: req.userId,
-      organisationId: req.organisationId,
+      organisationId: organisationId,
       deletedAt: null,
     },
     include: {
@@ -158,7 +166,7 @@ export const administartorProjects = async (req: Request, res: Response) => {
 
   const projectsWithCPI = await Promise.all(
     orgCreatedByUser.projects.map(async (project) => {
-      const CPI = await prisma.project.calculationCPI(project);
+      const CPI = await calculationCPI(project, req.tenantId, organisationId);
       const completedTasksCount = await prisma.task.count({
         where: {
           projectId: project.projectId,
@@ -222,6 +230,10 @@ export const projectDashboardByprojectId = async (
   req: Request,
   res: Response
 ) => {
+  if (!req.organisationId) {
+    throw new BadRequestError("organisationId not found!!");
+  }
+  const organisationId = req.organisationId;
   const projectId = uuidSchema.parse(req.params.projectId);
 
   // Fetch projects created by the user
@@ -259,14 +271,14 @@ export const projectDashboardByprojectId = async (
   const actualCost = projectWithTasks.actualCost;
   const scheduleTrend = projectWithTasks.scheduleTrend;
   const budgetTrend = projectWithTasks.budgetTrend;
-  const projectProgression = await prisma.project.projectProgression(projectId);
+  const projectProgression = await prisma.project.projectProgression(projectId, req.tenantId, req.organisationId);
 
   // CPI
-  const cpi = await prisma.project.calculationCPI(projectWithTasks);
+  const cpi = await calculationCPI(projectWithTasks, req.tenantId, organisationId);
 
   // SPI
-  const tasksWithSPI = projectWithTasks.tasks.map(task => {
-    const spi = prisma.task.calculationSPI(task);
+  const tasksWithSPI = projectWithTasks.tasks.map(async task => {
+    const spi = await calculationSPI(task, req.tenantId, organisationId);
     return { 
       taskId: task.taskId,
       taskName: task.taskName,
@@ -304,12 +316,12 @@ export const projectDashboardByprojectId = async (
 
   // Calculate TPI and Deley for each task in the project
   const taskDelayChartDataPromises = projectWithTasks.tasks.map(async (task) => {
-    const tpiObj = prisma.task.tpiCalculation(task);
+    const flag = await calculationTPI(task, req.tenantId, organisationId);
     return {
       taskId: task.taskId,
       taskName: task.taskName,
-      tpiValue: tpiObj.tpiValue,
-      tpiFlag: tpiObj.tpiFlag,
+      tpiValue: flag.tpiValue,
+      tpiFlag: flag.tpiFlag,
     };
   });
   const taskDelayChartData = await Promise.all(taskDelayChartDataPromises);

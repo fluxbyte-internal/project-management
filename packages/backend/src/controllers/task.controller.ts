@@ -11,8 +11,15 @@ import { MilestoneIndicatorStatusEnum } from '@prisma/client';
 import { HistoryTypeEnumValue } from '../schemas/enums.js';
 import { removeProperties } from "../types/removeProperties.js";
 import { selectUserFields } from '../utils/selectedFieldsOfUsers.js';
+import { calculateWorkingDays } from '../utils/removeNonWorkingDays.js';
+import { calculationSubTaskProgression } from '../utils/calculationSubTaskProgression.js';
+import { taskFlag } from '../utils/calculationFlag.js';
 
 export const getTasks = async (req: express.Request, res: express.Response) => {
+  if (!req.organisationId) {
+    throw new BadRequestError("organisationId not found!!");
+  }
+  const organisationId = req.organisationId;
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const tasks = await prisma.task.findMany({
@@ -41,21 +48,27 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
       dependencies: true
     },
   });
-  const finalArray = tasks.map((task) => {
-    const duration = prisma.task.daysFromTwoDates(task.startDate, task.endDate);
-    const completionPecentage = prisma.task.calculationSubTaskProgression(task);
+  const finalArray = await Promise.all(tasks.map(async (task) => {
+    const endDate = task.milestoneIndicator ? task.dueDate : task.endDate;
+    const duration = await calculateWorkingDays(task.startDate, endDate!, req.tenantId, organisationId);
+    const completionPecentage = await calculationSubTaskProgression(task, req.tenantId, organisationId);
+    const flag = await taskFlag(task, req.tenantId, organisationId);
     const updatedTask = {
       ...task,
+      flag,
       duration,
       completionPecentage,
     };
     return updatedTask;
-  });
+  }));
 
   return new SuccessResponse(StatusCodes.OK, finalArray, 'get all task successfully').send(res);
 };
 
 export const getTaskById = async (req: express.Request, res: express.Response) => {
+  if (!req.organisationId) {
+    throw new BadRequestError("organisationId not found!!");
+  }
   const taskId = uuidSchema.parse(req.params.taskId);
   const prisma = await getClientByTenantId(req.tenantId);
   const task = await prisma.task.findFirstOrThrow({
@@ -100,11 +113,13 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
       },
     },
   });
-  const duration = prisma.task.daysFromTwoDates(task.startDate, task.endDate);
-  const completionPecentage = prisma.task.calculationSubTaskProgression(task)
-  const finalResponse = { ...task, duration, completionPecentage };
+  const endDate = task.milestoneIndicator ? task.dueDate : task.endDate;
+  const duration = await calculateWorkingDays(task.startDate, endDate!, req.tenantId, req.organisationId);
+  const completionPecentage = await calculationSubTaskProgression(task, req.tenantId, req.organisationId);
+  const flag = await taskFlag(task, req.tenantId, req.organisationId);
+  const finalResponse = { ...task, duration, completionPecentage, flag };
   return new SuccessResponse(
-    StatusCodes.OK,
+  StatusCodes.OK,
     finalResponse,
     "task selected"
   ).send(res);
@@ -223,6 +238,7 @@ export const updateTask = async (
     include: {
       documentAttachments: true,
       assignedUsers: true,
+      subtasks: true,
     },
   });
   const taskUpdateDB = await prisma.task.update({
@@ -235,9 +251,27 @@ export const updateTask = async (
       documentAttachments: true,
       assignedUsers: true,
       dependencies: true,
-      project: true
+      project: true,
+      parent: true,
     },
   });
+
+  if (taskUpdateDB.parent?.taskId) {
+    const taskTimeline = await prisma.task.getSubtasksTimeline(
+      taskUpdateDB.parent.taskId
+    );
+    const earliestStartDate = taskTimeline.earliestStartDate
+      ? taskTimeline.earliestStartDate
+      : taskUpdateDB.parent.startDate;
+    await prisma.task.update({
+      where: {
+        taskId: taskUpdateDB.parent.taskId,
+      },
+      data: {
+        startDate: earliestStartDate,
+      },
+    });
+  }
 
   // Project End Date  -  If any task's end date will be greater then It's own
   const maxEndDate = await prisma.task.findMaxEndDateAmongTasks(

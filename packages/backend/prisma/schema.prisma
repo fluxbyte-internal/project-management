@@ -212,11 +212,28 @@ model Organisation {
 
   projects         Project[]
   userOrganisation UserOrganisation[]
+  orgHolidays      OrganisationHolidays[]
 
   deletedAt DateTime? @map("deleted_at")
 
   @@unique([organisationName, industry, createdByUserId])
   @@index([organisationId, tenantId])
+}
+
+model OrganisationHolidays {
+  orgHolidaysId    String        @id @default(uuid()) @map("org_holidays_id")
+  organisationId   String        @map("organisation_id")
+  organisation     Organisation? @relation(fields: [organisationId], references: [organisationId], onDelete: Cascade)
+  holidayStartDate DateTime      @map("holiday_startDate")
+  holidayEndDate   DateTime?     @map("holiday_endDate")
+  holidayType      String?       @map("holiday_type")
+  holidayReason    String?       @map("holiday_reason")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+  deletedAt        DateTime?     @map("deleted_at")
+
+  @@unique([organisationId, holidayStartDate, holidayEndDate])
+  @@index([organisationId, holidayStartDate])
 }
 
 model Tenant {
