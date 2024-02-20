@@ -166,9 +166,7 @@ export const getProjects = async (req: express.Request, res: express.Response) =
   const projectsWithProgression = [];
 
   for (const project of projects) {
-    const progressionPercentage = await prisma.project.projectProgression(
-      project.projectId
-    );
+    const progressionPercentage = await prisma.project.projectProgression(project.projectId, req.tenantId, req.organisationId);
     const projectManager = await prisma.projectAssignUsers.findMany({
       where: {
         projectId: project.projectId,
@@ -238,7 +236,7 @@ export const getProjectById = async (req: express.Request, res: express.Response
     },
   });
 
-  const progressionPercentage = await prisma.project.projectProgression(projectId);
+  const progressionPercentage = await prisma.project.projectProgression(projectId, req.tenantId, req.organisationId);
   const response = { ...projects, progressionPercentage };
   return new SuccessResponse(StatusCodes.OK, response, "project selected").send(
     res

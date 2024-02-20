@@ -27,6 +27,7 @@ export const me = async (req: express.Request, res: express.Response) => {
         include: {
           organisation: {
             where: { deletedAt: null },
+            include: { orgHolidays: true, }
           },
         },
       },

@@ -1,6 +1,7 @@
 import { NotificationTypeEnum, PrismaClient, Task, TaskStatusEnum, UserStatusEnum, UserRoleEnum, HistoryTypeEnum, Project } from "@prisma/client";
 import { RegisterSocketServices } from "../services/socket.services.js";
 import { settings } from "./settings.js";
+import { calculateWorkingDays } from "../utils/removeNonWorkingDays.js";
 
 const rootPrismaClient = generatePrismaClient();
 const prismaClients: Record<
@@ -55,31 +56,9 @@ function generatePrismaClient(datasourceUrl?: string) {
             return endDate;
           },
         },
-        flag: {
-          needs: { milestoneIndicator: true },
-          compute(task: Task): "Red" | "Orange" | "Green" {
-            let { milestoneIndicator } = task;
-            const tpi = client.task.tpiCalculation(task);
-            if (milestoneIndicator) {
-              return tpi.tpiValue < 1 ? "Red" : "Green";
-            } else {
-              return tpi.tpiFlag;
-            }
-          },
-        },
       },
     },
     model: {
-      $allModels: {
-        daysFromTwoDates(startDate: Date, endDate: Date): number {
-          const startDateObj = new Date(startDate);
-          const endDateObj = new Date(endDate);
-          startDateObj.setHours(0, 0, 0, 0);
-          endDateObj.setHours(0, 0, 0, 0);
-          const durationMilliseconds = endDateObj.getTime() - startDateObj.getTime();
-          return Math.ceil(durationMilliseconds / 86400000);
-        },
-      },
       notification: {
         async sendNotification(
           notificationType: NotificationTypeEnum,
@@ -138,7 +117,7 @@ function generatePrismaClient(datasourceUrl?: string) {
         },
       },
       project: {
-        async projectProgression(projectId: string) {
+        async projectProgression(projectId: string, tenantId: string, organisationId: string) {
           const parentTasks = await client.task.findMany({
             where: {
               projectId,
@@ -150,24 +129,14 @@ function generatePrismaClient(datasourceUrl?: string) {
           let averagesSumOfDuration = 0;
 
           for (const value of parentTasks) {
-            const duration = client.task.daysFromTwoDates(value.startDate, value.endDate);
+            const endDate = value.milestoneIndicator ? value.dueDate : value.endDate;
+            const duration = await calculateWorkingDays(value.startDate, endDate!, tenantId, organisationId);
             completionPecentageOrDuration +=
             Number(value.completionPecentage) *
             (duration * settings.hours);
             averagesSumOfDuration += duration * settings.hours * 100;
           }
           return (completionPecentageOrDuration / averagesSumOfDuration);
-        },
-        async calculationCPI(project: Project) {
-          const progressionPercentage = await client.project.projectProgression(
-            project.projectId
-          );
-          const estimatedBudgetNumber = parseFloat(project.estimatedBudget);
-          const consumedBudgetNumber = parseFloat(project.consumedBudget);
-          return (
-            (progressionPercentage * estimatedBudgetNumber) /
-            consumedBudgetNumber
-          );
         },
       },
       task: {
@@ -216,29 +185,6 @@ function generatePrismaClient(datasourceUrl?: string) {
               },
             },
           });
-        },
-        calculationSubTaskProgression(
-          task: (Task & { subtasks: Task[] }) | any
-        ) {
-          if (task.subtasks && task.subtasks.length > 0) {
-            let completionPecentageOrDurationTask = 0;
-            let averagesSumOfDurationTask = 0;
-            for (const value of task.subtasks) {
-              const duration = client.task.daysFromTwoDates(value.startDate, value.endDate);
-              const percentage =
-                client.task.calculationSubTaskProgression(value);
-              completionPecentageOrDurationTask +=
-                Number(percentage) * (duration * settings.hours);
-              averagesSumOfDurationTask +=
-                duration * settings.hours * 100;
-            }
-            return (
-              (completionPecentageOrDurationTask / averagesSumOfDurationTask) *
-              100
-            );
-          } else {
-            return task.completionPecentage;
-          }
         },
         async calculateSubTask(startingTaskId: string) {
           let currentTaskId: string | null = startingTaskId;
@@ -337,74 +283,17 @@ function generatePrismaClient(datasourceUrl?: string) {
           }
           return { earliestStartDate, lowestEndDate };
         },
-        calculationSPI(tasks: Task): number {
-          const actualProgression = tasks.completionPecentage ?? 0;
-          const plannedProgression =
-            client.task.calculateTaskPlannedProgression(tasks);
-            const taskEndDate = client.task
-            .calculateEndDate(tasks.startDate, tasks.duration)
-            const newDuration = client.task.daysFromTwoDates(tasks.startDate, taskEndDate);
-          return (
-            (actualProgression * (newDuration * settings.hours)) /
-            (plannedProgression * (newDuration * settings.hours))
-          );
-        },
-        calculateTaskPlannedProgression(task: Task): number {
+        async calculateTaskPlannedProgression(task: Task, tenantId: string, organisationId: string): Promise<number> {
           const currentDate = new Date().getTime();
           const taskStartDate = new Date(task.startDate).getTime();
           const taskEndDate = client.task
             .calculateEndDate(task.startDate, task.duration)
           const effectiveCurrentDate = Math.min(currentDate, (taskEndDate).getTime()); // Use task end date if currentDate is greater
-          const newDuration = client.task.daysFromTwoDates(task.startDate, taskEndDate);
+          const newDuration = await calculateWorkingDays(task.startDate, taskEndDate, tenantId, organisationId);
           const plannedProgression =
             (effectiveCurrentDate - taskStartDate + 1) /
             (newDuration * settings.hours);
           return plannedProgression;
-        },
-        tpiCalculation(task: Task): {
-          tpiValue: number;
-          tpiFlag: "Red" | "Orange" | "Green";
-        } {
-          let { duration, completionPecentage, startDate, status } = task;
-          const endDate = client.task.calculateEndDate(startDate, duration);
-          const newDuration = client.task.daysFromTwoDates(
-            task.startDate,
-            endDate
-          );
-
-          if (
-            status === TaskStatusEnum.TODO ||
-            status === TaskStatusEnum.PLANNED
-          ) {
-            return {
-              tpiValue: 0,
-              tpiFlag: "Green",
-            };
-          }
-          const currentDate: Date = new Date();
-          const startDateObj: Date = new Date(startDate);
-          const elapsedDays: number = Math.ceil(
-            (currentDate.getTime() - startDateObj.getTime()) /
-              (1000 * 60 * 60 * 24)
-          );
-
-          const plannedProgress = elapsedDays / newDuration;
-          if (!completionPecentage) {
-            completionPecentage = 0;
-          }
-          const tpi = completionPecentage / plannedProgress;
-          let flag = "" as "Red" | "Orange" | "Green";
-          if (tpi < 0.8) {
-            flag = "Red";
-          } else if (tpi >= 0.8 && tpi < 0.95) {
-            flag = "Orange";
-          } else {
-            flag = "Green";
-          }
-          return {
-            tpiValue: tpi,
-            tpiFlag: flag,
-          };
         },
       },
       comments: {

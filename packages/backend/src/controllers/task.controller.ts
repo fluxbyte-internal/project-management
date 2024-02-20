@@ -12,6 +12,8 @@ import { HistoryTypeEnumValue } from '../schemas/enums.js';
 import { removeProperties } from "../types/removeProperties.js";
 import { selectUserFields } from '../utils/selectedFieldsOfUsers.js';
 import { calculateWorkingDays } from '../utils/removeNonWorkingDays.js';
+import { calculationSubTaskProgression } from '../utils/calculationSubTaskProgression.js';
+import { taskFlag } from '../utils/calculationFlag.js';
 
 export const getTasks = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) {
@@ -47,10 +49,13 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
     },
   });
   const finalArray = await Promise.all(tasks.map(async (task) => {
-    const duration = await calculateWorkingDays(task.startDate, task.endDate, req.tenantId, organisationId);
-    const completionPecentage = prisma.task.calculationSubTaskProgression(task);
+    const endDate = task.milestoneIndicator ? task.dueDate : task.endDate;
+    const duration = await calculateWorkingDays(task.startDate, endDate!, req.tenantId, organisationId);
+    const completionPecentage = await calculationSubTaskProgression(task, req.tenantId, organisationId);
+    const flag = await taskFlag(task, req.tenantId, organisationId);
     const updatedTask = {
       ...task,
+      flag,
       duration,
       completionPecentage,
     };
@@ -108,11 +113,13 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
       },
     },
   });
-  const duration = await calculateWorkingDays(task.startDate, task.endDate, req.tenantId, req.organisationId);
-  const completionPecentage = prisma.task.calculationSubTaskProgression(task)
-  const finalResponse = { ...task, duration, completionPecentage };
+  const endDate = task.milestoneIndicator ? task.dueDate : task.endDate;
+  const duration = await calculateWorkingDays(task.startDate, endDate!, req.tenantId, req.organisationId);
+  const completionPecentage = await calculationSubTaskProgression(task, req.tenantId, req.organisationId);
+  const flag = await taskFlag(task, req.tenantId, req.organisationId);
+  const finalResponse = { ...task, duration, completionPecentage, flag };
   return new SuccessResponse(
-    StatusCodes.OK,
+  StatusCodes.OK,
     finalResponse,
     "task selected"
   ).send(res);

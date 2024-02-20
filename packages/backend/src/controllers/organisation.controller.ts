@@ -24,6 +24,8 @@ import { settings } from "../config/settings.js";
 import { generateRandomPassword } from "../utils/generateRandomPassword.js";
 import { selectUserFields } from "../utils/selectedFieldsOfUsers.js";
 import { HistoryTypeEnumValue } from "../schemas/enums.js";
+import fileUpload from "express-fileupload";
+import moment from 'moment';
 
 export const getOrganisationById = async (
   req: express.Request,
@@ -446,5 +448,66 @@ export const reassignTasks = async (
     StatusCodes.OK,
     null,
     "Tasks reassigned successfully."
+  ).send(res);
+};
+
+export const uploadHolidayCSV = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const userId = req.userId;
+  const organisationId = uuidSchema.parse(req.params.organisationId);
+  if (!userId) {
+    throw new BadRequestError("userId not found!");
+  }
+  const file = req.files?.csv as fileUpload.UploadedFile;
+  if (!file) {
+    throw new BadRequestError("No CSV file uploaded!");
+  }
+  const csvString = file.data.toString("utf-8");
+  const csvRows = csvString
+    .split("\n")
+    .map((row, index) => {
+      if (index === 0) return null;
+      const columns = row.split(";").map((col) => col.trim());
+      if (columns.length < 4) return null;
+      return {
+        Date: moment.utc(columns[0], "DD.MM.YYYY").toDate(),
+        Designation: columns[1] ? columns[1].replace(/[\ufffd"]/g, "") : "",
+        DayOfWeek: columns[2] ? columns[2].replace(/[\ufffd"]/g, "") : "",
+        CalendarWeek: columns[3] ? columns[3].replace(/[\ufffd"]/g, "") : "",
+      };
+    })
+    .filter((row) => row !== null);
+  const prisma = await getClientByTenantId(req.tenantId);
+  for (const value of csvRows) {
+    if (value?.Date) {
+      try {
+        const findHoliday = await prisma.organisationHolidays.findFirst({
+          where: {
+            organisationId,
+            holidayStartDate: value.Date,
+            holidayReason: value.Designation,
+          },
+        });
+        if (!findHoliday) {
+          await prisma.organisationHolidays.create({
+            data: {
+              holidayStartDate: value.Date,
+              holidayEndDate: null,
+              holidayReason: value.Designation,
+              organisationId: organisationId,
+            },
+          });
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
+  return new SuccessResponse(
+    StatusCodes.OK,
+    csvRows,
+    "Successfully uploaded holidays"
   ).send(res);
 };

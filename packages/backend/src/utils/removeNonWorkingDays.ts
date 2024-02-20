@@ -21,12 +21,13 @@ export async function calculateWorkingDays(
 
   function isNonWorkingDay(date: any) {
     const dayOfWeek = date
-      .toLocaleString("en-US", { weekday: "short" })
-      .toUpperCase();
-    return (
-      nonWorkingDays.includes(dayOfWeek) ||
-      holidays.includes(date.toISOString().split("T")[0])
-    );
+    .toLocaleString("en-US", { weekday: "short" })
+    .toUpperCase();
+    const currentDateStr = date.toISOString().split("T")[0];
+    return nonWorkingDays.includes(dayOfWeek) || holidays.some(holiday => {
+      const holidayStartDateStr = new Date(holiday.holidayStartDate).toISOString().split("T")[0];
+      return currentDateStr === holidayStartDateStr;
+    });
   }
 
   let currentDate = new Date(startDate);
