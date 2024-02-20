@@ -25,6 +25,8 @@ import SettingIcon from "@/assets/svg/Setting.svg";
 import useAllKanbanColumnQuery from "@/api/query/useAllKanbanColumn";
 import Loader from "@/components/common/Loader";
 import { FIELDS } from "@/api/types/enums";
+import { updateTaskSchema } from "@backend/src/schemas/taskSchema";
+import { z } from "zod";
 export interface columnsRenderData {
   label: string;
   dataField: string;
@@ -43,10 +45,10 @@ export type ExtendedKanbanDataSource = KanbanDataSource & {
   mileStone: boolean;
 };
 function KanbanView(
-  props: (HTMLAttributes<Element> & KanbanProps) | undefined,
+  props: (HTMLAttributes<Element> & KanbanProps) | undefined
 ) {
   const [dialogRendered, setDialogRendered] = useState<string | undefined>(
-    undefined,
+    undefined
   );
   const [isTaskShow, setIsTaskShow] = useState<boolean>(false);
   const childRef = useRef<Kanban>(null);
@@ -67,26 +69,22 @@ function KanbanView(
     }
   }, [allKanbanColumn.status == "success"]);
 
-  useEffect(() => {
-    allTasks.refetch();
-    refetch();
-  }, [projectId]);
-
   const close = () => {
     setDialogRendered(undefined);
     setIsTaskShow(false);
     allTasks.refetch();
   };
-  const filterRef = useRef<TaskFilterRef|null>(null);
+  const filterRef = useRef<TaskFilterRef | null>(null);
 
   useEffect(() => {
+    allTasks.refetch();
     refetch();
   }, [projectId]);
 
   useEffect(() => {
     if (allKanbanColumn.data?.data.data) {
       allKanbanColumn.data?.data.data.sort(
-        (a, b) => (a.percentage ?? 0) - (b.percentage ?? 0),
+        (a, b) => (a.percentage ?? 0) - (b.percentage ?? 0)
       );
       handleColumn(allKanbanColumn.data?.data.data);
     }
@@ -122,21 +120,35 @@ function KanbanView(
 
   const taskStatusUpdateMutation = useUpdateTaskMutation();
   const statusUpdate = (e: (Event & CustomEvent) | undefined) => {
-    taskStatusUpdateMutation.mutate(
-      {
-        completionPecentage: Number(e?.detail.value.status),
-        id: e?.detail.value.id,
-      },
-      {
-        onSuccess() {
-          allTasks.refetch();
-        },
-        onError(error) {
-          allTasks.refetch();
-          toast.error(error.response?.data.message);
-        },
-      },
+    let val: z.infer<typeof updateTaskSchema> & { id?: string } = {
+      id: e?.detail.value.id,
+    };
+    const column = allKanbanColumn.data?.data.data.find(
+      (d) => d.kanbanColumnId === e?.detail.value.status
     );
+    console.log(column);
+    
+    if (column?.percentage === null || !column?.percentage) {
+      val = {
+        ...val,
+        kanbanColumnId: e?.detail.value.status,
+      };
+    } else {
+      val = {
+        ...val,
+        completionPecentage: Number(column?.percentage),
+        kanbanColumnId: '',
+      };
+    }
+    taskStatusUpdateMutation.mutate(val, {
+      onSuccess() {
+        allTasks.refetch();
+      },
+      onError(error) {
+        allTasks.refetch();
+        toast.error(error.response?.data.message);
+      },
+    });
   };
 
   function DataConvertToKanbanDataSource(data: Task): ExtendedKanbanDataSource {
@@ -172,25 +184,84 @@ function KanbanView(
       dataField: "subTask",
     },
   ];
-
   const setStatus = (task: Task) => {
     let closestNumber = 0;
     if (Columns && Columns.length > 0) {
-      for (const num of Columns) {
-        if (Number(num.dataField) <= Number(task.completionPecentage)) {
-          if (
-            closestNumber === 0 ||
-            Math.abs(Number(task.completionPecentage) - Number(num.dataField)) <
-              Math.abs(Number(task.completionPecentage) - closestNumber)
-          ) {
-            closestNumber = Number(num.dataField);
+      if (task.kanbanColumnId) {
+        return task.kanbanColumnId;
+      } else {
+        for (const num of Columns) {
+          const percentage = allKanbanColumn.data?.data.data.find(
+            (d) => d.kanbanColumnId == num.dataField
+          )?.percentage;
+
+          if (percentage) {
+            if (
+              closestNumber === 0 ||
+              Math.abs(Number(task.completionPecentage) - percentage) <
+                Math.abs(Number(task.completionPecentage) - closestNumber)
+            ) {
+              closestNumber = percentage;
+            }
           }
         }
       }
     }
 
-    return String(closestNumber);
+    return rawData?.find((e) => e.percentage == closestNumber)?.kanbanColumnId;
   };
+  // const setStatus = (task: Task) => {
+  //   let closestNumber = 0;
+  //   let dataField;
+  //   if (Columns && Columns.length > 0) {
+  //     for (const num of Columns) {
+  //       const percentage = allKanbanColumn.data?.data.data.find(
+  //         (d) => d.kanbanColumnId == num.dataField
+  //       )?.percentage;
+  //       console.log(percentage , Number(task.completionPecentage));
+
+  //       if (
+  //         typeof percentage == "number" &&
+  //         percentage <= Number(task.completionPecentage)
+  //       ) {
+  //         if (
+  //           closestNumber === 0 ||
+  //           Math.abs(Number(task.completionPecentage) - percentage) <
+  //             Math.abs(Number(task.completionPecentage) - closestNumber)
+  //         ) {
+  //           console.log("test",task.completionPecentage, num.dataField);
+
+  //           dataField = num.dataField;
+  //           closestNumber = Number(num.dataField);
+  //         }
+  //       } else {
+  //         if (!task.kanbanColumnId) {
+  //           dataField = rawData?.filter((d) => !d.percentage)[0].kanbanColumnId;
+  //         } else {
+  //           dataField = task.kanbanColumnId;
+  //         }
+  //       }
+  //     }
+  //   }
+
+  //   if (dataField !== task.kanbanColumnId || !task.kanbanColumnId) {
+  //     const val: z.infer<typeof updateTaskSchema> & { id?: string } = {
+  //       id: task.taskId,
+  //       kanbanColumnId: dataField ?? '',
+  //     };
+  //     taskStatusUpdateMutation.mutate(val, {
+  //       onSuccess() {
+  //         allTasks.refetch();
+  //       },
+  //       onError(error) {
+  //         allTasks.refetch();
+  //         toast.error(error.response?.data.message);
+  //       },
+  //     });
+  //   }
+
+  //   return dataField;
+  // };
 
   const onOpening = (e: (Event & CustomEvent) | undefined) => {
     e?.preventDefault();
@@ -202,7 +273,7 @@ function KanbanView(
   };
   const onTaskRender = (
     taskElement: HTMLElement,
-    data: ExtendedKanbanDataSource,
+    data: ExtendedKanbanDataSource
   ) => {
     const root = createRoot(taskElement);
     root.render(<TaskShellView taskData={data} />);
@@ -233,14 +304,15 @@ function KanbanView(
       setClosePopup(true);
     }
     setRawData(data);
-    const column: KanbanColumn[] = data.map((d) => {
+    const column: KanbanColumn[] = data.map((d, i) => {
       return {
         label: d.name.toUpperCase(),
-        dataField: String(d.percentage),
+        dataField: d.kanbanColumnId,
         width: 300,
-        addNewButton: d.percentage == 0 ? true : false,
+        addNewButton: i == 0 ? true : false,
       };
     });
+
     setColumns(column);
   };
   const onDragging = (e: (Event & CustomEvent) | undefined) => {

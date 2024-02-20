@@ -49,13 +49,23 @@ export const projectStatusSchema = z.object({
 
 export const createKanbanSchema = z.object({
   name: z.string({ required_error: ZodErrorMessageEnumValue.REQUIRED }),
-  percentage: z.number().min(0).max(100).multipleOf(0.01),
+  percentage: z.number().nullish()
+}).refine((data) => {
+  if (data.percentage !== undefined && data.percentage && data.percentage > 100) {
+    return [{ field: "percentage", message: "Percentage should not exceed 100" }];
+  }
+  return true;
 });
 
 export const updateKanbanSchema = z.object({
   name: z.string({ required_error: ZodErrorMessageEnumValue.REQUIRED }),
-  percentage: z.number().min(0).max(100).multipleOf(0.01).optional(),
-});
+  percentage:  z.number().nullish()
+}).refine((data) => {
+  if (data.percentage !== undefined && data.percentage && data.percentage > 100) {
+    return [{ field: "percentage", message: "Percentage should not exceed 100" }];
+  }
+  return true;
+});;
 
 export const consumedBudgetSchema = z.object({
   consumedBudget: z.string({

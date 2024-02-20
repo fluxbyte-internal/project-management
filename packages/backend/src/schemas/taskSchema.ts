@@ -13,6 +13,7 @@ export const updateTaskSchema = z.object({
   duration: z.number().multipleOf(0.01).optional(),
   completionPecentage: z.number().multipleOf(0.01).optional(),
   status: z.nativeEnum(TaskStatusEnumValue).optional(),
+  kanbanColumnId:z.string().optional()
 });
 
 export const assginedToUserIdSchema = z.object({

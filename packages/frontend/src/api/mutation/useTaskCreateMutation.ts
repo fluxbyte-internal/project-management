@@ -36,6 +36,7 @@ export type Task = {
   assignedUsers: [
     { taskAssignUsersId: string; user: UserOrganisationType["user"] }
   ];
+  kanbanColumnId:string | null
   histories: History[];
 };
 export interface History {
