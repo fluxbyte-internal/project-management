@@ -9,7 +9,7 @@ import { isAxiosError } from "axios";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import useCurrentUserQuery from "@/api/query/useCurrentUserQuery";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Select, { SingleValue, MultiValue } from "react-select";
 import countries from "../../../assets/json/countries.json";
 import ErrorMessage from "@/components/common/ErrorMessage";
@@ -21,7 +21,8 @@ import {
 } from "@backend/src/schemas/userSchema";
 import { useUser } from "@/hooks/useUser";
 import useOrgSettingsUpdateMutation from "@/api/mutation/useOrgSettingsUpdateMutation";
-
+import useCsvUploadMutation from "@/api/mutation/useCsvUploadMutation";
+import CSVIcon from "@/assets/svg/csvIcon.svg";
 interface Props {
   editData?: OrganisationType;
   viewOnly: boolean;
@@ -30,7 +31,7 @@ interface Props {
 type Options = { label: string; value: string };
 
 function OrganisationNoPopUpForm(props: Props) {
-  const { viewOnly ,editData } = props;
+  const { viewOnly, editData } = props;
   const labelStyle = "block text-gray-500 text-sm font-bold mb-1";
   const inputStyle = `block w-full p-2.5 border border-gray-100 text-gray-500 text-sm rounded-md shadow-sm placeholder:text-gray-400 `;
 
@@ -259,7 +260,29 @@ function OrganisationNoPopUpForm(props: Props) {
       userOrgSettingForm.submitForm();
     }
   };
-
+  const csvUplodeRef = useRef<HTMLInputElement>(null);
+  const csvUploadMutation = useCsvUploadMutation();
+  const uploadCsv = () => {
+    if (
+      csvUplodeRef.current &&
+      csvUplodeRef.current.files &&
+      csvUplodeRef?.current?.files[0]
+    ) {
+      const formData = new FormData();
+      formData.append("csv", csvUplodeRef?.current?.files[0]);
+      csvUploadMutation.mutate(formData, {
+        onSuccess(data) {
+          toast.success(data.data.message);
+          if (csvUplodeRef?.current) {
+            csvUplodeRef.current.value  = ''
+        }
+        },
+        onError(error) {
+          toast.error(error.message);
+        },
+      });
+    }
+  };
   return (
     <div className="bg-white rounded-lg border px-2 py-1.5 sm:px-5 sm:py-4 w-full">
       <form onSubmit={(e) => submitForm(e)} className="">
@@ -345,6 +368,29 @@ function OrganisationNoPopUpForm(props: Props) {
               {formik.touched.country && formik.errors.country}
             </ErrorMessage>
           </div>
+          <div className="block">
+            <input
+              onChange={uploadCsv}
+              type="file"
+              accept=".csv"
+              className="hidden"
+              ref={csvUplodeRef}
+            />
+            <Button
+              isLoading={csvUploadMutation.isPending}
+              disabled={csvUploadMutation.isPending}
+              variant={"outline"}
+              onClick={() => csvUplodeRef.current?.click()}
+              className="w-full border-2 text-gray-600"
+            >
+              <div className="flex gap-2 items-center">
+             <img src={CSVIcon} /> Upload holiday CSV
+              </div>
+            </Button>
+            <ErrorMessage>
+              {formik.touched.country && formik.errors.country}
+            </ErrorMessage>
+          </div>
         </div>
         {/* <div>
           <FormLabel htmlFor="country">Default color</FormLabel>
@@ -380,17 +426,19 @@ function OrganisationNoPopUpForm(props: Props) {
             ))}
           </div>
         </div> */}
-        {!viewOnly&&<div className="flex justify-end">
-          <Button
-            type="submit"
-            variant={"primary"}
-            isLoading={isSubmitting || IsTaskColourSubmitting}
-            disabled={isSubmitting || IsTaskColourSubmitting}
-            className="py-2.5 mt-5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
-          >
-            Save
-          </Button>
-        </div>}
+        {!viewOnly && (
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              variant={"primary"}
+              isLoading={isSubmitting || IsTaskColourSubmitting}
+              disabled={isSubmitting || IsTaskColourSubmitting}
+              className="py-2.5 mt-5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
+            >
+              Save
+            </Button>
+          </div>
+        )}
       </form>
     </div>
   );
