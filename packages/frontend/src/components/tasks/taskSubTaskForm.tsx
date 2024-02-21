@@ -63,7 +63,7 @@ import {
 } from "../ui/dropdown-menu";
 import { TaskStatusEnumValue } from "@backend/src/schemas/enums";
 import useTaskStatusUpdateMutation from "@/api/mutation/useTaskStatusUpdateMutation";
-// import useProjectQuery from "@/api/query/useProjectQuery";
+import useProjectQuery from "@/api/query/useProjectQuery";
 
 type Props = {
   projectId: string | undefined;
@@ -102,6 +102,10 @@ function TaskSubTaskForm(props: Props) {
   useEffect(() => {
     refetch();
   }, [taskId]);
+  const [submitbyButton, setSubmitbyButton] = useState(false);
+  const projects = useProjectQuery();
+
+  const [startDate, setStartDate] = useState<Date>(new Date())
 
   useEffect(() => {
     if (taskId && tasks) {
@@ -121,6 +125,10 @@ function TaskSubTaskForm(props: Props) {
         })
       );
     }
+    const startDate = projects.data?.data.data.find(
+      (p) => p.projectId == props.projectId
+    )?.startDate ?? new Date()
+    setStartDate(new Date(startDate))
   }, [taskId, taskQuery.data]);
   const taskFormik = useFormik<z.infer<typeof createTaskSchema>>({
     initialValues: {
@@ -325,10 +333,8 @@ function TaskSubTaskForm(props: Props) {
       return Object.keys(TaskStatusEnumValue);
     }
   };
-  const [submitbyButton, setSubmitbyButton] = useState(false);
-  // useProjectQuery()
-  // const disableDate= ( ) =>{
-  // }
+
+
   return (
     <div className="absolute w-full h-full z-50 top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-gray-900 bg-opacity-50">
       <div className="bg-white rounded-lg text-gray-700 p-6 lg:p-10 w-full md:max-w-[95%] lg:max-w-[80%] h-full md:max-h-[80%] overflow-auto ">
@@ -696,7 +702,8 @@ function TaskSubTaskForm(props: Props) {
                         }
                       }}
                       className="rounded-md border"
-                      disabled={new Date()}
+                      disabled={{before:startDate}}
+
                     />
                     {taskFormik.errors.startDate &&
                       taskFormik.values.startDate && (
@@ -787,6 +794,7 @@ function TaskSubTaskForm(props: Props) {
                             );
                           }}
                           className="rounded-md border"
+                          disabled={{before:startDate}}
                         />
                         {milestoneFormik.errors.dueDate &&
                           milestoneFormik.values.dueDate && (

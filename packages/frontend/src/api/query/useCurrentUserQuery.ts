@@ -19,7 +19,7 @@ export type UserType = {
   createdAt: string;
   updatedAt: string;
   userOrganisation: UserOrganisationType[];
-  provider?:Provider;
+  provider?:Provider[];
   deletedAt?:string
 
 };
