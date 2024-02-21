@@ -136,6 +136,9 @@ function TaskSubTaskForm(props: Props) {
         taskUpdateMutation.mutate(values, {
           onSuccess(data) {
             toast.success(data.data.message);
+            if (submitbyButton) {
+              props.close();
+            }
           },
           onError(error) {
             toast.error(error.response?.data.message);
@@ -146,12 +149,17 @@ function TaskSubTaskForm(props: Props) {
           onSuccess(data) {
             setTaskId(data.data.data.taskId);
             toast.success(data.data.message);
+            if (submitbyButton) {
+              props.close();
+            }
           },
           onError(error) {
             toast.error(error.response?.data.message);
           },
         });
       }
+      taskQuery.refetch()
+
     },
   });
 
@@ -307,11 +315,7 @@ function TaskSubTaskForm(props: Props) {
       return Object.keys(TaskStatusEnumValue);
     }
   };
-  const taskSubmit=()=>{
-    taskFormik.submitForm().finally(()=>{
-        props.close();
-    });
-  };
+  const [submitbyButton, setSubmitbyButton] = useState(false)
   return (
     <div className="absolute w-full h-full z-50 top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-gray-900 bg-opacity-50">
       <div className="bg-white rounded-lg text-gray-700 p-6 lg:p-10 w-full md:max-w-[95%] lg:max-w-[80%] h-full md:max-h-[80%] overflow-auto ">
@@ -924,7 +928,7 @@ function TaskSubTaskForm(props: Props) {
           <div>
             <Button
               variant={"primary"}
-              onClick={taskSubmit}
+              onClick={()=>{setSubmitbyButton(true), taskFormik.submitForm()}}
             >
               Submit
             </Button>

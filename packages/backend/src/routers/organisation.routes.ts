@@ -16,7 +16,7 @@ router.put(
 router.post(
   "/resend-invitation/:userOrganisationId",
   roleMiddleware([UserRoleEnum.ADMINISTRATOR]),
-  OrganisationControlller.uploadHolidayCSV
+  OrganisationControlller.resendInvitationToMember
 );
 
 router.put(

@@ -39,12 +39,11 @@ function Tasks() {
   const close = () => {
     setTaskId(undefined);
     setTaskCreate(false);
-    
   };
   // useEffect(() => {
   //   allTaskQuery.refetch();
   // }, [third])
-  
+
   const columnDef: ColumeDef[] = [
     {
       key: "dropdown",
@@ -69,10 +68,10 @@ function Tasks() {
             item?.flag == "Green"
               ? "bg-green-500/60 border border-green-500"
               : item?.flag == "Red"
-                ? "bg-red-500/60 border border-red-500/60"
-                : item?.flag == "Orange"
-                  ? "bg-primary-500/60 border border-primary-500/60"
-                  : ""
+              ? "bg-red-500/60 border border-red-500/60"
+              : item?.flag == "Orange"
+              ? "bg-primary-500/60 border border-primary-500/60"
+              : ""
           }`}
         ></div>
       ),
@@ -207,10 +206,10 @@ function Tasks() {
         setData(allTaskQuery.data?.data.data)?.sort(
           (a, b) =>
             new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-        ),
+        )
       );
     }
-    filterRef.current?.callFilter()
+    filterRef.current?.callFilter();
   }, [allTaskQuery.data?.data.data]);
 
   useEffect(() => {
@@ -229,19 +228,25 @@ function Tasks() {
 
   useEffect(() => {
     allTaskQuery.refetch();
-  }, [projectId,taskId]);
+  }, [projectId, taskId]);
 
   const [searchParams] = useSearchParams();
 
   const setData = (data: Task[] | undefined) => {
     if (data) {
       data.forEach((task) => {
-        task.subtasks = allTaskQuery.data?.data.data.filter(
-          (subtask) => subtask.parentTaskId === task.taskId
-        )??[];
+        task.subtasks =
+          allTaskQuery.data?.data.data.filter(
+            (subtask) => subtask.parentTaskId === task.taskId
+          ) ?? [];
       });
       const topLevelTasks = data.filter((task) => task.parentTaskId === null);
-      return topLevelTasks.map((task) => convertTask(task));
+      if (topLevelTasks.length==0 && data.length > 0) {
+        return data.map((task) => convertTask(task));
+      }
+      else{
+        return topLevelTasks.map((task) => convertTask(task));
+      }
     }
   };
 
@@ -329,7 +334,7 @@ function Tasks() {
                 view="LIST"
                 ref={filterRef}
                 filteredData={(data) => setFilterData(setData(data))}
-                tasks={taskData}
+                tasks={allTaskQuery.data?.data.data}
               />
               <div>
                 <Button variant={"primary"} size={"sm"} onClick={createTask}>

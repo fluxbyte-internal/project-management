@@ -21,15 +21,14 @@ function TaskHistory(props: { task: Task | undefined }) {
       ) {
         message =
           message +
-          " " +
-          dateFormater(new Date(history.data.oldValue)) +
+          "  " +
+          dateFormater(new Date(history.data.oldValue)) + "  " +
           " to " +
           dateFormater(new Date(history.data.newValue));
       } else {
         message =
-          message +
+          message +" " +
           history.data.oldValue +
-          " " +
           " to " +
           history.data.newValue;
       }
