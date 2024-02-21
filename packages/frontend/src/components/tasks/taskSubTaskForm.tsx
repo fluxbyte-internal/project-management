@@ -63,6 +63,7 @@ import {
 } from "../ui/dropdown-menu";
 import { TaskStatusEnumValue } from "@backend/src/schemas/enums";
 import useTaskStatusUpdateMutation from "@/api/mutation/useTaskStatusUpdateMutation";
+// import useProjectQuery from "@/api/query/useProjectQuery";
 
 type Props = {
   projectId: string | undefined;
@@ -133,7 +134,17 @@ function TaskSubTaskForm(props: Props) {
     validationSchema: toFormikValidationSchema(createTaskSchema),
     onSubmit: (values) => {
       if (taskId) {
-        taskUpdateMutation.mutate(values, {
+        let data;
+        if (values.duration === tasks?.duration) {
+          data = {
+            taskName: values.taskName,
+            startDate: values.startDate,
+            taskDescription: values.taskDescription,
+          };
+        } else {
+          data = values;
+        }
+        taskUpdateMutation.mutate(data, {
           onSuccess(data) {
             toast.success(data.data.message);
             if (submitbyButton) {
@@ -158,8 +169,7 @@ function TaskSubTaskForm(props: Props) {
           },
         });
       }
-      taskQuery.refetch()
-
+      taskQuery.refetch();
     },
   });
 
@@ -315,7 +325,10 @@ function TaskSubTaskForm(props: Props) {
       return Object.keys(TaskStatusEnumValue);
     }
   };
-  const [submitbyButton, setSubmitbyButton] = useState(false)
+  const [submitbyButton, setSubmitbyButton] = useState(false);
+  // useProjectQuery()
+  // const disableDate= ( ) =>{
+  // }
   return (
     <div className="absolute w-full h-full z-50 top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-gray-900 bg-opacity-50">
       <div className="bg-white rounded-lg text-gray-700 p-6 lg:p-10 w-full md:max-w-[95%] lg:max-w-[80%] h-full md:max-h-[80%] overflow-auto ">
@@ -683,6 +696,7 @@ function TaskSubTaskForm(props: Props) {
                         }
                       }}
                       className="rounded-md border"
+                      disabled={new Date()}
                     />
                     {taskFormik.errors.startDate &&
                       taskFormik.values.startDate && (
@@ -928,7 +942,9 @@ function TaskSubTaskForm(props: Props) {
           <div>
             <Button
               variant={"primary"}
-              onClick={()=>{setSubmitbyButton(true), taskFormik.submitForm()}}
+              onClick={() => {
+                setSubmitbyButton(true), taskFormik.submitForm();
+              }}
             >
               Submit
             </Button>

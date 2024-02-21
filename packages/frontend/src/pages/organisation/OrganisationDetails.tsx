@@ -301,7 +301,7 @@ function OrganisationDetails() {
       {
         onSuccess(data) {
           toast.success(data.data.message);
-          setResendEmail('')
+          setResendEmail("");
         },
         onError(error) {
           toast.error(error.message);
@@ -362,16 +362,19 @@ function OrganisationDetails() {
                   >
                     <div
                       className={`flex w-full sm:w-auto gap-2 items-center grow ${
-                        currentUserIsAdmin ? "cursor-pointer" : ""
+                        userOrg.role !== "ADMINISTRATOR" ? "cursor-pointer" : ""
                       }`}
                       onClick={() => {
-                        setUpdateData(userOrg),
-                          setIsOpen(true),
-                          setReAssignUser((prev) => ({
-                            oldUserId: userOrg.user.userId ?? "",
-                            newUserId: prev?.newUserId ?? "",
-                            organisationUserId: prev?.organisationUserId ?? "",
-                          }));
+                        if (userOrg.role !== "ADMINISTRATOR") {
+                          setUpdateData(userOrg),
+                            setIsOpen(true),
+                            setReAssignUser((prev) => ({
+                              oldUserId: userOrg.user.userId ?? "",
+                              newUserId: prev?.newUserId ?? "",
+                              organisationUserId:
+                                prev?.organisationUserId ?? "",
+                            }));
+                        }
                       }}
                     >
                       <UserAvatar user={userOrg.user}></UserAvatar>
@@ -662,7 +665,7 @@ function OrganisationDetails() {
       >
         <div className="flex flex-col gap-2 p-6 ">
           <div className="flex justify-center m-auto w-14 items-center h-14 p-2 rounded-full">
-            <img src={MailResendIcon} className="w-14  m-auto " /> 
+            <img src={MailResendIcon} className="w-14  m-auto " />
           </div>
           Are you sure you want to Resend invitation ?
           <div className="flex gap-2 ml-auto">

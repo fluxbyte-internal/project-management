@@ -33,6 +33,7 @@ export type Project = {
   scheduleTrend:keyof typeof ScheduleAndBudgetTrend
 budgetTrend:keyof typeof ScheduleAndBudgetTrend
 consumedBudget:string
+actualEndDate:string
 };
 export interface AssignedUsers {
   projectAssignUsersId: string;

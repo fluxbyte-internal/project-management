@@ -74,7 +74,24 @@ const RADIO_BUTTON_OPTIONS = [
     img: list,
   },
 ];
-
+const reactSelectStyle = {
+  control: (
+    provided: Record<string, unknown>,
+    state: { isFocused: boolean }
+  ) => ({
+    ...provided,
+    border: "1px solid #E7E7E7",
+    paddingTop: "0.2rem",
+    paddingBottom: "0.2rem",
+    
+    outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
+    boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
+    "&:hover": {
+      outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
+      boxShadow: "0px 0px 0px #943B0C",
+    },
+  }),
+} as const;
 function CreateProjectNoPopUpForm(props: AddProjectType) {
   // const projectMemberListQuery = useProjectMemberListQuery();
   const { editData, refetch, viewOnly } = props;
@@ -84,7 +101,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
   const inputStyle =
     "py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[46px]";
   const projectUpdateMutation = useProjectUpdateMutation(
-    editData ? editData.projectId : "",
+    editData ? editData.projectId : ""
   );
   const [currencyValue, setCurrencyValue] = useState<SingleValue<Options>>();
 
@@ -134,7 +151,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
               if (!Array.isArray(error.response?.data.errors)) {
                 toast.error(
                   error.response?.data?.message ??
-                    "An unexpected error occurred.",
+                    "An unexpected error occurred."
                 );
               }
             }
@@ -159,7 +176,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
       formik.setValues({
         startDate: formatDate(editData.startDate) as unknown as Date,
         estimatedEndDate: formatDate(
-          editData.estimatedEndDate,
+          editData.estimatedEndDate
         ) as unknown as Date,
         estimatedBudget: editData.estimatedBudget,
         projectDescription: editData.projectDescription,
@@ -180,22 +197,6 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
       return { label: item.currency, value: item.currency };
     });
     return value;
-  };
-
-  const reactSelectStyle = {
-    control: (
-      provided: Record<string, unknown>,
-      state: { isFocused: boolean },
-    ) => ({
-      ...provided,
-      border: "1px solid #E7E7E7",
-      outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
-      boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
-      "&:hover": {
-        outline: state.isFocused ? "1px solid #943B0C" : "1px solid #E7E7E7",
-        boxShadow: "0px 0px 0px #943B0C",
-      },
-    }),
   };
 
   const handleCurrency = (val: SingleValue<Options>) => {
@@ -609,6 +610,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 options={Object.keys(ProjectStatusEnumValue).map((i) => {
                   return { label: i, value: i };
                 })}
+                styles={reactSelectStyle}
               />
               <ErrorMessage>
                 {formik.touched.status && formik.errors.status}
@@ -632,6 +634,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 onChange={(e: SingleValue<Options>) =>
                   formik.setFieldValue("overallTrack", e?.value)
                 }
+                styles={reactSelectStyle}
               />
               <ErrorMessage>
                 {formik.touched.overallTrack && formik.errors.overallTrack}
@@ -658,6 +661,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 options={Object.keys(ScheduleAndBudgetTrend).map((i) => {
                   return { label: i, value: i };
                 })}
+                styles={reactSelectStyle}
               />
               <ErrorMessage>
                 {formik.touched.scheduleTrend && formik.errors.scheduleTrend}
@@ -681,13 +685,14 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 onChange={(e: SingleValue<Options>) =>
                   formik.setFieldValue("budgetTrend", e?.value)
                 }
+                styles={reactSelectStyle}
               />
               <ErrorMessage>
                 {formik.touched.budgetTrend && formik.errors.budgetTrend}
               </ErrorMessage>
             </div>
           </div>
-          <div className="sm:flex gap-16 my-3">
+          <div className="sm:flex gap-16 mr-16 my-3">
             <div className="sm:w-[50%] w-full">
               <div>
                 <label className={labelStyle}>Consumed Budget</label>
