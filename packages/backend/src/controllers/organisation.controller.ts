@@ -263,6 +263,7 @@ export const removeOrganisationMember = async (
   const userOrganisationId = uuidSchema.parse(req.params.userOrganisationId);
   const findUserOrg = await prisma.userOrganisation.findFirstOrThrow({
     where: { userOrganisationId },
+    include: { user: true, },
   });
   const findAssignedTask = await prisma.task.findMany({
     where: {
@@ -281,6 +282,19 @@ export const removeOrganisationMember = async (
   if (findAssignedTask.length > 0) {
     throw new BadRequestError("Pending tasks is already exists for this user!");
   }
+  
+  // const user = findUserOrg.user!;
+  // const userOrganisationsCount = await prisma.userOrganisation.count({
+  //   where: {
+  //     userId: user.userId,
+  //     deletedAt: null,
+  //   },
+  // });
+
+  // if(userOrganisationsCount > 1) {
+  // } else {
+  // }
+
   await prisma.$transaction([
     prisma.userOrganisation.update({
       where: { userOrganisationId },
