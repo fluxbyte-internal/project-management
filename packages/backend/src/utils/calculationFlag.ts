@@ -16,7 +16,7 @@ export async function calculationTPI(
     tenantId,
     organisationId
   );
-  if (status === TaskStatusEnum.TODO || status === TaskStatusEnum.PLANNED) {
+  if (status === TaskStatusEnum.NOT_STARTED) {
     return {
       tpiValue: 0,
       tpiFlag: "Green",

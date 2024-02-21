@@ -256,6 +256,15 @@ export const createProject = async (req: express.Request, res: express.Response)
     currency
   } = createProjectSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
+  const findProject = await prisma.project.findFirst({
+    where: {
+      organisationId: req.organisationId,
+      projectName,
+    }
+  });
+  if(findProject) {
+    throw new BadRequestError("A project with a similar name already exists!")
+  }
   const project = await prisma.project.create({
     data: {
       organisationId: req.organisationId,
@@ -352,8 +361,7 @@ export const statusChangeProject = async (req: express.Request, res: express.Res
         deletedAt: null,
         status: {
           in: [
-            TaskStatusEnum.TODO,
-            TaskStatusEnum.PLANNED,
+            TaskStatusEnum.NOT_STARTED,
             TaskStatusEnum.IN_PROGRESS,
           ],
         },

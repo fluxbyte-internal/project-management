@@ -138,6 +138,16 @@ export const createTask = async (
   const prisma = await getClientByTenantId(req.tenantId);
   const parentTaskId = req.params.parentTaskId as string;
 
+  const findTask = await prisma.task.findFirst({
+    where: {
+      projectId,
+      taskName,
+    }
+  });
+  if(findTask) {
+    throw new BadRequestError("A task with a similar name already exists!")
+  }
+
   if (parentTaskId) {
     const parentTask = await prisma.task.findUnique({
       where: { taskId: parentTaskId, deletedAt: null },
@@ -390,11 +400,11 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
       data: {
         status: statusBody.status,
         milestoneStatus:
-          statusBody.status === TaskStatusEnum.DONE
+          statusBody.status === TaskStatusEnum.COMPLETED
             ? MilestoneIndicatorStatusEnum.COMPLETED
             : MilestoneIndicatorStatusEnum.NOT_STARTED,
         completionPecentage:
-          statusBody.status === TaskStatusEnum.DONE
+          statusBody.status === TaskStatusEnum.COMPLETED
             ? 100
             : findTask.completionPecentage,
         updatedByUserId: req.userId
@@ -434,7 +444,7 @@ export const statusCompletedAllTAsk = async (req: express.Request, res: express.
     await prisma.task.updateMany({
       where: { projectId: projectId },
       data: {
-        status: TaskStatusEnum.DONE,
+        status: TaskStatusEnum.COMPLETED,
         completionPecentage: 100,
         updatedByUserId: req.userId
       }
@@ -445,7 +455,7 @@ export const statusCompletedAllTAsk = async (req: express.Request, res: express.
       const historyMessage = "Task’s status was changed";
       const historyNewValue = {
         oldValue: task.status,
-        newValue: TaskStatusEnum.DONE,
+        newValue: TaskStatusEnum.COMPLETED,
       };
       await prisma.history.createHistory(
         req.userId,

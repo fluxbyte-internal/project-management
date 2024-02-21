@@ -269,7 +269,7 @@ export const removeOrganisationMember = async (
     where: {
       deletedAt: null,
       status: {
-        notIn: [TaskStatusEnum.DONE],
+        notIn: [TaskStatusEnum.COMPLETED],
       },
       assignedUsers: {
         some: {

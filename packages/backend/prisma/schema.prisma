@@ -60,10 +60,9 @@ enum MilestoneIndicatorStatusEnum {
 }
 
 enum TaskStatusEnum {
-  PLANNED
-  TODO
+  NOT_STARTED
   IN_PROGRESS
-  DONE
+  COMPLETED
 }
 
 enum TaskDependenciesEnum {
@@ -322,7 +321,7 @@ model Task {
   taskName           String                       @map("task_name")
   taskDescription    String?                      @map("task_description")
   startDate          DateTime                     @map("start_date")
-  status             TaskStatusEnum               @default(PLANNED) @map("status")
+  status             TaskStatusEnum               @default(NOT_STARTED) @map("status")
   milestoneIndicator Boolean                      @default(false) @map("milestone_indicator")
   milestoneStatus    MilestoneIndicatorStatusEnum @default(NOT_STARTED) @map("milestone_status")
   dueDate            DateTime?                    @map("due_date")
@@ -351,6 +350,7 @@ model Task {
   deletedAt DateTime? @map("deleted_at")
 
   @@index([taskId, projectId])
+  @@unique([projectId, taskName])
 }
 
 model TaskAssignUsers {
