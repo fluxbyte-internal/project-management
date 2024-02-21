@@ -954,7 +954,7 @@ function TaskSubTaskForm(props: Props) {
                 setSubmitbyButton(true), taskFormik.submitForm();
               }}
             >
-              Submit
+              Save
             </Button>
           </div>
         </div>
