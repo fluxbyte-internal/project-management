@@ -564,7 +564,6 @@ export const resendInvitationToMember = async (
     LOGIN: ${findMember.user.email}
     PASSWORD: ${randomPassword}
     `;
-    console.log('randomPassword',{randomPassword});
     
     const findProvider = await prisma.userProvider.findFirstOrThrow({
       where: {
