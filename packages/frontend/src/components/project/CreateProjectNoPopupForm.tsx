@@ -187,6 +187,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
         scheduleTrend: editData.scheduleTrend,
         budgetTrend: editData.budgetTrend,
         consumedBudget: editData.consumedBudget,
+        status:editData.status
       });
       setCurrencyValue({ label: editData.currency, value: editData.currency });
     }

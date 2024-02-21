@@ -39,6 +39,7 @@ function Tasks() {
   const close = () => {
     setTaskId(undefined);
     setTaskCreate(false);
+    allTaskQuery.refetch()
   };
   // useEffect(() => {
   //   allTaskQuery.refetch();
@@ -201,11 +202,14 @@ function Tasks() {
   const filterRef = useRef<TaskFilterRef | null>(null);
   useEffect(() => {
     if (allTaskQuery.data?.data.data) {
-      setTaskData(setData(allTaskQuery.data?.data.data));
+      setTaskData(setData(allTaskQuery.data?.data.data)?.sort(
+        (a, b) =>
+          new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+      ));
       setFilterData(
         setData(allTaskQuery.data?.data.data)?.sort(
           (a, b) =>
-            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+            new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
         )
       );
     }
@@ -221,6 +225,9 @@ function Tasks() {
         findParentTasksWithDoneStatus(
           taskData ?? [],
           searchParams.get("status") ?? ""
+        ).sort(
+          (a, b) =>
+            new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
         )
       );
     }
