@@ -63,6 +63,7 @@ import {
 } from "../ui/dropdown-menu";
 import { TaskStatusEnumValue } from "@backend/src/schemas/enums";
 import useTaskStatusUpdateMutation from "@/api/mutation/useTaskStatusUpdateMutation";
+import useProjectQuery from "@/api/query/useProjectQuery";
 
 type Props = {
   projectId: string | undefined;
@@ -101,6 +102,10 @@ function TaskSubTaskForm(props: Props) {
   useEffect(() => {
     refetch();
   }, [taskId]);
+  const [submitbyButton, setSubmitbyButton] = useState(false);
+  const projects = useProjectQuery();
+
+  const [startDate, setStartDate] = useState<Date>(new Date())
 
   useEffect(() => {
     if (taskId && tasks) {
@@ -120,6 +125,10 @@ function TaskSubTaskForm(props: Props) {
         })
       );
     }
+    const startDate = projects.data?.data.data.find(
+      (p) => p.projectId == props.projectId
+    )?.startDate ?? new Date()
+    setStartDate(new Date(startDate))
   }, [taskId, taskQuery.data]);
   const taskFormik = useFormik<z.infer<typeof createTaskSchema>>({
     initialValues: {
@@ -133,9 +142,22 @@ function TaskSubTaskForm(props: Props) {
     validationSchema: toFormikValidationSchema(createTaskSchema),
     onSubmit: (values) => {
       if (taskId) {
-        taskUpdateMutation.mutate(values, {
+        let data;
+        if (values.duration === tasks?.duration) {
+          data = {
+            taskName: values.taskName,
+            startDate: values.startDate,
+            taskDescription: values.taskDescription,
+          };
+        } else {
+          data = values;
+        }
+        taskUpdateMutation.mutate(data, {
           onSuccess(data) {
             toast.success(data.data.message);
+            if (submitbyButton) {
+              props.close();
+            }
           },
           onError(error) {
             toast.error(error.response?.data.message);
@@ -146,12 +168,16 @@ function TaskSubTaskForm(props: Props) {
           onSuccess(data) {
             setTaskId(data.data.data.taskId);
             toast.success(data.data.message);
+            if (submitbyButton) {
+              props.close();
+            }
           },
           onError(error) {
             toast.error(error.response?.data.message);
           },
         });
       }
+      taskQuery.refetch();
     },
   });
 
@@ -307,11 +333,8 @@ function TaskSubTaskForm(props: Props) {
       return Object.keys(TaskStatusEnumValue);
     }
   };
-  const taskSubmit=()=>{
-    taskFormik.submitForm().finally(()=>{
-        props.close();
-    });
-  };
+
+
   return (
     <div className="absolute w-full h-full z-50 top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-gray-900 bg-opacity-50">
       <div className="bg-white rounded-lg text-gray-700 p-6 lg:p-10 w-full md:max-w-[95%] lg:max-w-[80%] h-full md:max-h-[80%] overflow-auto ">
@@ -679,6 +702,8 @@ function TaskSubTaskForm(props: Props) {
                         }
                       }}
                       className="rounded-md border"
+                      disabled={{before:startDate}}
+
                     />
                     {taskFormik.errors.startDate &&
                       taskFormik.values.startDate && (
@@ -769,6 +794,7 @@ function TaskSubTaskForm(props: Props) {
                             );
                           }}
                           className="rounded-md border"
+                          disabled={{before:startDate}}
                         />
                         {milestoneFormik.errors.dueDate &&
                           milestoneFormik.values.dueDate && (
@@ -924,7 +950,9 @@ function TaskSubTaskForm(props: Props) {
           <div>
             <Button
               variant={"primary"}
-              onClick={taskSubmit}
+              onClick={() => {
+                setSubmitbyButton(true), taskFormik.submitForm();
+              }}
             >
               Submit
             </Button>

@@ -247,7 +247,7 @@ function AccountSettings() {
               >
                 {user.avatarImg ? "Change Profile Photo" : "Add Profile Photo"}
               </Button>
-              {user.provider?.providerType === "EMAIL" && (
+              {user.provider?.find(d=>d.providerType  === "EMAIL") && (
                 <Button
                   variant="primary_outline"
                   className="transition ease-in-out duration-150 h-auto px-2 py-1 w-[1/2]"

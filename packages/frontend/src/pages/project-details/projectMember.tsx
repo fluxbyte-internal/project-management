@@ -238,7 +238,7 @@ function ProjectMember() {
                               {res.user.email}
                             </a>
                           </div>
-                          {isAdmin && (
+                          {(isAdmin && res.user.userOrganisation[0].role !== "ADMINISTRATOR") && (
                             <div className="flex w-full absolute top-0 justify-end ">
                               <Button
                                 variant={"none"}

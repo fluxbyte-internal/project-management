@@ -224,7 +224,17 @@ function ProjectsList() {
     },
     {
       key: "actualEndDate",
-      header: "End Date",
+      header: "Actual Date",
+      onCellRender: (item: Project) => (
+        <>
+          {item.estimatedEndDate &&
+            dateFormatter(new Date(item.actualEndDate))}
+        </>
+      ),
+    },
+    {
+      key: "actualEndDate",
+      header: "Estimated End Date",
       onCellRender: (item: Project) => (
         <>
           {item.estimatedEndDate &&

@@ -6,4 +6,5 @@ export const selectUserFields = {
   lastName: true,
   status: true,
   deletedAt: true,
+  isVerified: true,
 };

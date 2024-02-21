@@ -22,6 +22,7 @@ export type UserOrganisationType = {
     lastName?: string;
     avatarImg?: string;
     deletedAt?:string
+    isVerified:boolean
   };
 };
 

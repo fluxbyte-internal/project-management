@@ -38,6 +38,9 @@ import useUpdateOrganisationMemberMutation from "@/api/mutation/useUpdateOrganis
 import { cn } from "@/lib/utils";
 import { CheckIcon } from "lucide-react";
 import useReAssignTaskMutation from "@/api/mutation/useReAssingTaskMutation";
+import useResendInvitationMutation from "@/api/mutation/useResendUserInvitaionMutation";
+import MailResendIcon from "@/assets/svg/mailResendIcon.svg";
+import SendIcon from "@/assets/svg/sendIcon.svg";
 const memberRoleOptions = [
   {
     value: UserRoleEnumValue.PROJECT_MANAGER,
@@ -59,15 +62,17 @@ function OrganisationDetails() {
   const organisationId = useParams().organisationId!;
   const addOrganisationMemberMutation =
     useAddOrganisationMemberMutation(organisationId);
-  const removeOrganisationMemberMutation = useOrganisationRemoveMemberMutation();
-  const updateOrganisationMemberMutation = useUpdateOrganisationMemberMutation();
+  const removeOrganisationMemberMutation =
+    useOrganisationRemoveMemberMutation();
+  const updateOrganisationMemberMutation =
+    useUpdateOrganisationMemberMutation();
   const [reAssing, setReAssign] = useState(false);
   const [reAssingUser, setReAssignUser] = useState<
     z.infer<typeof reAssginedTaskSchema> & { organisationUserId?: string }
   >();
 
   const reAssgingTaskMutation = useReAssignTaskMutation();
-  
+
   const addOrgMemberForm = useFormik<
     z.infer<typeof addOrganisationMemberSchema>
   >({
@@ -104,14 +109,13 @@ function OrganisationDetails() {
                 if (!Array.isArray(error.response?.data.errors)) {
                   toast.error(
                     error.response?.data?.message ??
-                    "An unexpected error occurred."
+                      "An unexpected error occurred."
                   );
                 }
               }
               setIsAddOrgMemberSubmitting(false);
             },
           }
-
         );
       } else {
         setIsAddOrgMemberSubmitting(true);
@@ -136,7 +140,7 @@ function OrganisationDetails() {
               if (!Array.isArray(error.response?.data.errors)) {
                 toast.error(
                   error.response?.data?.message ??
-                  "An unexpected error occurred."
+                    "An unexpected error occurred."
                 );
               }
             }
@@ -161,6 +165,8 @@ function OrganisationDetails() {
   );
   const [organisationForm, setOrganisationForm] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState("");
+  const [resendEmail, setResendEmail] = useState("");
+  const resendInvitationMutation = useResendInvitationMutation();
 
   const closeAddMember = () => {
     addOrgMemberForm.setValues({
@@ -271,6 +277,7 @@ function OrganisationDetails() {
       },
     });
   };
+
   const handleReAssign = () => {
     if (reAssingUser) {
       reAssgingTaskMutation.mutate(reAssingUser, {
@@ -288,7 +295,20 @@ function OrganisationDetails() {
       });
     }
   };
-
+  const resend = (id: string) => {
+    resendInvitationMutation.mutate(
+      { id: id },
+      {
+        onSuccess(data) {
+          toast.success(data.data.message);
+          setResendEmail("");
+        },
+        onError(error) {
+          toast.error(error.message);
+        },
+      }
+    );
+  };
   return (
     <>
       <div className="overflow-auto w-full">
@@ -342,16 +362,19 @@ function OrganisationDetails() {
                   >
                     <div
                       className={`flex w-full sm:w-auto gap-2 items-center grow ${
-                        currentUserIsAdmin ? "cursor-pointer" : ""
+                        userOrg.role !== "ADMINISTRATOR" ? "cursor-pointer" : ""
                       }`}
                       onClick={() => {
-                        setUpdateData(userOrg),
-                        setIsOpen(true),
-                        setReAssignUser((prev) => ({
-                          oldUserId: userOrg.user.userId ?? "",
-                          newUserId: prev?.newUserId ?? "",
-                          organisationUserId: prev?.organisationUserId ?? "",
-                        }));
+                        if (userOrg.role !== "ADMINISTRATOR") {
+                          setUpdateData(userOrg),
+                            setIsOpen(true),
+                            setReAssignUser((prev) => ({
+                              oldUserId: userOrg.user.userId ?? "",
+                              newUserId: prev?.newUserId ?? "",
+                              organisationUserId:
+                                prev?.organisationUserId ?? "",
+                            }));
+                        }
                       }}
                     >
                       <UserAvatar user={userOrg.user}></UserAvatar>
@@ -368,39 +391,53 @@ function OrganisationDetails() {
                         {userOrg.user.firstName
                           ? userOrg.user.lastName
                             ? `${userOrg.user.firstName.charAt(
-                              0
-                            )}${userOrg.user.lastName.charAt(
-                              0
-                            )}`.toUpperCase()
+                                0
+                              )}${userOrg.user.lastName.charAt(
+                                0
+                              )}`.toUpperCase()
                             : `${userOrg.user.firstName.charAt(
-                              0
-                            )}${userOrg.user.firstName.charAt(
-                              1
-                            )}`.toUpperCase()
+                                0
+                              )}${userOrg.user.firstName.charAt(
+                                1
+                              )}`.toUpperCase()
                           : `${userOrg.user.email.charAt(
-                            0
-                          )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
+                              0
+                            )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
                       </div>
                     </div>
                     <div className="capitalize text-gray-700 text-sm">
                       {userOrg.role?.toLowerCase().replaceAll("_", " ")}
                     </div>
                     {currentUserIsAdmin && (
-                      <Button
-                        variant="primary_outline"
-                        disabled={userOrg.role === "ADMINISTRATOR"}
-                        className="ml-auto text-danger border-danger hover:bg-danger hover:bg-opacity-10 hover:text-danger py-1.5 h-auto"
-                        onClick={() => {
-                          setReAssignUser((prev) => ({
-                            oldUserId: userOrg.user.userId,
-                            newUserId: prev?.newUserId ?? "",
-                            organisationUserId: userOrg.userOrganisationId,
-                          }));
-                          setShowConfirmDelete(userOrg.userOrganisationId);
-                        }}
-                      >
-                        Remove
-                      </Button>
+                      <div className="flex gap-3">
+                        <Button
+                          variant="primary_outline"
+                          disabled={userOrg.role === "ADMINISTRATOR"}
+                          className="ml-auto text-danger border-danger hover:bg-danger hover:bg-opacity-10 hover:text-danger py-1.5 h-auto"
+                          onClick={() => {
+                            setReAssignUser((prev) => ({
+                              oldUserId: userOrg.user.userId,
+                              newUserId: prev?.newUserId ?? "",
+                              organisationUserId: userOrg.userOrganisationId,
+                            }));
+                            setShowConfirmDelete(userOrg.userOrganisationId);
+                          }}
+                        >
+                          Remove
+                        </Button>
+                        {!userOrg.user.isVerified && (
+                          <Button
+                            variant="primary_outline"
+                            disabled={userOrg.role === "ADMINISTRATOR"}
+                            className="ml-auto text-danger border-danger hover:bg-danger hover:bg-opacity-10 hover:text-danger py-1.5 h-auto"
+                            onClick={() => {
+                              setResendEmail(userOrg.userOrganisationId);
+                            }}
+                          >
+                            Resend email
+                          </Button>
+                        )}
+                      </div>
                     )}
                   </div>
                   <hr className="h-px w-[98%] my-8 mx-auto bg-gray-200 border-0" />
@@ -493,7 +530,9 @@ function OrganisationDetails() {
         modalClass="sm:rounded-lg p-4 h-full md:h-auto w-full max-w-md"
       >
         <div className="flex flex-col">
-          <div className="text-lg font-semibold text-gray-600">Task reassign to other user</div>
+          <div className="text-lg font-semibold text-gray-600">
+            Task reassign to other user
+          </div>
           <div className="border rounded-md border-gray-100 mt-3 ">
             {filteredOrganisationUsers.map((userOrg) => {
               return (
@@ -529,18 +568,18 @@ function OrganisationDetails() {
                           {userOrg.user.firstName
                             ? userOrg.user.lastName
                               ? `${userOrg.user.firstName.charAt(
-                                0
-                              )}${userOrg.user.lastName.charAt(
-                                0
-                              )}`.toUpperCase()
+                                  0
+                                )}${userOrg.user.lastName.charAt(
+                                  0
+                                )}`.toUpperCase()
                               : `${userOrg.user.firstName.charAt(
-                                0
-                              )}${userOrg.user.firstName.charAt(
-                                1
-                              )}`.toUpperCase()
+                                  0
+                                )}${userOrg.user.firstName.charAt(
+                                  1
+                                )}`.toUpperCase()
                             : `${userOrg.user.email.charAt(
-                              0
-                            )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
+                                0
+                              )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
                         </div>
                       </div>
                       <div className="capitalize text-gray-700 text-sm">
@@ -615,6 +654,32 @@ function OrganisationDetails() {
               }}
             >
               Delete
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+      <Dialog
+        isOpen={Boolean(resendEmail)}
+        onClose={() => {}}
+        modalClass="rounded-lg"
+      >
+        <div className="flex flex-col gap-2 p-6 ">
+          <div className="flex justify-center m-auto w-14 items-center h-14 p-2 rounded-full">
+            <img src={MailResendIcon} className="w-14  m-auto " />
+          </div>
+          Are you sure you want to Resend invitation ?
+          <div className="flex gap-2 ml-auto">
+            <Button variant={"outline"} onClick={() => setResendEmail("")}>
+              Cancel
+            </Button>
+            <Button
+              variant={"primary"}
+              onClick={() => {
+                resend(resendEmail);
+              }}
+            >
+              Resend
+              <img src={SendIcon} className="w-3 ml-2" />
             </Button>
           </div>
         </div>

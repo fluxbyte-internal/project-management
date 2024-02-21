@@ -13,6 +13,12 @@ router.put(
   OrganisationControlller.uploadHolidayCSV
 );
 
+router.post(
+  "/resend-invitation/:userOrganisationId",
+  roleMiddleware([UserRoleEnum.ADMINISTRATOR]),
+  OrganisationControlller.resendInvitationToMember
+);
+
 router.put(
   "/re-assigned-task/",
   roleMiddleware([UserRoleEnum.ADMINISTRATOR]),
