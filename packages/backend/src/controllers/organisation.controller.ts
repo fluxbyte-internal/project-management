@@ -511,3 +511,69 @@ export const uploadHolidayCSV = async (
     "Successfully uploaded holidays"
   ).send(res);
 };
+
+export const resendInvitationToMember = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const userOrganisationId = uuidSchema.parse(req.params.userOrganisationId);
+  const prisma = await getClientByTenantId(req.tenantId);
+  const findMember = await prisma.userOrganisation.findFirstOrThrow({
+    where: {
+      userOrganisationId,
+    },
+    include: {
+      organisation: true,
+      user: {
+        select: {
+          userId: true,
+          email: true,
+          isVerified: true,
+        },
+      },
+    },
+  });
+  if (findMember.user?.isVerified) {
+    throw new BadRequestError("Organisation member is already verified!");
+  }
+  if (!findMember.user) {
+    throw new BadRequestError("Member not found!");
+  }
+  const randomPassword = generateRandomPassword();
+  const hashedPassword = await encrypt(randomPassword);
+  try {
+    const subjectMessage = `Invited`;
+    const bodyMessage = `
+    You are invited in Organisation ${findMember.organisation?.organisationName}
+    
+    URL: ${settings.appURL}/login
+    LOGIN: ${findMember.user.email}
+    PASSWORD: ${randomPassword}
+    `;
+    const findProvider = await prisma.userProvider.findFirstOrThrow({
+      where: {
+        userId: findMember.user.userId,
+        providerType: UserProviderTypeEnum.EMAIL,
+      },
+    });
+    await prisma.userProvider.update({
+      where: {
+        userProviderId: findProvider.userProviderId,
+      },
+      data: {
+        idOrPassword: hashedPassword,
+        providerType: UserProviderTypeEnum.EMAIL,
+      },
+    });
+    await EmailService.sendEmail(
+      findMember.user.email,
+      subjectMessage,
+      bodyMessage
+    );
+  } catch (error) {
+    console.error("Failed resend email", error);
+  }
+  return new SuccessResponse(StatusCodes.OK, null, "Resend Invitation").send(
+    res
+  );
+};
