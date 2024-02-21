@@ -189,9 +189,10 @@ export const createTask = async (
       if (
         fieldValue !== undefined &&
         fieldValue !== null &&
-        !(fieldName === "duration" && fieldValue === 0)
-      ) {
-        const message = parentTaskId
+        !(fieldName === "duration" && fieldValue === 0) &&
+        !(fieldName === "duration" && fieldValue === 1)
+        ) {
+          const message = parentTaskId
           ? `Subtask's ${fieldName} was added`
           : `Task's ${fieldName} was added`;
 
