@@ -11,7 +11,6 @@ import { useParams } from "react-router-dom";
 import "./index.css";
 import { createRoot } from "react-dom/client";
 import TaskShellView from "./taskShellView";
-import { TaskStatusEnumValue } from "@backend/src/schemas/enums";
 import { toast } from "react-toastify";
 import TaskFilter, { TaskFilterRef } from "../TaskFilter";
 import RulesSetups from "./rulesSetups/rulesSetups";
@@ -126,7 +125,6 @@ function KanbanView(
     const column = allKanbanColumn.data?.data.data.find(
       (d) => d.kanbanColumnId === e?.detail.value.status
     );
-    console.log(column);
     
     if (column?.percentage === null || !column?.percentage) {
       val = {
@@ -279,26 +277,7 @@ function KanbanView(
     root.render(<TaskShellView taskData={data} />);
   };
 
-  const onColumnHeaderRender = (data: {
-    dataField: keyof typeof TaskStatusEnumValue;
-  }) => {
-    const className = "";
-    switch (data.dataField) {
-      case TaskStatusEnumValue.PLANNED:
-        className.concat("!bg-rose-500/20");
-        break;
-      case TaskStatusEnumValue.TODO:
-        className.concat("!bg-slate-500/20");
-        break;
-      case TaskStatusEnumValue.IN_PROGRESS:
-        className.concat("!bg-primary-500/20");
-        break;
-      case TaskStatusEnumValue.DONE:
-        className.concat("!bg-green-500/20");
-        break;
-    }
-    // header.classList.add(...className.split(" "));
-  };
+
   const handleColumn = (data: KanbanColumnType[]) => {
     if (data.length <= 0) {
       setClosePopup(true);
@@ -393,7 +372,6 @@ function KanbanView(
               onTaskUpdate={(e) =>
                 statusUpdate(e as (Event & CustomEvent) | undefined)
               }
-              onColumnHeaderRender={onColumnHeaderRender}
             />
           )}
         </div>

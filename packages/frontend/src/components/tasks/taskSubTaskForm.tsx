@@ -323,7 +323,6 @@ function TaskSubTaskForm(props: Props) {
   const taskStatus = () => {
     const removeStatus = [
       TaskStatusEnumValue.IN_PROGRESS,
-      TaskStatusEnumValue.TODO,
     ];
     if (tasks?.milestoneIndicator && tasks?.dueDate) {
       return Object.keys(TaskStatusEnumValue).filter(

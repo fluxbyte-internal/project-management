@@ -28,7 +28,6 @@ import countries from "../../assets/json/countries.json";
 import Select, { SingleValue } from "react-select";
 import ErrorMessage from "../common/ErrorMessage";
 import { useNavigate } from "react-router-dom";
-
 type Options = { label: string; value: string };
 
 type AddProjectType = {
