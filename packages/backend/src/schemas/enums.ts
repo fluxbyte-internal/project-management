@@ -33,10 +33,9 @@ export const TaskDependenciesEnumValue: EnumStringValueObj<TaskDependenciesEnum>
 };
 
 export const TaskStatusEnumValue: EnumStringValueObj<TaskStatusEnum> = {
-  DONE: "DONE",
+  NOT_STARTED: "NOT_STARTED",
   IN_PROGRESS: "IN_PROGRESS",
-  PLANNED: "PLANNED",
-  TODO: "TODO"
+  COMPLETED: "COMPLETED"
 };
 
 export const OrgStatusEnumValue: EnumStringValueObj<OrgStatusEnum> = {

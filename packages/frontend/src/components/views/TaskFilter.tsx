@@ -526,7 +526,7 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                   onClick={resetFilter}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    Reset
+                    Clear
                     <div className="w-3 h-3">
                       <img src={FilterResetIcon} />
                     </div>

@@ -115,7 +115,7 @@ export abstract class ApiError extends Error {
       let message: string = ReasonPhrases.INTERNAL_SERVER_ERROR;
       switch (err.code) {
         case PRISMA_ERROR_CODE.UNIQUE_CONSTRAINT:
-          message = `There is a unique constraint violation, a new data cannot be created`;
+          message = `There is a unique constraint violation, a new data cannot be created or updated`;
           break;
         case PRISMA_ERROR_CODE.FOREIGN_CONSTRAINT:
           message = `Foreign key constraint failed`;
@@ -127,7 +127,7 @@ export abstract class ApiError extends Error {
           break;
       }
       return new ErrorResponse(
-        code, message, undefined
+        code, undefined, message, 
       ).send(res);
     }
     else {

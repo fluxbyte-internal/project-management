@@ -308,7 +308,7 @@ function Signup() {
               <img src={Google} />
               <span>Google</span>
             </Button>
-            {formik.errors.privacyPolicy && <span className="text-red-500 text-sm ">{formik.errors.privacyPolicy}</span>}
+            {(formik.errors.privacyPolicy && formik.errors.privacyPolicy !== "Invalid input")  && <span className="text-red-500 text-sm ">{formik.errors.privacyPolicy}</span>}
             {/* <Button
               type="button"
               variant={"secondary"}
