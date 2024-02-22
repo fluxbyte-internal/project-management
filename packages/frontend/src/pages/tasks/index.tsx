@@ -26,6 +26,7 @@ import DownArrowIcon from "../../assets/svg/DownArrow.svg";
 import UserAvatar from "@/components/ui/userAvatar";
 import TaskFilter, { TaskFilterRef } from "@/components/views/TaskFilter";
 import { FIELDS } from "@/api/types/enums";
+import { ProjectDefaultViewEnumValue } from "@backend/src/schemas/enums";
 function Tasks() {
   const [taskData, setTaskData] = useState<Task[]>();
   const [filterData, setFilterData] = useState<Task[] | undefined>(taskData);
@@ -39,7 +40,7 @@ function Tasks() {
   const close = () => {
     setTaskId(undefined);
     setTaskCreate(false);
-    allTaskQuery.refetch()
+    allTaskQuery.refetch();
   };
   // useEffect(() => {
   //   allTaskQuery.refetch();
@@ -69,10 +70,10 @@ function Tasks() {
             item?.flag == "Green"
               ? "bg-green-500/60 border border-green-500"
               : item?.flag == "Red"
-              ? "bg-red-500/60 border border-red-500/60"
-              : item?.flag == "Orange"
-              ? "bg-primary-500/60 border border-primary-500/60"
-              : ""
+                ? "bg-red-500/60 border border-red-500/60"
+                : item?.flag == "Orange"
+                  ? "bg-primary-500/60 border border-primary-500/60"
+                  : ""
           }`}
         ></div>
       ),
@@ -338,7 +339,7 @@ function Tasks() {
                   FIELDS.OVERDUEDAYS,
                   FIELDS.TODAYDUEDAYS,
                 ]}
-                view="LIST"
+                view={ProjectDefaultViewEnumValue.LIST}
                 ref={filterRef}
                 filteredData={(data) => setFilterData(setData(data)?.sort(
                   (a, b) =>

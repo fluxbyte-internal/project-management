@@ -10,7 +10,7 @@ import Sunny from "@/assets/png/Sunny.png";
 import Cloudy from "@/assets/png/Cloudy.png";
 import Rainy from "@/assets/png/Rainy.png";
 import Stormy from "@/assets/png/Stormy.png";
-import { ScheduleAndBudgetTrend } from "@backend/src/schemas/enums";
+import { OverAllTrackEnumValue, ScheduleAndBudgetTrend } from "@backend/src/schemas/enums";
 import Increasing from "@/assets/increase.svg";
 import Decreasing from "@/assets/decrease.svg";
 import Stable from "@/assets/stable.svg";
@@ -41,7 +41,7 @@ function ProjectDashboard() {
 
   const colorThemeArr: ThemeColorData[] = [
     {
-      theme: "SUNNY",
+      theme: OverAllTrackEnumValue.SUNNY,
       colors: {
         tabTexts: "text-white",
         tabGradient: "bg-gradient-to-r  from-primary-500 to-primary-300",
@@ -55,7 +55,7 @@ function ProjectDashboard() {
       },
     },
     {
-      theme: "CLOUDY",
+      theme: OverAllTrackEnumValue.CLOUDY,
       colors: {
         tabTexts: "text-white",
         tabGradient: "bg-gradient-to-r  from-gray-500 to-gray-300",
@@ -69,7 +69,7 @@ function ProjectDashboard() {
       },
     },
     {
-      theme: "RAINY",
+      theme: OverAllTrackEnumValue.RAINY,
       colors: {
         tabTexts: "text-white",
         tabGradient: "bg-gradient-to-r  from-gray-500 to-gray-300",
@@ -83,7 +83,7 @@ function ProjectDashboard() {
       },
     },
     {
-      theme: "STORMY",
+      theme: OverAllTrackEnumValue.STORMY,
       colors: {
         tabTexts: "text-white",
         tabGradient: "bg-gradient-to-r  from-gray-500 to-gray-300",
@@ -173,17 +173,17 @@ function ProjectDashboard() {
   const navigate = useNavigate();
   const filterRoutes = (item: string) => {
     switch (item) {
-      case "Milestones":
-        navigate(`/tasks/${projectId}?milestones=true`);
-        break;
-      case "Tasks":
-        navigate(`/tasks/${projectId}`);
-        break;
-      case "Members":
-        navigate(`/members/${projectId}`);
-        break;
-      default:
-        break;
+    case "Milestones":
+      navigate(`/tasks/${projectId}?milestones=true`);
+      break;
+    case "Tasks":
+      navigate(`/tasks/${projectId}`);
+      break;
+    case "Members":
+      navigate(`/members/${projectId}`);
+      break;
+    default:
+      break;
     }
   };
   const getSPI = () => {
@@ -325,8 +325,8 @@ function ProjectDashboard() {
                         <div className="m-1">
                           {data?.projectProgression
                             ? Number(
-                                Number(data?.projectProgression).toFixed(2)
-                              ) *
+                              Number(data?.projectProgression).toFixed(2)
+                            ) *
                                 100 +
                               "%"
                             : "NA"}
@@ -359,15 +359,15 @@ function ProjectDashboard() {
                   <img
                     className="h-[65%] md:h-3/4 lg:h-[125%] select-none absolute  -top-16 -right-20 transform -translate-x-0 -translate-y-6 "
                     src={`${
-                      data?.projectOverAllSituation === "SUNNY"
+                      data?.projectOverAllSituation === OverAllTrackEnumValue.SUNNY
                         ? Sunny
-                        : data?.projectOverAllSituation === "CLOUDY"
-                        ? Cloudy
-                        : data?.projectOverAllSituation === "RAINY"
-                        ? Rainy
-                        : data?.projectOverAllSituation === "STORMY"
-                        ? Stormy
-                        : ""
+                        : data?.projectOverAllSituation ===OverAllTrackEnumValue.CLOUDY
+                          ? Cloudy
+                          : data?.projectOverAllSituation === OverAllTrackEnumValue.RAINY
+                            ? Rainy
+                            : data?.projectOverAllSituation === OverAllTrackEnumValue.STORMY
+                              ? Stormy
+                              : ""
                     }`}
                   />
                 </div>
@@ -390,11 +390,11 @@ function ProjectDashboard() {
                           ? Stable
                           : data?.scheduleTrend ===
                             ScheduleAndBudgetTrend.INCREASING
-                          ? Increasing
-                          : data?.scheduleTrend ===
+                            ? Increasing
+                            : data?.scheduleTrend ===
                             ScheduleAndBudgetTrend.DECREASING
-                          ? Decreasing
-                          : ""
+                              ? Decreasing
+                              : ""
                       }
                     ></img>
                   </div>
@@ -411,11 +411,11 @@ function ProjectDashboard() {
                           ? Stable
                           : data?.budgetTrend ===
                             ScheduleAndBudgetTrend.INCREASING
-                          ? Increasing
-                          : data?.budgetTrend ===
+                            ? Increasing
+                            : data?.budgetTrend ===
                             ScheduleAndBudgetTrend.DECREASING
-                          ? Decreasing
-                          : ""
+                              ? Decreasing
+                              : ""
                       }
                     ></img>
                   </div>
@@ -430,10 +430,10 @@ function ProjectDashboard() {
                     Number(getSPI()) < 0.8
                       ? "text-red-700/60"
                       : Number(getSPI()) >= 0.8 && Number(getSPI()) < 0.95
-                      ? "text-orange-400/80"
-                      : Number(getSPI()) >= 0.95
-                      ? "text-green-700/60"
-                      : ""
+                        ? "text-orange-400/80"
+                        : Number(getSPI()) >= 0.95
+                          ? "text-green-700/60"
+                          : ""
                   }`}
                 >
                   {getSPI()}

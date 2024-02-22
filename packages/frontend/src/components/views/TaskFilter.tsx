@@ -17,6 +17,7 @@ import { FIELDS } from "@/api/types/enums";
 import FilterResetIcon from "@/assets/svg/FilterReset.svg";
 import { useSearchParams } from "react-router-dom";
 import { forwardRef, useImperativeHandle } from "react";
+import { ProjectDefaultViewEnumValue } from "@backend/src/schemas/enums";
 type Options = { label: string; value: string };
 
 type Filter = {
@@ -67,7 +68,7 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
 
   const searchTask = (searchString: string) => {
     let tempData: Task[] = [];
-    if (props.view == "LIST") {
+    if (props.view == ProjectDefaultViewEnumValue.LIST) {
       tempData = findParentTasksWithTaskName(tasks ?? [], searchString);
     } else {
       tasks?.forEach((element) => {
@@ -108,7 +109,7 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
   const reactSelectStyle = {
     control: (
       provided: Record<string, unknown>,
-      state: { isFocused: boolean },
+      state: { isFocused: boolean }
     ) => ({
       ...provided,
       border: "1px solid #E7E7E7",
@@ -142,7 +143,7 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
   const removeDuplicatesById = (arr: Task[]) => {
     const uniqueIds = new Set();
     return arr.filter(
-      ({ taskId }) => !uniqueIds.has(taskId) && uniqueIds.add(taskId),
+      ({ taskId }) => !uniqueIds.has(taskId) && uniqueIds.add(taskId)
     );
   };
   const [filterApplyed, setFilterApplied] = useState(false);
@@ -185,19 +186,19 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
 
     if (filter && filter.get("dueSevenDays")) {
       filteredData = filteredData?.filter((data) =>
-        isDateSevenDays(data.endDate),
+        isDateSevenDays(data.endDate)
       );
     }
 
     if (filter && filter.get("overdueDays")) {
       filteredData = filteredData?.filter((data) =>
-        isOverDueDays(data.endDate),
+        isOverDueDays(data.endDate)
       );
     }
 
     if (filter && filter.get("todayDueDays")) {
       filteredData = filteredData?.filter((data) =>
-        isDueTodayDays(data.endDate),
+        isDueTodayDays(data.endDate)
       );
     }
 
@@ -310,7 +311,7 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                                 onChange={(e) =>
                                   setParamFilter(
                                     "dueSevenDays",
-                                    String(e.target.checked),
+                                    String(e.target.checked)
                                   )
                                 }
                                 className="sr-only peer"
@@ -336,7 +337,7 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                                 onChange={(e) =>
                                   setParamFilter(
                                     "overdueDays",
-                                    String(e.target.checked),
+                                    String(e.target.checked)
                                   )
                                 }
                                 className="sr-only peer"
@@ -362,7 +363,7 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                                 onChange={(e) =>
                                   setParamFilter(
                                     "todayDueDays",
-                                    String(e.target.checked),
+                                    String(e.target.checked)
                                   )
                                 }
                                 className="sr-only peer"
@@ -385,13 +386,13 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                                 {Boolean(filter.get("from")) &&
                                 Boolean(filter.get("to"))
                                   ? `${dateFormater(
-                                      new Date(
-                                        filter.get("from") ?? new Date(),
-                                      ),
-                                    )}-
+                                    new Date(
+                                      filter.get("from") ?? new Date()
+                                    )
+                                  )}-
                           ${dateFormater(
-                            new Date(filter.get("to") ?? new Date()),
-                          )}`
+                        new Date(filter.get("to") ?? new Date())
+                      )}`
                                   : "Select start date"}
                                 <img src={CalendarSvg} width={20} />
                               </div>
@@ -406,9 +407,9 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                                   e?.from
                                     ? setParamFilter("from", String(e?.from))
                                     : "",
-                                    e?.to
-                                      ? setParamFilter("to", String(e?.to))
-                                      : "";
+                                  e?.to
+                                    ? setParamFilter("to", String(e?.to))
+                                    : "";
                                 }}
                                 className="rounded-md border"
                               />
@@ -424,13 +425,13 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                           value={
                             filter.get("assigned")
                               ? {
-                                  label: filter.get("assigned"),
-                                  value: filter.get("assigned"),
-                                }
+                                label: filter.get("assigned"),
+                                value: filter.get("assigned"),
+                              }
                               : {
-                                  label: "Select assigned user",
-                                  value: "",
-                                }
+                                label: "Select assigned user",
+                                value: "",
+                              }
                           }
                           options={assignedTask()}
                           onChange={(e) => {
@@ -452,9 +453,9 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                           value={
                             filter.get("flag")
                               ? {
-                                  label: filter.get("flag"),
-                                  value: filter.get("flag"),
-                                }
+                                label: filter.get("flag"),
+                                value: filter.get("flag"),
+                              }
                               : { label: "Select flag", value: "" }
                           }
                           options={flags}
@@ -477,9 +478,9 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                           value={
                             filter.get("tasks")
                               ? {
-                                  label: filter.get("tasks"),
-                                  value: filter.get("tasks"),
-                                }
+                                label: filter.get("tasks"),
+                                value: filter.get("tasks"),
+                              }
                               : { label: "Both", value: "" }
                           }
                           options={taskOption}

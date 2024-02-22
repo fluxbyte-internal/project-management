@@ -286,7 +286,7 @@ function NavBar() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              {user?.userOrganisation[0]?.role !== "TEAM_MEMBER" && (
+              {user?.userOrganisation[0]?.role !== UserRoleEnumValue.TEAM_MEMBER && (
                 <>
                   <Button
                     className="hidden lg:block"

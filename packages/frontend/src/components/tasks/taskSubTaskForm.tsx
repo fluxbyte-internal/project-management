@@ -105,7 +105,7 @@ function TaskSubTaskForm(props: Props) {
   const [submitbyButton, setSubmitbyButton] = useState(false);
   const projects = useProjectQuery();
 
-  const [startDate, setStartDate] = useState<Date>(new Date())
+  const [startDate, setStartDate] = useState<Date>(new Date());
 
   useEffect(() => {
     if (taskId && tasks) {
@@ -127,8 +127,8 @@ function TaskSubTaskForm(props: Props) {
     }
     const startDate = projects.data?.data.data.find(
       (p) => p.projectId == props.projectId
-    )?.startDate ?? new Date()
-    setStartDate(new Date(startDate))
+    )?.startDate ?? new Date();
+    setStartDate(new Date(startDate));
   }, [taskId, taskQuery.data]);
   const taskFormik = useFormik<z.infer<typeof createTaskSchema>>({
     initialValues: {
@@ -499,10 +499,10 @@ function TaskSubTaskForm(props: Props) {
             {/* Attachments */}
             {tasks?.documentAttachments &&
             tasks?.documentAttachments.length > 0 ? (
-              <TaskAttachment refetch={refetch} task={tasks}></TaskAttachment>
-            ) : (
-              ""
-            )}
+                <TaskAttachment refetch={refetch} task={tasks}></TaskAttachment>
+              ) : (
+                ""
+              )}
 
             <div className="flex items-center gap-2.5 mt-4">
               <img src={MultiLine} width={20} height={20} />
@@ -541,9 +541,9 @@ function TaskSubTaskForm(props: Props) {
                       >
                         {tasks?.status
                           ? `Status: ${tasks?.status
-                              .toLowerCase()
-                              .replace(/_/g, " ")
-                              .replace(/\b\w/g, (char) => char.toUpperCase())}`
+                            .toLowerCase()
+                            .replace(/_/g, " ")
+                            .replace(/\b\w/g, (char) => char.toUpperCase())}`
                           : "Select Status"}
                       </Button>
                     </div>
@@ -608,11 +608,11 @@ function TaskSubTaskForm(props: Props) {
                                   (u) => u.user.userId == data.user.userId
                                 )
                                   ? removeMembers(
-                                      tasks?.assignedUsers.find(
-                                        (id) =>
-                                          id.user.userId == data.user.userId
-                                      )?.taskAssignUsersId ?? ""
-                                    )
+                                    tasks?.assignedUsers.find(
+                                      (id) =>
+                                        id.user.userId == data.user.userId
+                                    )?.taskAssignUsersId ?? ""
+                                  )
                                   : submitMembers(data);
                               }}
                             >
@@ -706,10 +706,10 @@ function TaskSubTaskForm(props: Props) {
                     />
                     {taskFormik.errors.startDate &&
                       taskFormik.values.startDate && (
-                        <ErrorMessage className="ml-0 p-0">
-                          {/* {taskFormik.errors.startDate} */}
-                        </ErrorMessage>
-                      )}
+                      <ErrorMessage className="ml-0 p-0">
+                        {/* {taskFormik.errors.startDate} */}
+                      </ErrorMessage>
+                    )}
                   </PopoverContent>
                 </Popover>
               </div>
@@ -719,10 +719,10 @@ function TaskSubTaskForm(props: Props) {
                     tasks?.flag == "Green"
                       ? "bg-green-500/60"
                       : tasks?.flag == "Red"
-                      ? "bg-red-500/60"
-                      : tasks?.flag == "Orange"
-                      ? "bg-primary-500/60"
-                      : ""
+                        ? "bg-red-500/60"
+                        : tasks?.flag == "Orange"
+                          ? "bg-primary-500/60"
+                          : ""
                   }`}
                 >
                   <img src={Tag} className="w-3.5" />
@@ -769,8 +769,8 @@ function TaskSubTaskForm(props: Props) {
                         <div className="text-sm  text-gray-300">
                           {milestoneFormik.values.dueDate
                             ? dateFormater(
-                                new Date(milestoneFormik.values.dueDate)
-                              )
+                              new Date(milestoneFormik.values.dueDate)
+                            )
                             : "Select date"}
                           <ErrorMessage>
                             {!milestoneFormik.values.dueDate &&
@@ -797,30 +797,30 @@ function TaskSubTaskForm(props: Props) {
                         />
                         {milestoneFormik.errors.dueDate &&
                           milestoneFormik.values.dueDate && (
-                            <ErrorMessage className="ml-0 p-0">
-                              {milestoneFormik.errors.dueDate}
-                            </ErrorMessage>
-                          )}
+                          <ErrorMessage className="ml-0 p-0">
+                            {milestoneFormik.errors.dueDate}
+                          </ErrorMessage>
+                        )}
                       </PopoverContent>
                     </Popover>
                   </div>
                 )}
                 {(!tasks?.dueDate || !tasks.milestoneIndicator) &&
                   tasks?.endDate && (
-                    <div className="flex flex-col gap-2">
-                      <div className="text-xs font-medium text-gray-400">
+                  <div className="flex flex-col gap-2">
+                    <div className="text-xs font-medium text-gray-400">
                         End Date
-                      </div>
-                      {/* <div className="text-sm  text-gray-300">
+                    </div>
+                    {/* <div className="text-sm  text-gray-300">
                     {tasks?.milestoneIndicator
                       ? dateFormater(tasks.dueDate ?? new Date())
                       : dateFormater(new Date())}
                   </div> */}
-                      <div className="text-sm  text-gray-300">
-                        {dateFormater(new Date(tasks.endDate))}
-                      </div>
+                    <div className="text-sm  text-gray-300">
+                      {dateFormater(new Date(tasks.endDate))}
                     </div>
-                  )}
+                  </div>
+                )}
               </div>
               <div className="flex justify-between">
                 <div>
@@ -866,7 +866,7 @@ function TaskSubTaskForm(props: Props) {
                             <InputNumber
                               onBlur={() => {
                                 setTaskDurationField(false),
-                                  taskFormik.submitForm();
+                                taskFormik.submitForm();
                               }}
                               name="duration"
                               onChange={taskFormik.handleChange}
@@ -915,17 +915,17 @@ function TaskSubTaskForm(props: Props) {
                       {tasks &&
                         tasks.subtasks?.length === 0 &&
                         !(tasks?.milestoneIndicator && tasks?.dueDate) && (
-                          <div>
-                            <Button
-                              variant={"none"}
-                              onClick={() =>
-                                setTaskProgressField((prev) => !prev)
-                              }
-                            >
-                              <img src={Edit} />
-                            </Button>
-                          </div>
-                        )}
+                        <div>
+                          <Button
+                            variant={"none"}
+                            onClick={() =>
+                              setTaskProgressField((prev) => !prev)
+                            }
+                          >
+                            <img src={Edit} />
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

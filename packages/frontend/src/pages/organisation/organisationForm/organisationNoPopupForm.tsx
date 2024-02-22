@@ -23,6 +23,7 @@ import { useUser } from "@/hooks/useUser";
 import useOrgSettingsUpdateMutation from "@/api/mutation/useOrgSettingsUpdateMutation";
 import useCsvUploadMutation from "@/api/mutation/useCsvUploadMutation";
 import CSVIcon from "@/assets/svg/csvIcon.svg";
+import { OrgStatusEnumValue } from "@backend/src/schemas/enums";
 interface Props {
   editData?: OrganisationType;
   viewOnly: boolean;
@@ -54,7 +55,7 @@ function OrganisationNoPopUpForm(props: Props) {
     initialValues: {
       organisationName: "",
       industry: "",
-      status: "ACTIVE",
+      status: OrgStatusEnumValue.ACTIVE,
       nonWorkingDays: [],
       country: "",
     },
@@ -274,8 +275,8 @@ function OrganisationNoPopUpForm(props: Props) {
         onSuccess(data) {
           toast.success(data.data.message);
           if (csvUplodeRef?.current) {
-            csvUplodeRef.current.value  = ''
-        }
+            csvUplodeRef.current.value  = '';
+          }
         },
         onError(error) {
           toast.error(error.response?.data.message);
@@ -384,7 +385,7 @@ function OrganisationNoPopUpForm(props: Props) {
               className="w-full border-2 text-gray-600"
             >
               <div className="flex gap-2 items-center">
-             <img src={CSVIcon} /> Upload holiday CSV
+                <img src={CSVIcon} /> Upload holiday CSV
               </div>
             </Button>
             <ErrorMessage>

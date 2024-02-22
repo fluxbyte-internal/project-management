@@ -3,6 +3,7 @@ import CreateProjectForm from "@/components/project/CreateProjectForm";
 import { useState } from "react";
 import BackgroundImage from "../layout/BackgroundImage";
 import { useUser } from "@/hooks/useUser";
+import { UserRoleEnumValue } from "@backend/src/schemas/enums";
 
 function NoProject() {
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
@@ -33,7 +34,7 @@ function NoProject() {
             </div>
             <div className="flex items-center ">
               <button
-                disabled={!(user?.userOrganisation[0].role !== "TEAM_MEMBER")}
+                disabled={!(user?.userOrganisation[0].role !==UserRoleEnumValue.TEAM_MEMBER)}
                 onClick={() => setIsOpenPopUp(true)}
                 className="disabled:bg-warning/50 w-full mt-3 tracking-wide lg:mt-0 lg:w-fit bg-warning hover:bg-opacity-80 text-lg font-medium text-orange-800 py-3 px-7 rounded-md gap-4"
               >

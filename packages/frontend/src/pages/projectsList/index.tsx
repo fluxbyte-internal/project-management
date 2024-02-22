@@ -32,6 +32,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
 import { useUser } from "@/hooks/useUser";
+import { UserRoleEnumValue } from "@backend/src/schemas/enums";
 
 type Options = { label: string; value: string };
 function ProjectsList() {
@@ -153,12 +154,12 @@ function ProjectsList() {
       onCellRender: (item: Project) => (
         <div className="w-full my-3">
           {item.assignedUsers.filter(
-            (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER",
+            (d) => d.user.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER
           )?.length > 0 ? (
               <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
                 {item.assignedUsers
                   ?.filter(
-                    (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER"
+                    (d) => d.user.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER
                   )
                   .slice(0, 3)
                   .map((item, index) => {
@@ -176,18 +177,18 @@ function ProjectsList() {
                   })}
                 {item.projectManagerInfo &&
                 item.assignedUsers.filter(
-                  (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER",
+                  (d) => d.user.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER
                 )?.length > 3 && (
                   <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
                     {`${
                       item.assignedUsers.filter(
-                        (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER",
+                        (d) => d.user.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER
                       )?.length - 3
                     }+`}
                   </div>
                 )}
                 {item.assignedUsers.filter(
-                  (d) => d.user.userOrganisation[0].role == "TEAM_MEMBER",
+                  (d) => d.user.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER
                 )?.length <= 0
                   ? "N/A"
                   : ""}
@@ -292,7 +293,7 @@ function ProjectsList() {
   const reactSelectStyle = {
     control: (
       provided: Record<string, unknown>,
-      state: { isFocused: boolean },
+      state: { isFocused: boolean }
     ) => ({
       ...provided,
       border: "1px solid #E7E7E7",
@@ -364,7 +365,7 @@ function ProjectsList() {
                 <h2 className="font-medium text-3xl leading-normal text-gray-600">
                   Projects
                 </h2>
-                {user?.userOrganisation[0]?.role !== "TEAM_MEMBER" && (
+                {user?.userOrganisation[0]?.role !== UserRoleEnumValue.TEAM_MEMBER && (
                   <div>
                     <Button
                       variant={"primary"}
@@ -418,7 +419,7 @@ function ProjectsList() {
                           <div className="flex justify-between items-center w-full text-gray-400 font-normal">
                             {filter.date
                               ? `${dateFormatter(
-                                filter.date.from ?? new Date(),
+                                filter.date.from ?? new Date()
                               )}-
                               ${dateFormatter(filter.date.to ?? new Date())}`
                               : "End date"}

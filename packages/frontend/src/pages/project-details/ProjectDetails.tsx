@@ -21,6 +21,7 @@ import CreateProjectNoPopUpForm from "@/components/project/CreateProjectNoPopupF
 import { Project } from "@/api/query/useProjectQuery";
 import { useUser } from "@/hooks/useUser";
 import dateFormater from "@/helperFuntions/dateFormater";
+import { OverAllTrackEnumValue, ProjectStatusEnumValue, UserRoleEnumValue } from "@backend/src/schemas/enums";
 
 function ProjectDetails() {
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
@@ -36,13 +37,13 @@ function ProjectDetails() {
 
   const HandleStatus = () => {
     switch (projectDetailQuery.data?.data.data.status) {
-    case "NOT_STARTED":
+    case ProjectStatusEnumValue.NOT_STARTED:
       return "Not Started";
-    case "ACTIVE":
+    case ProjectStatusEnumValue.ACTIVE:
       return "Active";
-    case "ON_HOLD":
+    case ProjectStatusEnumValue.ON_HOLD:
       return "On Hold";
-    case "CLOSED":
+    case ProjectStatusEnumValue.CLOSED:
       return "Closed";
     default:
       return "Not Started";
@@ -51,13 +52,13 @@ function ProjectDetails() {
 
   const HandleOverallTrack = () => {
     switch (projectDetailQuery.data?.data.data.overallTrack) {
-    case "STORMY":
+    case OverAllTrackEnumValue.STORMY:
       return <img src={Stormy} className="h-full w-full" />;
-    case "CLOUDY":
+    case OverAllTrackEnumValue.CLOUDY:
       return <img src={Cloudy} className="h-full w-full" />;
-    case "SUNNY":
+    case OverAllTrackEnumValue.SUNNY:
       return <img src={Sunny} className="h-full w-full" />;
-    case "RAINY":
+    case OverAllTrackEnumValue.RAINY:
       return <img src={Rainy} className="h-full w-full" />;
 
     default:
@@ -70,12 +71,12 @@ function ProjectDetails() {
   };
 
   const verification = () => {
-    if (user?.userOrganisation[0].role === "ADMINISTRATOR") {
+    if (user?.userOrganisation[0].role === UserRoleEnumValue.ADMINISTRATOR) {
       return true;
     } else {
       const projectMenager =
         projectDetailQuery.data?.data.data.assignedUsers.filter((item) => {
-          if (item.user.userOrganisation[0].role === "PROJECT_MANAGER") {
+          if (item.user.userOrganisation[0].role ===  UserRoleEnumValue.PROJECT_MANAGER) {
             return item;
           }
         });

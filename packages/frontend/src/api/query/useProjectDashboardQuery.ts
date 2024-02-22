@@ -6,7 +6,7 @@ import { QUERY_KEYS } from "./querykeys";
 import ApiRequest from "../ApiRequest";
 import { requestURLs } from "@/Environment";
 import { useQuery } from "@tanstack/react-query";
-import { ScheduleAndBudgetTrend } from "@backend/src/schemas/enums";
+import { OverAllTrackEnumValue, ScheduleAndBudgetTrend } from "@backend/src/schemas/enums";
 
 export type projectDashboardResponseType = ResponseType<{
   projectName:string
@@ -22,7 +22,7 @@ export type projectDashboardResponseType = ResponseType<{
     tpiFlag:  string;
 }[];
   numTeamMembersWorkingOnTasks: number;
-  projectOverAllSituation: string;
+  projectOverAllSituation: keyof typeof OverAllTrackEnumValue;
   projectStatus: string;
   spi: {
     taskId:     string;
@@ -64,7 +64,7 @@ export type projectDashboardPortfolioDataType = {
     tpiFlag:  string;
 }[];
   numTeamMembersWorkingOnTasks: number;
-  projectOverAllSituation: string;
+  projectOverAllSituation: keyof typeof OverAllTrackEnumValue;
   projectStatus: string;
   spi: {
     taskId:     string;

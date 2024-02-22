@@ -70,13 +70,13 @@ function Signup() {
               error.response.data.errors.map(
                 (item: { message: string; path: string[] }) => {
                   helper.setFieldError(item.path[0], item.message);
-                },
+                }
               );
             }
             if (!Array.isArray(error.response?.data.errors)) {
               toast.error(
                 error.response?.data?.message ??
-                  "An unexpected error occurred.",
+                  "An unexpected error occurred."
               );
             }
           }

@@ -13,6 +13,7 @@ import { Tooltip } from "@radix-ui/react-tooltip";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 import { Button } from "../ui/button";
 import { useUser } from "@/hooks/useUser";
+import { UserRoleEnumValue } from "@backend/src/schemas/enums";
 
 export type SideBarProps = {
   toggleSidebar: () => void;
@@ -80,7 +81,7 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
         <div className="py-4 px-2">
           <div className="mt-12 flex justify-between">
             <div className="text-base text-[#44546F] font-medium">Projects</div>
-            {user?.userOrganisation[0]?.role !== "TEAM_MEMBER" && (
+            {user?.userOrganisation[0]?.role !== UserRoleEnumValue.TEAM_MEMBER && (
               <Button
                 variant={"secondary"}
                 className="w-6 h-6 p-0 rounded-md"
@@ -172,7 +173,7 @@ function SideBar({ toggleSidebar, isSidebarExpanded }: SideBarProps) {
           </div>
         </div>
       </div>
-      {isProjectCreate && user?.userOrganisation[0].role !== "TEAM_MEMBER" && (
+      {isProjectCreate && user?.userOrganisation[0].role !== UserRoleEnumValue.TEAM_MEMBER && (
         <CreateUpdateProjectForm
           handleClosePopUp={() => setProjectCreate(false)}
         ></CreateUpdateProjectForm>

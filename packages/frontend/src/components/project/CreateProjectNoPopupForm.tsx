@@ -24,6 +24,7 @@ import Select, { SingleValue } from "react-select";
 import ErrorMessage from "../common/ErrorMessage";
 import {
   OverAllTrackEnumValue,
+  ProjectDefaultViewEnumValue,
   ProjectStatusEnumValue,
   ScheduleAndBudgetTrend,
   // UserRoleEnumValue,
@@ -118,12 +119,12 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
       startDate: "" as unknown as Date,
       estimatedEndDate: "" as unknown as Date,
       estimatedBudget: "",
-      defaultView: "LIST",
+      defaultView: ProjectDefaultViewEnumValue.LIST,
       currency: "USD",
-      status: "NOT_STARTED",
-      overallTrack: "SUNNY",
-      scheduleTrend: "STABLE",
-      budgetTrend: "STABLE",
+      status: ProjectStatusEnumValue.NOT_STARTED,
+      overallTrack: OverAllTrackEnumValue.SUNNY,
+      scheduleTrend: ScheduleAndBudgetTrend.STABLE,
+      budgetTrend: ScheduleAndBudgetTrend.STABLE,
       consumedBudget: "",
     },
     validationSchema: toFormikValidationSchema(updateProjectSchema),
@@ -187,7 +188,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
         scheduleTrend: editData.scheduleTrend,
         budgetTrend: editData.budgetTrend,
         consumedBudget: editData.consumedBudget,
-        status:editData.status
+        status:editData.status,
       });
       setCurrencyValue({ label: editData.currency, value: editData.currency });
     }

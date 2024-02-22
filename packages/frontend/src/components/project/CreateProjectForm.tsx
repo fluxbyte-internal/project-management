@@ -28,6 +28,7 @@ import countries from "../../assets/json/countries.json";
 import Select, { SingleValue } from "react-select";
 import ErrorMessage from "../common/ErrorMessage";
 import { useNavigate } from "react-router-dom";
+import { ProjectDefaultViewEnumValue } from "@backend/src/schemas/enums";
 type Options = { label: string; value: string };
 
 type AddProjectType = {
@@ -85,7 +86,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
       startDate: "" as unknown as Date,
       estimatedEndDate: "" as unknown as Date,
       estimatedBudget: "",
-      defaultView: "LIST",
+      defaultView: ProjectDefaultViewEnumValue.LIST,
       currency: "USD",
     },
     validationSchema:
