@@ -340,7 +340,10 @@ function Tasks() {
                 ]}
                 view="LIST"
                 ref={filterRef}
-                filteredData={(data) => setFilterData(setData(data))}
+                filteredData={(data) => setFilterData(setData(data)?.sort(
+                  (a, b) =>
+                    new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+                ))}
                 tasks={allTaskQuery.data?.data.data}
               />
               <div>

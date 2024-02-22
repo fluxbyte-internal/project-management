@@ -278,7 +278,7 @@ function OrganisationNoPopUpForm(props: Props) {
         }
         },
         onError(error) {
-          toast.error(error.message);
+          toast.error(error.response?.data.message);
         },
       });
     }
@@ -378,7 +378,7 @@ function OrganisationNoPopUpForm(props: Props) {
             />
             <Button
               isLoading={csvUploadMutation.isPending}
-              disabled={csvUploadMutation.isPending}
+              disabled={csvUploadMutation.isPending || viewOnly}
               variant={"outline"}
               onClick={() => csvUplodeRef.current?.click()}
               className="w-full border-2 text-gray-600"

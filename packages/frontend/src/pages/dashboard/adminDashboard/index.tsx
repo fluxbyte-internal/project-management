@@ -11,6 +11,7 @@ import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 import HorizontalBarChart from "@/components/charts/HorizontalBarChart";
 import { Project } from "@/api/query/useProjectQuery";
 import LinkArrow from "@/assets/svg/linkArrow.svg";
+import { ProjectStatusEnumValue } from "@backend/src/schemas/enums";
 export interface ProjectType {
   projectId: string;
   organisationId: string;
@@ -119,7 +120,7 @@ function AdminDashboard() {
   const columnDef: ColumeDef[] = [
     {
       key: "projectName",
-      header: "Title",
+      header: "Project Name",
       sorting: true,
       onCellRender: (projectData) => {
         return (
@@ -147,12 +148,22 @@ function AdminDashboard() {
       onCellRender: (item) => <>{dateFormater(new Date(item.startDate))}</>,
     },
     {
-      key: "actualEndDate",
-      header: "End Date",
+      key: "estimatedEndDate",
+      header: "Estimated End Date",
       onCellRender: (item) => (
         <>
           {item.estimatedEndDate &&
             dateFormater(new Date(item.estimatedEndDate))}
+        </>
+      ),
+    },
+    {
+      key: "actualEndDate",
+      header: "Actual End Date",
+      onCellRender: (item) => (
+        <>
+          {item.estimatedEndDate &&
+            dateFormater(new Date(item.actualEndDate))}
         </>
       ),
     },
@@ -200,11 +211,11 @@ function AdminDashboard() {
                 <div
                   key={index}
                   className={`relative flex flex-col gap-2 select-none lg:gap-5 w-full lg:w-2/5 h-1/5 lg:h-full  rounded-2xl p-2 lg:py-3 text-start items-start justify-start px-10 border-l-[12px] ${
-                    labelData === "ACTIVE"
+                    labelData === ProjectStatusEnumValue.ACTIVE
                       ? "text-primary-600  border-2 border-primary-600 "
-                      : labelData === "ON_HOLD"
+                      : labelData === ProjectStatusEnumValue.ON_HOLD
                       ? "text-primary-800 border-2 border-primary-800"
-                      : labelData === "NOT_STARTED"
+                      : labelData === ProjectStatusEnumValue.NOT_STARTED
                       ? "text-primary-950 border-2 border-primary-950"
                       : "text-gray-800 border-2 border-gray-300  "
                   }`}

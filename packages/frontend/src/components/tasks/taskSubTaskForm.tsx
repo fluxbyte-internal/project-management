@@ -61,7 +61,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { TaskStatusEnumValue } from "@backend/src/schemas/enums";
+import { TaskStatusEnumValue, UserRoleEnumValue } from "@backend/src/schemas/enums";
 import useTaskStatusUpdateMutation from "@/api/mutation/useTaskStatusUpdateMutation";
 import useProjectQuery from "@/api/query/useProjectQuery";
 
@@ -592,7 +592,7 @@ function TaskSubTaskForm(props: Props) {
                         <h4 className="font-medium leading-none">Members</h4>
                       </div>
                       <div>
-                        {taskMemberList.data?.data.data.map((data, index) => {
+                        {taskMemberList.data?.data.data.filter(d => d.user?.userOrganisation![0].role !== UserRoleEnumValue.ADMINISTRATOR).map((data, index) => {
                           return (
                             <div
                               key={index}

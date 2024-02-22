@@ -9,19 +9,30 @@ import { useQuery } from "@tanstack/react-query";
 import { ScheduleAndBudgetTrend } from "@backend/src/schemas/enums";
 
 export type projectDashboardResponseType = ResponseType<{
+  projectName:string
   numTasks: number;
   numMilestones: number;
   projectDates: ProjectDates;
-  projectBudgetTrend: any;
+  projectBudgetTrend: keyof typeof ScheduleAndBudgetTrend;
   taskStatusChartData: TaskStatusChartData;
-  taskDelayChartData: any[];
+  taskDelayChartData: {
+    taskId:   string;
+    taskName: string;
+    tpiValue: number;
+    tpiFlag:  string;
+}[];
   numTeamMembersWorkingOnTasks: number;
   projectOverAllSituation: string;
   projectStatus: string;
-  spi: any[];
-  cpi: any;
-  budgetTrend:typeof ScheduleAndBudgetTrend;
-  scheduleTrend: "STABLE";
+  spi: {
+    taskId:     string;
+    taskName:   string;
+    spi:        number;
+    taskStatus: string;
+}[];
+  cpi: number | undefined;
+  budgetTrend:keyof typeof ScheduleAndBudgetTrend;
+  scheduleTrend: keyof typeof ScheduleAndBudgetTrend;
   actualCost: string;
   consumedBudget:string;
   estimatedBudget: string;
@@ -40,19 +51,30 @@ export interface TaskStatusChartData {
 }
 
 export type projectDashboardPortfolioDataType = {
+  projectName:string
   numTasks: number;
   numMilestones: number;
   projectDates: ProjectDates;
-  projectBudgetTrend: any;
+  projectBudgetTrend: keyof typeof ScheduleAndBudgetTrend;
   taskStatusChartData: TaskStatusChartData;
-  taskDelayChartData: any[];
+  taskDelayChartData: {
+    taskId:   string;
+    taskName: string;
+    tpiValue: number;
+    tpiFlag:  string;
+}[];
   numTeamMembersWorkingOnTasks: number;
   projectOverAllSituation: string;
   projectStatus: string;
-  spi: any[];
-  cpi: any;
-  budgetTrend:typeof ScheduleAndBudgetTrend;
-  scheduleTrend: "STABLE";
+  spi: {
+    taskId:     string;
+    taskName:   string;
+    spi:        number;
+    taskStatus: string;
+}[];
+  cpi: number | undefined;
+  budgetTrend:keyof typeof ScheduleAndBudgetTrend;
+  scheduleTrend: keyof typeof ScheduleAndBudgetTrend;
   actualCost: string;
   consumedBudget:string;
   estimatedBudget: string;

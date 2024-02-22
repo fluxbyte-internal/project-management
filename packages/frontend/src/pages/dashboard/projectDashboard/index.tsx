@@ -179,6 +179,9 @@ function ProjectDashboard() {
       case "Tasks":
         navigate(`/tasks/${projectId}`);
         break;
+      case "Members":
+        navigate(`/members/${projectId}`);
+        break;
       default:
         break;
     }
@@ -200,7 +203,7 @@ function ProjectDashboard() {
         <>
           <div className="overflow-auto w-full self-center py-2  px-5 lg:px-24 flex flex-col gap-10">
             <h2 className="font-medium text-3xl leading-normal text-gray-600">
-              Project Dashboard
+              {data.projectName}
             </h2>
             <div className="statsbox w-full h-fit flex flex-col lg:flex-row justify-center items-center gap-6 py-2 ">
               <div
@@ -213,6 +216,7 @@ function ProjectDashboard() {
                 <img
                   className=" absolute right-2 bottom-2 h-6 w-6 opacity-70 hover:opacity-100 cursor-pointer invert sepia-[0%] saturate-[7426%] hue-rotate-[16deg] brightness-[100%] contrast-[100%]" // onClick={() => filterRoutes(labelData)}
                   src={LinkArrow}
+                  onClick={() => filterRoutes("Members")}
                 />
               </div>
 
@@ -309,7 +313,13 @@ function ProjectDashboard() {
                         aria-valuemin={0}
                         aria-valuemax={100}
                         style={{
-                          background: `radial-gradient(closest-side, white 79%, transparent 80% 100%), conic-gradient(${selectedStatusTheme?.colors?.chartColors[0]} ${Number(Number(data?.projectProgression).toFixed(2))*100}%, #cecece 0)`,
+                          background: `radial-gradient(closest-side, white 79%, transparent 80% 100%), conic-gradient(${
+                            selectedStatusTheme?.colors?.chartColors[0]
+                          } ${
+                            Number(
+                              Number(data?.projectProgression).toFixed(2)
+                            ) * 100
+                          }%, #cecece 0)`,
                         }}
                       >
                         <div className="m-1">
@@ -345,9 +355,9 @@ function ProjectDashboard() {
                     </div>
                   </div>
                 </div>
-                <div className="statusImage -z-10 absolute h-[75%] md:h-full top-[25%] -right-[30%] md:-right-[9%] md:-top-[0%] lg:-right-[8%] lg:-top-[50%] text-right">
+                <div className="statusImage -z-10  text-right">
                   <img
-                    className="h-[65%] md:h-3/4 lg:h-[125%] select-none"
+                    className="h-[65%] md:h-3/4 lg:h-[125%] select-none absolute  -top-16 -right-20 transform -translate-x-0 -translate-y-6 "
                     src={`${
                       data?.projectOverAllSituation === "SUNNY"
                         ? Sunny
@@ -397,12 +407,12 @@ function ProjectDashboard() {
                     <img
                       className="h-10 w-10"
                       src={
-                        data?.scheduleTrend === ScheduleAndBudgetTrend.STABLE
+                        data?.budgetTrend === ScheduleAndBudgetTrend.STABLE
                           ? Stable
-                          : data?.scheduleTrend ===
+                          : data?.budgetTrend ===
                             ScheduleAndBudgetTrend.INCREASING
                           ? Increasing
-                          : data?.scheduleTrend ===
+                          : data?.budgetTrend ===
                             ScheduleAndBudgetTrend.DECREASING
                           ? Decreasing
                           : ""
