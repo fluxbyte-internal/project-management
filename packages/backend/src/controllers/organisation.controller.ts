@@ -478,6 +478,11 @@ export const uploadHolidayCSV = async (
   if (!file) {
     throw new BadRequestError("No CSV file uploaded!");
   }
+  const fileName = file.name;
+  const fileExtension = fileName.split('.').pop();
+  if (fileExtension !== 'csv') {
+    throw new BadRequestError("Please upload a CSV file.");
+  }
   const csvString = file.data.toString("utf-8");
   const csvRows = csvString
     .split("\n")

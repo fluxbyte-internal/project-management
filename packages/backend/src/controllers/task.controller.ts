@@ -678,7 +678,14 @@ export const taskAssignToUser = async (
       assginedToUserId: true,
       projectAssignUsersId: true,
       user: {
-        select: selectUserFields,
+        select: {
+          ...selectUserFields,
+          userOrganisation: {
+            select: {
+              role: true,
+            },
+          },
+        },
       },
     },
   });
