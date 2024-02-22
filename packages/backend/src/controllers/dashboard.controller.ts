@@ -352,6 +352,7 @@ export const projectDashboardByprojectId = async (
     numTeamMembersWorkingOnTasks,
     projectOverAllSituation,
     projectStatus: projectWithTasks.status,
+    projectName: projectWithTasks.projectName,
     spi,
     cpi,
     budgetTrend,
