@@ -5,6 +5,11 @@ import { UserRoleEnum } from "@prisma/client";
 
 let router = express.Router();
 
+router.get(
+  "/sample-csv-download",
+  roleMiddleware([UserRoleEnum.ADMINISTRATOR]),
+  OrganisationControlller.sampleCSVDownload
+);
 router.get("/:organisationId", OrganisationControlller.getOrganisationById);
 
 router.put(

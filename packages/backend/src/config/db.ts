@@ -1,7 +1,7 @@
-import { NotificationTypeEnum, PrismaClient, Task, TaskStatusEnum, UserStatusEnum, UserRoleEnum, HistoryTypeEnum, Project } from "@prisma/client";
+import { NotificationTypeEnum, PrismaClient, Task, UserStatusEnum, UserRoleEnum, HistoryTypeEnum } from "@prisma/client";
 import { RegisterSocketServices } from "../services/socket.services.js";
 import { settings } from "./settings.js";
-import { calculateWorkingDays } from "../utils/removeNonWorkingDays.js";
+import { taskEndDate } from "../utils/calcualteTaskEndDate.js";
 
 const rootPrismaClient = generatePrismaClient();
 const prismaClients: Record<
@@ -22,40 +22,6 @@ function generatePrismaClient(datasourceUrl?: string) {
   const client = new PrismaClient(...prismaClientParams).$extends({
     result: {
       task: {
-        endDate: {
-          compute(task) {
-            let endDate: Date = new Date();
-            if (
-              task &&
-              task.startDate &&
-              task.duration !== null &&
-              task.duration !== undefined
-            ) {
-              endDate = client.task.calculateEndDate(
-                task.startDate,
-                task.duration
-              );
-            }
-            // @ts-ignore
-            if (task && task.subtasks) {
-              // @ts-ignore
-              task.subtasks.forEach((subtask) => {
-                if (
-                  subtask.endDate &&
-                  (!endDate || subtask.endDate > endDate)
-                ) {
-                  endDate = new Date(subtask.endDate);
-                } else if (
-                  subtask.dueDate &&
-                  (!endDate || subtask.dueDate > endDate)
-                ) {
-                  endDate = new Date(subtask.dueDate);
-                }
-              });
-            }
-            return endDate;
-          },
-        },
       },
     },
     model: {
@@ -129,12 +95,9 @@ function generatePrismaClient(datasourceUrl?: string) {
           let averagesSumOfDuration = 0;
 
           for (const value of parentTasks) {
-            const endDate = value.milestoneIndicator ? value.dueDate : value.endDate;
-            const duration = await calculateWorkingDays(value.startDate, endDate!, tenantId, organisationId);
             completionPecentageOrDuration +=
-            Number(value.completionPecentage) *
-            (duration * settings.hours);
-            averagesSumOfDuration += duration * settings.hours * 100;
+              Number(value.completionPecentage) * (value.duration * settings.hours);
+            averagesSumOfDuration += value.duration * settings.hours * 100;
           }
           return (completionPecentageOrDuration / averagesSumOfDuration);
         },
@@ -286,13 +249,11 @@ function generatePrismaClient(datasourceUrl?: string) {
         async calculateTaskPlannedProgression(task: Task, tenantId: string, organisationId: string): Promise<number> {
           const currentDate = new Date().getTime();
           const taskStartDate = new Date(task.startDate).getTime();
-          const taskEndDate = client.task
-            .calculateEndDate(task.startDate, task.duration)
-          const effectiveCurrentDate = Math.min(currentDate, (taskEndDate).getTime()); // Use task end date if currentDate is greater
-          const newDuration = await calculateWorkingDays(task.startDate, taskEndDate, tenantId, organisationId);
+          const endDate = await taskEndDate(task, tenantId, organisationId);
+          const effectiveCurrentDate = Math.min(currentDate, (new Date(endDate)).getTime()); // Use task end date if currentDate is greater
           const plannedProgression =
             (effectiveCurrentDate - taskStartDate + 1) /
-            (newDuration * settings.hours);
+            (task.duration * settings.hours);
           return plannedProgression;
         },
       },

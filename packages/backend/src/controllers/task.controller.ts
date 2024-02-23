@@ -10,8 +10,8 @@ import { uuidSchema } from '../schemas/commonSchema.js';
 import { MilestoneIndicatorStatusEnum } from '@prisma/client';
 import { HistoryTypeEnumValue } from '../schemas/enums.js';
 import { removeProperties } from "../types/removeProperties.js";
+import { taskEndDate } from '../utils/calcualteTaskEndDate.js';
 import { selectUserFields } from '../utils/selectedFieldsOfUsers.js';
-import { calculateWorkingDays } from '../utils/removeNonWorkingDays.js';
 import { calculationSubTaskProgression } from '../utils/calculationSubTaskProgression.js';
 import { taskFlag } from '../utils/calculationFlag.js';
 
@@ -49,14 +49,13 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
     },
   });
   const finalArray = await Promise.all(tasks.map(async (task) => {
-    const endDate = task.milestoneIndicator ? task.dueDate : task.endDate;
-    const duration = await calculateWorkingDays(task.startDate, endDate!, req.tenantId, organisationId);
+    const endDate = await taskEndDate(task, req.tenantId, organisationId);
     const completionPecentage = await calculationSubTaskProgression(task, req.tenantId, organisationId);
-    const flag = await taskFlag(task, req.tenantId, organisationId);
+    const flag = await taskFlag(task);
     const updatedTask = {
       ...task,
       flag,
-      duration,
+      endDate,
       completionPecentage,
     };
     return updatedTask;
@@ -113,11 +112,10 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
       },
     },
   });
-  const endDate = task.milestoneIndicator ? task.dueDate : task.endDate;
-  const duration = await calculateWorkingDays(task.startDate, endDate!, req.tenantId, req.organisationId);
+  const endDate = await taskEndDate(task, req.tenantId, req.organisationId);
   const completionPecentage = await calculationSubTaskProgression(task, req.tenantId, req.organisationId);
-  const flag = await taskFlag(task, req.tenantId, req.organisationId);
-  const finalResponse = { ...task, duration, completionPecentage, flag };
+  const flag = await taskFlag(task);
+  const finalResponse = { ...task, completionPecentage, flag, endDate };
   return new SuccessResponse(
   StatusCodes.OK,
     finalResponse,
@@ -264,6 +262,7 @@ export const updateTask = async (
       dependencies: true,
       project: true,
       parent: true,
+      subtasks: true,
     },
   });
 
@@ -271,6 +270,21 @@ export const updateTask = async (
     const taskTimeline = await prisma.task.getSubtasksTimeline(
       taskUpdateDB.parent.taskId
     );
+    // Handle - duration 
+    const findDuration = await prisma.task.findFirst({
+      where: {
+        taskId: taskUpdateDB.parent?.taskId
+      },
+      include: {
+        subtasks: {
+          select: {
+            duration: true
+          }
+        }
+      }
+    });
+    const subtaskDurations = findDuration?.subtasks.map(subtask => subtask.duration) ?? [];
+    const maxSubtaskDuration = Math.max(...subtaskDurations);
     const earliestStartDate = taskTimeline.earliestStartDate
       ? taskTimeline.earliestStartDate
       : taskUpdateDB.parent.startDate;
@@ -280,6 +294,7 @@ export const updateTask = async (
       },
       data: {
         startDate: earliestStartDate,
+        duration: maxSubtaskDuration,
       },
     });
   }
@@ -371,9 +386,8 @@ export const deleteTask = async (req: express.Request, res: express.Response) =>
     throw new UnAuthorizedError();
   }
 
-  await prisma.task.update({
+  await prisma.task.delete({
     where: { taskId },
-    data: { deletedAt: new Date() },
     include: {
       comments: true,
       documentAttachments: true,
@@ -904,22 +918,61 @@ export const addOrRemoveMilesstone = async (
   if (!req.userId) {
     throw new BadRequestError("userId not found!!");
   }
+  if (!req.organisationId) {
+    throw new BadRequestError("organisationId not found!!");
+  }
   const taskId = uuidSchema.parse(req.params.taskId);
   const prisma = await getClientByTenantId(req.tenantId);
   const action = await prisma.task.canEditOrDelete(taskId, req.userId);
   if (!action) {
     throw new UnAuthorizedError();
   }
-  const { milestoneIndicator, dueDate } = milestoneTaskSchema.parse(req.body);
+  const { milestoneIndicator } = milestoneTaskSchema.parse(req.body);
+  const findTask = await prisma.task.findFirstOrThrow({
+    where: { taskId, deletedAt: null },
+    include: {
+      parent: {
+        include: {
+          subtasks: true
+        }
+      },
+      subtasks: true,
+    },
+  });
+  const duration = 1; // If milestone then duration will be 1 : 23-02-2024 - dev_hitesh
+  const endDate = await taskEndDate(findTask, req.tenantId, req.organisationId);
   const milestone = await prisma.task.update({
     data: {
       milestoneIndicator: milestoneIndicator,
-      dueDate: milestoneIndicator ? dueDate : null,
+      dueDate: milestoneIndicator ? endDate : null,
+      duration,
     },
     where: {
       taskId: taskId,
     },
+    include: { parent: { select: { taskId: true }}}
   });
+
+  // Handle-auto-duration
+  if (milestone) {
+    const updatedParent = await prisma.task.findFirst({
+      where: {
+        taskId: milestone.parent?.taskId
+      },
+      include: { subtasks: true }
+    })
+    const subtaskDurations =
+    updatedParent?.subtasks.map((subtask) => subtask.duration) ?? [];
+    const maxSubtaskDuration = Math.max(...subtaskDurations);
+    await prisma.task.update({
+      where: {
+        taskId: milestone.parent?.taskId,
+      },
+      data: {
+        duration: maxSubtaskDuration,
+      },
+    });
+  }
 
   // History-Manage
   const milestoneMessage = milestoneIndicator ? "converted" : "reverted";

@@ -1,44 +1,11 @@
-import { getClientByTenantId } from "../config/db.js";
-
 export async function calculateWorkingDays(
   startDate: Date,
-  endDate: Date,
-  tenantId: string,
-  organisationId: string
+  endDate: string,
 ) {
-  const prisma = await getClientByTenantId(tenantId);
-  const orgDetails = await prisma.organisation.findFirst({
-    where: {
-      organisationId,
-    },
-    select: {
-      nonWorkingDays: true,
-      orgHolidays: true,
-    },
-  });
-  const nonWorkingDays = orgDetails?.nonWorkingDays as string[];
-  const holidays = orgDetails?.orgHolidays ?? [];
+  const endDateUTC = new Date(endDate);
+  const differenceInMs = endDateUTC.getTime() - startDate.getTime();
 
-  function isNonWorkingDay(date: any) {
-    const dayOfWeek = date
-    .toLocaleString("en-US", { weekday: "short" })
-    .toUpperCase();
-    const currentDateStr = date.toISOString().split("T")[0];
-    return nonWorkingDays.includes(dayOfWeek) || holidays.some(holiday => {
-      const holidayStartDateStr = new Date(holiday.holidayStartDate).toISOString().split("T")[0];
-      return currentDateStr === holidayStartDateStr;
-    });
-  }
-
-  let currentDate = new Date(startDate);
-  let workingDays = 0;
-
-  while (currentDate <= endDate) {
-    if (!isNonWorkingDay(currentDate)) {
-      workingDays++;
-    }
-    currentDate.setDate(currentDate.getDate() + 1);
-  }
-
-  return workingDays;
+  const millisecondsInDay = 1000 * 60 * 60 * 24;
+  const durationInDays = Math.ceil(differenceInMs / millisecondsInDay);
+  return durationInDays;
 }
