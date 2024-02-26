@@ -205,7 +205,7 @@ function ProjectDashboard() {
             <h2 className="font-medium text-3xl leading-normal text-gray-600">
               {data.projectName}
             </h2>
-            <div className="statsbox w-full h-fit flex flex-col lg:flex-row justify-center items-center gap-6 py-2 ">
+            <div className="statsbox w-full h-fit flex flex-col lg:flex-row justify-between items-center gap-6 lg:gap-32 py-2 ">
               <div
                 className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabGradient} ${selectedStatusTheme?.colors.tabTexts} border-l-[12px]  rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer   ${selectedStatusTheme?.colors.tabBorders}  `}
               >
@@ -244,18 +244,6 @@ function ProjectDashboard() {
                   src={LinkArrow}
                 />
               </div>
-              <div
-                className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer  ${selectedStatusTheme?.colors.tabBorders}`}
-              >
-                <div className="text-lg ">No. of Risks</div>
-                <div className="text-4xl font-semibold">0</div>
-                <img
-                  className=" absolute right-2 bottom-2 h-6 w-6 opacity-70 hover:opacity-100 cursor-pointer invert sepia-[0%] saturate-[7426%] hue-rotate-[16deg] brightness-[91%] contrast-[98%]"
-                  // onClick={() => filterRoutes("Tasks")}
-
-                  src={LinkArrow}
-                />
-              </div>
             </div>
             <div className="datesDiv w-full flex flex-col md:flex-row lg:flex-col gap-1 md:gap-6 justify-center items-center py-3">
               <div className=" w-full h-full flex flex-col md:flex-row items-center justify-center gap-0 md:gap-5 border-b-0 lg:border-b-2 border-primary-200">
@@ -291,9 +279,15 @@ function ProjectDashboard() {
                 </div>
 
                 <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
+                  <div>Est. Duration</div>
+                  <div className="text-lg md:text-xl font-bold text-gray-500">
+                    {data?.projectDates?.estimatedDuration ?? 0} Days
+                  </div>
+                </div>
+                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
                   <div>Actual Duration</div>
                   <div className="text-lg md:text-xl font-bold text-gray-500">
-                    {data?.projectDates?.duration} Days
+                    {data?.projectDates?.actualDuration ?? 0} Days
                   </div>
                 </div>
               </div>

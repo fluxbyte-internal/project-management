@@ -23,6 +23,7 @@ import { useUser } from "@/hooks/useUser";
 import useOrgSettingsUpdateMutation from "@/api/mutation/useOrgSettingsUpdateMutation";
 import useCsvUploadMutation from "@/api/mutation/useCsvUploadMutation";
 import CSVIcon from "@/assets/svg/csvIcon.svg";
+import DownLoadIcon from "@/assets/svg/DownLoad.svg";
 import { OrgStatusEnumValue } from "@backend/src/schemas/enums";
 interface Props {
   editData?: OrganisationType;
@@ -262,6 +263,7 @@ function OrganisationNoPopUpForm(props: Props) {
     }
   };
   const csvUplodeRef = useRef<HTMLInputElement>(null);
+  const csvdownloadRef = useRef<HTMLAnchorElement>(null);
   const csvUploadMutation = useCsvUploadMutation();
   const uploadCsv = () => {
     if (
@@ -275,7 +277,7 @@ function OrganisationNoPopUpForm(props: Props) {
         onSuccess(data) {
           toast.success(data.data.message);
           if (csvUplodeRef?.current) {
-            csvUplodeRef.current.value  = '';
+            csvUplodeRef.current.value = "";
           }
         },
         onError(error) {
@@ -386,6 +388,27 @@ function OrganisationNoPopUpForm(props: Props) {
             >
               <div className="flex gap-2 items-center">
                 <img src={CSVIcon} /> Upload holiday CSV
+              </div>
+            </Button>
+            <ErrorMessage>
+              {formik.touched.country && formik.errors.country}
+            </ErrorMessage>
+          </div>
+          <div className="block">
+            <a
+              className="hidden"
+              ref={csvdownloadRef}
+              href={"/src/assets/csv/sample_holiday.csv"}
+              download
+            ></a>
+            <Button
+              variant={"outline"}
+              className="w-full border-2 text-gray-600"
+              onClick={() => csvdownloadRef.current?.click()}
+            >
+              <div className="flex gap-2 items-center">
+                <img className="h-4 w-4" src={DownLoadIcon} /> Download sample
+                CSV
               </div>
             </Button>
             <ErrorMessage>

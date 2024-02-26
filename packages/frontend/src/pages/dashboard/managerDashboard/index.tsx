@@ -144,10 +144,14 @@ function ManagerDashboard() {
         </>
       ),
     },
-
     {
-      key: "estimatedBudget",
-      header: "Budget",
+      key: "actualDuration",
+      header: "Actual Duration",
+      sorting: true,
+    },
+    {
+      key: "estimatedDuration",
+      header: "Est. Duration",
       sorting: true,
     },
   ];

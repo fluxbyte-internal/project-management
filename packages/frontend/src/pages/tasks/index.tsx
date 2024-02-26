@@ -205,12 +205,12 @@ function Tasks() {
     if (allTaskQuery.data?.data.data) {
       setTaskData(setData(allTaskQuery.data?.data.data)?.sort(
         (a, b) =>
-          new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+          new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
       ));
       setFilterData(
         setData(allTaskQuery.data?.data.data)?.sort(
           (a, b) =>
-            new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
         )
       );
     }
@@ -228,7 +228,7 @@ function Tasks() {
           searchParams.get("status") ?? ""
         ).sort(
           (a, b) =>
-            new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
         )
       );
     }
@@ -343,7 +343,7 @@ function Tasks() {
                 ref={filterRef}
                 filteredData={(data) => setFilterData(setData(data)?.sort(
                   (a, b) =>
-                    new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+                    new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
                 ))}
                 tasks={allTaskQuery.data?.data.data}
               />

@@ -43,7 +43,8 @@ export interface ProjectDates {
   estimatedEndDate: string;
   actualEndDate: string;
   projectCreatedAt: string;
-  duration: number
+  actualDuration: number
+  estimatedDuration: number
 }
 export interface TaskStatusChartData {
   labels: any[];

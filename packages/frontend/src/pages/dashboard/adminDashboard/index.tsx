@@ -184,6 +184,16 @@ function AdminDashboard() {
       ),
     },
     {
+      key: "actualDuration",
+      header: "Actual Duration",
+      sorting: true,
+    },
+    {
+      key: "estimatedDuration",
+      header: "Est. Duration",
+      sorting: true,
+    },
+    {
       key: "estimatedBudget",
       header: "Budget",
       sorting: true,
