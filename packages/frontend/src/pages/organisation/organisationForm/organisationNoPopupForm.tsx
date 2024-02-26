@@ -263,7 +263,6 @@ function OrganisationNoPopUpForm(props: Props) {
     }
   };
   const csvUplodeRef = useRef<HTMLInputElement>(null);
-  const csvdownloadRef = useRef<HTMLAnchorElement>(null);
   const csvUploadMutation = useCsvUploadMutation();
   const uploadCsv = () => {
     if (
@@ -285,6 +284,13 @@ function OrganisationNoPopUpForm(props: Props) {
         },
       });
     }
+  };
+  const downloadCsv = () =>{
+    const ac = document.createElement('a');
+    ac.href = "https://pmsaas-uploader.s3.amazonaws.com/production-testing/sample_holiday.csv";
+    ac.download;
+    ac.click();
+
   };
   return (
     <div className="bg-white rounded-lg border px-2 py-1.5 sm:px-5 sm:py-4 w-full">
@@ -395,16 +401,11 @@ function OrganisationNoPopUpForm(props: Props) {
             </ErrorMessage>
           </div>
           <div className="block">
-            <a
-              className="hidden"
-              ref={csvdownloadRef}
-              href={"/src/assets/csv/sample_holiday.csv"}
-              download
-            ></a>
+           
             <Button
               variant={"outline"}
               className="w-full border-2 text-gray-600"
-              onClick={() => csvdownloadRef.current?.click()}
+              onClick={() => downloadCsv()}
             >
               <div className="flex gap-2 items-center">
                 <img className="h-4 w-4" src={DownLoadIcon} /> Download sample
