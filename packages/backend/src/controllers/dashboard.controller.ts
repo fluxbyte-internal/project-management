@@ -325,7 +325,7 @@ export const projectDashboardByprojectId = async (
 
   // Calculate TPI and Deley for each task in the project
   const taskDelayChartDataPromises = projectWithTasks.tasks.map(async (task) => {
-    const flag = await calculationTPI(task, req.tenantId);
+    const flag = await calculationTPI(task, req.tenantId, organisationId);
     return {
       taskId: task.taskId,
       taskName: task.taskName,
