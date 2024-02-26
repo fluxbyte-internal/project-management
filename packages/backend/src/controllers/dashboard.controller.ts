@@ -13,6 +13,7 @@ import { uuidSchema } from "../schemas/commonSchema.js";
 import { calculationSPI } from "../utils/calculateSPI.js";
 import { calculationCPI } from "../utils/calculateCPI.js";
 import { calculationTPI } from "../utils/calculationFlag.js";
+import { calculateProjectDuration } from "../utils/calculateProjectDuration.js";
 
 export const projectManagerProjects = async (req: Request, res: Response) => {
   if(!req.organisationId) {
@@ -86,13 +87,15 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
 
   const projects = await Promise.all(projectManagersProjects.map(async (project) => {
     const CPI = await calculationCPI(project, req.tenantId, organisationId);
+    const actualDuration = await calculateProjectDuration(project.startDate, project.actualEndDate, req.tenantId, organisationId);
+    const estimatedDuration = await calculateProjectDuration(project.startDate, project.estimatedEndDate, req.tenantId, organisationId);
     const completedTasksCount = await prisma.task.count({
       where: {
         projectId: project.projectId,
         status: TaskStatusEnum.COMPLETED
       }
     });
-    return { ...project, CPI, completedTasksCount };
+    return { ...project, CPI, completedTasksCount, actualDuration, estimatedDuration };
   }));
 
   const response = {
@@ -167,6 +170,8 @@ export const administartorProjects = async (req: Request, res: Response) => {
   const projectsWithCPI = await Promise.all(
     orgCreatedByUser.projects.map(async (project) => {
       const CPI = await calculationCPI(project, req.tenantId, organisationId);
+      const actualDuration = await calculateProjectDuration(project.startDate, project.actualEndDate, req.tenantId, organisationId);
+      const estimatedDuration = await calculateProjectDuration(project.startDate, project.estimatedEndDate, req.tenantId, organisationId);
       const completedTasksCount = await prisma.task.count({
         where: {
           projectId: project.projectId,
@@ -207,6 +212,8 @@ export const administartorProjects = async (req: Request, res: Response) => {
       return {
         ...project,
         CPI,
+        actualDuration,
+        estimatedDuration,
         completedTasksCount,
         projectManager: projectManagerInfo.length === 0 ?  projectAdministartor : projectManagerInfo
       };
@@ -289,13 +296,15 @@ export const projectDashboardByprojectId = async (
   const spi = await Promise.all(tasksWithSPI);
 
   // Project Date's
-  const duration = Math.ceil((new Date(projectWithTasks.actualEndDate).getTime() - new Date(projectWithTasks.startDate).getTime()) / 86400000) + 1;
+  const actualDuration = await calculateProjectDuration(projectWithTasks.startDate, projectWithTasks.actualEndDate, req.tenantId, req.organisationId);
+  const estimatedDuration = await calculateProjectDuration(projectWithTasks.startDate, projectWithTasks.estimatedEndDate, req.tenantId, req.organisationId);
   const projectDates = {
     startDate: projectWithTasks.startDate,
     estimatedEndDate: projectWithTasks.estimatedEndDate,
     actualEndDate: projectWithTasks.actualEndDate,
     projectCreatedAt: projectWithTasks.createdAt,
-    duration,
+    actualDuration,
+    estimatedDuration
   };
 
   // Calculate Number of Portfolio Projects per Overall Situation

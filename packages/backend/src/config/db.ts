@@ -178,38 +178,6 @@ function generatePrismaClient(datasourceUrl?: string) {
 
           return endDate;
         },
-        async findMaxEndDateAmongTasks(projectId: string) {
-          const tasks = await client.task.findMany({
-            where: { projectId: projectId, deletedAt: null },
-            select: {
-              startDate: true,
-              duration: true,
-              dueDate: true,
-              milestoneIndicator: true,
-            },
-          });
-
-          let maxEndDate: Date | null = null;
-
-          tasks.forEach((task) => {
-            if (
-              task.startDate &&
-              task.duration !== null &&
-              task.duration !== undefined
-            ) {
-              // Check if milestone is true and use dueDate in that case
-              const endDate =
-                task.milestoneIndicator && task.dueDate
-                  ? new Date(task.dueDate)
-                  : client.task.calculateEndDate(task.startDate, task.duration);
-
-              if (!maxEndDate || endDate > maxEndDate) {
-                maxEndDate = endDate;
-              }
-            }
-          });
-          return maxEndDate;
-        },
         async getSubtasksTimeline(taskId: string) {
           const task = await client.task.findFirst({
             where: { taskId },

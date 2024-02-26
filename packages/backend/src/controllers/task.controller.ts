@@ -14,6 +14,7 @@ import { taskEndDate } from '../utils/calcualteTaskEndDate.js';
 import { selectUserFields } from '../utils/selectedFieldsOfUsers.js';
 import { calculationSubTaskProgression } from '../utils/calculationSubTaskProgression.js';
 import { taskFlag } from '../utils/calculationFlag.js';
+import { calculateProjectEndDate } from '../utils/calculateProjectEndDate.js';
 
 export const getTasks = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) {
@@ -300,9 +301,7 @@ export const updateTask = async (
   }
 
   // Project End Date  -  If any task's end date will be greater then It's own
-  const maxEndDate = await prisma.task.findMaxEndDateAmongTasks(
-    taskUpdateDB.projectId
-  );
+  const maxEndDate = await calculateProjectEndDate(taskUpdateDB.projectId, req.tenantId, req.organisationId!);
   if (
     maxEndDate 
   ) {
