@@ -850,11 +850,18 @@ export const addDependencies = async (
       dependendentOnTaskId: dependendentOnTaskId,
       dependenciesAddedBy: req.userId
     },
+    include: {
+      dependentOnTask: {
+        select: {
+          taskName: true,
+        }
+      }
+    }
   });
 
   // History-Manage
   const historyMessage = "Task’s dependency was added";
-  const historyData = { oldValue: null, newValue: dependentType };
+  const historyData = { oldValue: null, newValue: addDependencies.dependentOnTask.taskName };
   await prisma.history.createHistory(
     req.userId,
     HistoryTypeEnumValue.TASK,
@@ -890,11 +897,18 @@ export const removeDependencies = async (
     where: {
       taskDependenciesId: taskDependenciesId,
     },
+    include: {
+      dependentOnTask: {
+        select: {
+          taskName: true,
+        }
+      }
+    }
   });
 
   // History-Manage
   const historyMessage = "Task’s dependency was removed";
-  const historyData = { oldValue: taskDependenciesId, newValue: null };
+  const historyData = { oldValue: deletedTask.dependentOnTask.taskName, newValue: null };
   await prisma.history.createHistory(
     req.userId,
     HistoryTypeEnumValue.TASK,
@@ -927,23 +941,10 @@ export const addOrRemoveMilesstone = async (
     throw new UnAuthorizedError();
   }
   const { milestoneIndicator } = milestoneTaskSchema.parse(req.body);
-  const findTask = await prisma.task.findFirstOrThrow({
-    where: { taskId, deletedAt: null },
-    include: {
-      parent: {
-        include: {
-          subtasks: true
-        }
-      },
-      subtasks: true,
-    },
-  });
   const duration = 1; // If milestone then duration will be 1 : 23-02-2024 - dev_hitesh
-  const endDate = await taskEndDate(findTask, req.tenantId, req.organisationId);
   const milestone = await prisma.task.update({
     data: {
       milestoneIndicator: milestoneIndicator,
-      dueDate: milestoneIndicator ? endDate : null,
       duration,
     },
     where: {
@@ -953,24 +954,24 @@ export const addOrRemoveMilesstone = async (
   });
 
   // Handle-auto-duration
-  if (milestone) {
-    const updatedParent = await prisma.task.findFirst({
-      where: {
-        taskId: milestone.parent?.taskId
-      },
-      include: { subtasks: true }
-    })
-    const subtaskDurations =
-    updatedParent?.subtasks.map((subtask) => subtask.duration) ?? [];
-    const maxSubtaskDuration = Math.max(...subtaskDurations);
-    await prisma.task.update({
-      where: {
-        taskId: milestone.parent?.taskId,
-      },
-      data: {
-        duration: maxSubtaskDuration,
-      },
-    });
+  if (milestone && milestone.parent?.taskId) {
+      const updatedParent = await prisma.task.findFirst({
+        where: {
+          taskId: milestone.parent.taskId
+        },
+        include: { subtasks: true }
+      })
+      const subtaskDurations =
+      updatedParent?.subtasks.map((subtask) => subtask.duration) ?? [];
+      const maxSubtaskDuration = Math.max(...subtaskDurations);
+      await prisma.task.update({
+        where: {
+          taskId: milestone.parent.taskId,
+        },
+        data: {
+          duration: maxSubtaskDuration,
+        },
+      });
   }
 
   // History-Manage
