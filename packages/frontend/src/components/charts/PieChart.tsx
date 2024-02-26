@@ -17,7 +17,8 @@ const PieChart:  React.FC<PieChartProps> = ({ chartProps }) =>{
   const navigate = useNavigate();
 
   const filterRoutes = (item: string) => {
-    navigate(`/tasks/${projectId}?status=${item}`);
+    const status = item.toUpperCase().replace(/\s/g, '_');
+    navigate(`/tasks/${projectId}?status=${status}`);
   };
   const chartref = useRef<HTMLDivElement>(null);
   useEffect(()=>{

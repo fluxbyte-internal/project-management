@@ -45,7 +45,7 @@ function Table(props: Props) {
       setDataSource(data);
     }
     setCurrentPage(1);
-  }, [data, dataPerPage, props.hidePagination]);
+  }, [data, dataPerPage, props.hidePagination,props]);
 
   const nextPage = () => {
     if (currentPage < pages) {

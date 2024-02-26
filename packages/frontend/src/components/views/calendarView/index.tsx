@@ -23,10 +23,10 @@ function CalendarView() {
   const [filterData, setFilterData] = useState<Task[]>();
   const [startDate, setStartDate] = useState<Date>();
   const [dialogRendered, setDialogRendered] = useState<string | undefined>(
-    undefined,
+    undefined
   );
   const [showConfirmDelete, setShowConfirmDelete] = useState<string | null>(
-    null,
+    null
   );
   const [isTaskShow, setIsTaskShow] = useState<boolean>(false);
   const onItemClick = (e: (Event & CustomEvent) | undefined) => {
@@ -45,7 +45,7 @@ function CalendarView() {
     setDataSource(
       allTasks.data?.data.data.map((d) => {
         return DataConvertToScheduler(d);
-      }),
+      })
     );
     filterRef.current?.callFilter();
   }, [allTasks.data?.data.data, allTasks.dataUpdatedAt, !showConfirmDelete]);
@@ -54,7 +54,7 @@ function CalendarView() {
     setDataSource(
       filterData?.map((d) => {
         return DataConvertToScheduler(d);
-      }),
+      })
     );
   }, [filterData]);
 
@@ -128,7 +128,7 @@ function CalendarView() {
     <>
       <div className="h-full flex flex-col gap-2">
         <TaskFilter
-        ref={filterRef}
+          ref={filterRef}
           fieldToShow={[
             FIELDS.ASSIGNED,
             FIELDS.DATE,

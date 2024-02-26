@@ -73,26 +73,4 @@ export const dependenciesTaskSchema = z
 export const milestoneTaskSchema = z
   .object({
     milestoneIndicator: z.boolean(),
-    dueDate: z.coerce.date().optional(),
   })
-  .refine((data) => {
-    const { milestoneIndicator, dueDate } = data;
-    if (milestoneIndicator && !dueDate) {
-      throw new ZodError([
-        {
-          code: "invalid_date",
-          message: "Due Date should not be null when milestone provided",
-          path: ["dueDate"],
-        },
-      ]);
-    } else if (milestoneIndicator && dueDate && dueDate <= new Date()) {
-      throw new ZodError([
-        {
-          code: "invalid_date",
-          message: `Due date should be in the future when milestone provided`,
-          path: ["dueDate"],
-        },
-      ]);
-    }
-    return true;
-  });

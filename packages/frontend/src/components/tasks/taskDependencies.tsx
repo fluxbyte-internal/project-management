@@ -25,6 +25,7 @@ import { TaskDependenciesEnumValue } from "@backend/src/schemas/enums";
 import { dependenciesTaskSchema } from "@backend/src/schemas/taskSchema";
 import useTaskDependenciesMutation from "@/api/mutation/useTaskDependenciesmutaion";
 import useRemoveTaskDependenciesMutation from "@/api/mutation/useTaskRemoveDependencies";
+import InputText from "../common/InputText";
 
 type Props = {
   task: Task;
@@ -110,10 +111,10 @@ function TaskDependencies(props: Props) {
       taskDependenciesMutation.mutate(values, {
         onSuccess(data) {
           props.refetch();
-          dependenciesFormik.resetForm();
           setDefaultsValue({ label: "select", value: "" });
           setDependenciesShow(false);
           toast.success(data.data.message);
+          dependenciesFormik.resetForm();
         },
         onError(error) {
           toast.error(error.response?.data.message);
@@ -204,15 +205,9 @@ function TaskDependencies(props: Props) {
                 </DropdownMenu>
               </div>
               <div className="w-full">
-                <Select
-                  isDisabled
-                  placeholder="Select tasks"
-                  styles={reactSelectStyle}
-                  defaultValue={{
-                    label: dependency.dependentOnTask?.taskName,
-                    value: dependency.dependentOnTask?.taskId,
-                  }}
-                />
+                {dependency.dependentOnTask?.taskId && (
+                  <InputText className="py-0 h-10 mt-0" value={dependency.dependentOnTask?.taskName} disabled/>
+                )}
               </div>
               <div>
                 <Button

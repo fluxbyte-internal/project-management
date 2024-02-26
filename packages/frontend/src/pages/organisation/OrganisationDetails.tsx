@@ -78,7 +78,7 @@ function OrganisationDetails() {
   >({
     initialValues: {
       email: UpdateData?.user.email ?? "",
-      role: UpdateData?.role ?? "TEAM_MEMBER",
+      role: UpdateData?.role ?? UserRoleEnumValue.TEAM_MEMBER,
     },
     validationSchema: UpdateData
       ? toFormikValidationSchema(memberRoleSchema)
@@ -171,7 +171,7 @@ function OrganisationDetails() {
   const closeAddMember = () => {
     addOrgMemberForm.setValues({
       email: UpdateData?.user.email ?? "",
-      role: UpdateData?.role ?? "TEAM_MEMBER",
+      role: UpdateData?.role ?? UserRoleEnumValue.TEAM_MEMBER,
     });
     setIsOpen(false);
     setUpdateData(undefined);
@@ -180,7 +180,7 @@ function OrganisationDetails() {
   useEffect(() => {
     addOrgMemberForm.setValues({
       email: UpdateData?.user.email ?? "",
-      role: UpdateData?.role ?? "TEAM_MEMBER",
+      role: UpdateData?.role ?? UserRoleEnumValue.TEAM_MEMBER,
     });
 
     const defaultRole = memberRoleOptions.find(
@@ -234,7 +234,7 @@ function OrganisationDetails() {
 
   const currentUserIsAdmin =
     user?.userOrganisation.find((org) => org.organisationId === organisationId)
-      ?.role === "ADMINISTRATOR";
+      ?.role === UserRoleEnumValue.ADMINISTRATOR;
   // const organisationFormOpen = () => {
   //   if (organisation) {
   //     setEditData({
@@ -362,18 +362,18 @@ function OrganisationDetails() {
                   >
                     <div
                       className={`flex w-full sm:w-auto gap-2 items-center grow ${
-                        userOrg.role !== "ADMINISTRATOR" ? "cursor-pointer" : ""
+                        userOrg.role !==  UserRoleEnumValue.ADMINISTRATOR ? "cursor-pointer" : ""
                       }`}
                       onClick={() => {
-                        if (userOrg.role !== "ADMINISTRATOR") {
+                        if (userOrg.role !==  UserRoleEnumValue.ADMINISTRATOR) {
                           setUpdateData(userOrg),
-                            setIsOpen(true),
-                            setReAssignUser((prev) => ({
-                              oldUserId: userOrg.user.userId ?? "",
-                              newUserId: prev?.newUserId ?? "",
-                              organisationUserId:
+                          setIsOpen(true),
+                          setReAssignUser((prev) => ({
+                            oldUserId: userOrg.user.userId ?? "",
+                            newUserId: prev?.newUserId ?? "",
+                            organisationUserId:
                                 prev?.organisationUserId ?? "",
-                            }));
+                          }));
                         }
                       }}
                     >
@@ -391,18 +391,18 @@ function OrganisationDetails() {
                         {userOrg.user.firstName
                           ? userOrg.user.lastName
                             ? `${userOrg.user.firstName.charAt(
-                                0
-                              )}${userOrg.user.lastName.charAt(
-                                0
-                              )}`.toUpperCase()
-                            : `${userOrg.user.firstName.charAt(
-                                0
-                              )}${userOrg.user.firstName.charAt(
-                                1
-                              )}`.toUpperCase()
-                          : `${userOrg.user.email.charAt(
                               0
-                            )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
+                            )}${userOrg.user.lastName.charAt(
+                              0
+                            )}`.toUpperCase()
+                            : `${userOrg.user.firstName.charAt(
+                              0
+                            )}${userOrg.user.firstName.charAt(
+                              1
+                            )}`.toUpperCase()
+                          : `${userOrg.user.email.charAt(
+                            0
+                          )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
                       </div>
                     </div>
                     <div className="capitalize text-gray-700 text-sm">
@@ -412,7 +412,7 @@ function OrganisationDetails() {
                       <div className="flex gap-3">
                         <Button
                           variant="primary_outline"
-                          disabled={userOrg.role === "ADMINISTRATOR"}
+                          disabled={userOrg.role ===  UserRoleEnumValue.ADMINISTRATOR}
                           className="ml-auto text-danger border-danger hover:bg-danger hover:bg-opacity-10 hover:text-danger py-1.5 h-auto"
                           onClick={() => {
                             setReAssignUser((prev) => ({
@@ -428,7 +428,7 @@ function OrganisationDetails() {
                         {!userOrg.user.isVerified && (
                           <Button
                             variant="primary_outline"
-                            disabled={userOrg.role === "ADMINISTRATOR"}
+                            disabled={userOrg.role ===  UserRoleEnumValue.ADMINISTRATOR}
                             className="ml-auto text-danger border-danger hover:bg-danger hover:bg-opacity-10 hover:text-danger py-1.5 h-auto"
                             onClick={() => {
                               setResendEmail(userOrg.userOrganisationId);
@@ -568,18 +568,18 @@ function OrganisationDetails() {
                           {userOrg.user.firstName
                             ? userOrg.user.lastName
                               ? `${userOrg.user.firstName.charAt(
-                                  0
-                                )}${userOrg.user.lastName.charAt(
-                                  0
-                                )}`.toUpperCase()
-                              : `${userOrg.user.firstName.charAt(
-                                  0
-                                )}${userOrg.user.firstName.charAt(
-                                  1
-                                )}`.toUpperCase()
-                            : `${userOrg.user.email.charAt(
                                 0
-                              )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
+                              )}${userOrg.user.lastName.charAt(
+                                0
+                              )}`.toUpperCase()
+                              : `${userOrg.user.firstName.charAt(
+                                0
+                              )}${userOrg.user.firstName.charAt(
+                                1
+                              )}`.toUpperCase()
+                            : `${userOrg.user.email.charAt(
+                              0
+                            )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
                         </div>
                       </div>
                       <div className="capitalize text-gray-700 text-sm">

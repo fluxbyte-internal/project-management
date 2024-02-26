@@ -55,7 +55,7 @@ function RulesSetups(props: Props) {
       };
       if (setPercentage(values.percentage)) {
         if (typeof values.percentage == "string") {
-          data.percentage = null
+          data.percentage = null;
         }
         kanbanUpdateColumnMutation.mutate(data, {
           onSuccess() {
@@ -178,7 +178,7 @@ function RulesSetups(props: Props) {
                       className="h-8 rounded-sm mt-0"
                       onChange={updateKanbanColumnFormik.handleChange}
                     />
-                     {ruleEditData?.kanbanColumnId === r.kanbanColumnId&&<ErrorMessage>{updateKanbanColumnFormik.errors.name}</ErrorMessage>}
+                    {ruleEditData?.kanbanColumnId === r.kanbanColumnId&&<ErrorMessage>{updateKanbanColumnFormik.errors.name}</ErrorMessage>}
 
                   </div>
                   <div>

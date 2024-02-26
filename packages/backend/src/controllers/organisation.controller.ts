@@ -283,18 +283,11 @@ export const removeOrganisationMember = async (
     throw new BadRequestError("Pending tasks is already exists for this user!");
   }
   
-  // const user = findUserOrg.user!;
-  // const userOrganisationsCount = await prisma.userOrganisation.count({
-  //   where: {
-  //     userId: user.userId,
-  //     deletedAt: null,
-  //   },
-  // });
-
-  // if(userOrganisationsCount > 1) {
-  // } else {
-  // }
-
+  const findProjectAssginToUser = await prisma.projectAssignUsers.findFirst({
+    where: {
+      assginedToUserId: findUserOrg.userId
+    }
+  });
   await prisma.$transaction([
     prisma.userOrganisation.update({
       where: { userOrganisationId },
@@ -316,6 +309,11 @@ export const removeOrganisationMember = async (
           },
         },
       },
+    }),
+    prisma.projectAssignUsers.delete({
+      where: {
+        projectAssignUsersId: findProjectAssginToUser?.projectAssignUsersId
+      }
     }),
     prisma.user.update({
       where: { userId: findUserOrg.userId },
@@ -477,6 +475,11 @@ export const uploadHolidayCSV = async (
   const file = req.files?.csv as fileUpload.UploadedFile;
   if (!file) {
     throw new BadRequestError("No CSV file uploaded!");
+  }
+  const fileName = file.name;
+  const fileExtension = fileName.split('.').pop();
+  if (fileExtension !== 'csv') {
+    throw new BadRequestError("Please upload a CSV file.");
   }
   const csvString = file.data.toString("utf-8");
   const csvRows = csvString

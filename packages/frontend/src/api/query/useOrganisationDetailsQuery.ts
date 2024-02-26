@@ -23,6 +23,7 @@ export type UserOrganisationType = {
     avatarImg?: string;
     deletedAt?:string
     isVerified:boolean
+    userOrganisation?:UserOrganisationType[]
   };
 };
 

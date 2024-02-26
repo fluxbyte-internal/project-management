@@ -26,6 +26,7 @@ import DownArrowIcon from "../../assets/svg/DownArrow.svg";
 import UserAvatar from "@/components/ui/userAvatar";
 import TaskFilter, { TaskFilterRef } from "@/components/views/TaskFilter";
 import { FIELDS } from "@/api/types/enums";
+import { ProjectDefaultViewEnumValue } from "@backend/src/schemas/enums";
 function Tasks() {
   const [taskData, setTaskData] = useState<Task[]>();
   const [filterData, setFilterData] = useState<Task[] | undefined>(taskData);
@@ -39,6 +40,7 @@ function Tasks() {
   const close = () => {
     setTaskId(undefined);
     setTaskCreate(false);
+    allTaskQuery.refetch();
   };
   // useEffect(() => {
   //   allTaskQuery.refetch();
@@ -68,10 +70,10 @@ function Tasks() {
             item?.flag == "Green"
               ? "bg-green-500/60 border border-green-500"
               : item?.flag == "Red"
-              ? "bg-red-500/60 border border-red-500/60"
-              : item?.flag == "Orange"
-              ? "bg-primary-500/60 border border-primary-500/60"
-              : ""
+                ? "bg-red-500/60 border border-red-500/60"
+                : item?.flag == "Orange"
+                  ? "bg-primary-500/60 border border-primary-500/60"
+                  : ""
           }`}
         ></div>
       ),
@@ -201,7 +203,10 @@ function Tasks() {
   const filterRef = useRef<TaskFilterRef | null>(null);
   useEffect(() => {
     if (allTaskQuery.data?.data.data) {
-      setTaskData(setData(allTaskQuery.data?.data.data));
+      setTaskData(setData(allTaskQuery.data?.data.data)?.sort(
+        (a, b) =>
+          new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+      ));
       setFilterData(
         setData(allTaskQuery.data?.data.data)?.sort(
           (a, b) =>
@@ -221,6 +226,9 @@ function Tasks() {
         findParentTasksWithDoneStatus(
           taskData ?? [],
           searchParams.get("status") ?? ""
+        ).sort(
+          (a, b) =>
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
         )
       );
     }
@@ -331,9 +339,12 @@ function Tasks() {
                   FIELDS.OVERDUEDAYS,
                   FIELDS.TODAYDUEDAYS,
                 ]}
-                view="LIST"
+                view={ProjectDefaultViewEnumValue.LIST}
                 ref={filterRef}
-                filteredData={(data) => setFilterData(setData(data))}
+                filteredData={(data) => setFilterData(setData(data)?.sort(
+                  (a, b) =>
+                    new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+                ))}
                 tasks={allTaskQuery.data?.data.data}
               />
               <div>

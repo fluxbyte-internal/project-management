@@ -51,7 +51,7 @@ function ProjectMember() {
     useState<SingleValue<(typeof memberRoleOptions)[number]>>(null);
 
   const addOrganisationMemberMutation = useAddOrganisationMemberMutation(
-    localStorage.getItem("organisation-id") ?? "",
+    localStorage.getItem("organisation-id") ?? ""
   );
   const [isAddOrgMemberSubmitting, setIsAddOrgMemberSubmitting] =
     useState(false);
@@ -69,8 +69,8 @@ function ProjectMember() {
         onSuccess(data) {
           toast.success(data.data.message);
           setIsAddOrgMemberSubmitting(false);
-          setIsOpen(false)
-          projectMemberListQuery.refetch()
+          setIsOpen(false);
+          projectMemberListQuery.refetch();
         },
         onError(error) {
           if (isAxiosError(error)) {
@@ -86,7 +86,7 @@ function ProjectMember() {
             if (!Array.isArray(error.response?.data.errors)) {
               toast.error(
                 error.response?.data?.message ??
-                  "An unexpected error occurred.",
+                  "An unexpected error occurred."
               );
             }
           }
@@ -106,8 +106,8 @@ function ProjectMember() {
   useEffect(() => {
     setOrganizationMember(
       projectMemberListQuery.data?.data.data.filter(
-        (e) => !assignedUsers?.some((u) => u.user.userId === e.user.userId),
-      ),
+        (e) => !assignedUsers?.some((u) => u.user.userId === e.user.userId)
+      )
     );
   }, [
     projectMemberListQuery.data?.data.data,
@@ -117,17 +117,17 @@ function ProjectMember() {
   const [remove, setRemove] = useState<string>();
   const { user } = useUser();
   const verification = () => {
-    if (user?.userOrganisation[0].role === "ADMINISTRATOR") {
+    if (user?.userOrganisation[0].role ===  UserRoleEnumValue.ADMINISTRATOR) {
       return true;
     } else {
       const projectManager =
         projectDetailQuery.data?.data.data.assignedUsers.filter((item) => {
-          if (item.user.userOrganisation[0].role === "PROJECT_MANAGER") {
+          if (item.user.userOrganisation[0].role === UserRoleEnumValue.PROJECT_MANAGER) {
             return item;
           }
         });
       const manager = projectManager?.find(
-        (manager) => manager?.user.userId === user?.userId,
+        (manager) => manager?.user.userId === user?.userId
       );
       if (manager?.user.userId) {
         return true;
@@ -150,7 +150,7 @@ function ProjectMember() {
           onError(error) {
             toast.error(error.response?.data.message);
           },
-        },
+        }
       );
     }
   };
@@ -172,8 +172,8 @@ function ProjectMember() {
   };
   const currentUserIsAdmin =
     user?.userOrganisation.find(
-      (org) => org.organisationId === localStorage.getItem("organisation-id"),
-    )?.role === "ADMINISTRATOR";
+      (org) => org.organisationId === localStorage.getItem("organisation-id")
+    )?.role ===  UserRoleEnumValue.ADMINISTRATOR;
   const memberRoleOptions = [
     {
       value: UserRoleEnumValue.PROJECT_MANAGER,
@@ -204,8 +204,8 @@ function ProjectMember() {
               <div className="text-lg text-gray-400 font-semibold mb-3 flex justify-between">
                 Administrator / Project Manager's
                 <div>
-               {currentUserIsAdmin && <Button variant={"primary"} size={"sm"} onClick={()=>setIsOpen(true)}>Add Member's</Button>}
-              </div>
+                  {currentUserIsAdmin && <Button variant={"primary"} size={"sm"} onClick={()=>setIsOpen(true)}>Add Member's</Button>}
+                </div>
               </div>
               <div className="flex gap-5 h-full w-full py-2 flex-wrap">
                 {assignedUsers
@@ -214,7 +214,7 @@ function ProjectMember() {
                       e.user.userOrganisation[0].role ===
                         UserRoleEnumValue.PROJECT_MANAGER ||
                       e.user.userOrganisation[0].role ===
-                        UserRoleEnumValue.ADMINISTRATOR,
+                        UserRoleEnumValue.ADMINISTRATOR
                   )
                   .map((res, index) => {
                     return (
@@ -238,7 +238,7 @@ function ProjectMember() {
                               {res.user.email}
                             </a>
                           </div>
-                          {(isAdmin && res.user.userOrganisation[0].role !== "ADMINISTRATOR") && (
+                          {(isAdmin && res.user.userOrganisation[0].role !==  UserRoleEnumValue.ADMINISTRATOR) && (
                             <div className="flex w-full absolute top-0 justify-end ">
                               <Button
                                 variant={"none"}
@@ -246,8 +246,8 @@ function ProjectMember() {
                                 onClick={() => {
                                   setRemove(
                                     assignedUsers.find(
-                                      (id) => id.user.userId == res.user.userId,
-                                    )?.projectAssignUsersId ?? "",
+                                      (id) => id.user.userId == res.user.userId
+                                    )?.projectAssignUsersId ?? ""
                                   );
                                 }}
                               >
@@ -319,15 +319,15 @@ function ProjectMember() {
                             {OrganizationMember?.length == 0 ||
                             OrganizationMember?.filter(
                               (e) =>
-                                e.role === "PROJECT_MANAGER" ||
-                                e.role === "ADMINISTRATOR",
+                                e.role ===  UserRoleEnumValue.PROJECT_MANAGER ||
+                                e.role ===  UserRoleEnumValue.ADMINISTRATOR
                             ).length === 0 ? (
-                              <div className="text-sm text-gray-400 font-semibold">
+                                <div className="text-sm text-gray-400 font-semibold">
                                 No More Project Manager Available!
-                              </div>
-                            ) : (
-                              ""
-                            )}
+                                </div>
+                              ) : (
+                                ""
+                              )}
                           </div>
                         </div>
                       </PopoverContent>
@@ -339,7 +339,7 @@ function ProjectMember() {
                     e.user.userOrganisation[0].role ===
                       UserRoleEnumValue.PROJECT_MANAGER ||
                     e.user.userOrganisation[0].role ===
-                      UserRoleEnumValue.ADMINISTRATOR,
+                      UserRoleEnumValue.ADMINISTRATOR
                 ).length === 0 && "No team member assigned yet!"}
               </div>
               <div className="text-lg text-gray-400 font-semibold mt-3">
@@ -350,7 +350,7 @@ function ProjectMember() {
                   ?.filter(
                     (e) =>
                       e.user.userOrganisation[0].role ===
-                      UserRoleEnumValue.TEAM_MEMBER,
+                      UserRoleEnumValue.TEAM_MEMBER
                   )
                   .map((res, index) => {
                     return (
@@ -382,8 +382,8 @@ function ProjectMember() {
                                 onClick={() => {
                                   setRemove(
                                     assignedUsers.find(
-                                      (id) => id.user.userId == res.user.userId,
-                                    )?.projectAssignUsersId ?? "",
+                                      (id) => id.user.userId == res.user.userId
+                                    )?.projectAssignUsersId ?? ""
                                   );
                                 }}
                               >
@@ -452,14 +452,14 @@ function ProjectMember() {
                           </div>
                           {OrganizationMember?.length == 0 ||
                           OrganizationMember?.filter(
-                            (e) => e.role === "TEAM_MEMBER",
+                            (e) => e.role ===UserRoleEnumValue.TEAM_MEMBER
                           ).length === 0 ? (
-                            <div className="text-sm text-gray-400 font-semibold">
+                              <div className="text-sm text-gray-400 font-semibold">
                               No More Team Member Available!
-                            </div>
-                          ) : (
-                            ""
-                          )}
+                              </div>
+                            ) : (
+                              ""
+                            )}
                         </div>
                       </PopoverContent>
                     </Popover>
@@ -469,7 +469,7 @@ function ProjectMember() {
                 {assignedUsers?.filter(
                   (e) =>
                     e.user.userOrganisation[0].role ===
-                    UserRoleEnumValue.TEAM_MEMBER,
+                    UserRoleEnumValue.TEAM_MEMBER
                 ).length === 0 && "No team member assigned yet!"}
               </div>
             </div>

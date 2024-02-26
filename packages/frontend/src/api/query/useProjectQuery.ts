@@ -6,11 +6,17 @@ import {
   ResponseType,
 } from "../types/axiosResponseType";
 import ApiRequest from "../ApiRequest";
-import { OverAllTrackEnumValue, ProjectDefaultViewEnumValue, ScheduleAndBudgetTrend, UserRoleEnumValue } from "@backend/src/schemas/enums";
+import {
+  OverAllTrackEnumValue,
+  ProjectDefaultViewEnumValue,
+  ProjectStatusEnumValue,
+  ScheduleAndBudgetTrend,
+  UserRoleEnumValue,
+} from "@backend/src/schemas/enums";
 
 export type Project = {
-  CPI?:number
-  overallTrack:  keyof typeof OverAllTrackEnumValue;
+  CPI?: number;
+  overallTrack: keyof typeof OverAllTrackEnumValue;
   projectId: string;
   assignedUsers: AssignedUsers[];
   organisationId: string;
@@ -18,7 +24,7 @@ export type Project = {
   projectDescription: string;
   startDate: string;
   estimatedEndDate: string;
-  status: string;
+  status: keyof typeof ProjectStatusEnumValue;
   defaultView: keyof typeof ProjectDefaultViewEnumValue;
   timeTrack: string | null;
   budgetTrack: string | null;
@@ -28,12 +34,14 @@ export type Project = {
   createdAt: string;
   updatedAt: string;
   createdByUser: CreatedByUser;
-  currency:string;
-  projectManagerInfo:{user:CreatedByUser}[]
-  scheduleTrend:keyof typeof ScheduleAndBudgetTrend
-budgetTrend:keyof typeof ScheduleAndBudgetTrend
-consumedBudget:string
-actualEndDate:string
+  currency: string;
+  projectManagerInfo: { user: CreatedByUser }[];
+  scheduleTrend: keyof typeof ScheduleAndBudgetTrend;
+  budgetTrend: keyof typeof ScheduleAndBudgetTrend;
+  consumedBudget: string;
+  actualEndDate: string;
+  estimatedDuration: number;
+  actualDuration: number;
 };
 export interface AssignedUsers {
   projectAssignUsersId: string;

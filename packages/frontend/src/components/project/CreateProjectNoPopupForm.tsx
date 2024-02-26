@@ -24,10 +24,12 @@ import Select, { SingleValue } from "react-select";
 import ErrorMessage from "../common/ErrorMessage";
 import {
   OverAllTrackEnumValue,
+  ProjectDefaultViewEnumValue,
   ProjectStatusEnumValue,
   ScheduleAndBudgetTrend,
   // UserRoleEnumValue,
 } from "@backend/src/schemas/enums";
+import dateFormater from "@/helperFuntions/dateFormater";
 // import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 // import UsersIcon from "@/assets/svg/Users.svg";
 // import UserAvatar from "../ui/userAvatar";
@@ -118,12 +120,12 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
       startDate: "" as unknown as Date,
       estimatedEndDate: "" as unknown as Date,
       estimatedBudget: "",
-      defaultView: "LIST",
+      defaultView: ProjectDefaultViewEnumValue.LIST,
       currency: "USD",
-      status: "NOT_STARTED",
-      overallTrack: "SUNNY",
-      scheduleTrend: "STABLE",
-      budgetTrend: "STABLE",
+      status: ProjectStatusEnumValue.NOT_STARTED,
+      overallTrack: OverAllTrackEnumValue.SUNNY,
+      scheduleTrend: ScheduleAndBudgetTrend.STABLE,
+      budgetTrend: ScheduleAndBudgetTrend.STABLE,
       consumedBudget: "",
     },
     validationSchema: toFormikValidationSchema(updateProjectSchema),
@@ -187,6 +189,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
         scheduleTrend: editData.scheduleTrend,
         budgetTrend: editData.budgetTrend,
         consumedBudget: editData.consumedBudget,
+        status:editData.status,
       });
       setCurrencyValue({ label: editData.currency, value: editData.currency });
     }
@@ -315,7 +318,8 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                             />
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p> Estimated End date</p>
+                            <p> Date will be automatically </p>
+                            <p>updated after saving a baseline</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -692,11 +696,33 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
               </ErrorMessage>
             </div>
           </div>
-          <div className="sm:flex gap-16 mr-16 my-3">
+          <div className="sm:flex gap-16  my-3">
             <div className="sm:w-[50%] w-full">
               <div>
-                <label className={labelStyle}>Consumed Budget</label>
-                <span className="ml-0.5 text-red-500">*</span>
+                <div className="flex ">
+                  <label className={labelStyle}>Consumed Budget</label>
+                  <span className="ml-0.5 text-red-500">*</span>
+                  <div className="flex items-center justify-center ml-2 relative">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <img
+                            src={InfoCircle}
+                            className="h-[16px] w-[16px]"
+                            alt="InfoCircle"
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>
+                            {" "}
+                            Consumed budget will affect the SPI and CPI
+                            calculation{" "}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                </div>
               </div>
               <input
                 disabled={viewOnly}
@@ -712,6 +738,33 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 {formik.touched.consumedBudget && formik.errors.consumedBudget}
               </span>
             </div>
+            <div className="sm:w-[50%] w-full flex items-center justify-between gap-4">
+              <div className="text-sm text-gray-400 font-semibold mt-6">
+                {editData && editData.actualEndDate && (
+                  <div>
+                    <div>Actual end date</div>
+                    {dateFormater(new Date(editData.actualEndDate))}
+                  </div>
+                )}
+              </div>
+              <div className="text-sm text-gray-400 font-semibold  mt-6">
+                {editData && editData.estimatedDuration && (
+                  <div>
+                    <div>Est. duration</div>
+                    {editData.estimatedDuration}
+                  </div>
+                )}
+              </div>
+              <div className="text-sm text-gray-400 font-semibold  mt-6">
+                {editData && editData.actualDuration && (
+                  <div>
+                    <div>Actual duration</div>
+                    {editData.actualDuration}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* {user.user?.userOrganisation[0].role === UserRoleEnumValue.ADMINISTRATOR && <div className="sm:w-[50%] w-full mt-8">
               <Button variant={"outline"} className="h-12 w-full" onClick={()=>navigate(`organization/${localStorage.getItem("organization-id")}`)}>
                 <div className="text-left flex items-center text-gray-400" > 

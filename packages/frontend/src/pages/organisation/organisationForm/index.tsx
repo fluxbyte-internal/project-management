@@ -19,6 +19,7 @@ import countries from "../../../assets/json/countries.json";
 import ErrorMessage from "@/components/common/ErrorMessage";
 import useOrganisationUpdateMutation from "@/api/mutation/useOrganisationUpdateMutation";
 import { toast } from "react-toastify";
+import { OrgStatusEnumValue } from "@backend/src/schemas/enums";
 
 interface Props {
   close: () => void;
@@ -49,7 +50,7 @@ function OrganisationForm(props: Props) {
     initialValues: {
       organisationName: "",
       industry: "",
-      status: "ACTIVE",
+      status:  OrgStatusEnumValue.ACTIVE,
       nonWorkingDays: [],
       country: "",
     },

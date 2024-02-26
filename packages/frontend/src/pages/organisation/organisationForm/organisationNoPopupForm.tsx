@@ -23,6 +23,8 @@ import { useUser } from "@/hooks/useUser";
 import useOrgSettingsUpdateMutation from "@/api/mutation/useOrgSettingsUpdateMutation";
 import useCsvUploadMutation from "@/api/mutation/useCsvUploadMutation";
 import CSVIcon from "@/assets/svg/csvIcon.svg";
+import DownLoadIcon from "@/assets/svg/DownLoad.svg";
+import { OrgStatusEnumValue } from "@backend/src/schemas/enums";
 interface Props {
   editData?: OrganisationType;
   viewOnly: boolean;
@@ -54,7 +56,7 @@ function OrganisationNoPopUpForm(props: Props) {
     initialValues: {
       organisationName: "",
       industry: "",
-      status: "ACTIVE",
+      status: OrgStatusEnumValue.ACTIVE,
       nonWorkingDays: [],
       country: "",
     },
@@ -261,6 +263,7 @@ function OrganisationNoPopUpForm(props: Props) {
     }
   };
   const csvUplodeRef = useRef<HTMLInputElement>(null);
+  const csvdownloadRef = useRef<HTMLAnchorElement>(null);
   const csvUploadMutation = useCsvUploadMutation();
   const uploadCsv = () => {
     if (
@@ -274,11 +277,11 @@ function OrganisationNoPopUpForm(props: Props) {
         onSuccess(data) {
           toast.success(data.data.message);
           if (csvUplodeRef?.current) {
-            csvUplodeRef.current.value  = ''
-        }
+            csvUplodeRef.current.value = "";
+          }
         },
         onError(error) {
-          toast.error(error.message);
+          toast.error(error.response?.data.message);
         },
       });
     }
@@ -378,13 +381,34 @@ function OrganisationNoPopUpForm(props: Props) {
             />
             <Button
               isLoading={csvUploadMutation.isPending}
-              disabled={csvUploadMutation.isPending}
+              disabled={csvUploadMutation.isPending || viewOnly}
               variant={"outline"}
               onClick={() => csvUplodeRef.current?.click()}
               className="w-full border-2 text-gray-600"
             >
               <div className="flex gap-2 items-center">
-             <img src={CSVIcon} /> Upload holiday CSV
+                <img src={CSVIcon} /> Upload holiday CSV
+              </div>
+            </Button>
+            <ErrorMessage>
+              {formik.touched.country && formik.errors.country}
+            </ErrorMessage>
+          </div>
+          <div className="block">
+            <a
+              className="hidden"
+              ref={csvdownloadRef}
+              href={"/src/assets/csv/sample_holiday.csv"}
+              download
+            ></a>
+            <Button
+              variant={"outline"}
+              className="w-full border-2 text-gray-600"
+              onClick={() => csvdownloadRef.current?.click()}
+            >
+              <div className="flex gap-2 items-center">
+                <img className="h-4 w-4" src={DownLoadIcon} /> Download sample
+                CSV
               </div>
             </Button>
             <ErrorMessage>

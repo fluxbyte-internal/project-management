@@ -13,6 +13,7 @@ import dateFormater from "@/helperFuntions/dateFormater";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 import { Project } from "@/api/query/useProjectQuery";
 import LinkArrow from "@/assets/svg/linkArrow.svg";
+import { ProjectStatusEnumValue } from "@backend/src/schemas/enums";
 
 function ManagerDashboard() {
   const projectManagerPortfolioDashboardQuery =
@@ -95,7 +96,7 @@ function ManagerDashboard() {
   const columnDef: ColumeDef[] = [
     {
       key: "projectName",
-      header: "Title",
+      header: "Project Name",
       sorting: true,
       onCellRender: (projectData) => {
         return (
@@ -124,8 +125,8 @@ function ManagerDashboard() {
       onCellRender: (item) => <>{dateFormater(new Date(item.startDate))}</>,
     },
     {
-      key: "actualEndDate",
-      header: "End Date",
+      key: "estimatedEndDate",
+      header: "Estimated End Date",
       onCellRender: (item) => (
         <>
           {item.estimatedEndDate &&
@@ -133,10 +134,24 @@ function ManagerDashboard() {
         </>
       ),
     },
-
     {
-      key: "estimatedBudget",
-      header: "Budget",
+      key: "actualEndDate",
+      header: "Actual End Date",
+      onCellRender: (item) => (
+        <>
+          {item.estimatedEndDate &&
+            dateFormater(new Date(item.actualEndDate))}
+        </>
+      ),
+    },
+    {
+      key: "actualDuration",
+      header: "Actual Duration",
+      sorting: true,
+    },
+    {
+      key: "estimatedDuration",
+      header: "Est. Duration",
       sorting: true,
     },
   ];
@@ -160,19 +175,18 @@ function ManagerDashboard() {
             {data?.statusChartData?.labels.map((labelData, index) => (
               <>
                 <div
-                  onClick={() => filterRoutes(labelData)}
                   key={index}
                   className={`relative flex flex-col gap-2 lg:gap-5 w-full lg:w-2/5 h-1/5 lg:h-full  rounded-2xl p-2 lg:py-3 text-start items-start justify-start px-10 border-l-[12px] ${
-                    labelData === "ACTIVE"
+                    labelData === ProjectStatusEnumValue.ACTIVE
                       ? "text-primary-600  border-2 border-primary-600 "
-                      : labelData === "ON_HOLD"
-                      ? "text-primary-800 border-2 border-primary-800"
-                      : labelData === "NOT_STARTED"
-                      ? "text-primary-950 border-2 border-primary-950"
-                      : "text-gray-800 border-2 border-gray-300  "
+                      : labelData === ProjectStatusEnumValue.ON_HOLD
+                        ? "text-primary-800 border-2 border-primary-800"
+                        : labelData === ProjectStatusEnumValue.NOT_STARTED
+                          ? "text-primary-950 border-2 border-primary-950"
+                          : "text-gray-800 border-2 border-gray-300  "
                   }`}
                 >
-                  <a className="text-base font-bold items-end">{labelData}</a>
+                  <a className="text-base font-bold items-end">{formatStatus(labelData)}</a>
                   <a className="text-4xl lg:text-5xl font-semibold">
                     {data?.statusChartData?.data[index]}
                   </a>
