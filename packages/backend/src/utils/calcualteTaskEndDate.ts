@@ -85,12 +85,12 @@ export const calculateEndDate = async (
   return endDate;
 };
 
-const getDayAbbreviation = (dayOfWeek: number): string => {
+export const getDayAbbreviation = (dayOfWeek: number): string => {
   const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
   return days[dayOfWeek] ?? "0";
 };
 
-const isHoliday = (date: Date, holidays: any[]): boolean => {
+export const isHoliday = (date: Date, holidays: any[]): boolean => {
   const holidayDates = holidays.map(holiday => new Date(holiday.holidayStartDate).setUTCHours(0, 0, 0, 0));
   const dateToCheck = date.setUTCHours(0, 0, 0, 0);
   return holidayDates.includes(dateToCheck);

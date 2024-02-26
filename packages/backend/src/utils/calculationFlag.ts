@@ -1,38 +1,36 @@
 import { Task, TaskStatusEnum } from "@prisma/client";
 import { getClientByTenantId } from "../config/db.js";
-import { calculateWorkingDays } from "./removeNonWorkingDays.js";
+import { getDayAbbreviation, isHoliday } from "./calcualteTaskEndDate.js";
 
 export async function calculationTPI(
   task: Task,
   tenantId: string,
   organisationId: string
 ): Promise<{ tpiValue: number; tpiFlag: "Red" | "Orange" | "Green" }> {
-  const prisma = await getClientByTenantId(tenantId);
   let { duration, completionPecentage, startDate, status } = task;
-  const endDate = prisma.task.calculateEndDate(startDate, duration);
-  const newDuration = await calculateWorkingDays(
-    startDate,
-    endDate,
-    tenantId,
-    organisationId
-  );
   if (status === TaskStatusEnum.NOT_STARTED) {
     return {
       tpiValue: 0,
       tpiFlag: "Green",
     };
   }
-  const currentDate: Date = new Date();
-  const startDateObj: Date = new Date(startDate);
-  const elapsedDays: number = Math.ceil(
-    (currentDate.getTime() - startDateObj.getTime()) / (1000 * 60 * 60 * 24)
-  );
-  const plannedProgress = elapsedDays / newDuration;
+
   if (!completionPecentage) {
     completionPecentage = 0;
   }
-  const tpi = completionPecentage / plannedProgress;
-  let flag = "" as "Red" | "Orange" | "Green";
+  const taskStartDate = new Date(startDate);
+  const currentDate = new Date() < taskStartDate ? taskStartDate : new Date();
+  currentDate.setUTCHours(0, 0, 0, 0);
+  taskStartDate.setUTCHours(0, 0, 0, 0);
+  const remainingDuration = await excludeNonWorkingDays(
+    currentDate,
+    taskStartDate,
+    tenantId,
+    organisationId
+  );
+  const plannedProgress = remainingDuration / duration;
+  const tpi = plannedProgress !== 0 ? completionPecentage / plannedProgress : 0;
+  let flag: "Red" | "Orange" | "Green";
   if (tpi < 0.8) {
     flag = "Red";
   } else if (tpi >= 0.8 && tpi < 0.95) {
@@ -59,3 +57,43 @@ export async function taskFlag(
     return tpi.tpiFlag;
   }
 }
+
+export const excludeNonWorkingDays = async (
+  currentDate: Date,
+  startDate: Date,
+  tenantId: string,
+  organisationId: string
+) => {
+  const prisma = await getClientByTenantId(tenantId);
+  const orgDetails = await prisma.organisation.findFirst({
+    where: {
+      organisationId,
+      deletedAt: null,
+    },
+    select: {
+      nonWorkingDays: true,
+      orgHolidays: true,
+    },
+  });
+
+  const nonWorkingDays = (orgDetails?.nonWorkingDays as string[]) ?? [];
+  const holidays = orgDetails?.orgHolidays ?? [];
+  let remainingDuration = 0;
+  for (
+    let date = new Date(startDate);
+    date <= currentDate;
+    date.setDate(date.getDate() + 1)
+  ) {
+    const dayOfWeek = date.getDay();
+    const dayAbbreviation = getDayAbbreviation(dayOfWeek);
+
+    // Check if it's a working day (not a holiday and not in non-working days)
+    if (
+      !nonWorkingDays.includes(dayAbbreviation) &&
+      !isHoliday(date, holidays)
+    ) {
+      remainingDuration++;
+    }
+  }
+  return remainingDuration;
+};

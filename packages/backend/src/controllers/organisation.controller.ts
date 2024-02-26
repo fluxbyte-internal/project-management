@@ -26,7 +26,6 @@ import { selectUserFields } from "../utils/selectedFieldsOfUsers.js";
 import { HistoryTypeEnumValue } from "../schemas/enums.js";
 import fileUpload from "express-fileupload";
 import moment from 'moment';
-import fs from 'fs';
 
 export const getOrganisationById = async (
   req: express.Request,
@@ -284,18 +283,11 @@ export const removeOrganisationMember = async (
     throw new BadRequestError("Pending tasks is already exists for this user!");
   }
   
-  // const user = findUserOrg.user!;
-  // const userOrganisationsCount = await prisma.userOrganisation.count({
-  //   where: {
-  //     userId: user.userId,
-  //     deletedAt: null,
-  //   },
-  // });
-
-  // if(userOrganisationsCount > 1) {
-  // } else {
-  // }
-
+  const findProjectAssginToUser = await prisma.projectAssignUsers.findFirst({
+    where: {
+      assginedToUserId: findUserOrg.userId
+    }
+  });
   await prisma.$transaction([
     prisma.userOrganisation.update({
       where: { userOrganisationId },
@@ -317,6 +309,11 @@ export const removeOrganisationMember = async (
           },
         },
       },
+    }),
+    prisma.projectAssignUsers.delete({
+      where: {
+        projectAssignUsersId: findProjectAssginToUser?.projectAssignUsersId
+      }
     }),
     prisma.user.update({
       where: { userId: findUserOrg.userId },
@@ -595,22 +592,6 @@ export const resendInvitationToMember = async (
     console.error("Failed resend email", error);
   }
   return new SuccessResponse(StatusCodes.OK, null, "Resend Invitation").send(
-    res
-  );
-};
-
-export const sampleCSVDownload = async (
-  req: express.Request,
-  res: express.Response
-) => {
-  const filePath = "sample_holiday.csv";
-  if (!fs.existsSync(filePath)) {
-    throw new BadRequestError("File not found");
-  }
-  const fileContent = fs.readFileSync(filePath, "utf-8");
-  res.setHeader("Content-Disposition", "attachment; filename=sample_holiday.csv");
-  res.setHeader("Content-Type", "text/csv");
-  return new SuccessResponse(StatusCodes.OK, fileContent, "Downloaded sample CSV file.").send(
     res
   );
 };
