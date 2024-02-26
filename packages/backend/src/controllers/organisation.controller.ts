@@ -26,7 +26,6 @@ import { selectUserFields } from "../utils/selectedFieldsOfUsers.js";
 import { HistoryTypeEnumValue } from "../schemas/enums.js";
 import fileUpload from "express-fileupload";
 import moment from 'moment';
-import fs from 'fs';
 
 export const getOrganisationById = async (
   req: express.Request,
@@ -593,22 +592,6 @@ export const resendInvitationToMember = async (
     console.error("Failed resend email", error);
   }
   return new SuccessResponse(StatusCodes.OK, null, "Resend Invitation").send(
-    res
-  );
-};
-
-export const sampleCSVDownload = async (
-  req: express.Request,
-  res: express.Response
-) => {
-  const filePath = "sample_holiday.csv";
-  if (!fs.existsSync(filePath)) {
-    throw new BadRequestError("File not found");
-  }
-  const fileContent = fs.readFileSync(filePath, "utf-8");
-  res.setHeader("Content-Disposition", "attachment; filename=sample_holiday.csv");
-  res.setHeader("Content-Type", "text/csv");
-  return new SuccessResponse(StatusCodes.OK, fileContent, "Downloaded sample CSV file.").send(
     res
   );
 };
