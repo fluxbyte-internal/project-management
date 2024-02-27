@@ -541,6 +541,22 @@ export const deleteOrganisation = async (
     },
     data: {
       deletedAt: new Date(),
+      projects: {
+        updateMany: {
+          where: { organisationId },
+          data: {
+            deletedAt: new Date()
+          }
+        }
+      },
+      userOrganisation: {
+        updateMany: {
+          where: { organisationId },
+          data: {
+            deletedAt: new Date(),
+          }
+        }
+      }
     }
   });
   return new SuccessResponse(
