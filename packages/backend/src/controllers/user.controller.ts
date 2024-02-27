@@ -48,7 +48,7 @@ export const me = async (req: express.Request, res: express.Response) => {
     const organisation = user.userOrganisation[0]?.organisation;
 
     if (organisation?.status === OrgStatusEnum.DEACTIVE) {
-      throw new BadRequestError("Organisation is DEACTIVE");
+      throw new BadRequestError(errorMessage);
     }
   }
 
