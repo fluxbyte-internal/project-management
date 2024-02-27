@@ -80,9 +80,10 @@ function ManagerDashboard() {
     setSpiPieChartProp({
       chartData: spiPieChartData!,
       color: ["#FF000077",  "#00800077","#FFB81977",],
-      title: "Projects Per Overall Situation",
+      title: "Project With Delays",
       radius: ["45%", "60%"],
       height: "300px",
+      subtext: "Project delay based on task",
     });
   }, [data]);
 

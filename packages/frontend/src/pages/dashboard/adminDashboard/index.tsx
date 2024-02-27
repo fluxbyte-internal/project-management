@@ -109,10 +109,16 @@ function AdminDashboard() {
     );
     setSpiPieChartProp({
       chartData: spiPieChartData!,
-      color: ["#FF000077",  "#00800077","#FFB81977",],
-      title: "Projects Per Overall Situation",
+      color: ["#FF000077",  "#00800077","#FFB81977"],
+      title: "Project With Delays",
+      subtext: "Project delay based on task",
       radius: ["45%", "60%"],
       height: "300px",
+      // title:{
+      //   text: 'Referer of a Website',
+      //   subtext: 'Fake Data',
+      //   left: 'center',
+      // },
     });
   }, [datas]);
 
