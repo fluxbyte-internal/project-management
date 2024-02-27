@@ -8,7 +8,7 @@ import { Link, useNavigate } from "react-router-dom";
 import dateFormater from "@/helperFuntions/dateFormater";
 import { Button } from "@/components/ui/button";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
-import HorizontalBarChart from "@/components/charts/HorizontalBarChart";
+// import HorizontalBarChart from "@/components/charts/HorizontalBarChart";
 import { Project } from "@/api/query/useProjectQuery";
 import LinkArrow from "@/assets/svg/linkArrow.svg";
 import { ProjectStatusEnumValue } from "@backend/src/schemas/enums";
@@ -51,6 +51,7 @@ function AdminDashboard() {
   const admninPortfolioDashboardQuery = useAdminPortfolioDashboardQuery();
   const [datas, setDatas] = useState<DashboardPortfolioDataType>();
   const [statusPieChartProp, setstatusPieChartProp] = useState<ChartProps>();
+  const [spiPieChartProp, setSpiPieChartProp] = useState<ChartProps>();
   const [tableData, setTableData] = useState<ProjectType[]>();
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
   const [editData, setEditData] = useState<Project | undefined>();
@@ -97,26 +98,39 @@ function AdminDashboard() {
       chartData: overallSituationPieChartData!,
       color: ["#FFD04A", "#FFB819", "#B74E06", "#461802"],
       title: "Projects Per Overall Situation",
-      radius: ["0%", "80%"],
-      height: "500px",
+      radius: ["0%", "60%"],
+      height: "300px",
+    });
+    const spiPieChartData = datas?.spiData?.labels.map(
+      (name: string, index) => ({
+        value: Number(datas?.spiData?.data[index]),
+        name: formatStatus(name),
+      })
+    );
+    setSpiPieChartProp({
+      chartData: spiPieChartData!,
+      color: ["#FF000077",  "#00800077","#FFB81977",],
+      title: "Projects Per Overall Situation",
+      radius: ["45%", "60%"],
+      height: "300px",
     });
   }, [datas]);
 
-  const chartProp2: ChartProps = {
-    chartData: [],
-    color: ["#FFD04A", "#FFB819", "#B74E06"],
-    title: "Project With Delays",
-    radius: ["45%", "60%"],
-    height: "300px",
-  };
+  // const chartProp2: ChartProps = {
+  //   chartData: [],
+  //   color: ["#FFD04A", "#FFB819", "#B74E06"],
+  //   title: "Project With Delays",
+  //   radius: ["45%", "60%"],
+  //   height: "300px",
+  // };
 
-  const chartProp5: ChartProps = {
-    chartData: [],
-    color: ["#FFD04A", "#FFB819", "#B74E06"],
-    title: "Risks",
-    radius: ["70%", "80%"],
-    height: "500px",
-  };
+  // const chartProp5: ChartProps = {
+  //   chartData: [],
+  //   color: ["#FFD04A", "#FFB819", "#B74E06"],
+  //   title: "Risks",
+  //   radius: ["70%", "80%"],
+  //   height: "500px",
+  // };
   const columnDef: ColumeDef[] = [
     {
       key: "projectName",
@@ -136,9 +150,7 @@ function AdminDashboard() {
       key: "CPI",
       header: "CPI",
       onCellRender: (item: Project) => (
-        <>
-          {item.CPI ? item.CPI.toFixed(2) : (0.0).toFixed(2)}{" "}
-        </>
+        <>{item.CPI ? item.CPI.toFixed(2) : (0.0).toFixed(2)} </>
       ),
     },
     {
@@ -162,8 +174,7 @@ function AdminDashboard() {
       header: "Actual End Date",
       onCellRender: (item) => (
         <>
-          {item.estimatedEndDate &&
-            dateFormater(new Date(item.actualEndDate))}
+          {item.estimatedEndDate && dateFormater(new Date(item.actualEndDate))}
         </>
       ),
     },
@@ -213,14 +224,14 @@ function AdminDashboard() {
         <h2 className="font-medium text-3xl leading-normal text-gray-600">
           Admin Dashboard
         </h2>
-        <div className="text-xl font-bold text-gray-400">Project Status</div>
+        <div className="text-xl font-bold text-gray-400 px-6">Project Status</div>
         <div className="w-full h-fit flex flex-col lg:flex-row gap-10 items-center">
-          <div className="tabs border-gray-300 border w-3/4 rounded-xl h-fit flex flex-col md:flex-row gap-5 items-center px-6 py-5 text-white flex-wrap justify-center">
+          <div className="tabs border-gray-300  w-full rounded-xl h-fit flex flex-col md:flex-row gap-5 items-center px-6 py-5 text-white flex-wrap justify-center">
             {datas?.statusChartData?.labels.map((labelData, index) => (
               <>
                 <div
                   key={index}
-                  className={`relative flex flex-col gap-2 select-none lg:gap-5 w-full lg:w-2/5 h-1/5 lg:h-full  rounded-2xl p-2 lg:py-3 text-start items-start justify-start px-10 border-l-[12px] ${
+                  className={`relative flex flex-col gap-2 select-none lg:gap-5 w-full lg:w-1/5 h-1/5 lg:h-full  rounded-2xl p-2 lg:py-3 text-start items-start justify-start px-10 border-l-[12px] ${
                     labelData === ProjectStatusEnumValue.ACTIVE
                       ? "text-primary-600  border-2 border-primary-600 "
                       : labelData === ProjectStatusEnumValue.ON_HOLD
@@ -244,25 +255,26 @@ function AdminDashboard() {
             ))}
           </div>
 
+          
+        </div>
+        <div className="text-xl font-bold text-gray-400 px-6">Charts</div>
+        <div className=" w-full h-fit flex flex-col lg:flex-row justify-center items-center gap-6 py-2 ">
+          <div className="situation rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
+            <PieChart chartProps={overallStatusPieChartProp!} />
+          </div>
           <div className="delays rounded-2xl w-3/4 lg:w-1/4 h-fit justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
-            <PieChart chartProps={chartProp2} />
+            <PieChart chartProps={spiPieChartProp!} />
           </div>
 
           <div className="status rounded-2xl w-3/4 lg:w-1/4  h-fit justify-center items-center flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300  ">
             <PieChart chartProps={statusPieChartProp!} />
           </div>
-        </div>
-        <div className="text-xl font-bold text-gray-400">Charts</div>
-        <div className=" w-full h-fit flex flex-col lg:flex-row justify-center items-center gap-6 py-2 ">
-          <div className="situation rounded-2xl w-3/4 lg:w-1/2 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
-            <PieChart chartProps={overallStatusPieChartProp!} />
-          </div>
           {/* <div className="severity rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <PieChart chartProps={chartProp4} />
           </div> */}
-          <div className="risks rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
+          {/* <div className="risks rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <HorizontalBarChart chartProps={chartProp5} />
-          </div>
+          </div> */}
         </div>
         <div className="w-full flex flex-col md:flex-col gap-10 justify-center px-5 md:px-20 lg:px-0 self-center">
           <div className="w-full lg:w-4/5 self-center">

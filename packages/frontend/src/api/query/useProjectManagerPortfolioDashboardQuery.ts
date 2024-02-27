@@ -89,19 +89,23 @@ export interface OverallSituationChartData {
     data: number[]
   }
 
-  
+export interface SpiChartData {
+  labels: string[];
+  data: number[];
+}
 export type maangerPortfolioDashboardResponseType = ResponseType<{
-  projects : ProjectManagersProjects[],
-    statusChartData: StatusChartData,
-    overallSituationChartData: OverallSituationChartData
-}>
+  projects: ProjectManagersProjects[];
+  statusChartData: StatusChartData;
+  overallSituationChartData: OverallSituationChartData;
+  spiData: SpiChartData;
+}>;
 
 export type managerDashboardPortfolioDataType = {
-  projects : ProjectManagersProjects[],
-    statusChartData: StatusChartData,
-    overallSituationChartData: OverallSituationChartData
-
-}
+  projects: ProjectManagersProjects[];
+  statusChartData: StatusChartData;
+  overallSituationChartData: OverallSituationChartData;
+  spiData: SpiChartData;
+};
 function useProjectManagerPortfolioDashboardQuery() {
   return useQuery<
       AxiosResponseAndError<maangerPortfolioDashboardResponseType>["response"],
