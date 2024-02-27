@@ -85,10 +85,10 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
     data: Object.values(overallSituationCounts),
   };
 
+  const labels = ["Red", "Green", "Orange"];
+  const data = [0, 0, 0];
   const projects = await Promise.all(projectManagersProjects.map(async (project) => {
     const CPI = await calculationCPI(project, req.tenantId, organisationId);
-    const labels = ["Red", "Green", "Orange"];
-    const data = [0, 0, 0];
     if (project.status === ProjectStatusEnum.ACTIVE) {
       await Promise.all(
         project.tasks.map(async (task) => {
@@ -107,7 +107,6 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
         })
       );
     }
-    const spiData = { labels, data };
     const actualDuration = await calculateProjectDuration(project.startDate, project.actualEndDate, req.tenantId, organisationId);
     const estimatedDuration = await calculateProjectDuration(project.startDate, project.estimatedEndDate, req.tenantId, organisationId);
     const completedTasksCount = await prisma.task.count({
@@ -116,13 +115,15 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
         status: TaskStatusEnum.COMPLETED
       }
     });
-    return { ...project, CPI, spiData, completedTasksCount, actualDuration, estimatedDuration };
+    return { ...project, CPI, completedTasksCount, actualDuration, estimatedDuration };
   }));
+  const spiData = { labels, data };
 
   const response = {
     projects,
     statusChartData,
     overallSituationChartData,
+    spiData
   };
   return new SuccessResponse(
     StatusCodes.OK,
@@ -192,11 +193,11 @@ export const administartorProjects = async (req: Request, res: Response) => {
     data: Object.values(overallSituationCounts),
   };
 
+  const labels = ["Red", "Green", "Orange"];
+  const data = [0, 0, 0];
   const projectsWithCPI = await Promise.all(
     orgCreatedByUser.projects.map(async (project) => {
       const CPI = await calculationCPI(project, req.tenantId, organisationId);
-      const labels = ["Red", "Green", "Orange"];
-      const data = [0, 0, 0];
       if (project.status === ProjectStatusEnum.ACTIVE) {
         await Promise.all(
           project.tasks.map(async (task) => {
@@ -215,7 +216,6 @@ export const administartorProjects = async (req: Request, res: Response) => {
           })
         );
       }
-      const spiData = { labels, data };
       const actualDuration = await calculateProjectDuration(
         project.startDate,
         project.actualEndDate,
@@ -268,7 +268,6 @@ export const administartorProjects = async (req: Request, res: Response) => {
       return {
         ...project,
         CPI,
-        spiData,
         actualDuration,
         estimatedDuration,
         completedTasksCount,
@@ -279,12 +278,14 @@ export const administartorProjects = async (req: Request, res: Response) => {
       };
     })
   );
+  const spiData = { labels, data };
   orgCreatedByUser.projects = projectsWithCPI;
 
   const response = {
     orgCreatedByUser,
     statusChartData,
     overallSituationChartData,
+    spiData
   };
   return new SuccessResponse(
     StatusCodes.OK,
