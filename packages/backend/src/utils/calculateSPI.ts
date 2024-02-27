@@ -1,21 +1,26 @@
 import { Task } from "@prisma/client";
-import { getClientByTenantId } from "../config/db.js";
 import { settings } from "../config/settings.js";
+import { excludeNonWorkingDays } from "./calculationFlag.js";
 
 export async function calculationSPI(
   tasks: Task,
   tenantId: string,
   organisationId: string
 ) {
-  const prisma = await getClientByTenantId(tenantId);
   const actualProgression = tasks.completionPecentage ?? 0;
-  const plannedProgression = await prisma.task.calculateTaskPlannedProgression(
-    tasks,
+  const taskStartDate = new Date(tasks.startDate);
+  const currentDate = new Date() < taskStartDate ? taskStartDate : new Date(); // Use task end date if currentDate is greater
+  currentDate.setUTCHours(0, 0, 0, 0);
+  taskStartDate.setUTCHours(0, 0, 0, 0);
+  const remainingDuration = await excludeNonWorkingDays(
+    currentDate,
+    taskStartDate,
     tenantId,
     organisationId
   );
+  const plannedProgress = (remainingDuration + 1) / tasks.duration;
   const value =
     (actualProgression * (tasks.duration * settings.hours)) /
-    (plannedProgression * (tasks.duration * settings.hours));
+    (plannedProgress * (tasks.duration * settings.hours));
   return value;
 }

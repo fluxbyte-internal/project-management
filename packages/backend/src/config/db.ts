@@ -214,16 +214,6 @@ function generatePrismaClient(datasourceUrl?: string) {
           }
           return { earliestStartDate, lowestEndDate };
         },
-        async calculateTaskPlannedProgression(task: Task, tenantId: string, organisationId: string): Promise<number> {
-          const currentDate = new Date().getTime();
-          const taskStartDate = new Date(task.startDate).getTime();
-          const endDate = await taskEndDate(task, tenantId, organisationId);
-          const effectiveCurrentDate = Math.min(currentDate, (new Date(endDate)).getTime()); // Use task end date if currentDate is greater
-          const plannedProgression =
-            (effectiveCurrentDate - taskStartDate + 1) /
-            (task.duration * settings.hours);
-          return plannedProgression;
-        },
       },
       comments: {
         async canEditOrDelete(commentId: string, userId: string) {
