@@ -87,17 +87,27 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
 
   const projects = await Promise.all(projectManagersProjects.map(async (project) => {
     const CPI = await calculationCPI(project, req.tenantId, organisationId);
-    const SPI = await Promise.all(
-      project.tasks.map(async (task) => {
-        const spi = await calculationSPI(task, req.tenantId, organisationId);
-        return {
-          taskId: task.taskId,
-          taskName: task.taskName,
-          spi,
-          taskStatus: task.status,
-        };
-      })
-    );
+    const labels = ["Red", "Green", "Orange"];
+    const data = [0, 0, 0];
+    if (project.status === ProjectStatusEnum.ACTIVE) {
+      await Promise.all(
+        project.tasks.map(async (task) => {
+          const spi = await calculationSPI(
+            task,
+            req.tenantId,
+            organisationId
+          );
+          if (spi < 0.8) {
+            data[0]++;
+          } else if (spi < 0.95) {
+            data[2]++;
+          } else {
+            data[1]++;
+          }
+        })
+      );
+    }
+    const spiData = { labels, data };
     const actualDuration = await calculateProjectDuration(project.startDate, project.actualEndDate, req.tenantId, organisationId);
     const estimatedDuration = await calculateProjectDuration(project.startDate, project.estimatedEndDate, req.tenantId, organisationId);
     const completedTasksCount = await prisma.task.count({
@@ -106,7 +116,7 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
         status: TaskStatusEnum.COMPLETED
       }
     });
-    return { ...project, CPI, SPI, completedTasksCount, actualDuration, estimatedDuration };
+    return { ...project, CPI, spiData, completedTasksCount, actualDuration, estimatedDuration };
   }));
 
   const response = {
@@ -185,17 +195,27 @@ export const administartorProjects = async (req: Request, res: Response) => {
   const projectsWithCPI = await Promise.all(
     orgCreatedByUser.projects.map(async (project) => {
       const CPI = await calculationCPI(project, req.tenantId, organisationId);
-      const SPI = await Promise.all(
-        project.tasks.map(async (task) => {
-          const spi = await calculationSPI(task, req.tenantId, organisationId);
-          return {
-            taskId: task.taskId,
-            taskName: task.taskName,
-            spi,
-            taskStatus: task.status,
-          };
-        })
-      );
+      const labels = ["Red", "Green", "Orange"];
+      const data = [0, 0, 0];
+      if (project.status === ProjectStatusEnum.ACTIVE) {
+        await Promise.all(
+          project.tasks.map(async (task) => {
+            const spi = await calculationSPI(
+              task,
+              req.tenantId,
+              organisationId
+            );
+            if (spi < 0.8) {
+              data[0]++;
+            } else if (spi < 0.95) {
+              data[2]++;
+            } else {
+              data[1]++;
+            }
+          })
+        );
+      }
+      const spiData = { labels, data };
       const actualDuration = await calculateProjectDuration(
         project.startDate,
         project.actualEndDate,
@@ -248,7 +268,7 @@ export const administartorProjects = async (req: Request, res: Response) => {
       return {
         ...project,
         CPI,
-        SPI,
+        spiData,
         actualDuration,
         estimatedDuration,
         completedTasksCount,
@@ -324,16 +344,27 @@ export const projectDashboardByprojectId = async (
   const cpi = await calculationCPI(projectWithTasks, req.tenantId, organisationId);
 
   // SPI
-  const tasksWithSPI = projectWithTasks.tasks.map(async task => {
-    const spi = await calculationSPI(task, req.tenantId, organisationId);
-    return { 
-      taskId: task.taskId,
-      taskName: task.taskName,
-      spi,
-      taskStatus: task.status
-     };
-  });
-  const spi = await Promise.all(tasksWithSPI);
+  const labels = ["Red", "Green", "Orange"];
+  const data = [0, 0, 0];
+  if (projectWithTasks.status === ProjectStatusEnum.ACTIVE) {
+    await Promise.all(
+      projectWithTasks.tasks.map(async (task) => {
+        const spi = await calculationSPI(
+          task,
+          req.tenantId,
+          organisationId
+        );
+        if (spi < 0.8) {
+          data[0]++;
+        } else if (spi < 0.95) {
+          data[2]++;
+        } else {
+          data[1]++;
+        }
+      })
+    );
+  }
+  const spiData = { labels, data };
 
   // Project Date's
   const actualDuration = await calculateProjectDuration(projectWithTasks.startDate, projectWithTasks.actualEndDate, req.tenantId, req.organisationId);
@@ -402,7 +433,7 @@ export const projectDashboardByprojectId = async (
     projectOverAllSituation,
     projectStatus: projectWithTasks.status,
     projectName: projectWithTasks.projectName,
-    spi,
+    spiData,
     cpi,
     budgetTrend,
     scheduleTrend,
