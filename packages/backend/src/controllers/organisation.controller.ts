@@ -47,6 +47,9 @@ export const getOrganisationById = async (
           role: true,
           taskColour: true,
           user: {
+            where: {
+              status: UserStatusEnum.ACTIVE
+            },
             select: selectUserFields,
           },
         },

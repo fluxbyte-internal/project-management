@@ -4,7 +4,7 @@ import { BadRequestError, NotFoundError, SuccessResponse, UnAuthorizedError } fr
 import { StatusCodes } from 'http-status-codes';
 import { projectIdSchema } from '../schemas/projectSchema.js';
 import { createCommentTaskSchema, createTaskSchema, attachmentTaskSchema, taskStatusSchema, updateTaskSchema, assginedToUserIdSchema, dependenciesTaskSchema, milestoneTaskSchema } from '../schemas/taskSchema.js';
-import { NotificationTypeEnum, TaskStatusEnum } from '@prisma/client';
+import { NotificationTypeEnum, TaskStatusEnum, UserStatusEnum } from '@prisma/client';
 import { AwsUploadService } from '../services/aws.services.js';
 import { uuidSchema } from '../schemas/commonSchema.js';
 import { MilestoneIndicatorStatusEnum } from '@prisma/client';
@@ -685,7 +685,12 @@ export const taskAssignToUser = async (
   const projectId = uuidSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const usersOfOrganisation = await prisma.projectAssignUsers.findMany({
-    where: { projectId },
+    where: {
+      projectId,
+      user: {
+        status: UserStatusEnum.ACTIVE,
+      },
+    },
     select: {
       projectId: true,
       assginedToUserId: true,
