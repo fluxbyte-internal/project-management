@@ -70,10 +70,10 @@ function Tasks() {
             item?.flag == "Green"
               ? "bg-green-500/60 border border-green-500"
               : item?.flag == "Red"
-                ? "bg-red-500/60 border border-red-500/60"
-                : item?.flag == "Orange"
-                  ? "bg-primary-500/60 border border-primary-500/60"
-                  : ""
+              ? "bg-red-500/60 border border-red-500/60"
+              : item?.flag == "Orange"
+              ? "bg-primary-500/60 border border-primary-500/60"
+              : ""
           }`}
         ></div>
       ),
@@ -203,10 +203,12 @@ function Tasks() {
   const filterRef = useRef<TaskFilterRef | null>(null);
   useEffect(() => {
     if (allTaskQuery.data?.data.data) {
-      setTaskData(setData(allTaskQuery.data?.data.data)?.sort(
-        (a, b) =>
-          new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-      ));
+      setTaskData(
+        setData(allTaskQuery.data?.data.data)?.sort(
+          (a, b) =>
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+        )
+      );
       setFilterData(
         setData(allTaskQuery.data?.data.data)?.sort(
           (a, b) =>
@@ -219,7 +221,12 @@ function Tasks() {
 
   useEffect(() => {
     if (searchParams.get("milestones")) {
-      setFilterData(taskData?.filter((d) => d.milestoneIndicator));
+      setFilterData(
+        findParentTasksWithDoneMilsone(taskData ?? []).sort(
+          (a, b) =>
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+        )
+      );
     }
     if (searchParams.get("status")) {
       setFilterData(
@@ -249,10 +256,9 @@ function Tasks() {
           ) ?? [];
       });
       const topLevelTasks = data.filter((task) => task.parentTaskId === null);
-      if (topLevelTasks.length==0 && data.length > 0) {
+      if (topLevelTasks.length == 0 && data.length > 0) {
         return data.map((task) => convertTask(task));
-      }
-      else{
+      } else {
         return topLevelTasks.map((task) => convertTask(task));
       }
     }
@@ -282,6 +288,21 @@ function Tasks() {
   function findParentTasksWithDoneStatus(tasks: Task[], status: string) {
     return tasks.filter((task) => {
       return checkTaskStatus(task, status);
+    });
+  }
+  const checkTaskByMilsone = (task: Task) => {
+    if (task.subtasks && task.subtasks.length > 0) {
+      const index = task.subtasks.findIndex((subtask) => {
+        return checkTaskByMilsone(subtask);
+      });
+      return index !== -1;
+    }
+    return Boolean(task.milestoneIndicator);
+  };
+
+  function findParentTasksWithDoneMilsone(tasks: Task[]) {
+    return tasks.filter((task) => {
+      return checkTaskByMilsone(task);
     });
   }
 
@@ -341,10 +362,15 @@ function Tasks() {
                 ]}
                 view={ProjectDefaultViewEnumValue.LIST}
                 ref={filterRef}
-                filteredData={(data) => setFilterData(setData(data)?.sort(
-                  (a, b) =>
-                    new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-                ))}
+                filteredData={(data) =>
+                  setFilterData(
+                    setData(data)?.sort(
+                      (a, b) =>
+                        new Date(a.startDate).getTime() -
+                        new Date(b.startDate).getTime()
+                    )
+                  )
+                }
                 tasks={allTaskQuery.data?.data.data}
               />
               <div>
