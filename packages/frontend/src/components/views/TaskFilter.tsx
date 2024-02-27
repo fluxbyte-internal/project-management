@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Select from "react-select";
 import {
@@ -17,7 +17,10 @@ import { FIELDS } from "@/api/types/enums";
 import FilterResetIcon from "@/assets/svg/FilterReset.svg";
 import { useSearchParams } from "react-router-dom";
 import { forwardRef, useImperativeHandle } from "react";
-import { ProjectDefaultViewEnumValue } from "@backend/src/schemas/enums";
+import {
+  ProjectDefaultViewEnumValue,
+  TaskStatusEnumValue,
+} from "@backend/src/schemas/enums";
 type Options = { label: string; value: string };
 
 type Filter = {
@@ -65,7 +68,11 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
     });
     return projectManagerData;
   };
-
+  useEffect(() => {
+    if (filter.size) {
+      ApplyFilter();
+    }
+  }, []);
   const searchTask = (searchString: string) => {
     let tempData: Task[] = [];
     if (props.view == ProjectDefaultViewEnumValue.LIST) {
@@ -153,6 +160,7 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
       filteredData = filteredData?.filter((d) => d.flag == filter?.get("flag"));
     }
 
+
     if (
       filter.size &&
       Boolean(filter.get("from")) &&
@@ -182,6 +190,14 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
       if (arr) {
         filteredData = arr;
       }
+    }
+
+    if (filter && filter.get("completed")) {
+      filteredData = filteredData?.filter(
+        (data) =>
+          Number(data.completionPecentage) != 100 ||
+          data.status !== TaskStatusEnumValue.COMPLETED
+      );
     }
 
     if (filter && filter.get("dueSevenDays")) {
@@ -374,6 +390,28 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                         </div>
                       )}
                     </div>
+                    <div className="flex justify-between items-center">
+                      <div>Hide completed task</div>
+                      <div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            name="sevenDays"
+                            checked={
+                              filter.get("completed") == "true" ? true : false
+                            }
+                            onChange={(e) =>
+                              setParamFilter(
+                                "completed",
+                                String(e.target.checked)
+                              )
+                            }
+                            className="sr-only peer"
+                          />
+                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-600 dark:peer-focus:ring-primary-400 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary-400"></div>
+                        </label>
+                      </div>
+                    </div>
                     {fieldToShow.includes(FIELDS.DATE) && (
                       <div className="w-full">
                         <Popover>
@@ -386,13 +424,11 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                                 {Boolean(filter.get("from")) &&
                                 Boolean(filter.get("to"))
                                   ? `${dateFormater(
-                                    new Date(
-                                      filter.get("from") ?? new Date()
-                                    )
-                                  )}-
+                                      new Date(filter.get("from") ?? new Date())
+                                    )}-
                           ${dateFormater(
-                        new Date(filter.get("to") ?? new Date())
-                      )}`
+                            new Date(filter.get("to") ?? new Date())
+                          )}`
                                   : "Select start date"}
                                 <img src={CalendarSvg} width={20} />
                               </div>
@@ -407,9 +443,9 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                                   e?.from
                                     ? setParamFilter("from", String(e?.from))
                                     : "",
-                                  e?.to
-                                    ? setParamFilter("to", String(e?.to))
-                                    : "";
+                                    e?.to
+                                      ? setParamFilter("to", String(e?.to))
+                                      : "";
                                 }}
                                 className="rounded-md border"
                               />
@@ -425,13 +461,13 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                           value={
                             filter.get("assigned")
                               ? {
-                                label: filter.get("assigned"),
-                                value: filter.get("assigned"),
-                              }
+                                  label: filter.get("assigned"),
+                                  value: filter.get("assigned"),
+                                }
                               : {
-                                label: "Select assigned user",
-                                value: "",
-                              }
+                                  label: "Select assigned user",
+                                  value: "",
+                                }
                           }
                           options={assignedTask()}
                           onChange={(e) => {
@@ -453,9 +489,9 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                           value={
                             filter.get("flag")
                               ? {
-                                label: filter.get("flag"),
-                                value: filter.get("flag"),
-                              }
+                                  label: filter.get("flag"),
+                                  value: filter.get("flag"),
+                                }
                               : { label: "Select flag", value: "" }
                           }
                           options={flags}
@@ -478,9 +514,9 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                           value={
                             filter.get("tasks")
                               ? {
-                                label: filter.get("tasks"),
-                                value: filter.get("tasks"),
-                              }
+                                  label: filter.get("tasks"),
+                                  value: filter.get("tasks"),
+                                }
                               : { label: "Both", value: "" }
                           }
                           options={taskOption}
