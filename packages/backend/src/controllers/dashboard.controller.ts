@@ -345,27 +345,16 @@ export const projectDashboardByprojectId = async (
   const cpi = await calculationCPI(projectWithTasks, req.tenantId, organisationId);
 
   // SPI
-  const labels = ["Red", "Green", "Orange"];
-  const data = [0, 0, 0];
-  if (projectWithTasks.status === ProjectStatusEnum.ACTIVE) {
-    await Promise.all(
-      projectWithTasks.tasks.map(async (task) => {
-        const spi = await calculationSPI(
-          task,
-          req.tenantId,
-          organisationId
-        );
-        if (spi < 0.8) {
-          data[0]++;
-        } else if (spi < 0.95) {
-          data[2]++;
-        } else {
-          data[1]++;
-        }
-      })
-    );
-  }
-  const spiData = { labels, data };
+  const tasksWithSPI = projectWithTasks.tasks.map(async task => {
+    const spi = await calculationSPI(task, req.tenantId, organisationId);
+    return { 
+      taskId: task.taskId,
+      taskName: task.taskName,
+      spi,
+      taskStatus: task.status
+     };
+  });
+  const spi = await Promise.all(tasksWithSPI);
 
   // Project Date's
   const actualDuration = await calculateProjectDuration(projectWithTasks.startDate, projectWithTasks.actualEndDate, req.tenantId, req.organisationId);
@@ -434,7 +423,7 @@ export const projectDashboardByprojectId = async (
     projectOverAllSituation,
     projectStatus: projectWithTasks.status,
     projectName: projectWithTasks.projectName,
-    spiData,
+    spi,
     cpi,
     budgetTrend,
     scheduleTrend,
