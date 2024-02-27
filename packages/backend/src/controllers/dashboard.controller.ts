@@ -269,7 +269,7 @@ export const administartorProjects = async (req: Request, res: Response) => {
   return new SuccessResponse(
     StatusCodes.OK,
     response,
-    "Portfolio projects of Administartor"
+    "Portfolio projects of Administrator"
   ).send(res);
 };
 
