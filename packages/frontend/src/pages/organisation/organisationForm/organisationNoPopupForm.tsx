@@ -25,6 +25,7 @@ import useCsvUploadMutation from "@/api/mutation/useCsvUploadMutation";
 import CSVIcon from "@/assets/svg/csvIcon.svg";
 import DownLoadIcon from "@/assets/svg/DownLoad.svg";
 import { OrgStatusEnumValue } from "@backend/src/schemas/enums";
+import { CSVDownloadUrl } from "@/Environment";
 interface Props {
   editData?: OrganisationType;
   viewOnly: boolean;
@@ -287,7 +288,7 @@ function OrganisationNoPopUpForm(props: Props) {
   };
   const downloadCsv = () =>{
     const ac = document.createElement('a');
-    ac.href = "https://pmsaas-uploader.s3.amazonaws.com/production-testing/sample_holiday.csv";
+    ac.href = CSVDownloadUrl;
     ac.download;
     ac.click();
 
