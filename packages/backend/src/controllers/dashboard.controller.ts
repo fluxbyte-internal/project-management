@@ -87,6 +87,17 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
 
   const projects = await Promise.all(projectManagersProjects.map(async (project) => {
     const CPI = await calculationCPI(project, req.tenantId, organisationId);
+    const SPI = await Promise.all(
+      project.tasks.map(async (task) => {
+        const spi = await calculationSPI(task, req.tenantId, organisationId);
+        return {
+          taskId: task.taskId,
+          taskName: task.taskName,
+          spi,
+          taskStatus: task.status,
+        };
+      })
+    );
     const actualDuration = await calculateProjectDuration(project.startDate, project.actualEndDate, req.tenantId, organisationId);
     const estimatedDuration = await calculateProjectDuration(project.startDate, project.estimatedEndDate, req.tenantId, organisationId);
     const completedTasksCount = await prisma.task.count({
@@ -95,7 +106,7 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
         status: TaskStatusEnum.COMPLETED
       }
     });
-    return { ...project, CPI, completedTasksCount, actualDuration, estimatedDuration };
+    return { ...project, CPI, SPI, completedTasksCount, actualDuration, estimatedDuration };
   }));
 
   const response = {
@@ -123,7 +134,11 @@ export const administartorProjects = async (req: Request, res: Response) => {
       deletedAt: null,
     },
     include: {
-      projects: true,
+      projects: {
+        include: {
+          tasks: true,
+        }
+      },
     },
   });
 
@@ -170,14 +185,35 @@ export const administartorProjects = async (req: Request, res: Response) => {
   const projectsWithCPI = await Promise.all(
     orgCreatedByUser.projects.map(async (project) => {
       const CPI = await calculationCPI(project, req.tenantId, organisationId);
-      const actualDuration = await calculateProjectDuration(project.startDate, project.actualEndDate, req.tenantId, organisationId);
-      const estimatedDuration = await calculateProjectDuration(project.startDate, project.estimatedEndDate, req.tenantId, organisationId);
+      const SPI = await Promise.all(
+        project.tasks.map(async (task) => {
+          const spi = await calculationSPI(task, req.tenantId, organisationId);
+          return {
+            taskId: task.taskId,
+            taskName: task.taskName,
+            spi,
+            taskStatus: task.status,
+          };
+        })
+      );
+      const actualDuration = await calculateProjectDuration(
+        project.startDate,
+        project.actualEndDate,
+        req.tenantId,
+        organisationId
+      );
+      const estimatedDuration = await calculateProjectDuration(
+        project.startDate,
+        project.estimatedEndDate,
+        req.tenantId,
+        organisationId
+      );
       const completedTasksCount = await prisma.task.count({
         where: {
           projectId: project.projectId,
           status: TaskStatusEnum.COMPLETED,
           deletedAt: null,
-        }
+        },
       });
       const projectManagerInfo = await prisma.projectAssignUsers.findMany({
         where: {
@@ -212,10 +248,14 @@ export const administartorProjects = async (req: Request, res: Response) => {
       return {
         ...project,
         CPI,
+        SPI,
         actualDuration,
         estimatedDuration,
         completedTasksCount,
-        projectManager: projectManagerInfo.length === 0 ?  projectAdministartor : projectManagerInfo
+        projectManager:
+          projectManagerInfo.length === 0
+            ? projectAdministartor
+            : projectManagerInfo,
       };
     })
   );
