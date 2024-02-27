@@ -267,14 +267,14 @@ function NavBar() {
                                 <div className="text-sm font-medium text-gray-500 relative cursor-pointer">
                                   {item.name}
                                 </div>
-                                <div className="h-full flex items-center aspect-square">
+                                <div className="h-full flex items-center aspect-square">  
                                   <img src={DownArrow} alt="Dropdown Arrow" />
                                 </div>
                               </div>
                             ) : (
                               <Link
                                 to={item.link}
-                                className="text-sm font-medium text-gray-500 relative cursor-pointer"
+                                className="text-sm font-medium text-gray-500 relative cursor-pointer w-full"
                               >
                                 {item.name}
                               </Link>

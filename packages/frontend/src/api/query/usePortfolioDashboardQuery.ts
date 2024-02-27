@@ -77,6 +77,10 @@ export interface StatusChartData {
     labels: string[]
     data: number[]
   }
+export interface SpiChartData {
+    labels: string[]
+    data: number[]
+  }
   
 export interface OverallSituationChartData {
     labels: string[]
@@ -88,12 +92,14 @@ export type PortfolioDashboardResponseType = ResponseType<{
     orgCreatedByUser : OrgCreatedByUser,
     statusChartData: StatusChartData,
     overallSituationChartData: OverallSituationChartData
+    spiData:SpiChartData
 }>
 
 export type DashboardPortfolioDataType = {
     orgCreatedByUser : OrgCreatedByUser,
     statusChartData: StatusChartData,
     overallSituationChartData: OverallSituationChartData
+    spiData:SpiChartData
 
 }
 function useAdminPortfolioDashboardQuery() {

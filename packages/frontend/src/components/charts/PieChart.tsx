@@ -6,6 +6,7 @@ export type ChartProps = {
   chartData: { value: number; name: string }[],
   color:string[],
   title: string,
+  subtext?:string,
   radius: string[],
   height: string
 }
@@ -27,7 +28,8 @@ const PieChart:  React.FC<PieChartProps> = ({ chartProps }) =>{
       color: chartProps?.color,
       title:{ 
         text:chartProps?.title,
-        bottom: '4%',
+        subtext:chartProps?.subtext,
+        bottom: '0%',
         left: 'center',
         textStyle: {color:'#000000'},
       },

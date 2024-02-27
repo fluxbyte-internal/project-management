@@ -85,8 +85,28 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
     data: Object.values(overallSituationCounts),
   };
 
+  const labels = ["Red", "Green", "Orange"];
+  const data = [0, 0, 0];
   const projects = await Promise.all(projectManagersProjects.map(async (project) => {
     const CPI = await calculationCPI(project, req.tenantId, organisationId);
+    if (project.status === ProjectStatusEnum.ACTIVE) {
+      await Promise.all(
+        project.tasks.map(async (task) => {
+          const spi = await calculationSPI(
+            task,
+            req.tenantId,
+            organisationId
+          );
+          if (spi < 0.8) {
+            data[0]++;
+          } else if (spi < 0.95) {
+            data[2]++;
+          } else {
+            data[1]++;
+          }
+        })
+      );
+    }
     const actualDuration = await calculateProjectDuration(project.startDate, project.actualEndDate, req.tenantId, organisationId);
     const estimatedDuration = await calculateProjectDuration(project.startDate, project.estimatedEndDate, req.tenantId, organisationId);
     const completedTasksCount = await prisma.task.count({
@@ -97,11 +117,13 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
     });
     return { ...project, CPI, completedTasksCount, actualDuration, estimatedDuration };
   }));
+  const spiData = { labels, data };
 
   const response = {
     projects,
     statusChartData,
     overallSituationChartData,
+    spiData
   };
   return new SuccessResponse(
     StatusCodes.OK,
@@ -123,7 +145,11 @@ export const administartorProjects = async (req: Request, res: Response) => {
       deletedAt: null,
     },
     include: {
-      projects: true,
+      projects: {
+        include: {
+          tasks: true,
+        }
+      },
     },
   });
 
@@ -167,17 +193,47 @@ export const administartorProjects = async (req: Request, res: Response) => {
     data: Object.values(overallSituationCounts),
   };
 
+  const labels = ["Red", "Green", "Orange"];
+  const data = [0, 0, 0];
   const projectsWithCPI = await Promise.all(
     orgCreatedByUser.projects.map(async (project) => {
       const CPI = await calculationCPI(project, req.tenantId, organisationId);
-      const actualDuration = await calculateProjectDuration(project.startDate, project.actualEndDate, req.tenantId, organisationId);
-      const estimatedDuration = await calculateProjectDuration(project.startDate, project.estimatedEndDate, req.tenantId, organisationId);
+      if (project.status === ProjectStatusEnum.ACTIVE) {
+        await Promise.all(
+          project.tasks.map(async (task) => {
+            const spi = await calculationSPI(
+              task,
+              req.tenantId,
+              organisationId
+            );
+            if (spi < 0.8) {
+              data[0]++;
+            } else if (spi < 0.95) {
+              data[2]++;
+            } else {
+              data[1]++;
+            }
+          })
+        );
+      }
+      const actualDuration = await calculateProjectDuration(
+        project.startDate,
+        project.actualEndDate,
+        req.tenantId,
+        organisationId
+      );
+      const estimatedDuration = await calculateProjectDuration(
+        project.startDate,
+        project.estimatedEndDate,
+        req.tenantId,
+        organisationId
+      );
       const completedTasksCount = await prisma.task.count({
         where: {
           projectId: project.projectId,
           status: TaskStatusEnum.COMPLETED,
           deletedAt: null,
-        }
+        },
       });
       const projectManagerInfo = await prisma.projectAssignUsers.findMany({
         where: {
@@ -215,21 +271,26 @@ export const administartorProjects = async (req: Request, res: Response) => {
         actualDuration,
         estimatedDuration,
         completedTasksCount,
-        projectManager: projectManagerInfo.length === 0 ?  projectAdministartor : projectManagerInfo
+        projectManager:
+          projectManagerInfo.length === 0
+            ? projectAdministartor
+            : projectManagerInfo,
       };
     })
   );
+  const spiData = { labels, data };
   orgCreatedByUser.projects = projectsWithCPI;
 
   const response = {
     orgCreatedByUser,
     statusChartData,
     overallSituationChartData,
+    spiData
   };
   return new SuccessResponse(
     StatusCodes.OK,
     response,
-    "Portfolio projects of Administartor"
+    "Portfolio projects of Administrator"
   ).send(res);
 };
 

@@ -137,18 +137,18 @@ export const login = async (req: express.Request, res: express.Response) => {
       provider: true,
     },
   });
-  if (user.status === UserStatusEnum.INACTIVE) {
-    const errorMessage = user.userOrganisation[0]?.role === UserRoleEnum.ADMINISTRATOR
-      ? "Your account is blocked, please contact our support at support@projectchef.io"
-      : "Your account is blocked, please contact your administrator";
+  let errorMessage = "Your account is blocked, please contact your administrator";
+  if (user.userOrganisation[0]?.role === UserRoleEnum.ADMINISTRATOR) {
+    errorMessage = "Your account is blocked, please contact our support at support@projectchef.io";
+  }
+  if (user?.status === UserStatusEnum.INACTIVE) {
     throw new BadRequestError(errorMessage);
   }
-  
   if (
     user.userOrganisation.length > 0 &&
     user.userOrganisation[0]?.organisation?.status === OrgStatusEnum.DEACTIVE
   ) {
-    throw new BadRequestError("Organisation is DEACTIVE");
+    throw new BadRequestError(errorMessage);
   }
 
   const findUserProvider = await prisma.userProvider.findFirst({

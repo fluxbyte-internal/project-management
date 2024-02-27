@@ -3,7 +3,7 @@ import { getClientByTenantId } from '../config/db.js';
 import { BadRequestError, NotFoundError, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
 import { consumedBudgetSchema, createKanbanSchema, createProjectSchema, projectIdSchema, projectStatusSchema, updateKanbanSchema, updateProjectSchema } from '../schemas/projectSchema.js';
-import { NotificationTypeEnum, ProjectStatusEnum, TaskStatusEnum, UserRoleEnum } from '@prisma/client';
+import { NotificationTypeEnum, ProjectStatusEnum, TaskStatusEnum, UserRoleEnum, UserStatusEnum } from '@prisma/client';
 import { uuidSchema } from '../schemas/commonSchema.js';
 import { assginedToUserIdSchema } from '../schemas/taskSchema.js';
 import { selectUserFields } from '../utils/selectedFieldsOfUsers.js';
@@ -507,6 +507,7 @@ export const assignedUserToProject = async (
   const findUser = await prisma.user.findUnique({
     where: {
       userId: assginedToUserId,
+      status: UserStatusEnum.ACTIVE
     },
     select: {
       userOrganisation: {
