@@ -319,7 +319,7 @@ function OrganisationUsers() {
               <div style={{ backgroundImage: `url(${OperartorBackground})` }} className="h-full py-5 p-4 lg:p-14 w-full flex flex-col gap-5 bg-no-repeat bg-cover">
                 <div className="flex lg:flex-row flex-col gap-4 lg:gap-0 justify-between items-center">
                   <h2 className="font-medium text-3xl leading-normal text-gray-600">
-                    Organisation's User
+                   {usersOrganisationsQuery.data?.data.data[0].organisation.organisationName} Users
                   </h2>
                   {adminAlert && (
                     <div

@@ -17,8 +17,23 @@ export interface OrganisationUserType {
   createdAt: string
   updatedAt: string
   user: User
+  organisation:Organisation
 }
+type Organisation = {
+    organisationId:   string;
+    organisationName: string;
+    industry:         string;
+    status:           string;
+    country:          string;
+    nonWorkingDays:   string[];
+    createdAt:        Date;
+    updatedAt:        Date;
+    tenantId:         string;
+    createdByUserId:  string;
+    updatedByUserId:  string;
+    deletedAt:        null;
 
+} 
 export interface User {
   avatarImg: string
   email: string

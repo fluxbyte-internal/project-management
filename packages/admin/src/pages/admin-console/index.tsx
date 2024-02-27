@@ -33,15 +33,16 @@ import Active from "../../assets/svg/Active.svg";
 import Delete from "../../assets/svg/Delete.svg";
 import OperartorBackground from "../../assets/operatorHomePageImage.jpg";
 import Dialog from "@/components/common/Dialog";
+import { useUser } from "@/hooks/useUser";
 
 type Options = { label: string; value: string };
 
 function AdminConsole() {
   const [data, setData] = useState<OrganisationsType[]>();
   const [filterData, setFilterData] = useState<OrganisationsType[]>();
-  const [isRetrieveOpenPopUp, setIsRetrieveOpenPopUp] = useState<string>('');
-  const [isBlockOpenPopUp, setIsBlockOpenPopUp] = useState<string>('');
-  const [isDeleteOpenPopUp, setIsDeleteOpenPopUp] = useState<string>('');
+  const [isRetrieveOpenPopUp, setIsRetrieveOpenPopUp] = useState<string>("");
+  const [isBlockOpenPopUp, setIsBlockOpenPopUp] = useState<string>("");
+  const [isDeleteOpenPopUp, setIsDeleteOpenPopUp] = useState<string>("");
 
   const [filter, setFilter] = useState<{
     industry: SingleValue<Options> | null;
@@ -57,6 +58,7 @@ function AdminConsole() {
   const useOrganisationStatusApi = useOrganisationStatusMutation();
   const organisationQuery = useOrganisationsListQuery();
   const deleteOrganisationMutation = useDeleteOrganisationMutation();
+  const user = useUser();
   useEffect(() => {
     setData(organisationQuery.data?.data?.data);
     setFilterData(organisationQuery.data?.data?.data);
@@ -76,7 +78,7 @@ function AdminConsole() {
   };
 
   const handleView = (id: string, status: keyof typeof OrgStatusEnumValue) => {
-    console.log(id, "id")
+    console.log(id, "id");
     useOrganisationStatusApi.mutate(
       { OrganisationId: id, status: status },
       {
@@ -238,12 +240,14 @@ function AdminConsole() {
                   <DropdownMenuSeparator className="mx-1" />
                 </>
               )}
-              <DropdownMenuItem
-                onClick={() => handleDelete(item?.organisationId)}
-              >
-                <img className="mr-2 h-4 w-4 text-[#44546F]" src={Delete} />
-                <span className="p-0 font-normal h-auto">Delete</span>
-              </DropdownMenuItem>
+              {user.user?.role == "SUPER_ADMIN" && (
+                <DropdownMenuItem
+                  onClick={() => setIsDeleteOpenPopUp(item?.organisationId)}
+                >
+                  <img className="mr-2 h-4 w-4 text-[#44546F]" src={Delete} />
+                  <span className="p-0 font-normal h-auto">Delete</span>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
 

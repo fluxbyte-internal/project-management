@@ -14,6 +14,7 @@ export type UserType = {
   lastName: string | null;
   timezone: string | null;
   country: string | null;
+  role:string 
   avatarImg: string | null;
   isVerified:boolean
   createdAt: string;
