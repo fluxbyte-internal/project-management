@@ -493,6 +493,7 @@ export const organisationsUser = async (
       user: {
         select: selectUserFields
       },
+      organisation: true
     },
   });
   userOfOrg = userOfOrg.filter(
