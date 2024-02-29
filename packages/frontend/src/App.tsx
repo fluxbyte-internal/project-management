@@ -9,16 +9,18 @@ import Page404 from "./rootAuth/404page";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { googleCredentialsClientId } from "./Environment";
+import { googleCredentialsClientId, smartElementKey } from "./Environment";
+window.Smart.License = smartElementKey;
 function App() {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
         refetchOnWindowFocus: false,
-        retry:0,
+        retry: 0,
       },
     },
   });
+
   const [Show, setShow] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
