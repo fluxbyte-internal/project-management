@@ -128,9 +128,6 @@ export const createTask = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const { taskName, taskDescription, startDate, duration } =
     createTaskSchema.parse(req.body);
   const projectId = projectIdSchema.parse(req.params.projectId);
@@ -233,9 +230,6 @@ export const updateTask = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const taskId = uuidSchema.parse(req.params.taskId);
   const taskUpdateValue = updateTaskSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -377,7 +371,6 @@ export const updateTask = async (
 };
 
 export const deleteTask = async (req: express.Request, res: express.Response) => {
-  if (!req.userId) { throw new BadRequestError('userId not found!!') };
   const taskId = uuidSchema.parse(req.params.taskId);
   const prisma = await getClientByTenantId(req.tenantId);
   const action = await prisma.task.canEditOrDelete(taskId, req.userId);
@@ -402,7 +395,6 @@ export const deleteTask = async (req: express.Request, res: express.Response) =>
 };
 
 export const statusChangeTask = async (req: express.Request, res: express.Response) => {
-  if (!req.userId) { throw new BadRequestError('userId not found!!') };
   const taskId = uuidSchema.parse(req.params.taskId);
   const statusBody = taskStatusSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -447,7 +439,6 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
 }
 
 export const statusCompletedAllTAsk = async (req: express.Request, res: express.Response) => {
-  if (!req.userId) { throw new BadRequestError('userId not found!!') };
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const findAllTaskByProjectId = await prisma.task.findMany({
@@ -492,9 +483,6 @@ export const addComment = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const taskId = uuidSchema.parse(req.params.taskId);
   const { commentText } = createCommentTaskSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -520,9 +508,6 @@ export const updateComment = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const commentId = uuidSchema.parse(req.params.commentId);
   const { commentText } = createCommentTaskSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -548,9 +533,6 @@ export const deleteComment = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const commentId = uuidSchema.parse(req.params.commentId);
   const prisma = await getClientByTenantId(req.tenantId);
   const action = await prisma.comments.canEditOrDelete(
@@ -572,9 +554,6 @@ export const addAttachment = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const taskId = uuidSchema.parse(req.params.taskId);
 
   const prisma = await getClientByTenantId(req.tenantId);
@@ -635,9 +614,6 @@ export const deleteAttachment = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const attachmentId = uuidSchema.parse(req.params.attachmentId);
   const prisma = await getClientByTenantId(req.tenantId);
   const action = await prisma.taskAttachment.canDelete(
@@ -718,10 +694,6 @@ export const addMemberToTask = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
-
   const taskId = uuidSchema.parse(req.params.taskId);
   const prisma = await getClientByTenantId(req.tenantId);
   const action = await prisma.task.canEditOrDelete(taskId, req.userId);
@@ -775,9 +747,6 @@ export const deleteMemberFromTask = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const taskAssignUsersId = uuidSchema.parse(req.params.taskAssignUsersId);
   const prisma = await getClientByTenantId(req.tenantId);
   const findMember = await prisma.taskAssignUsers.findFirstOrThrow({
@@ -827,9 +796,6 @@ export const addDependencies = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const taskId = uuidSchema.parse(req.params.taskId);
   const prisma = await getClientByTenantId(req.tenantId);
   const action = await prisma.task.canCreate(taskId, req.userId);
@@ -886,9 +852,6 @@ export const removeDependencies = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const taskDependenciesId = uuidSchema.parse(req.params.taskDependenciesId);
   const prisma = await getClientByTenantId(req.tenantId);
   const action = await prisma.taskDependencies.canDelete(
@@ -933,9 +896,6 @@ export const addOrRemoveMilesstone = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   if (!req.organisationId) {
     throw new BadRequestError("organisationId not found!!");
   }

@@ -123,9 +123,6 @@ export const changePassword = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const { oldPassword, password } = consolePasswordSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
   const findConsoleUser = await prisma.consoleUser.findUniqueOrThrow({
@@ -187,9 +184,6 @@ export const createOperator = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const prisma = await getClientByTenantId(req.tenantId);
   const { email, firstName, lastName } = operatorSchema.parse(req.body);
   const randomPassword = generateRandomPassword();
@@ -245,9 +239,6 @@ export const updateOperator = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const operatorDataToUpdate = operatorUpdateSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
   const user = await prisma.consoleUser.update({
@@ -270,9 +261,6 @@ export const changeOperatorStatus = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const userId = uuidSchema.parse(req.params.userId);
   const prisma = await getClientByTenantId(req.tenantId);
   const statusValue = operatorStatusSchema.parse(req.body);
@@ -294,10 +282,6 @@ export const deleteOperator = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
-
   const userId = uuidSchema.parse(req.params.userId);
   const prisma = await getClientByTenantId(req.tenantId);
   await prisma.consoleUser.update({
@@ -319,9 +303,6 @@ export const getAllOperator = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const prisma = await getClientByTenantId(req.tenantId);
   const operators = await prisma.consoleUser.findMany({
     where: {
@@ -345,9 +326,6 @@ export const changeUserStatus = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const userId = uuidSchema.parse(req.params.userId);
   const prisma = await getClientByTenantId(req.tenantId);
   const { organisationId, status } = userStatuSchema.parse(req.body);
@@ -391,10 +369,6 @@ export const changeOrganisationStatus = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
-
   const organisationId = uuidSchema.parse(req.params.organisationId);
   const statusValue = organisationStatuSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -417,9 +391,6 @@ export const changeUserOrganisationRole = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const organisationId = uuidSchema.parse(req.params.organisationId);
   const { role, userOrganisationId } = changeOrganisationMemberRoleSchema.parse(
     req.body
@@ -449,9 +420,6 @@ export const getAllOrganisation = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const prisma = await getClientByTenantId(req.tenantId);
   const organisations = await prisma.organisation.findMany({
     where: {
@@ -482,9 +450,6 @@ export const organisationsUser = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const organisationId = uuidSchema.parse(req.params.organisationId);
   const prisma = await getClientByTenantId(req.tenantId);
   let userOfOrg = await prisma.userOrganisation.findMany({
@@ -514,9 +479,6 @@ export const deleteOrganisation = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const organisationId = uuidSchema.parse(req.params.organisationId);
   const prisma = await getClientByTenantId(req.tenantId);
   await prisma.organisation.update({
@@ -594,9 +556,6 @@ export const blockAndReassignAdministator = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const prisma = await getClientByTenantId(req.tenantId);
   await prisma.$transaction(async (tx) => {
     const { organisationId, userOrganisationBlockId, reassginAdministratorId } =
@@ -653,7 +612,7 @@ export const blockAndReassignAdministator = async (
 
 export const otpVerifyConsole = async (req: express.Request, res: express.Response) => {
   const { otp } = verifyEmailOtpSchema.parse(req.body);
-  const checkOtp = await OtpService.verifyOTPForConsole(otp, req.userId!, req.tenantId);
+  const checkOtp = await OtpService.verifyOTPForConsole(otp, req.userId, req.tenantId);
   if (!checkOtp) { throw new BadRequestError("Invalid OTP") };
   return new SuccessResponse(StatusCodes.OK, null, 'OTP verified successfully').send(res);
 };

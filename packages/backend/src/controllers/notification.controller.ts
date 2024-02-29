@@ -17,9 +17,6 @@ export const getAllNotification = async (
   req: express.Request,
   res: express.Response
 ) => {
-    if (!req.userId) {
-      throw new BadRequestError("userId not found!!");
-    }
   const prisma = await getClientByTenantId(req.tenantId);
   const notifications = await prisma.notification.findMany({
     where: {
@@ -45,9 +42,6 @@ export const readNotification = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const notificationId = uuidSchema.parse(req.params.notificationId);
   const prisma = await getClientByTenantId(req.tenantId);
 
@@ -70,9 +64,6 @@ export const readAllNotification = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const prisma = await getClientByTenantId(req.tenantId);
 
   const unreadNotifications = await prisma.notification.findMany({

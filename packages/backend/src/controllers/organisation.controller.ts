@@ -77,9 +77,6 @@ export const createOrganisation = async (
 ) => {
   const { organisationName, industry, status, country, nonWorkingDays } =
     createOrganisationSchema.parse(req.body);
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const prisma = await getClientByTenantId(req.tenantId);
 
   // CASE : One user can create only one organisation
@@ -130,9 +127,6 @@ export const updateOrganisation = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!");
-  }
   const organisationId = organisationIdSchema.parse(req.params.organisationId);
   const updateOrganisationValue = updateOrganisationSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -264,9 +258,6 @@ export const removeOrganisationMember = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!");
-  }
   const prisma = await getClientByTenantId(req.tenantId);
   const userOrganisationId = uuidSchema.parse(req.params.userOrganisationId);
   const findUserOrg = await prisma.userOrganisation.findFirstOrThrow({
@@ -361,9 +352,6 @@ export const changeMemberRole = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!");
-  }
   const userOrganisationId = uuidSchema.parse(req.params.userOrganisationId);
   const { role } = memberRoleSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -385,9 +373,6 @@ export const reassignTasks = async (
   res: express.Response
 ) => {
   const userId = req.userId;
-  if (!userId) {
-    throw new BadRequestError("userId not found!");
-  }
   const prisma = await getClientByTenantId(req.tenantId);
   const { oldUserId, newUserId } = reAssginedTaskSchema.parse(req.body);
   const tasksToReassign = await prisma.taskAssignUsers.findMany({
@@ -477,9 +462,6 @@ export const uploadHolidayCSV = async (
 ) => {
   const userId = req.userId;
   const organisationId = uuidSchema.parse(req.params.organisationId);
-  if (!userId) {
-    throw new BadRequestError("userId not found!");
-  }
   const file = req.files?.csv as fileUpload.UploadedFile;
   if (!file) {
     throw new BadRequestError("No CSV file uploaded!");

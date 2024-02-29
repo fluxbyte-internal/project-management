@@ -128,7 +128,7 @@ export const updateUserOrganisationSettings = async (
 
 export const otpVerify = async (req: express.Request, res: express.Response) => {
   const { otp } = verifyEmailOtpSchema.parse(req.body);
-  const checkOtp = await OtpService.verifyOTP(otp, req.userId!, req.tenantId);
+  const checkOtp = await OtpService.verifyOTP(otp, req.userId, req.tenantId);
   if (!checkOtp) { throw new BadRequestError("Invalid OTP") };
   return new SuccessResponse(StatusCodes.OK, null, 'OTP verified successfully').send(res);
 };

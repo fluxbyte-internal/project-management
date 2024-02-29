@@ -252,7 +252,6 @@ export const getProjectById = async (req: express.Request, res: express.Response
 
 export const createProject = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) { throw new BadRequestError('organisationId not found!') };
-  if (!req.userId) { throw new BadRequestError('userId not found!') };
   const {
     projectName,
     projectDescription,
@@ -318,7 +317,6 @@ export const deleteProject = async (req: express.Request, res: express.Response)
 
 export const updateProject = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) { throw new BadRequestError('organisationId not found!') };
-  if (!req.userId) { throw new BadRequestError('userId not found!') };
   const projectUpdateValue = updateProjectSchema.parse(req.body)
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -356,7 +354,6 @@ export const getKanbanColumnById = async (
 
 export const statusChangeProject = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) { throw new BadRequestError('organisationId not found!') };
-  if (!req.userId) { throw new BadRequestError('userId not found!') };
   const { status } = projectStatusSchema.parse(req.body);
   const projectId = projectIdSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -396,9 +393,6 @@ export const createKanbanColumn = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!");
-  }
   const projectId = uuidSchema.parse(req.params.projectId);
   const { name, percentage } = createKanbanSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -421,9 +415,6 @@ export const updatekanbanColumn = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!");
-  }
   const kanbanColumnId = uuidSchema.parse(req.params.kanbanColumnId);
   const kanbanColumnUpdateValue = updateKanbanSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -449,9 +440,6 @@ export const deleteKanbanColumn = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!");
-  }
   const kanbanColumnId = uuidSchema.parse(req.params.kanbanColumnId);
   const prisma = await getClientByTenantId(req.tenantId);
   const findKanbanColumn = await prisma.kanbanColumn.findFirstOrThrow({
@@ -476,9 +464,6 @@ export const addConsumedBudgetToProject = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!");
-  }
   const projectId = uuidSchema.parse(req.params.projectId);
   const { consumedBudget } = consumedBudgetSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -496,10 +481,6 @@ export const assignedUserToProject = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
-
   const projectId = uuidSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
 
@@ -574,9 +555,6 @@ export const deleteAssignedUserFromProject = async (
   req: express.Request,
   res: express.Response
 ) => {
-  if (!req.userId) {
-    throw new BadRequestError("userId not found!!");
-  }
   const projectAssignUsersId = uuidSchema.parse(
     req.params.projectAssignUsersId
   );
