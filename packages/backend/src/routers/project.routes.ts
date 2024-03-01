@@ -8,7 +8,7 @@ let router = express.Router();
 router.put(
   "/duplicate-project/:projectId",
   roleMiddleware([UserRoleEnum.ADMINISTRATOR, UserRoleEnum.PROJECT_MANAGER]),
-  ProjectController.duplicateALlThings
+  ProjectController.duplicateProjectAndAllItsTask
 );
 
 router.get(

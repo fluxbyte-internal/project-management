@@ -632,67 +632,49 @@ export const projectAssignToUser = async (
   ).send(res);
 };
 
-
-export const duplicateALlThings = async (
+export const duplicateProjectAndAllItsTask = async (
   req: express.Request,
   res: express.Response
 ) => {
-  const projectId  = uuidSchema.parse(req.params.projectId);
+  const projectId = uuidSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const project = await prisma.project.findFirstOrThrow({
     where: { projectId },
     include: {
       tasks: {
         include: {
-          subtasks: true,
-          documentAttachments: true,
-          dependencies: true
-        }
-      }
-    }
+          subtasks: {
+            include: {
+              subtasks: true,
+            },
+          },
+        },
+      },
+    },
   });
-  const { projectId: _, ...infoWithoutProjectId } = project;
+  const { tasks, projectId: _, ...infoWithoutProjectId } = project;
   const duplicatedProject = await prisma.project.create({
     data: {
       ...infoWithoutProjectId,
       projectName: `${project.projectName}_1`,
-      tasks: {
-        createMany: {
-          data: project.tasks.map(task => ({
-            ...task,
-            taskId: undefined,
-            taskName: `${task.taskName}_1`,
-            subtasks: {
-              createMany: {
-                data: task.subtasks.map(subtask => ({
-                  ...subtask,
-                  taskId: undefined,
-                  parentTaskId: undefined,
-                }))
-              }
-            },
-            documentAttachments: {
-              createMany: {
-                data: task.documentAttachments.map(attachment => ({
-                  ...attachment,
-                  attachmentId: undefined,
-                }))
-              }
-            },
-            dependencies: {
-              createMany: {
-                data: task.dependencies.map(dependency => ({
-                  ...dependency,
-                  dependencyId: undefined,
-                }))
-              }
-            }
-          }))
-        }
-      }
     },
-    include: { tasks: true }
   });
+
+  if(tasks.length > 0) {
+    const multipleTask = tasks.map(async (task) => {
+      const { taskId, subtasks,projectId,parentTaskId, taskName, ...withoutSubTask} = task;
+      await prisma.task.create({
+        data: {
+          projectId: duplicatedProject.projectId,
+          parentTaskId: task.parentTaskId ? task.parentTaskId : null,
+          taskName: `${task.taskName}_1`,
+          ...withoutSubTask
+        }
+      })
+    });
+    await Promise.all(multipleTask)
+  }
+
   return new SuccessResponse(
     StatusCodes.OK,
     duplicatedProject,
