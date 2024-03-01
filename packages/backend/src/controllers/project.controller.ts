@@ -651,18 +651,16 @@ export const duplicateALlThings = async (
       }
     }
   });
-
+  const { projectId: _, ...infoWithoutProjectId } = project;
   const duplicatedProject = await prisma.project.create({
     data: {
-      ...project,
-      projectId: undefined,
+      ...infoWithoutProjectId,
       projectName: `${project.projectName}_1`,
       tasks: {
         createMany: {
           data: project.tasks.map(task => ({
             ...task,
             taskId: undefined,
-            projectId: undefined,
             taskName: `${task.taskName}_1`,
             subtasks: {
               createMany: {

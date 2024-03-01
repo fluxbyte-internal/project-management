@@ -21,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollText, Settings } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Select, { SingleValue } from "react-select";
 import CalendarSvg from "../../assets/svg/Calendar.svg";
 import {
@@ -33,6 +33,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
 import { useUser } from "@/hooks/useUser";
 import { UserRoleEnumValue } from "@backend/src/schemas/enums";
+import useProjectDuplicateMutation from "@/api/mutation/useDuplicateProject";
+import { toast } from "react-toastify";
 
 type Options = { label: string; value: string };
 function ProjectsList() {
@@ -112,8 +114,21 @@ function ProjectsList() {
 
     return statusData;
   };
+  const projectDuplicateMutation =  useProjectDuplicateMutation();
+  const createDuplicate=(id:string)=>{
+    projectDuplicateMutation.mutate(id,{
+      onSuccess(data) {
+        toast.success(data.data.message)
+      },
+      onError(error) {
+        toast.success(error.response?.data.message)
+      },
+    })
+  }
   const columnDef: ColumeDef[] = [
-    { key: "projectName", header: "Project Name", sorting: true },
+    { key: "projectName", header: "Project Name", sorting: true ,onCellRender:(item :Project)=>(
+      <Link to={`/tasks/${item.projectId}`} >{item.projectName}</Link>
+    ) },
     {
       key: "createdByUser",
       header: "Project Manager",
@@ -283,6 +298,10 @@ function ProjectsList() {
               <DropdownMenuItem onClick={() => handleView(item.projectId)}>
                 <ScrollText className="mr-2 h-4 w-4 text-[#44546F]" />
                 <span className="p-0 font-normal h-auto">View Detail</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => createDuplicate(item.projectId)}>
+                <ScrollText className="mr-2 h-4 w-4 text-[#44546F]" />
+                <span className="p-0 font-normal h-auto">Duplicate</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
