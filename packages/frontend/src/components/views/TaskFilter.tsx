@@ -61,8 +61,12 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
     tasks?.forEach((item) => {
       item.assignedUsers?.forEach((user) => {
         const val = user.user.email;
+        const username =
+          user.user.firstName && user.user.lastName
+            ? user.user.firstName+ " " + user.user.lastName
+            : val;
         if (!projectManagerData.some((i) => i.value === user.user.email)) {
-          projectManagerData.push({ label: val, value: val });
+          projectManagerData.push({ label: username, value: val });
         }
       });
     });
@@ -159,7 +163,6 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
     if (filter && Boolean(filter.get("flag"))) {
       filteredData = filteredData?.filter((d) => d.flag == filter?.get("flag"));
     }
-
 
     if (
       filter.size &&

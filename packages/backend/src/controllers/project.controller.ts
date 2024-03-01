@@ -1,4 +1,4 @@
-import express from 'express';
+  import express from 'express';
 import { getClientByTenantId } from '../config/db.js';
 import { BadRequestError, NotFoundError, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
@@ -347,9 +347,22 @@ export const getKanbanColumnById = async (
   const kanbanColumn = await prisma.kanbanColumn.findMany({
     where: { projectId, deletedAt: null },
   });
+  if(kanbanColumn.length === 0) {
+    await prisma.kanbanColumn.create({
+      data: {
+        projectId,
+        name: "Backlog",
+        percentage: 0,
+        createdByUserId: req.userId!,
+      },
+    });
+  }
+  const updatedKanban = await prisma.kanbanColumn.findMany({
+    where: { projectId, deletedAt: null },
+  });
   return new SuccessResponse(
     StatusCodes.OK,
-    kanbanColumn,
+    updatedKanban,
     "kanban column selected"
   ).send(res);
 };
