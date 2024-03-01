@@ -631,3 +631,74 @@ export const projectAssignToUser = async (
     "Get organisation's users successfully"
   ).send(res);
 };
+
+
+export const duplicateALlThings = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const projectId  = uuidSchema.parse(req.params.projectId);
+  const prisma = await getClientByTenantId(req.tenantId);
+  const project = await prisma.project.findFirstOrThrow({
+    where: { projectId },
+    include: {
+      tasks: {
+        include: {
+          subtasks: true,
+          documentAttachments: true,
+          dependencies: true
+        }
+      }
+    }
+  });
+
+  const duplicatedProject = await prisma.project.create({
+    data: {
+      ...project,
+      projectId: undefined,
+      projectName: `${project.projectName}_1`,
+      tasks: {
+        createMany: {
+          data: project.tasks.map(task => ({
+            ...task,
+            taskId: undefined,
+            projectId: undefined,
+            taskName: `${task.taskName}_1`,
+            subtasks: {
+              createMany: {
+                data: task.subtasks.map(subtask => ({
+                  ...subtask,
+                  taskId: undefined,
+                  parentTaskId: undefined,
+                }))
+              }
+            },
+            documentAttachments: {
+              createMany: {
+                data: task.documentAttachments.map(attachment => ({
+                  ...attachment,
+                  attachmentId: undefined,
+                }))
+              }
+            },
+            dependencies: {
+              createMany: {
+                data: task.dependencies.map(dependency => ({
+                  ...dependency,
+                  dependencyId: undefined,
+                }))
+              }
+            }
+          }))
+        }
+      }
+    },
+    include: { tasks: true }
+  });
+  return new SuccessResponse(
+    StatusCodes.OK,
+    duplicatedProject,
+    "Project and tasks duplicated successfully."
+  ).send(res);
+
+};
