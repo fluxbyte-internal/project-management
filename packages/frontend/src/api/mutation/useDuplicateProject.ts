@@ -1,9 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 import { requestURLs } from "../../Environment";
-import { AxiosResponseAndError } from "@/api/types/axiosResponseType";
+import { AxiosResponseAndError,ResponseType } from "@/api/types/axiosResponseType";
 import ApiRequest from "../ApiRequest";
 
-type ProjectDuplicateResponseType = ResponseType;
+type ProjectDuplicateResponseType = ResponseType<null>;
 function useProjectDuplicateMutation() {
 
   const mutation = useMutation<

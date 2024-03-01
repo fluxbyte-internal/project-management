@@ -35,6 +35,7 @@ import { useUser } from "@/hooks/useUser";
 import { UserRoleEnumValue } from "@backend/src/schemas/enums";
 import useProjectDuplicateMutation from "@/api/mutation/useDuplicateProject";
 import { toast } from "react-toastify";
+import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
 
 type Options = { label: string; value: string };
 function ProjectsList() {
@@ -42,6 +43,7 @@ function ProjectsList() {
   const [filterData, setFilterData] = useState<Project[]>();
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
   const [editData, setEditData] = useState<Project | undefined>();
+  const [projectId, setProjectId] = useState<string >();
   const [filter, setFilter] = useState<{
     projectManager: SingleValue<Options> | null;
     status: SingleValue<Options> | null;
@@ -73,6 +75,7 @@ function ProjectsList() {
   const close = () => {
     setIsOpenPopUp(false);
     setEditData(undefined);
+    setProjectId(undefined)
   };
 
   const handleView = (id: string) => {
@@ -118,7 +121,7 @@ function ProjectsList() {
   const createDuplicate=(id:string)=>{
     projectDuplicateMutation.mutate(id,{
       onSuccess(data) {
-        toast.success(data.data.message)
+        console.log(data.data.message);
       },
       onError(error) {
         toast.success(error.response?.data.message)
@@ -287,21 +290,20 @@ function ProjectsList() {
                 <Settings className="mr-2 h-4 w-4" />
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-11 flex flex-col gap-1">
-              {/* <DropdownMenuItem onClick={() => handleEdit(item)}>
-                <Edit className="mr-2 h-4 w-4 text-[#44546F]" />
-                <span className="p-0 font-normal h-auto" >
-                  Edit
-                </span>
-              </DropdownMenuItem> */}
+            <DropdownMenuContent className="w-fit flex flex-col gap-1">
               <DropdownMenuSeparator className="mx-1" />
               <DropdownMenuItem onClick={() => handleView(item.projectId)}>
+                <img src="" />
+                <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
+                <span className="p-0 font-normal h-auto">Project setting</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setProjectId(item.projectId)}>
                 <ScrollText className="mr-2 h-4 w-4 text-[#44546F]" />
-                <span className="p-0 font-normal h-auto">View Detail</span>
+                <span className="p-0 font-normal h-auto">Create task</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => createDuplicate(item.projectId)}>
                 <ScrollText className="mr-2 h-4 w-4 text-[#44546F]" />
-                <span className="p-0 font-normal h-auto">Duplicate</span>
+                <span className="p-0 font-normal h-auto">Duplicate Project</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -495,6 +497,9 @@ function ProjectsList() {
               editData={editData}
             />
           )}
+            {projectId && (
+        <TaskSubTaskForm taskId={undefined} projectId={projectId} close={close} />
+      )}
         </>
       )}
     </div>
