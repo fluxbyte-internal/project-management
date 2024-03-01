@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import organisationImage from "../../assets/png/organisation.png";
 import OrganisationForm from "./organisationForm";
 import { useUser } from "@/hooks/useUser";
@@ -8,6 +8,12 @@ function Organisation() {
   const [organisationForm, setOrganisationForm] = useState<boolean>(false);
   const navigate = useNavigate();
   const { user } = useUser();
+  useEffect(() => {
+    if (user && user.userOrganisation.length > 0) {
+      navigate("/dashboard");
+    }
+  }, [user]);
+
   return (
     <>
       <BackgroundImage />
