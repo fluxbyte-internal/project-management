@@ -17,6 +17,8 @@ import Page404 from "./rootAuth/404page";
 import Dashboard from "./pages/dashboard";
 import ProjectDashboard from "./pages/dashboard/projectDashboard";
 import ProjectMember from "./pages/project-details/projectMember";
+import Terms from "./pages/terms/terms";
+import PrivacyPolicy from "./pages/terms/privacyPolicy";
 
 export const router = createBrowserRouter([
   {
@@ -34,6 +36,14 @@ export const router = createBrowserRouter([
   {
     path: "/reset-password",
     element: <ResetPassword />,
+  },
+  {
+    path: "/term-and-condition",
+    element: <Terms />,
+  },
+  {
+    path: "/privacy-policy",
+    element: <PrivacyPolicy />,
   },
   {
     path: "/verify-email",

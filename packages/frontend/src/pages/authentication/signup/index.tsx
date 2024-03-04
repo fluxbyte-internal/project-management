@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import show from "../../../assets/eye-alt.svg";
 import hide from "../../../assets/eye-slash.svg";
 import { useFormik } from "formik";
@@ -256,14 +256,14 @@ function Signup() {
               />
               <div>
                 I agree to the{" "}
-                <a className="text-primary-500" href="#">
+                <Link className="text-primary-500" to="/term-and-condition">
                   {" "}
                   term of use{" "}
-                </a>
+                </Link>
                 and{" "}
-                <a href="#" className="text-primary-500">
+                <Link to="/privacy-policy" className="text-primary-500">
                   privacy policy
-                </a>
+                </Link>
                 .
               </div>
             </div>

@@ -769,6 +769,22 @@ function TaskSubTaskForm(props: Props) {
                 </ErrorMessage>
               </div>
             </div>
+            {(!tasks?.dueDate || !tasks.milestoneIndicator) &&
+                  tasks?.endDate && (
+                    <div className="flex flex-col gap-2 mt-3">
+                      <div className="text-xs font-medium text-gray-400">
+                        End Date
+                      </div>
+                      {/* <div className="text-sm  text-gray-300">
+                    {tasks?.milestoneIndicator
+                      ? dateFormater(tasks.dueDate ?? new Date())
+                      : dateFormater(new Date())}
+                  </div> */}
+                      <div className="text-sm  text-gray-300">
+                        {dateFormater(new Date(tasks.endDate))}
+                      </div>
+                    </div>
+                  )}
             <div className="mt-3">
               <div className="flex justify-between">
                 <div>
