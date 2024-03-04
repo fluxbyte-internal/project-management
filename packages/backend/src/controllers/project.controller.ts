@@ -677,7 +677,7 @@ export const duplicateProjectAndAllItsTask = async (
               parentTaskId: null,
             },
           });
-          if (taskOneInsert && task.subtasks.length > 0) {
+          if ( taskOneInsert && task.subtasks.length > 0) {
             await Promise.all(
               task.subtasks.map(async (secondsubtask) => {
                 const { taskId, subtasks, ...subtaskWithoutId } = secondsubtask;
@@ -697,7 +697,7 @@ export const duplicateProjectAndAllItsTask = async (
                         data: {
                           ...subtaskWithoutId,
                           projectId: duplicatedProject.projectId,
-                          taskName: `${secondsubtask.taskName}_1`,
+                          taskName: `${thirdSubTask.taskName}_1`,
                           parentTaskId: secondSubTaskInsert.taskId,
                         },
                       });
