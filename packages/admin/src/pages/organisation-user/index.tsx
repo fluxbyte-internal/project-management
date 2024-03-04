@@ -326,6 +326,9 @@ function OrganisationUsers() {
     }
     adminRoleUpdateMutation.mutate(data, {
       onSuccess(data) {
+        usersOrganisationsQuery.refetch();
+    setData(usersOrganisationsQuery.data?.data?.data);
+    setFilterData(usersOrganisationsQuery.data?.data?.data);
         toast.success(data.data.message);
         setNewAdmin('')
         setOldAdmin('')
