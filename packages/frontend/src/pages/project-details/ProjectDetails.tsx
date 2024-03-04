@@ -24,6 +24,9 @@ import { Project } from "@/api/query/useProjectQuery";
 import { useUser } from "@/hooks/useUser";
 import { OverAllTrackEnumValue, ProjectStatusEnumValue, UserRoleEnumValue } from "@backend/src/schemas/enums";
 import { Button } from "@/components/ui/button";
+import useRemoveProjectMutation from "@/api/mutation/useProjectRemoveMutation";
+import Dialog from "@/components/common/Dialog";
+import { toast } from "react-toastify";
 
 function ProjectDetails() {
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
@@ -94,6 +97,19 @@ function ProjectDetails() {
   const currentUserIsAdmin = verification();
 
   const [readOnly, setReadOnly] = useState(true);
+  const [remove, setRemove] = useState(false);
+  const removeProjectMutation = useRemoveProjectMutation();
+  const removeProject = () => {
+    removeProjectMutation.mutate(id ?? "", {
+      onSuccess(data) {
+        toast.success(data.data.message);
+        navigate("/projects");
+      },
+      onError(error) {
+        toast.error(error.response?.data.message);
+      },
+    });
+  };
 
   return (
     <div className="w-full relative h-full">
@@ -157,20 +173,22 @@ function ProjectDetails() {
                   {user?.userOrganisation[0].role !==
                     UserRoleEnumValue.TEAM_MEMBER && (
                     <div className="ml-auto flex gap-3">
-                      <Button
-                        size={"sm"}
-                        variant={"outline"}
-                        onClick={() => setReadOnly(!readOnly)}
-                      >
-                        <div className="flex gap-2 items-center">
-                          {" "}
-                          <img src={EditPen} /> Edit
-                        </div>{" "}
-                      </Button>
+                      {readOnly && (
+                        <Button
+                          size={"sm"}
+                          variant={"outline"}
+                          onClick={() => setReadOnly(!readOnly)}
+                        >
+                          <div className="flex gap-2 items-center">
+                            {" "}
+                            <img src={EditPen} /> Edit
+                          </div>{" "}
+                        </Button>
+                      )}
                       <Button
                         size={"sm"}
                         variant={"destructive"}
-                        onClick={() => setReadOnly(!readOnly)}
+                        onClick={() => setRemove(true)}
                       >
                         <div className="flex gap-2 items-center">
                           {" "}
@@ -187,7 +205,7 @@ function ProjectDetails() {
                 <div className="my-4 border border-[#E2E8F0] rounded-lg sm:px-8 px-4 py-6">
                   <CreateProjectNoPopUpForm
                     viewOnly={
-                      (currentUserIsAdmin ? false : true) == false &&
+                      (currentUserIsAdmin ? false : true) === false &&
                       readOnly == false
                         ? false
                         : true
@@ -196,6 +214,7 @@ function ProjectDetails() {
                     editData={
                       projectDetailQuery.data?.data.data as unknown as Project
                     }
+                    cancel={() => setReadOnly(!readOnly)}
                   />
                   <div>
                     {/* <div className="border-b-2 border-gray-100 my-3.5" />
@@ -408,6 +427,25 @@ function ProjectDetails() {
           </div>
         </>
       )}
+      <Dialog isOpen={remove} onClose={() => {}} modalClass="rounded-lg">
+        <div className="flex flex-col gap-2 p-6 ">
+          <img src={TrashCan} className="w-12 m-auto" /> Are you sure you want
+          to delete ?
+          <div className="flex gap-2 ml-auto">
+            <Button
+              variant={"outline"}
+              isLoading={removeProjectMutation.isPending}
+              disabled={removeProjectMutation.isPending}
+              onClick={() => setRemove(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant={"primary"} onClick={removeProject}>
+              Delete
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 }

@@ -75,7 +75,7 @@ function ProjectsList() {
   const close = () => {
     setIsOpenPopUp(false);
     setEditData(undefined);
-    setProjectId(undefined)
+    setProjectId(undefined);
   };
 
   const handleView = (id: string) => {
@@ -117,21 +117,27 @@ function ProjectsList() {
 
     return statusData;
   };
-  const projectDuplicateMutation =  useProjectDuplicateMutation();
-  const createDuplicate=(id:string)=>{
-    projectDuplicateMutation.mutate(id,{
+  const projectDuplicateMutation = useProjectDuplicateMutation();
+  const createDuplicate = (id: string) => {
+    projectDuplicateMutation.mutate(id, {
       onSuccess(data) {
-        console.log(data.data.message);
+        toast.error(data.data.message);
+        projectQuery.refetch();
       },
       onError(error) {
-        toast.success(error.response?.data.message)
+        toast.error(error.response?.data.message);
       },
-    })
-  }
+    });
+  };
   const columnDef: ColumeDef[] = [
-    { key: "projectName", header: "Project Name", sorting: true ,onCellRender:(item :Project)=>(
-      <Link to={`/tasks/${item.projectId}`} >{item.projectName}</Link>
-    ) },
+    {
+      key: "projectName",
+      header: "Project Name",
+      sorting: true,
+      onCellRender: (item: Project) => (
+        <Link to={`/tasks/${item.projectId}`}>{item.projectName}</Link>
+      ),
+    },
     {
       key: "createdByUser",
       header: "Project Manager",
@@ -303,7 +309,9 @@ function ProjectsList() {
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => createDuplicate(item.projectId)}>
                 <ScrollText className="mr-2 h-4 w-4 text-[#44546F]" />
-                <span className="p-0 font-normal h-auto">Duplicate Project</span>
+                <span className="p-0 font-normal h-auto">
+                  Duplicate Project
+                </span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
