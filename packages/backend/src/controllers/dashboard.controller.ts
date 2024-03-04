@@ -38,6 +38,7 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
         },
         {
           createdByUserId: userId,
+          deletedAt: null,
         },
       ],
     },
