@@ -121,7 +121,7 @@ function ProjectsList() {
   const createDuplicate = (id: string) => {
     projectDuplicateMutation.mutate(id, {
       onSuccess(data) {
-        toast.error(data.data.message);
+        toast.success(data.data.message);
         projectQuery.refetch();
       },
       onError(error) {
