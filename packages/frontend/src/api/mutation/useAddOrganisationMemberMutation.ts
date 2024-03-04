@@ -7,8 +7,9 @@ import {
   ResponseType,
 } from "@/api/types/axiosResponseType";
 import ApiRequest from "../ApiRequest";
+import { UserType } from "../query/useCurrentUserQuery";
 
-type OrgAddMemberResponseType = ResponseType<null>;
+type OrgAddMemberResponseType = ResponseType<UserType>;
 
 function useAddOrganisationMemberMutation(organisationId: string) {
   const mutation = useMutation<

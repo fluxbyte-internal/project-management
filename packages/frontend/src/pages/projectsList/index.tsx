@@ -36,7 +36,7 @@ import { UserRoleEnumValue } from "@backend/src/schemas/enums";
 import useProjectDuplicateMutation from "@/api/mutation/useDuplicateProject";
 import { toast } from "react-toastify";
 import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
-
+import  DuplicateIcon  from "@/assets/svg/DuplicateIcon.svg";
 type Options = { label: string; value: string };
 function ProjectsList() {
   const [data, setData] = useState<Project[]>();
@@ -75,7 +75,7 @@ function ProjectsList() {
   const close = () => {
     setIsOpenPopUp(false);
     setEditData(undefined);
-    setProjectId(undefined)
+    setProjectId(undefined);
   };
 
   const handleView = (id: string) => {
@@ -117,21 +117,27 @@ function ProjectsList() {
 
     return statusData;
   };
-  const projectDuplicateMutation =  useProjectDuplicateMutation();
-  const createDuplicate=(id:string)=>{
-    projectDuplicateMutation.mutate(id,{
+  const projectDuplicateMutation = useProjectDuplicateMutation();
+  const createDuplicate = (id: string) => {
+    projectDuplicateMutation.mutate(id, {
       onSuccess(data) {
-        console.log(data.data.message);
+        toast.error(data.data.message);
+        projectQuery.refetch();
       },
       onError(error) {
-        toast.success(error.response?.data.message)
+        toast.error(error.response?.data.message);
       },
-    })
-  }
+    });
+  };
   const columnDef: ColumeDef[] = [
-    { key: "projectName", header: "Project Name", sorting: true ,onCellRender:(item :Project)=>(
-      <Link to={`/tasks/${item.projectId}`} >{item.projectName}</Link>
-    ) },
+    {
+      key: "projectName",
+      header: "Project Name",
+      sorting: true,
+      onCellRender: (item: Project) => (
+        <Link to={`/tasks/${item.projectId}`}>{item.projectName}</Link>
+      ),
+    },
     {
       key: "createdByUser",
       header: "Project Manager",
@@ -302,8 +308,10 @@ function ProjectsList() {
                 <span className="p-0 font-normal h-auto">Create task</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => createDuplicate(item.projectId)}>
-                <ScrollText className="mr-2 h-4 w-4 text-[#44546F]" />
-                <span className="p-0 font-normal h-auto">Duplicate Project</span>
+                <img src={DuplicateIcon} className="h-4 w-4 mr-2" />
+                <span className="p-0 font-normal h-auto">
+                  Duplicate Project
+                </span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

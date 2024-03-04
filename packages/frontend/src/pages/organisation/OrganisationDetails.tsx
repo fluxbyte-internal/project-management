@@ -41,6 +41,9 @@ import useReAssignTaskMutation from "@/api/mutation/useReAssingTaskMutation";
 import useResendInvitationMutation from "@/api/mutation/useResendUserInvitaionMutation";
 import MailResendIcon from "@/assets/svg/mailResendIcon.svg";
 import SendIcon from "@/assets/svg/sendIcon.svg";
+import useProjectQuery from "@/api/query/useProjectQuery";
+import Select from "react-select";
+import useProjectAddMembersMutation from "@/api/mutation/useAddMemberProject";
 const memberRoleOptions = [
   {
     value: UserRoleEnumValue.PROJECT_MANAGER,
@@ -125,6 +128,7 @@ function OrganisationDetails() {
             setIsAddOrgMemberSubmitting(false);
             closeAddMember();
             refetch();
+            assingUser(data.data.data.userId);
           },
           onError(error) {
             if (isAxiosError(error)) {
@@ -167,6 +171,9 @@ function OrganisationDetails() {
   const [showConfirmDelete, setShowConfirmDelete] = useState("");
   const [resendEmail, setResendEmail] = useState("");
   const resendInvitationMutation = useResendInvitationMutation();
+  const projectQuery = useProjectQuery();
+  const [project, setProject] = useState("");
+  const projectAddMembersMutation = useProjectAddMembersMutation(project);
 
   const closeAddMember = () => {
     addOrgMemberForm.setValues({
@@ -308,6 +315,27 @@ function OrganisationDetails() {
         },
       }
     );
+  };
+  const projectOption = () => {
+    const options = projectQuery.data?.data.data.map((d) => {
+      return { label: d.projectName, value: d.projectId };
+    });
+    return [{ label: "select", value: "" }, ...(options ?? [])];
+  };
+  const assingUser = (userId: string) => {
+    if (userId) {
+      projectAddMembersMutation.mutate(
+        { assginedToUserId: userId },
+        {
+          onSuccess(data) {
+            toast.success(data.data.message);
+          },
+          onError(error) {
+            toast.error(error.response?.data.message);
+          },
+        }
+      );
+    }
   };
   return (
     <>
@@ -506,6 +534,15 @@ function OrganisationDetails() {
                     addOrgMemberForm.errors.role}
                 </ErrorMessage>
               </div>
+              {currentUserIsAdmin && !UpdateData && (
+                <div className="mb-4">
+                  <FormLabel htmlFor="role">Projects</FormLabel>
+                  <Select
+                    options={projectOption()}
+                    onChange={(e) => setProject(e?.value ?? "")}
+                  />
+                </div>
+              )}
               <div className="text-right">
                 <Button
                   variant={"primary"}

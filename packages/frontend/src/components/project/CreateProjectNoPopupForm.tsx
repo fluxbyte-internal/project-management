@@ -48,6 +48,7 @@ type AddProjectType = {
   editData?: Project;
   refetch: () => void;
   viewOnly: boolean;
+  cancel?: () => void;
 };
 
 const RADIO_BUTTON_OPTIONS = [
@@ -137,6 +138,9 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
             refetch();
             setIsSubmitting(false);
             toast.success(data.data.message);
+            if (props.cancel) {
+              props.cancel();
+            }
           },
           onError(error) {
             setIsSubmitting(false);
@@ -189,7 +193,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
         scheduleTrend: editData.scheduleTrend,
         budgetTrend: editData.budgetTrend,
         consumedBudget: editData.consumedBudget,
-        status:editData.status,
+        status: editData.status,
       });
       setCurrencyValue({ label: editData.currency, value: editData.currency });
     }
@@ -776,12 +780,23 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
           </div>
 
           {!viewOnly && (
-            <div className="flex justify-end mt-6 lg:mt-2">
+            <div className="flex justify-end mt-6 lg:mt-2 gap-2">
+              <Button
+                size={"sm"}
+                variant={"primary_outline"}
+                className="font-medium text-lg"
+                onClick={props.cancel}
+                type="button"
+              >
+                Cancel
+              </Button>
               <Button
                 variant={"primary"}
-                className="font-medium text-lg"
+                className="font-medium text-lg px-5"
                 isLoading={isSubmitting}
                 disabled={isSubmitting}
+                size={"sm"}
+                type="submit"
               >
                 Save
               </Button>
