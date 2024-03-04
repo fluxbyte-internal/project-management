@@ -1,4 +1,5 @@
 export const baseURL = import.meta.env.VITE_API_BASE_URL;
+export const CSVDownloadUrl = import.meta.env.VITE_CSV_DOWNLOAD_URL;
 export const googleCredentialsClientId = import.meta.env.GOOGLE_CLIENT_ID;
 export const smartElementKey = import.meta.env.SMART_ELEMENT_KEY;
 
