@@ -31,6 +31,7 @@ export const getProjects = async (req: express.Request, res: express.Response) =
     projects = await prisma.project.findMany({
       where: {
         organisationId: req.organisationId,
+        deletedAt: null,
       },
       include: {
         createdByUser: {
@@ -72,6 +73,7 @@ export const getProjects = async (req: express.Request, res: express.Response) =
         OR: [
           {
             organisationId: req.organisationId,
+            deletedAt: null,
             assignedUsers: {
               some: {
                 assginedToUserId: req.userId,
@@ -80,6 +82,7 @@ export const getProjects = async (req: express.Request, res: express.Response) =
           },
           {
             createdByUserId: req.userId,
+            deletedAt: null,
           },
         ],
       },
@@ -121,6 +124,7 @@ export const getProjects = async (req: express.Request, res: express.Response) =
     projects = await prisma.project.findMany({
       where: {
         organisationId: req.organisationId,
+        deletedAt: null,
         assignedUsers: {
           some: {
             assginedToUserId: req.userId,
