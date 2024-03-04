@@ -18,6 +18,7 @@ import { StatusCodes } from "http-status-codes";
 import {
   avatarImgConsoleSchema,
   blockAndReassignAdministatorSchema,
+  changeAdministatorSchema,
   changeOrganisationMemberRoleSchema,
   consoleLoginSchema,
   consolePasswordSchema,
@@ -689,4 +690,43 @@ export const resendOTP = async (req: express.Request, res: express.Response) => 
     throw new InternalServerError();
   };
   return new SuccessResponse(StatusCodes.OK, null, 'Resend OTP successfully').send(res);
+};
+
+export const changeOrgAdministator = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  if (!req.userId) {
+    throw new BadRequestError("userId not found!!");
+  }
+  const prisma = await getClientByTenantId(req.tenantId);
+  await prisma.$transaction(async (tx) => {
+    const {
+      organisationId,
+      addUserAsAdministratorId,
+      removeUserAsAdministartor,
+    } = changeAdministatorSchema.parse(req.body);
+
+    // Remove as ADMINISTRATOR
+    await tx.userOrganisation.update({
+      where: { organisationId, userOrganisationId: removeUserAsAdministartor },
+      data: {
+        role: UserRoleEnum.PROJECT_MANAGER,
+      },
+    });
+
+    // Add as ADMINISTRATOR
+    await tx.userOrganisation.update({
+      where: { organisationId, userOrganisationId: addUserAsAdministratorId },
+      data: {
+        role: UserRoleEnum.ADMINISTRATOR,
+      },
+    });
+  });
+
+  return new SuccessResponse(
+    StatusCodes.OK,
+    null,
+    "Administrator changed successfully"
+  ).send(res);
 };
