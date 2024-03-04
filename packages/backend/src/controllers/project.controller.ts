@@ -657,11 +657,26 @@ export const duplicateProjectAndAllItsTask = async (
       },
     },
   });
+  const generateUniqueProjectName = async (name: string) => {
+    let newName = name;
+    let counter = 1;
+    while (true) {
+      const existingProject = await prisma.project.findFirst({
+        where: { projectName: newName },
+      });
+      if (!existingProject) {
+        return newName;
+      }
+      newName = `${name}_${counter}`;
+      counter++;
+    }
+  };
   const { tasks, projectId: _, ...infoWithoutProjectId } = project;
+  const duplicatedProjectName = await generateUniqueProjectName(project.projectName);
   const duplicatedProject = await prisma.project.create({
     data: {
       ...infoWithoutProjectId,
-      projectName: `${project.projectName}_1`,
+      projectName: duplicatedProjectName,
     },
   });
   if (duplicatedProject && project.tasks.length > 0) {
