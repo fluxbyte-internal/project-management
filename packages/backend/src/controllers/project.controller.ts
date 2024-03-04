@@ -639,9 +639,10 @@ export const duplicateProjectAndAllItsTask = async (
   const projectId = uuidSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
   const project = await prisma.project.findFirstOrThrow({
-    where: { projectId },
+    where: { projectId, deletedAt: null },
     include: {
       tasks: {
+        where: { parentTaskId: null },
         include: {
           subtasks: {
             include: {
@@ -659,50 +660,53 @@ export const duplicateProjectAndAllItsTask = async (
       projectName: `${project.projectName}_1`,
     },
   });
-
-  const duplicatedTasks = await Promise.all(tasks.map(async (task) => {
-    const { taskId, subtasks, ...taskWithoutId } = task;
-
-    const duplicatedTask = await prisma.task.create({
-      data: {
-        ...taskWithoutId,
-        projectId: duplicatedProject.projectId,
-        taskName: `${task.taskName}_1`,
-        parentTaskId: null,
-      }
-    });
-
-    // Duplicate subtasks for each task
-    if (subtasks.length > 0) {
-      await Promise.all(subtasks.map(async (subtask) => {
-        const { taskId, subtasks, ...subtaskWithoutId } = subtask;
-        
-        const secondTask = await prisma.task.create({
-          data: {
-            ...subtaskWithoutId,
-            taskId: duplicatedTask.taskId,
-            taskName: `${subtask.taskName}_1`,
-            parentTaskId: duplicatedTask.taskId,
+  if (duplicatedProject && project.tasks.length > 0) {
+    await Promise.all(
+      project.tasks.map(async (task) => {
+        const { taskId, subtasks, ...taskWithoutId } = task;
+        if (task && task.parentTaskId == null) {
+          const taskOneInsert = await prisma.task.create({
+            data: {
+              ...taskWithoutId,
+              projectId: duplicatedProject.projectId,
+              taskName: `${task.taskName}_1`,
+              parentTaskId: null,
+            },
+          });
+          if (taskOneInsert && task.subtasks.length > 0) {
+            await Promise.all(
+              task.subtasks.map(async (secondsubtask) => {
+                const { taskId, subtasks, ...subtaskWithoutId } = secondsubtask;
+                const secondSubTaskInsert = await prisma.task.create({
+                  data: {
+                    ...subtaskWithoutId,
+                    projectId: duplicatedProject.projectId,
+                    taskName: `${secondsubtask.taskName}_1`,
+                    parentTaskId: taskOneInsert.taskId,
+                  },
+                });
+                if (secondSubTaskInsert && secondsubtask.subtasks.length > 0) {
+                  await Promise.all(
+                    secondsubtask.subtasks.map(async (thirdSubTask) => {
+                      const { taskId, ...subtaskWithoutId } = thirdSubTask;
+                      const thirdSubTaskInsert = await prisma.task.create({
+                        data: {
+                          ...subtaskWithoutId,
+                          projectId: duplicatedProject.projectId,
+                          taskName: `${secondsubtask.taskName}_1`,
+                          parentTaskId: secondSubTaskInsert.taskId,
+                        },
+                      });
+                    })
+                  );
+                }
+              })
+            );
           }
-        });
-        if (subtask.subtasks.length > 0) {
-          await Promise.all(subtask.subtasks.map(async (subtask) => {
-            const { taskId, ...subtaskThirdWithoutId } = subtask;
-            await prisma.task.create({
-              data: {
-                ...subtaskThirdWithoutId,
-                taskId: secondTask.taskId,
-                taskName: `${subtask.taskName}_1`,
-                parentTaskId: secondTask.taskId,
-              }
-            });
-          }))
         }
-      }));
-    }
-
-    return duplicatedTask;
-  }));
+      })
+    );
+  }
 
   return new SuccessResponse(
     StatusCodes.OK,
