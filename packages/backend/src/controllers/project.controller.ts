@@ -648,9 +648,11 @@ export const duplicateProjectAndAllItsTask = async (
       tasks: {
         where: { parentTaskId: null },
         include: {
+          documentAttachments: true,
           subtasks: {
             include: {
               subtasks: true,
+              documentAttachments: true,
             },
           },
         },
@@ -682,7 +684,7 @@ export const duplicateProjectAndAllItsTask = async (
   if (duplicatedProject && project.tasks.length > 0) {
     await Promise.all(
       project.tasks.map(async (task) => {
-        const { taskId, subtasks, ...taskWithoutId } = task;
+        const { taskId, subtasks, documentAttachments, ...taskWithoutId } = task;
         if (task && task.parentTaskId == null) {
           const taskOneInsert = await prisma.task.create({
             data: {
@@ -692,10 +694,22 @@ export const duplicateProjectAndAllItsTask = async (
               parentTaskId: null,
             },
           });
+          if(taskOneInsert && task.documentAttachments.length > 0) {
+            for(const doc of documentAttachments) {
+              await prisma.taskAttachment.create({
+                data: {
+                  taskId: taskOneInsert.taskId,
+                  url: doc.url,
+                  name: doc.name,
+                  uploadedBy: doc.uploadedBy
+                },
+              });
+            }
+          }
           if ( taskOneInsert && task.subtasks.length > 0) {
             await Promise.all(
               task.subtasks.map(async (secondsubtask) => {
-                const { taskId, subtasks, ...subtaskWithoutId } = secondsubtask;
+                const { taskId, subtasks, documentAttachments, ...subtaskWithoutId } = secondsubtask;
                 const secondSubTaskInsert = await prisma.task.create({
                   data: {
                     ...subtaskWithoutId,
@@ -704,6 +718,18 @@ export const duplicateProjectAndAllItsTask = async (
                     parentTaskId: taskOneInsert.taskId,
                   },
                 });
+                if(secondSubTaskInsert && secondsubtask.documentAttachments.length > 0) {
+                  for(const doc of documentAttachments) {
+                    await prisma.taskAttachment.create({
+                      data: {
+                        taskId: secondSubTaskInsert.taskId,
+                        url: doc.url,
+                        name: doc.name,
+                        uploadedBy: doc.uploadedBy
+                      },
+                    });
+                  }
+                }
                 if (secondSubTaskInsert && secondsubtask.subtasks.length > 0) {
                   await Promise.all(
                     secondsubtask.subtasks.map(async (thirdSubTask) => {
@@ -716,6 +742,18 @@ export const duplicateProjectAndAllItsTask = async (
                           parentTaskId: secondSubTaskInsert.taskId,
                         },
                       });
+                      if(thirdSubTaskInsert && secondsubtask.documentAttachments.length > 0) {
+                        for(const doc of documentAttachments) {
+                          await prisma.taskAttachment.create({
+                            data: {
+                              taskId: thirdSubTaskInsert.taskId,
+                              url: doc.url,
+                              name: doc.name,
+                              uploadedBy: doc.uploadedBy
+                            },
+                          });
+                        }
+                      }
                     })
                   );
                 }
