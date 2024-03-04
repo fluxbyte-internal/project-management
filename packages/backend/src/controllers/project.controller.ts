@@ -31,6 +31,7 @@ export const getProjects = async (req: express.Request, res: express.Response) =
     projects = await prisma.project.findMany({
       where: {
         organisationId: req.organisationId,
+        deletedAt: null,
       },
       include: {
         createdByUser: {
@@ -72,6 +73,7 @@ export const getProjects = async (req: express.Request, res: express.Response) =
         OR: [
           {
             organisationId: req.organisationId,
+            deletedAt: null,
             assignedUsers: {
               some: {
                 assginedToUserId: req.userId,
@@ -80,6 +82,7 @@ export const getProjects = async (req: express.Request, res: express.Response) =
           },
           {
             createdByUserId: req.userId,
+            deletedAt: null,
           },
         ],
       },
@@ -121,6 +124,7 @@ export const getProjects = async (req: express.Request, res: express.Response) =
     projects = await prisma.project.findMany({
       where: {
         organisationId: req.organisationId,
+        deletedAt: null,
         assignedUsers: {
           some: {
             assginedToUserId: req.userId,
@@ -643,4 +647,141 @@ export const projectAssignToUser = async (
     usersOfOrganisation,
     "Get organisation's users successfully"
   ).send(res);
+};
+
+export const duplicateProjectAndAllItsTask = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const projectId = uuidSchema.parse(req.params.projectId);
+  const prisma = await getClientByTenantId(req.tenantId);
+  const project = await prisma.project.findFirstOrThrow({
+    where: { projectId, deletedAt: null },
+    include: {
+      tasks: {
+        where: { parentTaskId: null },
+        include: {
+          documentAttachments: true,
+          subtasks: {
+            include: {
+              subtasks: true,
+              documentAttachments: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  const generateUniqueProjectName = async (name: string) => {
+    let newName = name;
+    let counter = 1;
+    while (true) {
+      const existingProject = await prisma.project.findFirst({
+        where: { projectName: newName },
+      });
+      if (!existingProject) {
+        return newName;
+      }
+      newName = `${name}_${counter}`;
+      counter++;
+    }
+  };
+  const { tasks, projectId: _, ...infoWithoutProjectId } = project;
+  const duplicatedProjectName = await generateUniqueProjectName(project.projectName);
+  const duplicatedProject = await prisma.project.create({
+    data: {
+      ...infoWithoutProjectId,
+      projectName: duplicatedProjectName,
+    },
+  });
+  if (duplicatedProject && project.tasks.length > 0) {
+    await Promise.all(
+      project.tasks.map(async (task) => {
+        const { taskId, subtasks, documentAttachments, ...taskWithoutId } = task;
+        if (task && task.parentTaskId == null) {
+          const taskOneInsert = await prisma.task.create({
+            data: {
+              ...taskWithoutId,
+              projectId: duplicatedProject.projectId,
+              taskName: `${task.taskName}_1`,
+              parentTaskId: null,
+            },
+          });
+          if(taskOneInsert && task.documentAttachments.length > 0) {
+            for(const doc of documentAttachments) {
+              await prisma.taskAttachment.create({
+                data: {
+                  taskId: taskOneInsert.taskId,
+                  url: doc.url,
+                  name: doc.name,
+                  uploadedBy: doc.uploadedBy
+                },
+              });
+            }
+          }
+          if ( taskOneInsert && task.subtasks.length > 0) {
+            await Promise.all(
+              task.subtasks.map(async (secondsubtask) => {
+                const { taskId, subtasks, documentAttachments, ...subtaskWithoutId } = secondsubtask;
+                const secondSubTaskInsert = await prisma.task.create({
+                  data: {
+                    ...subtaskWithoutId,
+                    projectId: duplicatedProject.projectId,
+                    taskName: `${secondsubtask.taskName}_1`,
+                    parentTaskId: taskOneInsert.taskId,
+                  },
+                });
+                if(secondSubTaskInsert && secondsubtask.documentAttachments.length > 0) {
+                  for(const doc of documentAttachments) {
+                    await prisma.taskAttachment.create({
+                      data: {
+                        taskId: secondSubTaskInsert.taskId,
+                        url: doc.url,
+                        name: doc.name,
+                        uploadedBy: doc.uploadedBy
+                      },
+                    });
+                  }
+                }
+                if (secondSubTaskInsert && secondsubtask.subtasks.length > 0) {
+                  await Promise.all(
+                    secondsubtask.subtasks.map(async (thirdSubTask) => {
+                      const { taskId, ...subtaskWithoutId } = thirdSubTask;
+                      const thirdSubTaskInsert = await prisma.task.create({
+                        data: {
+                          ...subtaskWithoutId,
+                          projectId: duplicatedProject.projectId,
+                          taskName: `${thirdSubTask.taskName}_1`,
+                          parentTaskId: secondSubTaskInsert.taskId,
+                        },
+                      });
+                      if(thirdSubTaskInsert && secondsubtask.documentAttachments.length > 0) {
+                        for(const doc of documentAttachments) {
+                          await prisma.taskAttachment.create({
+                            data: {
+                              taskId: thirdSubTaskInsert.taskId,
+                              url: doc.url,
+                              name: doc.name,
+                              uploadedBy: doc.uploadedBy
+                            },
+                          });
+                        }
+                      }
+                    })
+                  );
+                }
+              })
+            );
+          }
+        }
+      })
+    );
+  }
+
+  return new SuccessResponse(
+    StatusCodes.OK,
+    duplicatedProject,
+    "Project and tasks duplicated successfully."
+  ).send(res);
+
 };

@@ -65,7 +65,7 @@ const navbarData: NavItemType[] = [
   },
   {
     id: 2,
-    name: "Project",
+    name: "Projects",
     link: "/projects",
   },
 ] as NavItemType[];
@@ -293,7 +293,7 @@ function NavBar() {
                     variant={"primary"}
                     onClick={handleOpenPopUp}
                   >
-                    Create
+                    New project
                   </Button>
                   <Button
                     className="block lg:hidden p-2"

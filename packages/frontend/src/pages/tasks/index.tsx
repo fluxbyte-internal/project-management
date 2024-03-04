@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Settings } from "lucide-react";
 import DimondIcon from "../../assets/svg/DiamondIcon.svg";
-import DownArrowIcon from "../../assets/svg/DownArrow.svg";
 import UserAvatar from "@/components/ui/userAvatar";
 import TaskFilter, { TaskFilterRef } from "@/components/views/TaskFilter";
 import { FIELDS } from "@/api/types/enums";
@@ -48,19 +47,6 @@ function Tasks() {
 
   const columnDef: ColumeDef[] = [
     {
-      key: "dropdown",
-      header: " ",
-      onCellRender: (item: Task) => (
-        <div>
-          {item.subtasks.length > 0 && (
-            <div className="img w-3.5 h-3.5">
-              <img src={DownArrowIcon} />
-            </div>
-          )}
-        </div>
-      ),
-    },
-    {
       key: "flag",
       header: "Flag",
       sorting: true,
@@ -84,9 +70,8 @@ function Tasks() {
       sorting: true,
       onCellRender: (item: Task) => (
         <div
-          className={`flex gap-2 items-center ${
-            item.subtasks.length > 0 ? "cursor-pointer" : "cursor-not-allowed"
-          }`}
+          className={`flex gap-2 items-center cursor-pointer`}
+          onClick={()=>setTaskId(item.taskId)}
         >
           <div>{item.taskName}</div>
           {item.milestoneIndicator && (

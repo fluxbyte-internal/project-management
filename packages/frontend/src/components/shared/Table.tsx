@@ -170,6 +170,12 @@ function Table(props: Props) {
             {!props.hideHeaders && (
               <thead>
                 <tr className="text-left border-b border-[#D1D1D1] ">
+                  {props.onAccordionRender &&
+                    dataSource.filter(
+                      (item) =>
+                        props.onAccordionRender &&
+                        props.onAccordionRender(item).props.children
+                    ).length > 0 && <th></th>}
                   {columnDef &&
                     columnDef.map((item, index) => {
                       return (
@@ -207,10 +213,25 @@ function Table(props: Props) {
                   <>
                     <tr
                       ref={tableRow}
-                      onClick={() => toggle(index)}
                       className="border-b border-gray-100/50"
                       key={index}
                     >
+                      {props.onAccordionRender &&
+                        dataSource.filter(
+                          (item) =>
+                            props.onAccordionRender &&
+                            props.onAccordionRender(item).props.children
+                        ).length > 0 && (
+                          <td onClick={() => toggle(index)} className="cursor-pointer">
+                            <div>
+                              {item.subtasks.length > 0 && (
+                                <div className="img w-3.5 h-3.5">
+                                  <img src={downArrow} />
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        )}
                       {columnDef &&
                         columnDef.map((key: ColumeDef) => {
                           return (
@@ -220,7 +241,7 @@ function Table(props: Props) {
                                 key={key.key}
                               >
                                 {key.onCellRender && key.key
-                                  ? key.onCellRender(item)
+                                  ? key.onCellRender({ index: index, ...item })
                                   : null ?? item[key.key]}
                               </td>
                             </>
@@ -229,7 +250,7 @@ function Table(props: Props) {
                     </tr>
                     {accordions === index && (
                       <tr>
-                        <td colSpan={columnDef?.length}>
+                        <td colSpan={columnDef?.length ? columnDef?.length + 1 :columnDef?.length }>
                           <div
                             className={`rounded-xl flex justify-center ${
                               props.onAccordionRender &&

@@ -42,6 +42,12 @@ router.put(
   ConsoleController.blockAndReassignAdministator
 );
 
+router.put(
+  "/organisations/administrator-change/",
+  authMiddleware,
+  ConsoleController.changeOrgAdministator
+);
+
 router.get(
   "/organisations",
   authMiddleware,

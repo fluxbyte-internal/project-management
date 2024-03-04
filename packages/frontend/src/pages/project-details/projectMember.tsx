@@ -202,9 +202,9 @@ function ProjectMember() {
             <div className="h-full w-full p-3">
               
               <div className="text-lg text-gray-400 font-semibold mb-3 flex justify-between">
-                Administrator / Project Manager's
+                Project Manager
                 <div>
-                  {currentUserIsAdmin && <Button variant={"primary"} size={"sm"} onClick={()=>setIsOpen(true)}>Add Member's</Button>}
+                  {currentUserIsAdmin && <Button variant={"primary"} size={"sm"} onClick={()=>setIsOpen(true)}>Add Members</Button>}
                 </div>
               </div>
               <div className="flex gap-5 h-full w-full py-2 flex-wrap">
@@ -343,7 +343,7 @@ function ProjectMember() {
                 ).length === 0 && "No team member assigned yet!"}
               </div>
               <div className="text-lg text-gray-400 font-semibold mt-3">
-                Team Member's
+                Team Members
               </div>
               <div className="flex gap-5 h-full w-full py-2 flex-wrap">
                 {assignedUsers

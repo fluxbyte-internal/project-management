@@ -38,6 +38,7 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
         },
         {
           createdByUserId: userId,
+          deletedAt: null,
         },
       ],
     },
@@ -145,6 +146,7 @@ export const administartorProjects = async (req: Request, res: Response) => {
     },
     include: {
       projects: {
+        where: { deletedAt: null },
         include: {
           tasks: true,
         }

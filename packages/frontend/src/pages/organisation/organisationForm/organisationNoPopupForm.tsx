@@ -395,7 +395,7 @@ function OrganisationNoPopUpForm(props: Props) {
               className="w-full border-2 text-gray-600"
             >
               <div className="flex gap-2 items-center">
-                <img src={CSVIcon} /> Upload holiday CSV
+                <img src={CSVIcon} /> Upload/Replace holidays CSV
               </div>
             </Button>
             <ErrorMessage>
@@ -405,11 +405,11 @@ function OrganisationNoPopUpForm(props: Props) {
           <div className="block">
            
             <Button
-              variant={"outline"}
-              className="w-full border-2 text-gray-600"
+              variant={"link"}
+              className="w-full text-gray-600 justify-start"
               onClick={() => downloadCsv()}
             >
-              <div className="flex gap-2 items-center">
+              <div className="flex gap-2 ">
                 <img className="h-4 w-4" src={DownLoadIcon} /> Download sample
                 CSV
               </div>
