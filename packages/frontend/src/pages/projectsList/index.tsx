@@ -36,7 +36,7 @@ import { UserRoleEnumValue } from "@backend/src/schemas/enums";
 import useProjectDuplicateMutation from "@/api/mutation/useDuplicateProject";
 import { toast } from "react-toastify";
 import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
-
+import  DuplicateIcon  from "@/assets/svg/DuplicateIcon.svg";
 type Options = { label: string; value: string };
 function ProjectsList() {
   const [data, setData] = useState<Project[]>();
@@ -308,7 +308,7 @@ function ProjectsList() {
                 <span className="p-0 font-normal h-auto">Create task</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => createDuplicate(item.projectId)}>
-                <ScrollText className="mr-2 h-4 w-4 text-[#44546F]" />
+                <img src={DuplicateIcon} className="h-4 w-4 mr-2" />
                 <span className="p-0 font-normal h-auto">
                   Duplicate Project
                 </span>
