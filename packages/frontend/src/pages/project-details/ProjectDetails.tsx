@@ -135,7 +135,7 @@ function ProjectDetails() {
                         onClick={handleProjectClick}
                         className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white cursor-pointer"
                       >
-                        Project
+                        Projects
                       </div>
                     </div>
                     <div>
@@ -170,8 +170,7 @@ function ProjectDetails() {
                   <div className="bg-[#227D9B] sm:px-4  text-white text-sm font-normal rounded-md py-0.5 px-4">
                     {HandleStatus()}
                   </div>
-                  {user?.userOrganisation[0].role !==
-                    UserRoleEnumValue.TEAM_MEMBER && (
+                  {currentUserIsAdmin && (
                     <div className="ml-auto flex gap-3">
                       {readOnly && (
                         <Button

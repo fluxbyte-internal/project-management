@@ -20,18 +20,14 @@ import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
 import useProjectAddMembersMutation from "@/api/mutation/useAddMemberProject";
 import useRemoveProjectMemberMutation from "@/api/mutation/useRemoveMemberProject";
 import Dialog from "@/components/common/Dialog";
-import InputEmail from "@/components/common/InputEmail";
-import FormLabel from "@/components/common/FormLabel";
-import ErrorMessage from "@/components/common/ErrorMessage";
-import InputSelect from "@/components/common/InputSelect";
-import { z } from "zod";
-import { useFormik } from "formik";
-import { addOrganisationMemberSchema } from "@backend/src/schemas/organisationSchema";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import useAddOrganisationMemberMutation from "@/api/mutation/useAddOrganisationMemberMutation";
-import { isAxiosError } from "axios";
-import CrossIcon from "../../assets/svg/CrossIcon.svg";
-import { SingleValue } from "react-select";
+import Table, { ColumeDef } from "@/components/shared/Table";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@radix-ui/react-dropdown-menu";
+import { Settings } from "lucide-react";
 
 function ProjectMember() {
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
@@ -46,55 +42,6 @@ function ProjectMember() {
   const [assignedUsers, setAssignedUsers] = useState<
     AssignedUsers[] | undefined
   >();
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedRole, setSelectedRole] =
-    useState<SingleValue<(typeof memberRoleOptions)[number]>>(null);
-
-  const addOrganisationMemberMutation = useAddOrganisationMemberMutation(
-    localStorage.getItem("organisation-id") ?? ""
-  );
-  const [isAddOrgMemberSubmitting, setIsAddOrgMemberSubmitting] =
-    useState(false);
-  const addOrgMemberForm = useFormik<
-    z.infer<typeof addOrganisationMemberSchema>
-  >({
-    initialValues: {
-      email: "",
-      role: "TEAM_MEMBER",
-    },
-    validationSchema: toFormikValidationSchema(addOrganisationMemberSchema),
-    onSubmit: (values, helper) => {
-      setIsAddOrgMemberSubmitting(true);
-      addOrganisationMemberMutation.mutate(values, {
-        onSuccess(data) {
-          toast.success(data.data.message);
-          setIsAddOrgMemberSubmitting(false);
-          setIsOpen(false);
-          projectMemberListQuery.refetch();
-        },
-        onError(error) {
-          if (isAxiosError(error)) {
-            if (
-              error.response?.status === 400 &&
-              error.response.data?.errors &&
-              Array.isArray(error.response?.data.errors)
-            ) {
-              error.response.data.errors.forEach((item) => {
-                helper.setFieldError(item.path[0], item.message);
-              });
-            }
-            if (!Array.isArray(error.response?.data.errors)) {
-              toast.error(
-                error.response?.data?.message ??
-                  "An unexpected error occurred."
-              );
-            }
-          }
-          setIsAddOrgMemberSubmitting(false);
-        },
-      });
-    },
-  });
 
   const [OrganizationMember, setOrganizationMember] =
     useState<UserOrganisationType[]>();
@@ -117,12 +64,15 @@ function ProjectMember() {
   const [remove, setRemove] = useState<string>();
   const { user } = useUser();
   const verification = () => {
-    if (user?.userOrganisation[0].role ===  UserRoleEnumValue.ADMINISTRATOR) {
+    if (user?.userOrganisation[0].role === UserRoleEnumValue.ADMINISTRATOR) {
       return true;
     } else {
       const projectManager =
         projectDetailQuery.data?.data.data.assignedUsers.filter((item) => {
-          if (item.user.userOrganisation[0].role === UserRoleEnumValue.PROJECT_MANAGER) {
+          if (
+            item.user.userOrganisation[0].role ===
+            UserRoleEnumValue.PROJECT_MANAGER
+          ) {
             return item;
           }
         });
@@ -173,15 +123,99 @@ function ProjectMember() {
   const currentUserIsAdmin =
     user?.userOrganisation.find(
       (org) => org.organisationId === localStorage.getItem("organisation-id")
-    )?.role ===  UserRoleEnumValue.ADMINISTRATOR;
-  const memberRoleOptions = [
+    )?.role === UserRoleEnumValue.ADMINISTRATOR;
+
+  const columnDef: ColumeDef[] = [
     {
-      value: UserRoleEnumValue.PROJECT_MANAGER,
-      label: "Project Manager",
+      header: "Full name",
+      key: "firstname",
+      onCellRender: (user: AssignedUsers) => {
+        return (
+          <div>
+            {" "}
+            {user.user.firstName && user.user.lastName
+              ? ` ${user.user.firstName} ${user.user.lastName}`
+              : "-"}
+          </div>
+        );
+      },
     },
     {
-      value: UserRoleEnumValue.TEAM_MEMBER,
-      label: "Team member",
+      header: "Email",
+      key: "email",
+      onCellRender: (user: AssignedUsers) => {
+        return <div>{user.user.email}</div>;
+      },
+    },
+    {
+      header: "initial",
+      key: "initial",
+      onCellRender: (user: AssignedUsers) => {
+        return (
+          <div>
+            {user.user.firstName
+              ? user.user.lastName
+                ? `${user.user.firstName.charAt(0)}${user.user.lastName.charAt(
+                    0
+                  )}`.toUpperCase()
+                : `${user.user.firstName.charAt(0)}${user.user.firstName.charAt(
+                    1
+                  )}`.toUpperCase()
+              : `${user.user.email.charAt(0)}${user.user.email.charAt(
+                  1
+                )}`.toUpperCase()}
+          </div>
+        );
+      },
+    },
+    {
+      header: "Role",
+      key: "email",
+      onCellRender: (user: AssignedUsers) => {
+        return (
+          <div>
+            {user.user.userOrganisation[0].role
+              .toLowerCase()
+              .replace(/_/g, " ")
+              .replace(/\b\w/g, (char) => char.toUpperCase())}
+          </div>
+        );
+      },
+    },
+    {
+      header: "Action",
+      key: "projectId",
+      onCellRender: (user: AssignedUsers) => {
+        return (
+          <div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="cursor-pointer w-24 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex">
+                  <Settings className="mr-2 h-4 w-4" />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-24  flex flex-col gap-1 bg-white shadow rounded">
+                <DropdownMenuItem className="w-full flex items-center">
+                  <Button
+                    variant={"none"}
+                    className="p-1 flex justify-around w-full"
+                    onClick={() => {
+                      setRemove(
+                        assignedUsers?.find(
+                          (id) => id.user.userId == user.user.userId
+                        )?.projectAssignUsersId ?? ""
+                      );
+                    }}
+                  >
+                    <img src={TrashCan} alt="" />
+                    Remove
+                  </Button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
     },
   ];
   return (
@@ -200,101 +234,30 @@ function ProjectMember() {
             }`}
           >
             <div className="h-full w-full p-3">
-              
               <div className="text-lg text-gray-400 font-semibold mb-3 flex justify-between">
-                Project Manager
+                Project Members
                 <div>
-                  {currentUserIsAdmin && <Button variant={"primary"} size={"sm"} onClick={()=>setIsOpen(true)}>Add Members</Button>}
-                </div>
-              </div>
-              <div className="flex gap-5 h-full w-full py-2 flex-wrap">
-                {assignedUsers
-                  ?.filter(
-                    (e) =>
-                      e.user.userOrganisation[0].role ===
-                        UserRoleEnumValue.PROJECT_MANAGER ||
-                      e.user.userOrganisation[0].role ===
-                        UserRoleEnumValue.ADMINISTRATOR
-                  )
-                  .map((res, index) => {
-                    return (
-                      <div
-                        key={index}
-                        className="group relative overflow-hidden flex flex-col gap-5 h-48 w-44 lg:justify-between items-center bg-primary-50 hover:bg-primary-100 border-[1px] border-[#FFE388] rounded-md lg:p-2"
-                      >
-                        <div className="flex flex-col items-center justify-between h-3/5 w-3/5 gap-2">
-                          <div className="flex items-center rounded-full border-2 h-full w-full min-w-[100px] min-h-[100px] ">
-                            <UserAvatar
-                              user={res.user}
-                              className="w-full h-full"
-                            />
-                            <div></div>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <a className="group-hover:text-primary-800 font-semibold text-base text-center overflow-hidden max-w-[140px] w-fit text-ellipsis">
-                              {res.user.firstName} {res.user.lastName}
-                            </a>
-                            <a className="group-hover:text-primary-500 text-gray-300   text-xs font-semibold text-center overflow-hidden max-w-[140px] w-fit text-ellipsis">
-                              {res.user.email}
-                            </a>
-                          </div>
-                          {(isAdmin && res.user.userOrganisation[0].role !==  UserRoleEnumValue.ADMINISTRATOR) && (
-                            <div className="flex w-full absolute top-0 justify-end ">
-                              <Button
-                                variant={"none"}
-                                className="p-1"
-                                onClick={() => {
-                                  setRemove(
-                                    assignedUsers.find(
-                                      (id) => id.user.userId == res.user.userId
-                                    )?.projectAssignUsersId ?? ""
-                                  );
-                                }}
-                              >
-                                <img src={TrashCan} alt="" />
-                              </Button>
+                  {currentUserIsAdmin && isAdmin && (
+                    <div className="flex items-center">
+                      <Popover>
+                        <PopoverTrigger className="w-full">
+                          <Button variant={"primary"} size={"sm"}>
+                            Add Members
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto focus:outline-none">
+                          <div className="grid gap-4">
+                            <div className="space-y-2">
+                              <h4 className="font-medium leading-none">
+                                Team member's
+                              </h4>
                             </div>
-                          )}
-                          <div>
-                            <a className="group-hover:text-primary-500 text-gray-300  mb-10 text-xs font-semibold text-center overflow-hidden max-w-[140px] w-fit text-ellipsis">
-                              {res.user.userOrganisation[0].role
-                                .toLowerCase()
-                                .replace(/_/g, " ")
-                                .replace(/\b\w/g, (char) => char.toUpperCase())}
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                {isAdmin && (
-                  <div className="flex items-center">
-                    <Popover>
-                      <PopoverTrigger className="w-full">
-                        <Button
-                          variant={"secondary"}
-                          className="rounded-full h-0 w-0 text-3xl p-5"
-                        >
-                          <div className="mb-2">+</div>
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-80 focus:outline-none">
-                        <div className="grid gap-4">
-                          <div className="space-y-2">
-                            <h4 className="font-medium leading-none">
-                              Project Manager
-                            </h4>
-                          </div>
-                          <div>
-                            {OrganizationMember?.map((data, index) => {
-                              return (
-                                (data.role ===
-                                  UserRoleEnumValue.PROJECT_MANAGER ||
-                                  data.role ===
-                                    UserRoleEnumValue.ADMINISTRATOR) && (
+                            <div>
+                              {OrganizationMember?.map((data, index) => {
+                                return (
                                   <div
                                     key={index}
-                                    className={`flex items-center p-1 my-1 gap-4 hover:bg-slate-100 rounded-md`}
+                                    className={`flex items-center justify-between p-1 my-1 gap-4 hover:bg-slate-100 rounded-md`}
                                     onClick={() => {
                                       submitMembers(data);
                                     }}
@@ -312,171 +275,40 @@ function ProjectMember() {
                                         {data.user.email}
                                       </div>
                                     </div>
-                                  </div>
-                                )
-                              );
-                            })}
-                            {OrganizationMember?.length == 0 ||
-                            OrganizationMember?.filter(
-                              (e) =>
-                                e.role ===  UserRoleEnumValue.PROJECT_MANAGER ||
-                                e.role ===  UserRoleEnumValue.ADMINISTRATOR
-                            ).length === 0 ? (
-                                <div className="text-sm text-gray-400 font-semibold">
-                                No More Project Manager Available!
-                                </div>
-                              ) : (
-                                ""
-                              )}
-                          </div>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                )}
-                {assignedUsers?.filter(
-                  (e) =>
-                    e.user.userOrganisation[0].role ===
-                      UserRoleEnumValue.PROJECT_MANAGER ||
-                    e.user.userOrganisation[0].role ===
-                      UserRoleEnumValue.ADMINISTRATOR
-                ).length === 0 && "No team member assigned yet!"}
-              </div>
-              <div className="text-lg text-gray-400 font-semibold mt-3">
-                Team Members
-              </div>
-              <div className="flex gap-5 h-full w-full py-2 flex-wrap">
-                {assignedUsers
-                  ?.filter(
-                    (e) =>
-                      e.user.userOrganisation[0].role ===
-                      UserRoleEnumValue.TEAM_MEMBER
-                  )
-                  .map((res, index) => {
-                    return (
-                      <div
-                        key={index}
-                        className="group relative overflow-hidden flex flex-col gap-5 h-48 w-44 lg:justify-between items-center bg-primary-50 hover:bg-primary-100 border-[1px] border-[#FFE388] rounded-md lg:p-2"
-                      >
-                        <div className="flex flex-col items-center justify-between h-3/5 w-3/5 gap-2">
-                          <div className="flex items-center rounded-full border-2 h-full w-full min-w-[100px] min-h-[100px] ">
-                            <UserAvatar
-                              user={res.user}
-                              className="w-full h-full"
-                            />
-                            <div></div>
-                          </div>
-                          <div className="flex flex-col items-center">
-                            <a className="group-hover:text-primary-800 font-semibold text-base text-center overflow-hidden max-w-[140px] w-fit text-ellipsis">
-                              {res.user.firstName} {res.user.lastName}
-                            </a>
-                            <a className="group-hover:text-primary-500 text-gray-300   text-xs font-semibold text-center overflow-hidden max-w-[140px] w-fit text-ellipsis">
-                              {res.user.email}
-                            </a>
-                          </div>
-                          {isAdmin && (
-                            <div className="flex w-full absolute top-0 justify-end ">
-                              <Button
-                                variant={"none"}
-                                className="p-1"
-                                onClick={() => {
-                                  setRemove(
-                                    assignedUsers.find(
-                                      (id) => id.user.userId == res.user.userId
-                                    )?.projectAssignUsersId ?? ""
-                                  );
-                                }}
-                              >
-                                <img src={TrashCan} alt="" />
-                              </Button>
-                            </div>
-                          )}
-                          <div>
-                            <a className="group-hover:text-primary-500 text-gray-300  mb-10 text-xs font-semibold text-center overflow-hidden max-w-[140px] w-fit text-ellipsis">
-                              {res.user.userOrganisation[0].role
-                                .toLowerCase()
-                                .replace(/_/g, " ")
-                                .replace(/\b\w/g, (char) => char.toUpperCase())}
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                {isAdmin && (
-                  <div className="flex items-center">
-                    <Popover>
-                      <PopoverTrigger className="w-full">
-                        <Button
-                          variant={"secondary"}
-                          className="rounded-full h-0 w-0 text-3xl p-5"
-                        >
-                          <div className="mb-2">+</div>
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-80 focus:outline-none">
-                        <div className="grid gap-4">
-                          <div className="space-y-2">
-                            <h4 className="font-medium leading-none">
-                              Team member's
-                            </h4>
-                          </div>
-                          <div>
-                            {OrganizationMember?.map((data, index) => {
-                              return (
-                                data.role === UserRoleEnumValue.TEAM_MEMBER && (
-                                  <div
-                                    key={index}
-                                    className={`flex items-center p-1 my-1 gap-4 hover:bg-slate-100 rounded-md`}
-                                    onClick={() => {
-                                      submitMembers(data);
-                                    }}
-                                  >
-                                    <UserAvatar
-                                      user={data.user}
-                                      className="rounded-full"
-                                    />
                                     <div>
-                                      <div className="">
-                                        {data.user.firstName}{" "}
-                                        {data.user.lastName}
-                                      </div>
-                                      <div className="text-sm text-gray-400">
-                                        {data.user.email}
-                                      </div>
+                                      {data.role
+                                        ?.toLowerCase()
+                                        .replace(/_/g, " ")
+                                        .replace(/\b\w/g, (char) =>
+                                          char.toUpperCase()
+                                        )}
                                     </div>
                                   </div>
-                                )
-                              );
-                            })}
-                          </div>
-                          {OrganizationMember?.length == 0 ||
-                          OrganizationMember?.filter(
-                            (e) => e.role ===UserRoleEnumValue.TEAM_MEMBER
-                          ).length === 0 ? (
+                                );
+                              })}
+                            </div>
+                            {OrganizationMember?.length == 0 ? (
                               <div className="text-sm text-gray-400 font-semibold">
-                              No More Team Member Available!
+                                No More Team Member Available!
                               </div>
                             ) : (
                               ""
                             )}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                )}
-
-                {assignedUsers?.filter(
-                  (e) =>
-                    e.user.userOrganisation[0].role ===
-                    UserRoleEnumValue.TEAM_MEMBER
-                ).length === 0 && "No team member assigned yet!"}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div>
+                <Table columnDef={columnDef} data={assignedUsers ?? []}></Table>
               </div>
             </div>
           </div>
         </>
       )}
-      {currentUserIsAdmin && (
+      {/* {currentUserIsAdmin && (
         <Dialog
           isOpen={isOpen}
           onClose={() => setIsOpen(false)}
@@ -545,7 +377,8 @@ function ProjectMember() {
             </form>
           </div>
         </Dialog>
-      )}
+      )} */}
+
       <Dialog
         isOpen={Boolean(remove)}
         onClose={() => {}}

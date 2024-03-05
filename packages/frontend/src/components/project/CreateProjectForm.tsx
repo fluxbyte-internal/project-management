@@ -231,7 +231,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
             <img src={CrossIcon}></img>
           </div>
         </div>
-        <div className="lg:px-16 px-4 overflow-y-auto lg:overflow-hidden max-h-screen">
+        <div className="lg:px-16 px-4 overflow-y-auto max-h-screen overflow-auto">
           <div className="lg:flex rounded-lg border border-gray-100 lg:justfy-center mt-4">
             <div className="p-5 ">
               <form onSubmit={formik.handleSubmit}>
