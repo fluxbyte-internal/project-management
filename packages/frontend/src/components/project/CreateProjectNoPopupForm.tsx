@@ -752,7 +752,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 )}
               </div>
               <div className="text-sm text-gray-400 font-semibold  mt-6">
-                {editData && editData.estimatedDuration && (
+                {editData && (
                   <div>
                     <div>Est. duration</div>
                     {editData.estimatedDuration}
@@ -760,7 +760,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 )}
               </div>
               <div className="text-sm text-gray-400 font-semibold  mt-6">
-                {editData && editData.actualDuration && (
+                {editData && (
                   <div>
                     <div>Actual duration</div>
                     {editData.actualDuration}

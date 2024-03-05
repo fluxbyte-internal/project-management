@@ -67,6 +67,7 @@ import {
 } from "@backend/src/schemas/enums";
 import useTaskStatusUpdateMutation from "@/api/mutation/useTaskStatusUpdateMutation";
 import useProjectQuery from "@/api/query/useProjectQuery";
+import { Progress } from "../ui/progress";
 
 type Props = {
   projectId: string | undefined;
@@ -336,12 +337,11 @@ function TaskSubTaskForm(props: Props) {
     }
   };
 
-
   return (
     <div className="absolute w-full h-full z-50 top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-gray-900 bg-opacity-50">
       <div className="bg-white rounded-lg text-gray-700 p-6 lg:p-10 w-full md:max-w-[95%] lg:max-w-[80%] h-full md:max-h-[80%] overflow-auto ">
         <div className="flex justify-between items-center">
-          <div>
+          <div className="flex items-center gap-3">
             <div className={`${tasks?.parentTaskId ? "block" : "hidden"}`}>
               <Button
                 variant={"link"}
@@ -351,7 +351,24 @@ function TaskSubTaskForm(props: Props) {
                 <img src={BackIcon} width={24} height={24} />
               </Button>
             </div>
+            <div className=" w-80">
+              <div
+                className={`py-1.5 px-3 flex w-full gap-3 rounded-md justify-start font-semibold ${
+                  tasks?.flag == "Green"
+                    ? "bg-green-500/60"
+                    : tasks?.flag == "Red"
+                    ? "bg-red-500/60"
+                    : tasks?.flag == "Orange"
+                    ? "bg-primary-500/60"
+                    : ""
+                }`}
+              >
+                <img src={Tag} className="w-3.5" />
+                Flags
+              </div>
+            </div>
           </div>
+
           <div>
             <Button
               variant={"ghost"}
@@ -398,32 +415,6 @@ function TaskSubTaskForm(props: Props) {
         </div>
         <div className="flex gap-3 md:gap-8 justify-between md:flex-row flex-col-reverse mt-4 md:mt-0">
           <div className="w-full md:w-3/4">
-            <div className="mt-4 flex gap-4">
-              <div>
-                <p className="text-sm font-semibold">Assignees</p>
-                <div className="flex gap-4 justify-between items-center">
-                  <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))]">
-                    {member.slice(0, 4).map((item, index) => {
-                      const zIndex = Math.abs(index - 3);
-                      return (
-                        <div key={index} style={{ zIndex: zIndex }}>
-                          <UserAvatar
-                            className="shadow-sm shadow-gray-300"
-                            user={item}
-                          ></UserAvatar>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div>
-                    {tasks?.assignedUsers && tasks?.assignedUsers?.length > 4
-                      ? `${tasks?.assignedUsers.length - 4} +`
-                      : ""}
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* Sub Tasks */}
             <div>
               <div className="flex items-center gap-2.5 mt-4">
@@ -502,10 +493,10 @@ function TaskSubTaskForm(props: Props) {
             {/* Attachments */}
             {tasks?.documentAttachments &&
             tasks?.documentAttachments.length > 0 ? (
-                <TaskAttachment refetch={refetch} task={tasks}></TaskAttachment>
-              ) : (
-                ""
-              )}
+              <TaskAttachment refetch={refetch} task={tasks}></TaskAttachment>
+            ) : (
+              ""
+            )}
 
             <div className="flex items-center gap-2.5 mt-4">
               <img src={MultiLine} width={20} height={20} />
@@ -544,9 +535,9 @@ function TaskSubTaskForm(props: Props) {
                       >
                         {tasks?.status
                           ? `Status: ${tasks?.status
-                            .toLowerCase()
-                            .replace(/_/g, " ")
-                            .replace(/\b\w/g, (char) => char.toUpperCase())}`
+                              .toLowerCase()
+                              .replace(/_/g, " ")
+                              .replace(/\b\w/g, (char) => char.toUpperCase())}`
                           : "Select Status"}
                       </Button>
                     </div>
@@ -587,6 +578,27 @@ function TaskSubTaskForm(props: Props) {
                     >
                       <img src={Users} />
                       Assignees
+                      <div className="flex gap-4 justify-between items-center">
+                        <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))]">
+                          {member.slice(0, 4).map((item, index) => {
+                            const zIndex = Math.abs(index - 3);
+                            return (
+                              <div key={index} style={{ zIndex: zIndex }}>
+                                <UserAvatar
+                                  className="shadow-sm shadow-gray-300"
+                                  user={item}
+                                ></UserAvatar>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div>
+                          {tasks?.assignedUsers &&
+                          tasks?.assignedUsers?.length > 4
+                            ? `${tasks?.assignedUsers.length - 4} +`
+                            : ""}
+                        </div>
+                      </div>
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-80 focus:outline-none">
@@ -722,22 +734,97 @@ function TaskSubTaskForm(props: Props) {
                   </PopoverContent>
                 </Popover>
               </div>
+
               <div className="mt-2">
-                <div
-                  className={`py-1.5 px-3 flex w-full gap-3 rounded-md justify-start font-semibold ${
-                    tasks?.flag == "Green"
-                      ? "bg-green-500/60"
-                      : tasks?.flag == "Red"
-                      ? "bg-red-500/60"
-                      : tasks?.flag == "Orange"
-                      ? "bg-primary-500/60"
-                      : ""
-                  }`}
-                >
-                  <img src={Tag} className="w-3.5" />
-                  Flags
+                <div className="flex flex-col">
+                  {!taskDurationField && (
+                    <div className="flex gap-5">
+                      {!tasks?.milestoneIndicator && tasks?.subtasks && (
+                        <Button
+                          variant={"secondary"}
+                          onClick={() =>
+                            tasks?.subtasks?.length == 0
+                              ? setTaskDurationField((prev) => !prev)
+                              : ""
+                          }
+                          className="w-full flex justify-between "
+                        >
+                          <div className="text-xs font-medium text-gray-400 flex gap-2 ">
+                            <div>
+                              Duration:{" "}
+                              <span className="text-red-500 text-sm">*</span>
+                            </div>
+                            <div className="text-sm  text-gray-300">
+                              {taskFormik.values.duration ?? 0.0} Day
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-end relative">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <img
+                                    src={InfoCircle}
+                                    className="h-[16px] w-[16px]"
+                                    alt="InfoCircle"
+                                  />
+                                </TooltipTrigger>
+                                <TooltipContent className="z-50 bg-white p-2 rounded-md shadow-md">
+                                  <div>
+                                    <p>
+                                      Enter the duration in days, using decimals
+                                      if <br />
+                                      needed. For example, you can input 0.5 for
+                                      half
+                                      <br />a day or 1.0 for a full day.
+                                    </p>
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                  {taskDurationField && (
+                    <div className="flex items-center gap-2.5 w-dull">
+                      <div>
+                        <InputNumber
+                          onBlur={() => {
+                            setTaskDurationField(false),
+                              taskFormik.submitForm();
+                          }}
+                          autoFocus
+                          name="duration"
+                          onChange={taskFormik.handleChange}
+                          onClick={taskFormik.handleBlur}
+                          value={taskFormik.values.duration}
+                        ></InputNumber>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
+              <div>
+                <Button
+                  variant={"secondary"}
+                  className="py-1.5 px-3 w-full mt-2 cursor-default"
+                  isLoading={attachmentUploading}
+                  disabled={attachmentUploading}
+                >
+                  <div className="flex w-full gap-3 justify-start">
+                    <img src={CalendarIcon} className="w-3.5" />
+                    <div>
+                      End date<span className="text-red-500 text-sm">*</span>
+                    </div>
+                    <div className="text-gray-400 text-sm">
+                      {dateFormater(new Date(tasks?.endDate ?? ""))}
+                    </div>
+                  </div>
+                </Button>
+              </div>
+
               <div className="mt-2">
                 <Button
                   variant={"secondary"}
@@ -769,96 +856,21 @@ function TaskSubTaskForm(props: Props) {
                 </ErrorMessage>
               </div>
             </div>
-            {(!tasks?.dueDate || !tasks.milestoneIndicator) &&
-                  tasks?.endDate && (
-                    <div className="flex flex-col gap-2 mt-3">
-                      <div className="text-xs font-medium text-gray-400">
-                        End Date
-                      </div>
-                      {/* <div className="text-sm  text-gray-300">
-                    {tasks?.milestoneIndicator
-                      ? dateFormater(tasks.dueDate ?? new Date())
-                      : dateFormater(new Date())}
-                  </div> */}
-                      <div className="text-sm  text-gray-300">
-                        {dateFormater(new Date(tasks.endDate))}
-                      </div>
-                    </div>
-                  )}
-            <div className="mt-3">
-              <div className="flex justify-between">
-                <div>
-                  <div className="flex flex-col">
-                    <div className="flex gap-5">
-                      <div className="text-xs font-medium text-gray-400">
-                        Duration:{" "}
-                        <span className="text-red-500 text-sm">*</span>
-                      </div>
-                      <div className="flex items-center justify-center relative">
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <img
-                                src={InfoCircle}
-                                className="h-[16px] w-[16px]"
-                                alt="InfoCircle"
-                              />
-                            </TooltipTrigger>
-                            <TooltipContent className="z-50 bg-white p-2 rounded-md shadow-md">
-                              <div>
-                                <p>
-                                  Enter the duration in days, using decimals if{" "}
-                                  <br />
-                                  needed. For example, you can input 0.5 for
-                                  half
-                                  <br />a day or 1.0 for a full day.
-                                </p>
-                              </div>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2.5">
-                      <div>
-                        {!taskDurationField ? (
-                          <div className="text-sm  text-gray-300">
-                            {taskFormik.values.duration ?? 0.0} Day
-                          </div>
-                        ) : (
-                          <div>
-                            <InputNumber
-                              onBlur={() => {
-                                setTaskDurationField(false),
-                                  taskFormik.submitForm();
-                              }}
-                              name="duration"
-                              onChange={taskFormik.handleChange}
-                              onClick={taskFormik.handleBlur}
-                              value={taskFormik.values.duration}
-                            ></InputNumber>
-                          </div>
-                        )}
-                      </div>
-                      {!tasks?.milestoneIndicator &&
-                        tasks?.subtasks &&
-                        tasks?.subtasks?.length == 0 && (
-                          <Button
-                            variant={"ghost"}
-                            onClick={() =>
-                              setTaskDurationField((prev) => !prev)
-                            }
-                          >
-                            <img src={Edit} className="w-2.5 h-2.5" />
-                          </Button>
-                        )}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-col">
+            <div className="mt-3 w-full">
+              <div className="flex justify-between w-full">
+                <div className="flex flex-col w-full">
                   <div className="flex gap-2 items-center">
-                    <div className="text-xs font-medium text-gray-400">
+                    <div className="text-xs font-medium text-gray-400 flex items-center gap-2">
                       Progress:
+                      {!tasks?.subtasks.length && (
+                        <Button
+                          variant={"none"}
+                          className="p-0 h-0"
+                          onClick={() => setTaskProgressField((prev) => !prev)}
+                        >
+                          <img src={Edit} />
+                        </Button>
+                      )}
                     </div>
                   </div>
                   {taskProgressField ? (
@@ -877,24 +889,12 @@ function TaskSubTaskForm(props: Props) {
                       </ErrorMessage>
                     </div>
                   ) : (
-                    <div className="flex items-center">
-                      <div className="text-sm  text-gray-300">
-                        {tasks?.completionPecentage ?? 0}%
-                      </div>{" "}
-                      {tasks &&
-                        tasks.subtasks?.length === 0 &&
-                        !tasks?.milestoneIndicator && (
-                          <div>
-                            <Button
-                              variant={"none"}
-                              onClick={() =>
-                                setTaskProgressField((prev) => !prev)
-                              }
-                            >
-                              <img src={Edit} />
-                            </Button>
-                          </div>
-                        )}
+                    <div>
+                      <Progress
+                        value={Number(tasks?.completionPecentage)}
+                        title={tasks?.completionPecentage}
+                        className="w-full mt-3"
+                      />
                     </div>
                   )}
                 </div>

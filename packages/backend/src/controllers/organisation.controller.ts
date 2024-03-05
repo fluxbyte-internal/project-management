@@ -26,6 +26,7 @@ import { selectUserFields } from "../utils/selectedFieldsOfUsers.js";
 import { HistoryTypeEnumValue } from "../schemas/enums.js";
 import fileUpload from "express-fileupload";
 import moment from 'moment';
+import { AwsUploadService } from "../services/aws.services.js";
 
 export const getOrganisationById = async (
   req: express.Request,
@@ -505,9 +506,35 @@ export const uploadHolidayCSV = async (
     })
     .filter((row) => row !== null);
   const prisma = await getClientByTenantId(req.tenantId);
-  for (const value of csvRows) {
-    if (value?.Date) {
-      try {
+  const findUploadedCSV = await prisma.organisation.findFirstOrThrow({
+    where: {
+      organisationId,
+    },
+    select: {
+      organisationName: true,
+      holidayCsvUrl: true,
+    },
+  });
+  const avatarImgURL = await AwsUploadService.uploadFileWithContent(
+    `${findUploadedCSV.organisationName}-${fileName}`,
+    file.data,
+    'organisation-csv'
+  );
+  await prisma.$transaction(async (prisma) => {
+    await Promise.all([
+      prisma.organisationHolidays.deleteMany({
+        where: { organisationId },
+      }),
+      prisma.organisation.update({
+        where: { organisationId },
+        data: {
+          holidayCsvUrl: avatarImgURL
+        }
+      })
+    ]);
+
+    const holidayRecords = csvRows.map(async (value) => {
+      if (value?.Date) {
         const findHoliday = await prisma.organisationHolidays.findFirst({
           where: {
             organisationId,
@@ -516,7 +543,7 @@ export const uploadHolidayCSV = async (
           },
         });
         if (!findHoliday) {
-          await prisma.organisationHolidays.create({
+          return prisma.organisationHolidays.create({
             data: {
               holidayStartDate: value.Date,
               holidayEndDate: null,
@@ -525,11 +552,11 @@ export const uploadHolidayCSV = async (
             },
           });
         }
-      } catch (error) {
-        console.error(error);
       }
-    }
-  }
+    });
+
+    await Promise.all(holidayRecords);
+  });
   return new SuccessResponse(
     StatusCodes.OK,
     csvRows,

@@ -56,8 +56,8 @@ export interface User {
   userId:           string;
   email:            string;
   status:           string;
-  firstName:        null;
-  lastName:         null;
+  firstName:        string|null;
+  lastName:         string|null;
   timezone:         null;
   country:          null;
   avatarImg:        null;

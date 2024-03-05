@@ -70,6 +70,7 @@ function TaskViews() {
         >
           <div className="flex justify-between px-4 py-2 items-center">
             <div className="text-xl font-semibold text-gray-400">
+              {views.charAt(0) + views.slice(1).toLowerCase() === "List" && "Task "}
               {views.charAt(0) + views.slice(1).toLowerCase()}
             </div>
             <div className="overflow-hidden rounded-xl border border-gray-100  p-0.5">
