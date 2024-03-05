@@ -33,6 +33,7 @@ export type UserOrganisationType = {
   taskColour: null;
   createdAt: Date;
   updatedAt: Date;
+  holidayCsvUrl?:string|null
   organisation:OrganisationType
 };
 

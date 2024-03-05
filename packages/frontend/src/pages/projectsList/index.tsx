@@ -31,12 +31,13 @@ import {
 } from "@radix-ui/react-popover";
 import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
-import { useUser } from "@/hooks/useUser";
+// import { useUser } from "@/hooks/useUser";
 import { UserRoleEnumValue } from "@backend/src/schemas/enums";
 import useProjectDuplicateMutation from "@/api/mutation/useDuplicateProject";
 import { toast } from "react-toastify";
 import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
 import  DuplicateIcon  from "@/assets/svg/DuplicateIcon.svg";
+import  Users  from "@/assets/svg/Users.svg";
 type Options = { label: string; value: string };
 function ProjectsList() {
   const [data, setData] = useState<Project[]>();
@@ -53,7 +54,7 @@ function ProjectsList() {
     status: null,
     date: undefined,
   });
-  const { user } = useUser();
+  // const { user } = useUser();
   const navigate = useNavigate();
   const projectQuery = useProjectQuery();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -313,6 +314,12 @@ function ProjectsList() {
                   Duplicate Project
                 </span>
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/members/"+item.projectId)}>
+                <img src={Users} className="h-4 w-4 mr-2" />
+                <span className="p-0 font-normal h-auto">
+                  Project members                 
+                </span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </>
@@ -394,7 +401,7 @@ function ProjectsList() {
                 <h2 className="font-medium text-3xl leading-normal text-gray-600">
                   Projects
                 </h2>
-                {user?.userOrganisation[0]?.role !== UserRoleEnumValue.TEAM_MEMBER && (
+                {/* {user?.userOrganisation[0]?.role !== UserRoleEnumValue.TEAM_MEMBER && (
                   <div>
                     <Button
                       variant={"primary"}
@@ -403,7 +410,7 @@ function ProjectsList() {
                       Add Project
                     </Button>
                   </div>
-                )}
+                )} */}
               </div>
               {data && (
                 <div className="flex justify-around items-center">

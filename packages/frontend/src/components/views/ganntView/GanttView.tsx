@@ -53,8 +53,8 @@ const reactSelectStyle = {
 
 function GanttView() {
   const treeSize = "35%";
-  const durationUnit = "hour";
-  const sortMode = "one";
+  const durationUnit = "day";
+  const sortMode = "many";
   const showProgressLabel = true;
   const { projectId } = useParams();
   const [filterUnit, setFilterUnit] = useState<string>("month");
@@ -386,7 +386,7 @@ function GanttView() {
   const [monthScale, setMonthScale] = useState("week");
   useEffect(() => {
     if (filterUnit === "month") {
-      setMonthScale("week");
+      setMonthScale("day");
     } else {
       setMonthScale("day");
     }
@@ -430,7 +430,7 @@ function GanttView() {
         nonworkingDays={HandleNonWorkingDays()}
         monthScale={monthScale}
         monthFormat="long"
-        dayFormat="numeric"
+        dayFormat="long"
         weekFormat="long"
         disableSelection
         view={filterUnit}

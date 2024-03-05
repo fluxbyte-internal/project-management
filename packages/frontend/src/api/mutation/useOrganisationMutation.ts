@@ -21,6 +21,7 @@ export type OrganisationType = {
   tenantId: string;
   createdByUserId: string;
   updatedByUserId?: string;
+  holidayCsvUrl:string|null
 }
 type OrganisationApiResponse = ResponseType<OrganisationType>;
 

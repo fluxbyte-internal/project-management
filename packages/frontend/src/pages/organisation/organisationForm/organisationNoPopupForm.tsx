@@ -177,7 +177,6 @@ function OrganisationNoPopUpForm(props: Props) {
     }
   }, [editData]);
 
-
   const reactSelectStyle = {
     control: (
       provided: Record<string, unknown>,
@@ -286,13 +285,17 @@ function OrganisationNoPopUpForm(props: Props) {
       });
     }
   };
-  const downloadCsv = () =>{
-    
-    const ac = document.createElement('a');
+  const downloadCsv = () => {
+    const ac = document.createElement("a");
     ac.href = CSVDownloadUrl;
     ac.download;
     ac.click();
-
+  };
+  const downloadUplodedCsv = (url: string) => {
+    const ac = document.createElement("a");
+    ac.href = url;
+    ac.download;
+    ac.click();
   };
   return (
     <div className="bg-white rounded-lg border px-2 py-1.5 sm:px-5 sm:py-4 w-full">
@@ -395,7 +398,7 @@ function OrganisationNoPopUpForm(props: Props) {
               className="w-full border-2 text-gray-600"
             >
               <div className="flex gap-2 items-center">
-                <img src={CSVIcon} /> Upload/Replace holidays CSV
+                <img src={CSVIcon} /> Upload/Replace holidays list
               </div>
             </Button>
             <ErrorMessage>
@@ -403,7 +406,6 @@ function OrganisationNoPopUpForm(props: Props) {
             </ErrorMessage>
           </div>
           <div className="block">
-           
             <Button
               variant={"link"}
               className="w-full text-gray-600 justify-start"
@@ -418,6 +420,19 @@ function OrganisationNoPopUpForm(props: Props) {
               {formik.touched.country && formik.errors.country}
             </ErrorMessage>
           </div>
+          
+         { (editData && editData.holidayCsvUrl) && <div>
+            <Button
+              variant={"link"}
+              className="w-full text-gray-600 justify-start"
+              onClick={() => downloadUplodedCsv(editData.holidayCsvUrl ?? '')}
+            >
+              <div className="flex gap-2 ">
+                <img className="h-4 w-4" src={DownLoadIcon} /> Download uploaded
+                CSV
+              </div>
+            </Button>
+          </div>}
         </div>
         {/* <div>
           <FormLabel htmlFor="country">Default color</FormLabel>

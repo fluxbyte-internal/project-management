@@ -39,6 +39,7 @@ export type OrganisationResponseType = ResponseType<{
   tenantId: string;
   createdBy: string;
   userOrganisation: UserOrganisationType[];
+  holidayCsvUrl:string|null
 }>;
 
 function useOrganisationDetailsQuery(organisationId: string) {

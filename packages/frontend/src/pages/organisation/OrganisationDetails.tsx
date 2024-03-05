@@ -215,6 +215,8 @@ function OrganisationDetails() {
     } else {
       setFilteredOrganisationUsers(organisation.userOrganisation);
     }
+    console.log(organisation);
+    
     if (organisation) {
       setEditData({
         country: organisation.country,
@@ -227,6 +229,7 @@ function OrganisationDetails() {
         createdByUserId: organisation.createdBy,
         createdAt: organisation.createdAt,
         updatedAt: organisation.updatedAt,
+        holidayCsvUrl:organisation.holidayCsvUrl,
       });
     }
   }, [filterString, organisation?.userOrganisation, organisation]);

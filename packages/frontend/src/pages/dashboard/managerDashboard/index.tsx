@@ -183,7 +183,7 @@ function ManagerDashboard() {
     <>
       <div className="overflow-auto w-full py-2 px-2 lg:px-14 flex flex-col gap-10">
         <h2 className="font-medium text-3xl leading-normal text-gray-600">
-          Manager's Dashboard
+        Portfolio dashboard
         </h2>
         <div className="text-xl font-bold text-gray-400  px-6">Project Status</div>
         <div className="w-full h-fit flex flex-col lg:flex-row gap-10 items-center">
