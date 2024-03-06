@@ -716,9 +716,12 @@ function TaskSubTaskForm(props: Props) {
                       onDayBlur={taskFormik.submitForm}
                       onSelect={(e) => {
                         {
+                          const endDate = new Date(e ?? "");
+                          endDate.setUTCHours(0, 0, 0, 0);
+                          endDate.setDate(endDate.getDate() + 1);
                           taskFormik.setFieldValue(
                             "startDate",
-                            e ? e : undefined
+                            e ? new Date(endDate) : undefined
                           );
                         }
                       }}
@@ -862,7 +865,7 @@ function TaskSubTaskForm(props: Props) {
                   <div className="flex gap-2 items-center">
                     <div className="text-xs font-medium text-gray-400 flex items-center gap-2">
                       Progress:
-                      {!tasks?.subtasks.length && (
+                      {(!tasks?.subtasks.length && !tasks?.milestoneIndicator) && (
                         <Button
                           variant={"none"}
                           className="p-0 h-0"
