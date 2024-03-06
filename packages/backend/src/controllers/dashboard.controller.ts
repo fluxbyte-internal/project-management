@@ -386,7 +386,7 @@ export const projectDashboardByprojectId = async (
   const projectDates = {
     startDate: projectWithTasks.startDate,
     estimatedEndDate: projectWithTasks.estimatedEndDate,
-    actualEndDate: projectWithTasks.actualEndDate,
+    actualEndDate: projectWithTasks.tasks.length === 0 ? null : projectWithTasks.actualEndDate,
     projectCreatedAt: projectWithTasks.createdAt,
     actualDuration,
     estimatedDuration
