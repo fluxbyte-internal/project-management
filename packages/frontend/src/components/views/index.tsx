@@ -68,7 +68,7 @@ function TaskViews() {
             isSidebarExpanded ? "ml-64" : "ml-4"
           } flex flex-col`}
         >
-          <div className="flex justify-between px-4 py-2 items-center">
+          <div className="flex justify-between px-4 mt--2 items-center">
             <div className="text-xl font-semibold text-gray-400">
               {views.charAt(0) + views.slice(1).toLowerCase() === "List" && "Task "}
               {views.charAt(0) + views.slice(1).toLowerCase()}

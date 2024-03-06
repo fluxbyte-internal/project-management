@@ -14,8 +14,8 @@
  
 }
 .smart-gantt-chart {
-  --smart-gantt-chart-timeline-task-background-color: rgb(253, 253, 253);
-  --smart-gantt-chart-task-default-height: 58px;
+  --smart-gantt-chart-timeline-task-background-color: rgba(253, 253, 253, 0);
+  --smart-gantt-chart-task-default-height: 30px;
   --smart-gantt-chart-default-width:100%;
   --smart-gantt-chart-project-default-color: #38a238;
   --smart-gantt-chart-project-progress-default-color: #008000;
@@ -27,16 +27,17 @@
   --smart-gantt-chart-header-placeholder:"-";
   --smart-box-height: 40px;
   --smart-gantt-chart-project-label-color: white;
-  --smart-gantt-chart-timeline-task-progress-height:70%;
-  --smart-gantt-chart-task-fill-border-radius:5px;
-  --smart-table-indent:10px
+  --smart-gantt-chart-timeline-task-progress-height:100%;
+  --smart-gantt-chart-task-fill-border-radius:3px;
+  --smart-table-indent:10px;
+  --smart-font-size:12px
 }
 .smart-timeline-row{
   --smart-border:theme("colors.transparent")
 }
 .smart-gantt-chart .smart-timeline-task-fill {
   border-radius: var(--smart-gantt-chart-task-fill-border-radius);
-  padding: 5px;
+  padding: 0px;
 }
 
 .smart-table tbody tr {

@@ -24,9 +24,9 @@ import {
   GanttChartTask,
   GanttChartTaskColumn,
 } from "smart-webcomponents-react/ganttchart";
-import PercentageCircle from "@/components/shared/PercentageCircle";
 import addIcon from "@/assets/svg/AddProjectIcon.svg";
 import { FIELDS } from "@/api/types/enums";
+import { Progress } from "@/components/ui/progress";
 export interface Options {
   label: string;
   value: string;
@@ -213,7 +213,9 @@ function GanttView() {
       formatFunction: function (item: string, task: GanttChartTask) {
         if (task.value !== "false") {
           return ReactDOMServer.renderToString(
-            <PercentageCircle percentage={item} />
+            <div className="my-auto">
+              <Progress value={Number(item)} />
+            </div>
           );
         } else {
           return "";
@@ -230,11 +232,12 @@ function GanttView() {
 
   const updateTaskFromGanttView = (e: (Event & CustomEvent) | undefined) => {
     const duration = calculateDuration(e?.detail.dateStart, e?.detail.dateEnd);
+
     taskUpdateMutation.mutate(
       {
         id: e?.detail.id,
-        startDate: e?.detail.dateStart,
-        duration: parseFloat(duration),
+        startDate: new Date(e?.detail.dateStart),
+        duration: duration,
       },
       {
         onSuccess(data) {
@@ -247,14 +250,6 @@ function GanttView() {
       }
     );
   };
-  function calculateDuration(startDate: Date, endDate: Date) {
-    const start: number = new Date(startDate).getTime();
-    const end: number = new Date(endDate).getTime();
-    const durationMs = end - start;
-    const durationDays = durationMs / (1000 * 60 * 60 * 24);
-    return parseFloat(durationDays + "").toFixed(2);
-  }
-
   const HandleNonWorkingDays = () => {
     const nonWorkingDays =
       user?.userOrganisation.map((org) => org.organisation.nonWorkingDays) ||
@@ -262,22 +257,22 @@ function GanttView() {
 
     const mapDayToNumber = (day: string) => {
       switch (day) {
-      case "SUN":
-        return 0;
-      case "MON":
-        return 1;
-      case "TUE":
-        return 2;
-      case "WED":
-        return 3;
-      case "THU":
-        return 4;
-      case "FRI":
-        return 5;
-      case "SAT":
-        return 6;
-      default:
-        return 0;
+        case "SUN":
+          return 0;
+        case "MON":
+          return 1;
+        case "TUE":
+          return 2;
+        case "WED":
+          return 3;
+        case "THU":
+          return 4;
+        case "FRI":
+          return 5;
+        case "SAT":
+          return 6;
+        default:
+          return 0;
       }
     };
 
@@ -289,6 +284,48 @@ function GanttView() {
     });
     return result;
   };
+  function calculateDuration(startDate: Date, endDate: Date) {
+    console.log({ startDate }, { endDate });
+
+    let duration = 0;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    // start.setHours(0);
+    // start.setMinutes(0);
+    // start.setSeconds(0);
+    // start.setMilliseconds(0);
+    // end.setHours(0);
+    // end.setMinutes(0);
+    // end.setSeconds(0);
+    // end.setMilliseconds(0);
+
+    // Define a function to check if a given date is a non-working day
+    const isNonWorkingDay = (date: Date) => {
+      const dayOfWeek = date.getDay(); // Sunday: 0, Monday: 1, ..., Saturday: 6
+      return HandleNonWorkingDays().includes(dayOfWeek);
+    };
+
+    // Define a function to check if a given date is a holiday
+    const isHoliday = (date: Date) => {
+      const dateString = date.toISOString().split("T")[0];
+      return user?.userOrganisation[0].organisation.orgHolidays.some(
+        (holiday) => holiday.holidayStartDate.split("T")[0] === dateString
+      );
+    };
+
+    while (start <= end) {
+      // Check if the current day is a non-working day or holiday
+      if (!isNonWorkingDay(start) && !isHoliday(start)) {
+        duration++;
+      }
+      start.setDate(start.getDate() + 1);
+    }
+
+    return duration;
+  }
+
+  // Test the function
+
   const taskSetter = (
     task: any,
     segment: any,
@@ -333,33 +370,31 @@ function GanttView() {
   }) => {
     return (
       <>
-        <div className="group" title={props.taskId ?? ""}>
+        <div className="group flex w-fit" title={props.taskId ?? ""}>
           {props.title}
-          <div className="!mt-2 opacity-0 !flex !gap-1 transition ease-in-out delay-150 absolute group-hover:opacity-100 group-hover:block z-50 bg-gra rounded-lg">
+          <div className="opacity-0 !flex !gap-1 transition ease-in-out delay-150  group-hover:opacity-100 group-hover:block z-50 bg-gra rounded-lg">
             <Button
               id={BUTTON_EVENT.REMOVE}
               value={"remove"}
               variant={"none"}
               size={"sm"}
-              className="p-0 h-0"
+              className="p-0 !h-full"
             >
               <img
                 src={TrashCan}
                 id={BUTTON_EVENT.REMOVE}
                 alt={props.taskId ?? ""}
-                className="h-4 w-4 mt-1"
               />
             </Button>
             <Button
               id={BUTTON_EVENT.EDIT}
               variant={"none"}
               size={"sm"}
-              className="p-0 h-0"
+              className="p-0 !h-full"
             >
               <img
                 src={Edit}
                 id={BUTTON_EVENT.EDIT}
-                className="h-3 w-3 mt-1"
                 alt={props.taskId ?? ""}
               />
             </Button>
@@ -386,13 +421,13 @@ function GanttView() {
   const [monthScale, setMonthScale] = useState("week");
   useEffect(() => {
     if (filterUnit === "month") {
-      setMonthScale("day");
+      setMonthScale("week");
     } else {
       setMonthScale("day");
     }
   }, [filterUnit]);
   return (
-    <div className="h-full w-full flex flex-col py-5">
+    <div className="h-full w-full flex flex-col pb-5">
       <div className="flex justify-between">
         <div className="flex justify-center items-center gap-2 my-2 ">
           <TaskFilter
@@ -455,7 +490,6 @@ function GanttView() {
         verticalScrollBarVisibility="visible"
         showProgressLabel={showProgressLabel}
         snapToNearest
-        autoSchedule
         onItemClick={(e) =>
           handleItemClick(e as (Event & CustomEvent) | undefined)
         }
