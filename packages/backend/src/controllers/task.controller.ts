@@ -408,6 +408,12 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
   const prisma = await getClientByTenantId(req.tenantId);
   if (taskId) {
     const findTask = await prisma.task.findFirstOrThrow({ where: { taskId: taskId, deletedAt: null } })
+    let completionPercentage = 0;
+    if (statusBody.status === TaskStatusEnum.COMPLETED) {
+      completionPercentage = 100;
+    }else if (findTask.milestoneIndicator && TaskStatusEnum.NOT_STARTED) {
+      completionPercentage = 0;
+    }
     let updatedTask = await prisma.task.update({
       where: { taskId: taskId },
       data: {
@@ -416,10 +422,7 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
           statusBody.status === TaskStatusEnum.COMPLETED
             ? MilestoneIndicatorStatusEnum.COMPLETED
             : MilestoneIndicatorStatusEnum.NOT_STARTED,
-        completionPecentage:
-          statusBody.status === TaskStatusEnum.COMPLETED
-            ? 100
-            : findTask.completionPecentage,
+        completionPecentage:completionPercentage,
         updatedByUserId: req.userId
       },
     });
