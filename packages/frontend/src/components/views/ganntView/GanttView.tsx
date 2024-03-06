@@ -108,7 +108,7 @@ function GanttView() {
     startDate.setDate(startDate.getDate() - 1);
     const endDate = new Date(originalTask.endDate ?? "");
     endDate.setUTCHours(0, 0, 0, 0);
-    endDate.setDate(endDate.getDate() - 1);
+    endDate.setDate(endDate.getDate());
     const convertedTask: GanttChartTask = {
       id: originalTask.taskId,
       label: originalTask.taskName,
@@ -346,20 +346,19 @@ function GanttView() {
 
       switch (status) {
         case TaskStatusEnumValue.NOT_STARTED:
-          taskElement.classList.add("bg-slate-500/60");
           segmentElement.children[0].classList.add("!bg-slate-500/60");
           break;
         case TaskStatusEnumValue.IN_PROGRESS:
-          taskElement.classList.add("bg-blue-200");
           segmentElement.children[0].classList.add("!bg-blue-300");
           break;
         case TaskStatusEnumValue.COMPLETED:
-          taskElement.classList.add("bg-emerald-400");
           segmentElement.children[0].classList.add("!bg-emerald-500");
           break;
       }
       if (task.class == "milestone") {
       segmentElement.classList.add("hidden");
+      taskElement.classList.add("!w-0");
+
       labelElement.classList.add("hidden");
       taskElement.classList.remove("bg-emerald-400");
       segmentElement.children[0].classList.remove("!bg-emerald-500");
