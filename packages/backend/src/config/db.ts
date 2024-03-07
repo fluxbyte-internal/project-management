@@ -1,7 +1,6 @@
 import { NotificationTypeEnum, PrismaClient, Task, UserStatusEnum, UserRoleEnum, HistoryTypeEnum } from "@prisma/client";
 import { RegisterSocketServices } from "../services/socket.services.js";
 import { settings } from "./settings.js";
-import { taskEndDate } from "../utils/calcualteTaskEndDate.js";
 
 const rootPrismaClient = generatePrismaClient();
 const prismaClients: Record<
@@ -88,6 +87,7 @@ function generatePrismaClient(datasourceUrl?: string) {
             where: {
               projectId,
               deletedAt: null,
+              parentTaskId: null,
             },
           });
 
