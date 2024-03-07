@@ -161,6 +161,26 @@ function ManagerDashboard() {
       ),
     },
     {
+      key: "status",
+      header: "Status",
+      onCellRender: (item: Project) => (
+        <>
+          <div
+            className={`w-32 h-8 px-3 py-1.5 ${getStatusColor(
+              item.status
+            )} rounded justify-center items-center gap-px inline-flex`}
+          >
+            <div className=" text-xs font-medium leading-tight">
+              {item.status
+                .toLowerCase()
+                .replace(/_/g, " ")
+                .replace(/\b\w/g, (char) => char.toUpperCase())}
+            </div>
+          </div>
+        </>
+      ),
+    },
+    {
       key: "actualDuration",
       header: "Actual Duration",
       sorting: true,
@@ -171,6 +191,18 @@ function ManagerDashboard() {
       sorting: true,
     },
   ];
+  const getStatusColor = (status: string) => {
+    switch (status) {
+    case ProjectStatusEnumValue.NOT_STARTED:
+      return "!bg-slate-500/60 text-white";
+    case ProjectStatusEnumValue.ON_HOLD:
+      return "!bg-orange-300 text-white";
+    case ProjectStatusEnumValue.ACTIVE:
+      return "!bg-emerald-500 text-white";
+    case ProjectStatusEnumValue.CLOSED:
+      return "!bg-red-500 text-white";
+    }
+  };
   const close = () => {
     setIsOpenPopUp(false);
     setEditData(undefined);

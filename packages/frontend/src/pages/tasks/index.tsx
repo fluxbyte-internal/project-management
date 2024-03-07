@@ -25,7 +25,7 @@ import DimondIcon from "../../assets/svg/DiamondIcon.svg";
 import UserAvatar from "@/components/ui/userAvatar";
 import TaskFilter, { TaskFilterRef } from "@/components/views/TaskFilter";
 import { FIELDS } from "@/api/types/enums";
-import { ProjectDefaultViewEnumValue } from "@backend/src/schemas/enums";
+import { ProjectDefaultViewEnumValue, TaskStatusEnumValue } from "@backend/src/schemas/enums";
 function Tasks() {
   const [taskData, setTaskData] = useState<Task[]>();
   const [filterData, setFilterData] = useState<Task[] | undefined>(taskData);
@@ -87,8 +87,12 @@ function Tasks() {
       header: "Status",
       onCellRender: (item: Task) => (
         <>
-          <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
-            <div className="text-cyan-700 text-xs font-medium leading-tight">
+          <div
+            className={`w-32 h-8 px-3 py-1.5 ${getStatusColor(
+              item.status
+            )} rounded justify-center items-center gap-px inline-flex`}
+          >
+            <div className="text-xs font-medium leading-tight">
               {item.status
                 .toLowerCase()
                 .replace(/_/g, " ")
@@ -225,7 +229,16 @@ function Tasks() {
       );
     }
   }, [taskData]);
-
+  const getStatusColor = (status: string) => {
+    switch (status) {
+    case TaskStatusEnumValue.NOT_STARTED:
+      return "!bg-slate-500/60 ";
+    case TaskStatusEnumValue.IN_PROGRESS:
+      return "!bg-blue-300 text-white";
+    case TaskStatusEnumValue.COMPLETED:
+      return "!bg-emerald-500 text-white";
+    }
+  };
   useEffect(() => {
     allTaskQuery.refetch();
   }, [projectId, taskId]);

@@ -125,8 +125,8 @@ function KanbanView(
     const column = allKanbanColumn.data?.data.data.find(
       (d) => d.kanbanColumnId === e?.detail.value.status
     );
-    
-    if (column?.percentage === null || !column?.percentage) {
+
+    if (column?.percentage === null) {
       val = {
         ...val,
         kanbanColumnId: e?.detail.value.status,
@@ -135,7 +135,7 @@ function KanbanView(
       val = {
         ...val,
         completionPecentage: Number(column?.percentage),
-        kanbanColumnId: '',
+        kanbanColumnId: "",
       };
     }
     taskStatusUpdateMutation.mutate(val, {
@@ -192,17 +192,28 @@ function KanbanView(
           const percentage = allKanbanColumn.data?.data.data.find(
             (d) => d.kanbanColumnId == num.dataField
           )?.percentage;
-
-          if (percentage) {
+          if (percentage !== null && percentage !== undefined) {
             if (
-              closestNumber === 0 ||
-              Math.abs(Number(task.completionPecentage) - percentage) <
-                Math.abs(Number(task.completionPecentage) - closestNumber)
+              Number(task.completionPecentage) >= percentage && // Check if completion percentage is greater than or equal to the current column percentage
+              percentage > closestNumber // Check if it's closer to the task's completion percentage
             ) {
               closestNumber = percentage;
             }
           }
         }
+        // for (const num of Columns) {
+        //   const percentage = allKanbanColumn.data?.data.data.find(
+        //     (d) => d.kanbanColumnId == num.dataField
+        //   )?.percentage;
+        //   if (percentage !== null && percentage !== undefined) {
+        //     if (
+        //       closestNumber === 0 ||
+        //       Number(task.completionPecentage) > percentage
+        //     ) {
+        //       closestNumber = percentage;
+        //     }
+        //   }
+        // }
       }
     }
 

@@ -364,7 +364,13 @@ function TaskSubTaskForm(props: Props) {
                 }`}
               >
                 <img src={Tag} className="w-3.5" />
-                Flags
+                {tasks?.flag == "Green"
+                  ? "On track"
+                  : tasks?.flag == "Red"
+                  ? "Significant delay"
+                  : tasks?.flag == "Orange"
+                  ? "Moderate delay"
+                  : ""}
               </div>
             </div>
           </div>

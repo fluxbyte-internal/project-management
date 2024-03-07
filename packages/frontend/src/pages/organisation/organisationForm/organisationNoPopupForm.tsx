@@ -1,9 +1,6 @@
 import { useFormik } from "formik";
 import { toFormikValidationSchema } from "zod-formik-adapter";
-import {
-  createOrganisationSchema,
-  updateOrganisationSchema,
-} from "../../../../../backend/src/schemas/organisationSchema";
+import { updateOrganisationSchema } from "../../../../../backend/src/schemas/organisationSchema";
 import { OrganisationType } from "@/api/mutation/useOrganisationMutation";
 import { isAxiosError } from "axios";
 import { z } from "zod";
@@ -15,17 +12,17 @@ import countries from "../../../assets/json/countries.json";
 import ErrorMessage from "@/components/common/ErrorMessage";
 import useOrganisationUpdateMutation from "@/api/mutation/useOrganisationUpdateMutation";
 import { toast } from "react-toastify";
-import {
-  TaskColorPaletteEnum,
-  userOrgSettingsUpdateSchema,
-} from "@backend/src/schemas/userSchema";
-import { useUser } from "@/hooks/useUser";
-import useOrgSettingsUpdateMutation from "@/api/mutation/useOrgSettingsUpdateMutation";
 import useCsvUploadMutation from "@/api/mutation/useCsvUploadMutation";
 import CSVIcon from "@/assets/svg/csvIcon.svg";
 import DownLoadIcon from "@/assets/svg/DownLoad.svg";
+import SendIcon from "@/assets/svg/Send.svg";
 import { OrgStatusEnumValue } from "@backend/src/schemas/enums";
 import { CSVDownloadUrl } from "@/Environment";
+import FormLabel from "@/components/common/FormLabel";
+import InputText from "@/components/common/InputText";
+import Dialog from "@/components/common/Dialog";
+import TrashCan from "@/assets/svg/TrashCan.svg";
+
 interface Props {
   editData?: OrganisationType;
   viewOnly: boolean;
@@ -42,24 +39,21 @@ function OrganisationNoPopUpForm(props: Props) {
     editData && editData.organisationId ? editData.organisationId : ""
   );
   const { refetch } = useCurrentUserQuery();
-  const { user } = useUser();
-
-  const orgSettingsUpdateMutation = useOrgSettingsUpdateMutation(
-    user?.userOrganisation[0].userOrganisationId ?? ""
-  );
   const [countryValue, setContryValue] = useState<SingleValue<Options>>();
   const [industryValue, setIndustryValue] = useState<SingleValue<Options>>();
   const [nonWorkingDaysValue, setNonWorkingDaysValue] =
     useState<MultiValue<Options>>();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [IsTaskColourSubmitting, setIsTaskColourSubmitting] = useState(false);
-  const formik = useFormik<z.infer<typeof createOrganisationSchema>>({
+  const [addJobTitle, setAddJobTitle] = useState<string>();
+
+  const formik = useFormik<z.infer<typeof updateOrganisationSchema>>({
     initialValues: {
       organisationName: "",
       industry: "",
       status: OrgStatusEnumValue.ACTIVE,
       nonWorkingDays: [],
       country: "",
+      jobTitlesOfOrg: [],
     },
     validationSchema: toFormikValidationSchema(updateOrganisationSchema),
     onSubmit: (values, helper) => {
@@ -96,45 +90,47 @@ function OrganisationNoPopUpForm(props: Props) {
       });
     },
   });
-  const userOrgSettingForm = useFormik<
-    z.infer<typeof userOrgSettingsUpdateSchema>
-  >({
-    initialValues: {
-      jobTitle: user?.userOrganisation[0].jobTitle ?? "",
-      taskColour:
-        user?.userOrganisation[0].taskColour ?? TaskColorPaletteEnum.BLACK,
-    },
-    validationSchema: toFormikValidationSchema(userOrgSettingsUpdateSchema),
-    onSubmit: (values, helper) => {
-      setIsTaskColourSubmitting(true);
-      orgSettingsUpdateMutation.mutate(values, {
-        onSuccess(data) {
-          toast.success(data.data.message);
-          setIsTaskColourSubmitting(false);
-          refetch();
-        },
-        onError(error) {
-          if (isAxiosError(error)) {
-            if (
-              error.response?.status === 400 &&
-              error.response.data?.errors &&
-              Array.isArray(error.response?.data.errors)
-            ) {
-              error.response.data.errors.forEach((item) => {
-                helper.setFieldError(item.path[0], item.message);
-              });
-            }
-            if (!Array.isArray(error.response?.data.errors)) {
-              toast.error(
-                error.response?.data?.message ?? "An unexpected error occurred."
-              );
-            }
-          }
-          setIsTaskColourSubmitting(false);
-        },
-      });
-    },
-  });
+  // const userOrgSettingForm = useFormik<
+  //   z.infer<typeof userOrgSettingsUpdateSchema>
+  // >({
+  //   initialValues: {
+  //     jobTitle: user?.userOrganisation[0].jobTitle ?? "",
+  //     taskColour:
+  //       user?.userOrganisation[0].taskColour ?? TaskColorPaletteEnum.BLACK,
+  //   },
+  //   validationSchema: toFormikValidationSchema(userOrgSettingsUpdateSchema),
+  //   onSubmit: (values, helper) => {
+  //     console.log("call");
+
+  //     setIsTaskColourSubmitting(true);
+  //     orgSettingsUpdateMutation.mutate(values, {
+  //       onSuccess(data) {
+  //         toast.success(data.data.message);
+  //         setIsTaskColourSubmitting(false);
+  //         refetch();
+  //       },
+  //       onError(error) {
+  //         if (isAxiosError(error)) {
+  //           if (
+  //             error.response?.status === 400 &&
+  //             error.response.data?.errors &&
+  //             Array.isArray(error.response?.data.errors)
+  //           ) {
+  //             error.response.data.errors.forEach((item) => {
+  //               helper.setFieldError(item.path[0], item.message);
+  //             });
+  //           }
+  //           if (!Array.isArray(error.response?.data.errors)) {
+  //             toast.error(
+  //               error.response?.data?.message ?? "An unexpected error occurred."
+  //             );
+  //           }
+  //         }
+  //         setIsTaskColourSubmitting(false);
+  //       },
+  //     });
+  //   },
+  // });
   // const taskColors = Object.keys(TaskColorPaletteEnum).map((colorPalette) => {
   //   const color =
   //     TaskColorPaletteEnum[colorPalette as keyof typeof TaskColorPaletteEnum];
@@ -155,6 +151,7 @@ function OrganisationNoPopUpForm(props: Props) {
         nonWorkingDays: editData.nonWorkingDays,
         organisationName: editData.organisationName,
         status: editData?.status,
+        jobTitlesOfOrg: editData.jobTitlesOfOrg,
       });
       if (editData.industry) {
         setIndustryValue({
@@ -238,29 +235,9 @@ function OrganisationNoPopUpForm(props: Props) {
       formik.setFieldValue("industry", val.value);
     }
   };
-
-  const organisationChange =
-    !editData?.country ||
-    editData?.country !== formik.values.country ||
-    !editData?.industry ||
-    editData?.industry !== formik.values?.industry ||
-    !editData?.nonWorkingDays ||
-    editData?.nonWorkingDays !== formik.values?.nonWorkingDays ||
-    !editData?.organisationName ||
-    editData?.organisationName !== formik.values?.organisationName;
-
   const submitForm = (e: React.FormEvent) => {
     e.preventDefault();
-    if (organisationChange) {
-      formik.submitForm();
-    }
-    if (
-      user?.userOrganisation[0].taskColour &&
-      user?.userOrganisation[0].taskColour !==
-        userOrgSettingForm.values.taskColour
-    ) {
-      userOrgSettingForm.submitForm();
-    }
+    formik.submitForm();
   };
   const csvUplodeRef = useRef<HTMLInputElement>(null);
   const csvUploadMutation = useCsvUploadMutation();
@@ -297,6 +274,35 @@ function OrganisationNoPopUpForm(props: Props) {
     ac.download;
     ac.click();
   };
+
+  const pushToJobTitle = () => {
+    if (addJobTitle) {
+      const data = formik.values.jobTitlesOfOrg ?? [];
+      if (data.includes(addJobTitle)) {
+        formik.setErrors({ jobTitlesOfOrg: addJobTitle + " already exist" });
+      } else {
+        data.push(addJobTitle);
+        formik.setFieldValue("jobTitlesOfOrg", data);
+        setAddJobTitle("");
+      }
+    }
+  };
+
+  const [removeJobTitle, setRemoveJobTitle] = useState("");
+  const removeToJobTitle = (str: string) => {
+    if (str && !viewOnly) {
+      const data = formik.values.jobTitlesOfOrg ?? [];
+      const temp: string[] = [];
+      data.forEach((d) => {
+        if (d !== str) {
+          temp.push(d);
+        }
+      });
+      formik.setFieldValue("jobTitlesOfOrg", temp);
+    }
+    setRemoveJobTitle("");
+  };
+
   return (
     <div className="bg-white rounded-lg border px-2 py-1.5 sm:px-5 sm:py-4 w-full">
       <form onSubmit={(e) => submitForm(e)} className="">
@@ -405,7 +411,7 @@ function OrganisationNoPopUpForm(props: Props) {
               {formik.touched.country && formik.errors.country}
             </ErrorMessage>
           </div>
-          <div className="block">
+          <div className="flex flex-row-reverse">
             <Button
               variant={"link"}
               className="w-full text-gray-600 justify-start"
@@ -419,20 +425,59 @@ function OrganisationNoPopUpForm(props: Props) {
             <ErrorMessage>
               {formik.touched.country && formik.errors.country}
             </ErrorMessage>
-          </div>
-          
-         { (editData && editData.holidayCsvUrl) && <div>
-            <Button
-              variant={"link"}
-              className="w-full text-gray-600 justify-start"
-              onClick={() => downloadUplodedCsv(editData.holidayCsvUrl ?? '')}
-            >
-              <div className="flex gap-2 ">
-                <img className="h-4 w-4" src={DownLoadIcon} /> Download uploaded
-                CSV
+            {editData && editData.holidayCsvUrl && (
+              <div>
+                <Button
+                  variant={"link"}
+                  className="w-full text-gray-600 justify-start"
+                  onClick={() =>
+                    downloadUplodedCsv(editData.holidayCsvUrl ?? "")
+                  }
+                >
+                  <div className="flex gap-2 ">
+                    <img className="h-4 w-4" src={DownLoadIcon} /> Download
+                    uploaded CSV
+                  </div>
+                </Button>
               </div>
-            </Button>
-          </div>}
+            )}
+          </div>
+
+          <div className="block mt-5">
+            <FormLabel className={labelStyle}>Job Titles</FormLabel>
+            <div className="relative w-full group">
+              <InputText
+                disabled={viewOnly}
+                className={inputStyle}
+                onChange={(e) => setAddJobTitle(e.target.value)}
+                placeholder="Job title"
+                value={addJobTitle}
+              />
+              <Button
+                type="button"
+                variant={"ghost"}
+                size={"icon"}
+                className="absolute top-1/2 right-1 -translate-y-1/2 mt-[1px] p-0"
+                onClick={pushToJobTitle}
+              >
+                <img src={SendIcon} />
+              </Button>
+            </div>
+            <ErrorMessage>{formik.errors.jobTitlesOfOrg}</ErrorMessage>
+            <div>
+              {formik.values.jobTitlesOfOrg?.map((t) => {
+                return (
+                  <span
+                    aria-selected={false}
+                    className="bg-gray-100 cursor-pointer text-gray-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-lg dark:bg-gray-700 dark:text-gray-300"
+                    onClick={() => setRemoveJobTitle(t)}
+                  >
+                    {t}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
         </div>
         {/* <div>
           <FormLabel htmlFor="country">Default color</FormLabel>
@@ -468,13 +513,35 @@ function OrganisationNoPopUpForm(props: Props) {
             ))}
           </div>
         </div> */}
+
+        <Dialog
+          isOpen={Boolean(removeJobTitle)}
+          onClose={() => {}}
+          modalClass="rounded-lg"
+        >
+          <div className="flex flex-col gap-2 p-6 ">
+            <img src={TrashCan} className="w-12 m-auto" /> Are you sure you want
+            to delete ?
+            <div className="flex gap-2 ml-auto">
+              <Button variant={"outline"} onClick={() => setRemoveJobTitle("")}>
+                Cancel
+              </Button>
+              <Button
+                variant={"primary"}
+                onClick={() => removeToJobTitle(removeJobTitle)}
+              >
+                Delete
+              </Button>
+            </div>
+          </div>
+        </Dialog>
         {!viewOnly && (
           <div className="flex justify-end">
             <Button
               type="submit"
               variant={"primary"}
-              isLoading={isSubmitting || IsTaskColourSubmitting}
-              disabled={isSubmitting || IsTaskColourSubmitting}
+              isLoading={isSubmitting}
+              disabled={isSubmitting}
               className="py-2.5 mt-5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
             >
               Save

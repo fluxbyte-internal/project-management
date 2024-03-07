@@ -32,6 +32,24 @@ const countryOptions = countries.map((item) => {
   return { label: item.name, value: item.isoCode };
 });
 
+const reactSelectStyle = {
+  control: (
+    provided: Record<string, unknown>,
+    state: { isFocused: boolean }
+  ) => ({
+    ...provided,
+    border: "1px solid #E7E7E7",
+    paddingTop: "0.2rem",
+    paddingBottom: "0.2rem",
+    zIndex: 1000,
+    outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
+    boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
+    "&:hover": {
+      outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
+      boxShadow: "0px 0px 0px #943B0C",
+    },
+  }),
+} as const;
 function AccountSettings() {
   const { user } = useUser();
   const { refetch: refetchUser } = useCurrentUserQuery();
@@ -52,7 +70,6 @@ function AccountSettings() {
     user?.userOrganisation[0]?.userOrganisationId ?? ""
   );
   const navigate = useNavigate();
-
 
   const userProfileForm = useFormik<z.infer<typeof userUpdateSchema>>({
     initialValues: {
@@ -179,7 +196,6 @@ function AccountSettings() {
   const handleChangePassword = () => {
     setIsOpenChangePassword(!isopenChangePassword);
   };
-
   const submitForm = (e: React.FormEvent) => {
     e.preventDefault();
     if (userProfileHasChanges) {
@@ -191,7 +207,13 @@ function AccountSettings() {
       userOrgSettingForm.handleSubmit();
     }
   };
-
+  const getOptions = () => {
+    const data = [{ label: "Select job title", value: "" }];
+    user.userOrganisation[0]?.organisation.jobTitlesOfOrg.forEach((s) => {
+      data.push({ label: s, value: s });
+    });
+    return data;
+  };
   return (
     <div className="overflow-auto w-full">
       <div className="max-w-5xl mx-auto p-4 pb-5">
@@ -213,7 +235,10 @@ function AccountSettings() {
                       <Spinner className="h-10 w-36" color="#F99807"></Spinner>
                     </div>
                   ) : (
-                    <img src={user.avatarImg} className="rounded-full m-auto h-full w-full object-fill" />
+                    <img
+                      src={user.avatarImg}
+                      className="rounded-full m-auto h-full w-full object-fill"
+                    />
                   )}
                 </div>
               ) : (
@@ -223,7 +248,11 @@ function AccountSettings() {
                       <Spinner className="h-10 w-36" color="#F99807"></Spinner>
                     </div>
                   ) : (
-                    <UserAvatar className="w-full h-full" fontClass="!text-7xl" user={user}></UserAvatar>
+                    <UserAvatar
+                      className="w-full h-full"
+                      fontClass="!text-7xl"
+                      user={user}
+                    ></UserAvatar>
                   )}
                 </div>
               )}
@@ -247,7 +276,7 @@ function AccountSettings() {
               >
                 {user.avatarImg ? "Change Profile Photo" : "Add Profile Photo"}
               </Button>
-              {user.provider?.find(d=>d.providerType  === "EMAIL") && (
+              {user.provider?.find((d) => d.providerType === "EMAIL") && (
                 <Button
                   variant="primary_outline"
                   className="transition ease-in-out duration-150 h-auto px-2 py-1 w-[1/2]"
@@ -336,22 +365,32 @@ function AccountSettings() {
                   </div>
                 </div>
               </div>
-              {user?.userOrganisation[0]?.organisationId&& <div>
-                <FormLabel htmlFor="jobTitle">Job Title</FormLabel>
-                <InputText
-                  name="jobTitle"
-                  id="jobTitle"
-                  placeholder="Enter your job title"
-                  value={userOrgSettingForm.values.jobTitle}
-                  onChange={userOrgSettingForm.handleChange}
-                />
+              {user?.userOrganisation[0]?.organisationId && (
                 <div>
-                  <ErrorMessage>
-                    {userOrgSettingForm.touched.jobTitle &&
-                      userOrgSettingForm.errors.jobTitle}
-                  </ErrorMessage>
+                  <FormLabel htmlFor="jobTitle">Job Title</FormLabel>
+                  <InputSelect
+                    name="jobTitle"
+                    options={getOptions()}
+                    onChange={(e) => {
+                      if (e) {
+                        const selectedCountry =
+                          e as (typeof countryOptions)[number];
+                        const jobTitle = selectedCountry?.value;
+                        userOrgSettingForm.setFieldValue("jobTitle", jobTitle);
+                      }
+                    }}
+                    value={{label:userOrgSettingForm.values.jobTitle,value:userOrgSettingForm.values.jobTitle}}
+                    menuPlacement="top"
+                    styles={reactSelectStyle}
+                  />
+                  <div>
+                    <ErrorMessage>
+                      {userOrgSettingForm.touched.jobTitle &&
+                        userOrgSettingForm.errors.jobTitle}
+                    </ErrorMessage>
+                  </div>
                 </div>
-              </div>}
+              )}
               <div className="flex items-center @2xl:col-span-2 my-4">
                 <Button
                   isLoading={isUserProfileSubmitting || isJobTitleSubmitting}
@@ -359,12 +398,7 @@ function AccountSettings() {
                   className="w-auto ml-auto"
                   disabled={
                     isUserProfileSubmitting ||
-                    isJobTitleSubmitting ||
-                    !(
-                      userProfileHasChanges ||
-                      user.userOrganisation[0]?.jobTitle !==
-                        userOrgSettingForm.values.jobTitle
-                    )
+                    isJobTitleSubmitting 
                   }
                   type="submit"
                 >

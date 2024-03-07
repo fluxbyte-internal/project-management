@@ -40,6 +40,7 @@ export type OrganisationResponseType = ResponseType<{
   createdBy: string;
   userOrganisation: UserOrganisationType[];
   holidayCsvUrl:string|null
+  jobTitlesOfOrg:string[]
 }>;
 
 function useOrganisationDetailsQuery(organisationId: string) {

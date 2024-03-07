@@ -23,6 +23,7 @@ export type OrganisationType = {
   updatedByUserId?: string;
   holidayCsvUrl:string|null
   orgHolidays?:OrgHolidays[]
+  jobTitlesOfOrg:string[]
 
 }
 export type OrgHolidays = {

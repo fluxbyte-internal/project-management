@@ -230,6 +230,7 @@ function OrganisationDetails() {
         createdAt: organisation.createdAt,
         updatedAt: organisation.updatedAt,
         holidayCsvUrl:organisation.holidayCsvUrl,
+        jobTitlesOfOrg:organisation.jobTitlesOfOrg
       });
     }
   }, [filterString, organisation?.userOrganisation, organisation]);
