@@ -74,10 +74,17 @@ export const calculateEndDate = async (
   let endDate = new Date(startDateObj);
   endDate.setUTCHours(0, 0, 0, 0);
   let remainingDuration = duration;
+
+  const startDayOfWeek = endDate.getUTCDay();
+  const startDayAbbreviation = getDayAbbreviation(startDayOfWeek).toUpperCase();
+  if (!nonWorkingDays.includes(startDayAbbreviation) && !isHoliday(endDate, holidays)) {
+    remainingDuration--;
+  }
+
   while (remainingDuration > 0) {
     endDate.setDate(endDate.getDate() + 1);
     const dayOfWeek = endDate.getUTCDay();
-    const dayAbbreviation = getDayAbbreviation(dayOfWeek);
+    const dayAbbreviation = getDayAbbreviation(dayOfWeek).toUpperCase();
     if (!nonWorkingDays.includes(dayAbbreviation) && !isHoliday(endDate, holidays)) {
       remainingDuration--;
     }
