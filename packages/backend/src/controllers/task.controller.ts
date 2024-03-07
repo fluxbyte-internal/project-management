@@ -51,7 +51,7 @@ export const getTasks = async (req: express.Request, res: express.Response) => {
   });
   const finalArray = await Promise.all(tasks.map(async (task) => {
     const endDate = await taskEndDate(task, req.tenantId, organisationId);
-    const completionPecentage = await calculationSubTaskProgression(task, req.tenantId, organisationId);
+    const completionPecentage = await calculationSubTaskProgression(task, req.tenantId, organisationId) ?? 0;
     const flag = await taskFlag(task, req.tenantId, organisationId);
     const updatedTask = {
       ...task,
@@ -122,7 +122,7 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
     },
   });
   const endDate = await taskEndDate(task, req.tenantId, req.organisationId);
-  const completionPecentage = await calculationSubTaskProgression(task, req.tenantId, req.organisationId);
+  const completionPecentage = await calculationSubTaskProgression(task, req.tenantId, req.organisationId) ?? 0;
   const flag = await taskFlag(task, req.tenantId, req.organisationId);
   const finalResponse = { ...task, completionPecentage, flag, endDate };
   return new SuccessResponse(
