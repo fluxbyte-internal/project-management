@@ -180,35 +180,40 @@ function generatePrismaClient(datasourceUrl?: string) {
         },
         async getSubtasksTimeline(taskId: string) {
           const task = await client.task.findFirst({
-            where: { taskId },
+            where: { taskId, deletedAt: null, parentTaskId: null },
             include: {
-              subtasks: true,
+              subtasks: {
+                where: { deletedAt: null },
+                include: {
+                  subtasks: {
+                    where: { deletedAt: null },
+                    include: {
+                      subtasks: true,
+                    },
+                  },
+                },
+              },
             },
+            orderBy: { startDate: "asc" },
           });
           if (!task) {
             return { earliestStartDate: null, lowestEndDate: null };
           }
-
-          let earliestStartDate = task.startDate;
-          let lowestEndDate: Date | null = task.milestoneIndicator
-            ? task.dueDate
-            : new Date(task.startDate);
-          if (!task.milestoneIndicator && task.duration) {
-            const endDate = new Date(task.startDate);
-            endDate.setDate(task.startDate.getDate() + task.duration);
-            lowestEndDate = endDate;
+          const startDateObj = new Date(task.startDate);
+          let lowestEndDate: Date = startDateObj;
+          if (task.duration) {
+            lowestEndDate.setDate(startDateObj.getDate() + task.duration);
           }
-
+          let earliestStartDate: Date | null = null;
           if (task.subtasks.length > 0) {
             task.subtasks.forEach((subtask) => {
-              if (subtask.startDate < earliestStartDate) {
+              if (!earliestStartDate) {
                 earliestStartDate = subtask.startDate;
-              }
-              if (
-                subtask.dueDate &&
-                (lowestEndDate === null || subtask.dueDate < lowestEndDate)
+              } else if (
+                earliestStartDate &&
+                subtask.startDate < earliestStartDate
               ) {
-                lowestEndDate = subtask.dueDate;
+                earliestStartDate = subtask.startDate;
               }
             });
           }

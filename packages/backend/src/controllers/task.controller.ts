@@ -96,6 +96,14 @@ export const getTaskById = async (req: express.Request, res: express.Response) =
       },
       subtasks: {
         where: { deletedAt: null },
+        include: {
+          subtasks: {
+            where: { deletedAt: null },
+            include: {
+              subtasks: true,
+            },
+          },
+        },
       },
       dependencies: {
         where: { deletedAt: null },
