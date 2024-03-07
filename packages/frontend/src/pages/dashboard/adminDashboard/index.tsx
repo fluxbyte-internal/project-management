@@ -85,7 +85,7 @@ function AdminDashboard() {
     setstatusPieChartProp({
       chartData: statusPieChartData!,
       color: ["#DD7102", "#943B0C", "#461802", "#555555"],
-      title: "Projects Per Status",
+      title: "Projects per status",
       radius: ["45%", "60%"],
       height: "300px",
     });
@@ -97,7 +97,7 @@ function AdminDashboard() {
     setOverallStatusPieChartProp({
       chartData: overallSituationPieChartData!,
       color: ["#FFD04A", "#FFB819", "#B74E06", "#461802"],
-      title: "Projects Per Overall Situation",
+      title: "Projects per overall situation",
       radius: ["0%", "60%"],
       height: "300px",
     });
@@ -110,7 +110,7 @@ function AdminDashboard() {
     setSpiPieChartProp({
       chartData: spiPieChartData!,
       color: ["#FF000077",  "#00800077","#FFB81977"],
-      title: "Project With Delays",
+      title: "Projects with delays",
       subtext: "Project delay based on task",
       radius: ["45%", "60%"],
       height: "300px",
@@ -187,14 +187,18 @@ function AdminDashboard() {
     {
       key: "status",
       header: "Status",
-      onCellRender: (item) => (
+      onCellRender: (item: Project) => (
         <>
-          <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
-            <div className="text-cyan-700 text-xs font-medium leading-tight">
-              {item?.status
+          <div
+            className={`w-32 h-8 px-3 py-1.5 ${getStatusColor(
+              item.status
+            )} rounded justify-center items-center gap-px inline-flex`}
+          >
+            <div className=" text-xs font-medium leading-tight">
+              {item.status
                 .toLowerCase()
                 .replace(/_/g, " ")
-                .replace(/\b\w/g, (char: string) => char.toUpperCase())}
+                .replace(/\b\w/g, (char) => char.toUpperCase())}
             </div>
           </div>
         </>
@@ -220,6 +224,18 @@ function AdminDashboard() {
     setIsOpenPopUp(false);
     setEditData(undefined);
   };
+  const getStatusColor = (status: string) => {
+    switch (status) {
+    case ProjectStatusEnumValue.NOT_STARTED:
+      return "!bg-slate-500/60 text-white";
+    case ProjectStatusEnumValue.ON_HOLD:
+      return "!bg-orange-300 text-white";
+    case ProjectStatusEnumValue.ACTIVE:
+      return "!bg-emerald-500 text-white";
+    case ProjectStatusEnumValue.CLOSED:
+      return "!bg-red-500 text-white";
+    }
+  };
   const navigate = useNavigate();
   const filterRoutes = (item: string) => {
     navigate(`/projects/?status=${item}`);
@@ -228,7 +244,7 @@ function AdminDashboard() {
     <>
       <div className="overflow-auto w-full py-2 px-2 lg:px-14 flex flex-col gap-10">
         <h2 className="font-medium text-3xl leading-normal text-gray-600">
-          Admin Dashboard
+        Portfolio dashboard
         </h2>
         <div className="text-xl font-bold text-gray-400 px-6">Project Status</div>
         <div className="w-full h-fit flex flex-col lg:flex-row gap-10 items-center">

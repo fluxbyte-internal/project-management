@@ -24,9 +24,10 @@ import {
   GanttChartTask,
   GanttChartTaskColumn,
 } from "smart-webcomponents-react/ganttchart";
-import PercentageCircle from "@/components/shared/PercentageCircle";
 import addIcon from "@/assets/svg/AddProjectIcon.svg";
 import { FIELDS } from "@/api/types/enums";
+import { Progress } from "@/components/ui/progress";
+import { TaskStatusEnumValue } from "@backend/src/schemas/enums";
 export interface Options {
   label: string;
   value: string;
@@ -53,11 +54,11 @@ const reactSelectStyle = {
 
 function GanttView() {
   const treeSize = "35%";
-  const durationUnit = "hour";
-  const sortMode = "one";
+  const durationUnit = "day";
+  const sortMode = "many";
   const showProgressLabel = true;
   const { projectId } = useParams();
-  const [filterUnit, setFilterUnit] = useState<string>("month");
+  const [filterUnit, setFilterUnit] = useState<string>("week");
   const ganttChart = useRef<GanttChart>(null);
   const { user } = useUser();
   const allTaskQuery = useAllTaskQuery(projectId);
@@ -102,11 +103,17 @@ function GanttView() {
   }, [filterData, filterUnit]);
 
   const convertTask = (originalTask: Task) => {
+    const startDate = new Date(originalTask.startDate ?? "");
+    startDate.setUTCHours(0, 0, 0, 0);
+    startDate.setDate(startDate.getDate() - 1);
+    const endDate = new Date(originalTask.endDate ?? "");
+    endDate.setUTCHours(0, 0, 0, 0);
+    endDate.setDate(endDate.getDate());
     const convertedTask: GanttChartTask = {
       id: originalTask.taskId,
       label: originalTask.taskName,
-      dateStart: originalTask.startDate,
-      dateEnd: originalTask.endDate,
+      dateStart: startDate,
+      dateEnd: endDate,
       disableResources: true,
       resources: [{ id: JSON.stringify(originalTask.assignedUsers) }],
       tasks: [],
@@ -117,7 +124,7 @@ function GanttView() {
         originalTask.dependencies && originalTask.dependencies.length > 0
           ? connections(originalTask)
           : null,
-      type: originalTask.milestoneIndicator ? "milestone" : "task",
+      class: originalTask.milestoneIndicator ? "milestone" : "task",
     };
 
     if (originalTask.subtasks) {
@@ -145,7 +152,6 @@ function GanttView() {
   };
 
   const viewData: Options[] = [
-    { label: "Day", value: "day" },
     { label: "Week", value: "week" },
     { label: "Month", value: "month" },
     { label: "Year", value: "year" },
@@ -213,7 +219,9 @@ function GanttView() {
       formatFunction: function (item: string, task: GanttChartTask) {
         if (task.value !== "false") {
           return ReactDOMServer.renderToString(
-            <PercentageCircle percentage={item} />
+            <div className="my-auto">
+              <Progress value={Number(item)} />
+            </div>
           );
         } else {
           return "";
@@ -228,33 +236,38 @@ function GanttView() {
     }
   };
 
-  const updateTaskFromGanttView = (e: (Event & CustomEvent) | undefined) => {
+  const updateTaskFromGanttView = (
+    e: (Event & CustomEvent) | undefined,
+    flag: string
+  ) => {
     const duration = calculateDuration(e?.detail.dateStart, e?.detail.dateEnd);
-    taskUpdateMutation.mutate(
-      {
-        id: e?.detail.id,
-        startDate: e?.detail.dateStart,
-        duration: parseFloat(duration),
-      },
-      {
-        onSuccess(data) {
-          toast.success(data.data.message);
-          allTaskQuery.refetch();
-        },
-        onError(error) {
-          toast.error(error.response?.data.message);
-        },
-      }
-    );
-  };
-  function calculateDuration(startDate: Date, endDate: Date) {
-    const start: number = new Date(startDate).getTime();
-    const end: number = new Date(endDate).getTime();
-    const durationMs = end - start;
-    const durationDays = durationMs / (1000 * 60 * 60 * 24);
-    return parseFloat(durationDays + "").toFixed(2);
-  }
+    const startDate = new Date(e?.detail.dateStart ?? "");
+    startDate.setUTCHours(0, 0, 0, 0);
+    startDate.setDate(startDate.getDate() + 1);
 
+    let data;
+    if (flag == "drag") {
+      data = {
+        id: e?.detail.id,
+        startDate: startDate,
+      };
+    } else {
+      data = {
+        id: e?.detail.id,
+        startDate: startDate,
+        duration: duration,
+      };
+    }
+    taskUpdateMutation.mutate(data, {
+      onSuccess(data) {
+        toast.success(data.data.message);
+        allTaskQuery.refetch();
+      },
+      onError(error) {
+        toast.error(error.response?.data.message);
+      },
+    });
+  };
   const HandleNonWorkingDays = () => {
     const nonWorkingDays =
       user?.userOrganisation.map((org) => org.organisation.nonWorkingDays) ||
@@ -289,17 +302,56 @@ function GanttView() {
     });
     return result;
   };
+  function calculateDuration(startDate: Date, endDate: Date) {
+    let duration = 0;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    while (start <= end) {
+      duration++;
+      start.setDate(start.getDate() + 1);
+    }
+
+    return duration;
+  }
+
   const taskSetter = (
     task: any,
     segment: any,
-    taskElement: Element,
-    segmentElement: Element,
+    taskElement: HTMLElement,
+    segmentElement: HTMLElement,
     labelElement: Element
   ) => {
     if (task.value == "false" && segment.value == "false") {
       taskElement.classList.add("hidden");
       segmentElement.classList.add("hidden");
       labelElement.classList.add("hidden");
+    } else {
+      const status = filterData?.find((t) => t.taskId === task.id)?.status;
+      taskElement.classList.add("rounded");
+
+      switch (status) {
+      case TaskStatusEnumValue.NOT_STARTED:
+        segmentElement.children[0].classList.add("!bg-slate-500/60");
+        break;
+      case TaskStatusEnumValue.IN_PROGRESS:
+        segmentElement.children[0].classList.add("!bg-blue-300");
+        break;
+      case TaskStatusEnumValue.COMPLETED:
+        segmentElement.children[0].classList.add("!bg-emerald-500");
+        break;
+      }
+      if (task.class == "milestone") {
+        segmentElement.classList.add("hidden");
+        taskElement.classList.add("!w-0");
+
+        labelElement.classList.add("hidden");
+        taskElement.classList.remove("bg-emerald-400");
+        segmentElement.children[0].classList.remove("!bg-emerald-500");
+        taskElement.classList.remove("bg-blue-200");
+        segmentElement.children[0].classList.remove("!bg-blue-300");
+        taskElement.classList.remove("bg-slate-500/60");
+        segmentElement.children[0].classList.remove("!bg-slate-500/60");
+      }
     }
   };
   const [task, setTask] = useState<Task>();
@@ -333,35 +385,29 @@ function GanttView() {
   }) => {
     return (
       <>
-        <div className="group" title={props.taskId ?? ""}>
+        <div className="group flex w-fit" title={props.taskId ?? ""}>
           {props.title}
-          <div className="!mt-2 opacity-0 !flex !gap-1 transition ease-in-out delay-150 absolute group-hover:opacity-100 group-hover:block z-50 bg-gra rounded-lg">
+          <div className="opacity-0 !flex !gap-1 transition ease-in-out delay-150  group-hover:opacity-100 group-hover:block z-50 bg-gra rounded-lg">
             <Button
               id={BUTTON_EVENT.REMOVE}
               value={"remove"}
               variant={"none"}
               size={"sm"}
-              className="p-0 h-0"
+              className="p-0 !h-full"
             >
               <img
                 src={TrashCan}
                 id={BUTTON_EVENT.REMOVE}
                 alt={props.taskId ?? ""}
-                className="h-4 w-4 mt-1"
               />
             </Button>
             <Button
               id={BUTTON_EVENT.EDIT}
               variant={"none"}
               size={"sm"}
-              className="p-0 h-0"
+              className="p-0 !h-full"
             >
-              <img
-                src={Edit}
-                id={BUTTON_EVENT.EDIT}
-                className="h-3 w-3 mt-1"
-                alt={props.taskId ?? ""}
-              />
+              <img src={Edit} id={BUTTON_EVENT.EDIT} alt={props.taskId ?? ""} />
             </Button>
           </div>
         </div>
@@ -391,8 +437,33 @@ function GanttView() {
       setMonthScale("day");
     }
   }, [filterUnit]);
+  function getWeekNumber(date: Date) {
+    const startOfYear = new Date(date.getFullYear(), 0, 0).getTime();
+    const dayOfYear = Math.floor((date.getTime() - startOfYear) / 86400000);
+    const weekNumber = Math.ceil((dayOfYear + 1) / 7);
+
+    return weekNumber;
+  }
+  const timelineHeaderFormatFunction = (
+    date: Date,
+    type: string,
+    isHeaderDetailsContainer: boolean
+  ) => {
+    if (isHeaderDetailsContainer && type) {
+      return date.toLocaleString("en-US", { month: "long", year: "numeric" });
+    } else {
+      if (monthScale !== "week") {
+        return date.toLocaleString("en-US", { day: "numeric", month: "short" });
+      }
+      if (filterUnit === "year") {
+        return date.toLocaleString("en-US", { month: "short" });
+      } else {
+        return getWeekNumber(date);
+      }
+    }
+  };
   return (
-    <div className="h-full w-full flex flex-col py-5">
+    <div className="h-full w-full flex flex-col pb-5">
       <div className="flex justify-between">
         <div className="flex justify-center items-center gap-2 my-2 ">
           <TaskFilter
@@ -417,7 +488,7 @@ function GanttView() {
             onChange={handleView}
             placeholder="Select Filter"
             styles={reactSelectStyle}
-            defaultValue={{ label: "month", value: "month" }}
+            defaultValue={{ label: "week", value: "week" }}
           />
         </div>
       </div>
@@ -428,25 +499,33 @@ function GanttView() {
         treeSize={treeSize}
         durationUnit={durationUnit}
         nonworkingDays={HandleNonWorkingDays()}
+        infiniteTimelineStep={10}
         monthScale={monthScale}
         monthFormat="long"
-        dayFormat="numeric"
+        dayFormat="long"
         weekFormat="long"
         disableSelection
         view={filterUnit}
         sortMode={sortMode}
         tooltip={tooltip}
+        timelineHeaderFormatFunction={timelineHeaderFormatFunction}
         onOpening={(e) => {
           e?.preventDefault();
         }}
         onResizeEnd={(e) => {
-          updateTaskFromGanttView(e as (Event & CustomEvent) | undefined);
+          updateTaskFromGanttView(
+            e as (Event & CustomEvent) | undefined,
+            "resize"
+          );
         }}
         onConnectionEnd={(e) =>
           onConnection(e as (Event & CustomEvent) | undefined)
         }
         onDragEnd={(e) => {
-          updateTaskFromGanttView(e as (Event & CustomEvent) | undefined);
+          updateTaskFromGanttView(
+            e as (Event & CustomEvent) | undefined,
+            "drag"
+          );
         }}
         className="h-full scroll"
         hideResourcePanel
@@ -454,11 +533,10 @@ function GanttView() {
         horizontalScrollBarVisibility="visible"
         verticalScrollBarVisibility="visible"
         showProgressLabel={showProgressLabel}
-        snapToNearest
-        autoSchedule
         onItemClick={(e) =>
           handleItemClick(e as (Event & CustomEvent) | undefined)
         }
+        snapToNearest
         onTaskRender={taskSetter}
       />
       <Dialog

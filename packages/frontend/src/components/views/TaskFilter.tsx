@@ -63,7 +63,7 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
         const val = user.user.email;
         const username =
           user.user.firstName && user.user.lastName
-            ? user.user.firstName+ " " + user.user.lastName
+            ? user.user.firstName + " " + user.user.lastName
             : val;
         if (!projectManagerData.some((i) => i.value === user.user.email)) {
           projectManagerData.push({ label: username, value: val });
@@ -307,7 +307,7 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                     </div>
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="z-50 bg-white shadow-lg mr-5">
+                <PopoverContent className="z-50 bg-white shadow-lg mr-5 max-h-screen overflow-y-auto">
                   <div className="p-3 w-80 flex flex-col gap-3 !z-50">
                     <div>
                       <div className="text-lg font-semibold">Filter</div>
@@ -427,11 +427,11 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                                 {Boolean(filter.get("from")) &&
                                 Boolean(filter.get("to"))
                                   ? `${dateFormater(
-                                      new Date(filter.get("from") ?? new Date())
-                                    )}-
+                                    new Date(filter.get("from") ?? new Date())
+                                  )}-
                           ${dateFormater(
-                            new Date(filter.get("to") ?? new Date())
-                          )}`
+                        new Date(filter.get("to") ?? new Date())
+                      )}`
                                   : "Select start date"}
                                 <img src={CalendarSvg} width={20} />
                               </div>
@@ -446,9 +446,9 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                                   e?.from
                                     ? setParamFilter("from", String(e?.from))
                                     : "",
-                                    e?.to
-                                      ? setParamFilter("to", String(e?.to))
-                                      : "";
+                                  e?.to
+                                    ? setParamFilter("to", String(e?.to))
+                                    : "";
                                 }}
                                 className="rounded-md border"
                               />
@@ -464,13 +464,13 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                           value={
                             filter.get("assigned")
                               ? {
-                                  label: filter.get("assigned"),
-                                  value: filter.get("assigned"),
-                                }
+                                label: filter.get("assigned"),
+                                value: filter.get("assigned"),
+                              }
                               : {
-                                  label: "Select assigned user",
-                                  value: "",
-                                }
+                                label: "Select assigned user",
+                                value: "",
+                              }
                           }
                           options={assignedTask()}
                           onChange={(e) => {
@@ -492,9 +492,9 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                           value={
                             filter.get("flag")
                               ? {
-                                  label: filter.get("flag"),
-                                  value: filter.get("flag"),
-                                }
+                                label: filter.get("flag"),
+                                value: filter.get("flag"),
+                              }
                               : { label: "Select flag", value: "" }
                           }
                           options={flags}
@@ -517,9 +517,9 @@ const TaskFilter = forwardRef<TaskFilterRef, Filter>((props, ref) => {
                           value={
                             filter.get("tasks")
                               ? {
-                                  label: filter.get("tasks"),
-                                  value: filter.get("tasks"),
-                                }
+                                label: filter.get("tasks"),
+                                value: filter.get("tasks"),
+                              }
                               : { label: "Both", value: "" }
                           }
                           options={taskOption}

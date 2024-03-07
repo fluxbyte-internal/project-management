@@ -5,7 +5,6 @@ import PieChart, { ChartProps } from "@/components/charts/PieChart";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import dateFormatter from "@/helperFuntions/dateFormater";
-import BarChart, { BarChartPropsType } from "@/components/charts/BarChart";
 import Sunny from "@/assets/png/Sunny.png";
 import Cloudy from "@/assets/png/Cloudy.png";
 import Rainy from "@/assets/png/Rainy.png";
@@ -35,7 +34,7 @@ function ProjectDashboard() {
   const [selectedStatusTheme, setSelectedStatusTheme] =
     useState<ThemeColorData>();
   const [statusPieChartProp, setstatusPieChartProp] = useState<ChartProps>();
-  const [barChartProp, setBarChartProp] = useState<BarChartPropsType>();
+  const [barChartProp, setBarChartProp] = useState<ChartProps>();
   const projectId = useParams()?.projectId;
   const projectDashboardQuery = useProjectDashboardQuery(projectId);
 
@@ -126,7 +125,7 @@ function ProjectDashboard() {
         setstatusPieChartProp({
           chartData: statusPieChartData,
           color: selectedStatusTheme?.colors.chartColors,
-          title: "Task Per Status",
+          title: "Task status",
           height: "100%",
           radius: ["0%", "70%"],
         });
@@ -149,18 +148,21 @@ function ProjectDashboard() {
         chartData: [
           {
             value: delayCounts.red,
-            itemStyle: { color: selectedStatusTheme?.colors?.chartColors[2] },
+            name: "Red",
           },
           {
             value: delayCounts.green,
-            itemStyle: { color: selectedStatusTheme?.colors?.chartColors[1] },
+            name: "Green",
           },
           {
             value: delayCounts.orange,
-            itemStyle: { color: selectedStatusTheme?.colors?.chartColors[0] },
-          },
+            name: "Orange",
+          }
         ],
-        title: "Task Delays",
+        color: ["#FF000077",  "#00800077","#FFB81977"],
+        title: "Task with delays",
+        height: "100%",
+        radius: ["0%", "70%"],
       });
     }
   }, [selectedStatusTheme]);
@@ -189,10 +191,10 @@ function ProjectDashboard() {
   const getSPI = () => {
     let val = 0;
     if (data && data.spi.length) {
-      data?.spi.forEach((e) => {
-        val = +e.spi;
+      data.spi.forEach((e) => {
+        val += e.spi;
       });
-      return Number((val / data?.spi.length) * 100).toFixed(2);
+      return Number((val / data.spi.length)).toFixed(2);
     } else {
       return 0;
     }
@@ -455,12 +457,12 @@ function ProjectDashboard() {
             </div>
             <div className="taskCharts w-full h-fit flex flex-col md:flex-row justify-center items-center gap-6 py-2 ">
               <div
-                className={`py-5 ${selectedStatusTheme?.colors.chartGradient} ${selectedStatusTheme?.colors.chartBorders} rounded-2xl w-full md:w-2/3 h-full justify-center items-center flex gap-2 `}
+                className={`${selectedStatusTheme?.colors.chartGradient} ${selectedStatusTheme?.colors.chartBorders} rounded-2xl w-full md:w-1/2 h-[25rem] justify-center items-center flex gap-2 `}
               >
-                {barChartProp ? <BarChart chartProps={barChartProp} /> : <></>}
+                {barChartProp ? <PieChart chartProps={barChartProp} /> : <></>}
               </div>
               <div
-                className={` ${selectedStatusTheme?.colors.chartGradient} ${selectedStatusTheme?.colors.chartBorders} rounded-2xl w-full md:w-1/3 h-[500px] md:h-full justify-center items-center flex gap-2  `}
+                className={` ${selectedStatusTheme?.colors.chartGradient} ${selectedStatusTheme?.colors.chartBorders} rounded-2xl w-full md:w-1/2 h-[25rem] justify-center items-center flex gap-2  `}
               >
                 {statusPieChartProp ? (
                   <PieChart chartProps={statusPieChartProp} />

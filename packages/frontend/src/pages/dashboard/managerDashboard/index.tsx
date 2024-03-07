@@ -161,6 +161,26 @@ function ManagerDashboard() {
       ),
     },
     {
+      key: "status",
+      header: "Status",
+      onCellRender: (item: Project) => (
+        <>
+          <div
+            className={`w-32 h-8 px-3 py-1.5 ${getStatusColor(
+              item.status
+            )} rounded justify-center items-center gap-px inline-flex`}
+          >
+            <div className=" text-xs font-medium leading-tight">
+              {item.status
+                .toLowerCase()
+                .replace(/_/g, " ")
+                .replace(/\b\w/g, (char) => char.toUpperCase())}
+            </div>
+          </div>
+        </>
+      ),
+    },
+    {
       key: "actualDuration",
       header: "Actual Duration",
       sorting: true,
@@ -171,6 +191,18 @@ function ManagerDashboard() {
       sorting: true,
     },
   ];
+  const getStatusColor = (status: string) => {
+    switch (status) {
+    case ProjectStatusEnumValue.NOT_STARTED:
+      return "!bg-slate-500/60 text-white";
+    case ProjectStatusEnumValue.ON_HOLD:
+      return "!bg-orange-300 text-white";
+    case ProjectStatusEnumValue.ACTIVE:
+      return "!bg-emerald-500 text-white";
+    case ProjectStatusEnumValue.CLOSED:
+      return "!bg-red-500 text-white";
+    }
+  };
   const close = () => {
     setIsOpenPopUp(false);
     setEditData(undefined);
@@ -183,7 +215,7 @@ function ManagerDashboard() {
     <>
       <div className="overflow-auto w-full py-2 px-2 lg:px-14 flex flex-col gap-10">
         <h2 className="font-medium text-3xl leading-normal text-gray-600">
-          Manager's Dashboard
+        Portfolio dashboard
         </h2>
         <div className="text-xl font-bold text-gray-400  px-6">Project Status</div>
         <div className="w-full h-fit flex flex-col lg:flex-row gap-10 items-center">

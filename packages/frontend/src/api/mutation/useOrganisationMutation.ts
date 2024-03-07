@@ -21,7 +21,23 @@ export type OrganisationType = {
   tenantId: string;
   createdByUserId: string;
   updatedByUserId?: string;
+  holidayCsvUrl:string|null
+  orgHolidays?:OrgHolidays[]
+  jobTitlesOfOrg:string[]
+
 }
+export type OrgHolidays = {
+  orgHolidaysId:    string;
+  organisationId:   string;
+  holidayStartDate: string;
+  holidayEndDate:   null;
+  holidayType:      null;
+  holidayReason:    string;
+  createdAt:        Date;
+  updatedAt:        Date;
+  deletedAt:        null;
+}
+
 type OrganisationApiResponse = ResponseType<OrganisationType>;
 
 function useOrganisationMutation() {

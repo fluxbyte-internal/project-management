@@ -242,6 +242,12 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
   //     },
   //   });
   // };
+  const enumToString = ( str:string) =>{
+    return str.toLowerCase()
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+  }
+
   return (
     <div className="mt-4">
       <div className="">
@@ -398,10 +404,10 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                     key={radioButton.id}
                     className={`h-full w-full rounded-[5px] border ${
                       formik.values.defaultView ===
-                      radioButton.title.toUpperCase()
-                        ? " border-2 border-primary-800 "
-                        : " border-gray-100"
-                    }`}
+                      radioButton.title.toUpperCase() && !viewOnly
+                        ?  " border-2  border-primary-800 "
+                        : " border-gray-100" 
+                    } ${formik.values.defaultView !== radioButton.title.toUpperCase() && viewOnly ? "border-2  border-gray-800  hidden" :  "block" }`}
                   >
                     <label className="flex lg:gap-3.5 gap-4 px-5 py-2.5 items-center h-full cursor-pointer">
                       <input
@@ -606,7 +612,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 menuPlacement="auto"
                 value={
                   formik.values.status && {
-                    label: formik.values.status,
+                    label:enumToString(formik.values.status),
                     value: formik.values.status,
                   }
                 }
@@ -616,7 +622,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                   formik.setFieldValue("status", e?.value)
                 }
                 options={Object.keys(ProjectStatusEnumValue).map((i) => {
-                  return { label: i, value: i };
+                  return { label: enumToString(i), value: i };
                 })}
                 styles={reactSelectStyle}
               />
@@ -630,12 +636,12 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
               <Select
                 isDisabled={viewOnly}
                 options={Object.keys(OverAllTrackEnumValue).map((i) => {
-                  return { label: i, value: i };
+                  return { label: enumToString(i), value: i };
                 })}
                 menuPlacement="auto"
                 value={
                   formik.values.overallTrack && {
-                    label: formik.values.overallTrack,
+                    label: enumToString(formik.values.overallTrack),
                     value: formik.values.overallTrack,
                   }
                 }
@@ -657,7 +663,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 menuPlacement="auto"
                 value={
                   formik.values.scheduleTrend && {
-                    label: formik.values.scheduleTrend,
+                    label: enumToString(formik.values.scheduleTrend),
                     value: formik.values.scheduleTrend,
                   }
                 }
@@ -667,7 +673,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                   formik.setFieldValue("scheduleTrend", e?.value)
                 }
                 options={Object.keys(ScheduleAndBudgetTrend).map((i) => {
-                  return { label: i, value: i };
+                  return { label: enumToString(i), value: i };
                 })}
                 styles={reactSelectStyle}
               />
@@ -681,12 +687,12 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
               <Select
                 isDisabled={viewOnly}
                 options={Object.keys(ScheduleAndBudgetTrend).map((i) => {
-                  return { label: i, value: i };
+                  return { label: enumToString(i), value: i };
                 })}
                 menuPlacement="auto"
                 value={
                   formik.values.budgetTrend && {
-                    label: formik.values.budgetTrend,
+                    label:enumToString(formik.values.budgetTrend),
                     value: formik.values.budgetTrend,
                   }
                 }

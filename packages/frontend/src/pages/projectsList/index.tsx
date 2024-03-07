@@ -31,19 +31,23 @@ import {
 } from "@radix-ui/react-popover";
 import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
-import { useUser } from "@/hooks/useUser";
-import { UserRoleEnumValue } from "@backend/src/schemas/enums";
+// import { useUser } from "@/hooks/useUser";
+import {
+  ProjectStatusEnumValue,
+  UserRoleEnumValue,
+} from "@backend/src/schemas/enums";
 import useProjectDuplicateMutation from "@/api/mutation/useDuplicateProject";
 import { toast } from "react-toastify";
 import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
-import  DuplicateIcon  from "@/assets/svg/DuplicateIcon.svg";
+import DuplicateIcon from "@/assets/svg/DuplicateIcon.svg";
+import Users from "@/assets/svg/Users.svg";
 type Options = { label: string; value: string };
 function ProjectsList() {
   const [data, setData] = useState<Project[]>();
   const [filterData, setFilterData] = useState<Project[]>();
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
   const [editData, setEditData] = useState<Project | undefined>();
-  const [projectId, setProjectId] = useState<string >();
+  const [projectId, setProjectId] = useState<string>();
   const [filter, setFilter] = useState<{
     projectManager: SingleValue<Options> | null;
     status: SingleValue<Options> | null;
@@ -53,7 +57,7 @@ function ProjectsList() {
     status: null,
     date: undefined,
   });
-  const { user } = useUser();
+  // const { user } = useUser();
   const navigate = useNavigate();
   const projectQuery = useProjectQuery();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -178,12 +182,15 @@ function ProjectsList() {
       onCellRender: (item: Project) => (
         <div className="w-full my-3">
           {item.assignedUsers.filter(
-            (d) => d.user.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER
+            (d) =>
+              d.user.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER
           )?.length > 0 ? (
               <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
                 {item.assignedUsers
                   ?.filter(
-                    (d) => d.user.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER
+                    (d) =>
+                      d.user.userOrganisation[0].role ==
+                    UserRoleEnumValue.TEAM_MEMBER
                   )
                   .slice(0, 3)
                   .map((item, index) => {
@@ -201,18 +208,24 @@ function ProjectsList() {
                   })}
                 {item.projectManagerInfo &&
                 item.assignedUsers.filter(
-                  (d) => d.user.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER
+                  (d) =>
+                    d.user.userOrganisation[0].role ==
+                    UserRoleEnumValue.TEAM_MEMBER
                 )?.length > 3 && (
                   <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
                     {`${
                       item.assignedUsers.filter(
-                        (d) => d.user.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER
+                        (d) =>
+                          d.user.userOrganisation[0].role ==
+                          UserRoleEnumValue.TEAM_MEMBER
                       )?.length - 3
                     }+`}
                   </div>
                 )}
                 {item.assignedUsers.filter(
-                  (d) => d.user.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER
+                  (d) =>
+                    d.user.userOrganisation[0].role ==
+                  UserRoleEnumValue.TEAM_MEMBER
                 )?.length <= 0
                   ? "N/A"
                   : ""}
@@ -228,8 +241,12 @@ function ProjectsList() {
       header: "Status",
       onCellRender: (item: Project) => (
         <>
-          <div className="w-32 h-8 px-3 py-1.5 bg-cyan-100 rounded justify-center items-center gap-px inline-flex">
-            <div className="text-cyan-700 text-xs font-medium leading-tight">
+          <div
+            className={`w-32 h-8 px-3 py-1.5 ${getStatusColor(
+              item.status
+            )} rounded justify-center items-center gap-px inline-flex`}
+          >
+            <div className=" text-xs font-medium leading-tight">
               {item.status
                 .toLowerCase()
                 .replace(/_/g, " ")
@@ -252,8 +269,7 @@ function ProjectsList() {
       header: "Actual Date",
       onCellRender: (item: Project) => (
         <>
-          {item.estimatedEndDate &&
-            dateFormatter(new Date(item.actualEndDate))}
+          {item.estimatedEndDate && dateFormatter(new Date(item.actualEndDate))}
         </>
       ),
     },
@@ -313,6 +329,12 @@ function ProjectsList() {
                   Duplicate Project
                 </span>
               </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => navigate("/members/" + item.projectId)}
+              >
+                <img src={Users} className="h-4 w-4 mr-2" />
+                <span className="p-0 font-normal h-auto">Project members</span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </>
@@ -340,7 +362,18 @@ function ProjectsList() {
   //   setIsOpenPopUp(true);
   //   setEditData(item);
   // };
-
+  const getStatusColor = (status: string) => {
+    switch (status) {
+    case ProjectStatusEnumValue.NOT_STARTED:
+      return "!bg-slate-500/60 text-white";
+    case ProjectStatusEnumValue.ON_HOLD:
+      return "!bg-orange-300 text-white";
+    case ProjectStatusEnumValue.ACTIVE:
+      return "!bg-emerald-500 text-white";
+    case ProjectStatusEnumValue.CLOSED:
+      return "!bg-red-500 text-white";
+    }
+  };
   useEffect(() => {
     let filteredData = data;
     if (filter && filter.status && filter.status.value) {
@@ -394,7 +427,7 @@ function ProjectsList() {
                 <h2 className="font-medium text-3xl leading-normal text-gray-600">
                   Projects
                 </h2>
-                {user?.userOrganisation[0]?.role !== UserRoleEnumValue.TEAM_MEMBER && (
+                {/* {user?.userOrganisation[0]?.role !== UserRoleEnumValue.TEAM_MEMBER && (
                   <div>
                     <Button
                       variant={"primary"}
@@ -403,7 +436,7 @@ function ProjectsList() {
                       Add Project
                     </Button>
                   </div>
-                )}
+                )} */}
               </div>
               {data && (
                 <div className="flex justify-around items-center">
@@ -505,9 +538,13 @@ function ProjectsList() {
               editData={editData}
             />
           )}
-            {projectId && (
-        <TaskSubTaskForm taskId={undefined} projectId={projectId} close={close} />
-      )}
+          {projectId && (
+            <TaskSubTaskForm
+              taskId={undefined}
+              projectId={projectId}
+              close={close}
+            />
+          )}
         </>
       )}
     </div>

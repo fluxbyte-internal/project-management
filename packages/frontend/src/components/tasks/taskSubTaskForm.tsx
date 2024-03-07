@@ -139,7 +139,7 @@ function TaskSubTaskForm(props: Props) {
       taskDescription: "",
       startDate: props.initialValues?.startDate
         ? new Date(props.initialValues?.startDate)
-        : new Date(),
+        : new Date(startDate),
       duration: 1.0,
     },
     validationSchema: toFormikValidationSchema(createTaskSchema),
@@ -364,7 +364,13 @@ function TaskSubTaskForm(props: Props) {
                 }`}
               >
                 <img src={Tag} className="w-3.5" />
-                Flags
+                {tasks?.flag == "Green"
+                  ? "On track"
+                  : tasks?.flag == "Red"
+                  ? "Significant delay"
+                  : tasks?.flag == "Orange"
+                  ? "Moderate delay"
+                  : ""}
               </div>
             </div>
           </div>
@@ -704,7 +710,9 @@ function TaskSubTaskForm(props: Props) {
                           <span className="text-red-500 text-sm">*</span>
                         </div>
                         <div className="text-gray-400 text-sm">
-                          {dateFormater(new Date(taskFormik.values.startDate))}
+                          {dateFormater(
+                            new Date(taskFormik.values.startDate ?? startDate)
+                          )}
                         </div>
                       </div>
                     </Button>
@@ -712,13 +720,18 @@ function TaskSubTaskForm(props: Props) {
                   <PopoverContent className="p-0">
                     <Calendar
                       mode="single"
-                      selected={new Date(taskFormik.values.startDate ?? "")}
+                      selected={
+                        new Date(taskFormik.values.startDate ?? startDate)
+                      }
                       onDayBlur={taskFormik.submitForm}
                       onSelect={(e) => {
                         {
+                          const endDate = new Date(e ?? "");
+                          endDate.setUTCHours(0, 0, 0, 0);
+                          endDate.setDate(endDate.getDate() + 1);
                           taskFormik.setFieldValue(
                             "startDate",
-                            e ? e : undefined
+                            e ? new Date(endDate) : undefined
                           );
                         }
                       }}
@@ -819,7 +832,9 @@ function TaskSubTaskForm(props: Props) {
                       End date<span className="text-red-500 text-sm">*</span>
                     </div>
                     <div className="text-gray-400 text-sm">
-                      {dateFormater(new Date(tasks?.endDate ?? ""))}
+                      {tasks?.endDate
+                        ? dateFormater(new Date(tasks.endDate))
+                        : ""}
                     </div>
                   </div>
                 </Button>
@@ -862,15 +877,18 @@ function TaskSubTaskForm(props: Props) {
                   <div className="flex gap-2 items-center">
                     <div className="text-xs font-medium text-gray-400 flex items-center gap-2">
                       Progress:
-                      {!tasks?.subtasks.length && (
-                        <Button
-                          variant={"none"}
-                          className="p-0 h-0"
-                          onClick={() => setTaskProgressField((prev) => !prev)}
-                        >
-                          <img src={Edit} />
-                        </Button>
-                      )}
+                      {!tasks?.subtasks.length &&
+                        !tasks?.milestoneIndicator && (
+                          <Button
+                            variant={"none"}
+                            className="p-0 h-0"
+                            onClick={() =>
+                              setTaskProgressField((prev) => !prev)
+                            }
+                          >
+                            <img src={Edit} />
+                          </Button>
+                        )}
                     </div>
                   </div>
                   {taskProgressField ? (
