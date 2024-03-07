@@ -314,7 +314,7 @@ function GanttView() {
 
     const isHoliday = (date: Date) => {
       const dateString = date.toISOString().split("T")[0];
-      return user?.userOrganisation[0].organisation.orgHolidays.some(
+      return user?.userOrganisation[0].organisation.orgHolidays?.some(
         (holiday) => holiday.holidayStartDate.split("T")[0] === dateString
       );
     };
