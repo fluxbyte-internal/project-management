@@ -244,6 +244,9 @@ export const updateTask = async (
   if (!req.userId) {
     throw new BadRequestError("userId not found!!");
   }
+  if (!req.organisationId) {
+    throw new BadRequestError("organisationId not found!!");
+  }
   const taskId = uuidSchema.parse(req.params.taskId);
   const taskUpdateValue = updateTaskSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -286,27 +289,37 @@ export const updateTask = async (
       },
       include: {
         subtasks: {
-          select: {
-            duration: true,
+          where: { deletedAt: null },
+          include: {
+            subtasks: {
+              where: { deletedAt: null },
+              include: {
+                subtasks: true,
+              },
+            },
           },
         },
       },
     });
-    const subtaskDurations =
-      findDuration?.subtasks.map((subtask) => subtask.duration) ?? [];
-    const maxSubtaskDuration = Math.max(...subtaskDurations);
-    const earliestStartDate = taskTimeline.earliestStartDate
-      ? taskTimeline.earliestStartDate
-      : taskUpdateDB.parent.startDate;
-    await prisma.task.update({
-      where: {
-        taskId: taskUpdateDB.parent.taskId,
-      },
-      data: {
-        startDate: earliestStartDate,
-        duration: maxSubtaskDuration,
-      },
-    });
+    if(findDuration){
+      const completionPecentage = await calculationSubTaskProgression(findDuration, req.tenantId, req.organisationId);
+      const subtaskDurations =
+        findDuration.subtasks.map((subtask) => subtask.duration) ?? [];
+        const maxSubtaskDuration = Math.max(...subtaskDurations);
+        const earliestStartDate = taskTimeline.earliestStartDate
+          ? taskTimeline.earliestStartDate
+          : taskUpdateDB.parent.startDate;
+          await prisma.task.update({
+            where: {
+              taskId: taskUpdateDB.parent.taskId,
+            },
+            data: {
+              startDate: earliestStartDate,
+              duration: maxSubtaskDuration,
+              completionPecentage: Number(completionPecentage)
+            },
+          });
+    }
   }
 
   // Project End Date  -  If any task's end date will be greater then It's own
