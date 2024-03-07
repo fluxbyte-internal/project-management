@@ -56,10 +56,10 @@ function Tasks() {
             item?.flag == "Green"
               ? "bg-green-500/60 border border-green-500"
               : item?.flag == "Red"
-              ? "bg-red-500/60 border border-red-500/60"
-              : item?.flag == "Orange"
-              ? "bg-primary-500/60 border border-primary-500/60"
-              : ""
+                ? "bg-red-500/60 border border-red-500/60"
+                : item?.flag == "Orange"
+                  ? "bg-primary-500/60 border border-primary-500/60"
+                  : ""
           }`}
         ></div>
       ),
@@ -71,7 +71,7 @@ function Tasks() {
       onCellRender: (item: Task) => (
         <div
           className={`flex gap-2 items-center cursor-pointer`}
-          onClick={()=>setTaskId(item.taskId)}
+          onClick={() => setTaskId(item.taskId)}
         >
           <div>{item.taskName}</div>
           {item.milestoneIndicator && (
@@ -335,7 +335,7 @@ function Tasks() {
       {taskData && taskData.length > 0 ? (
         <>
           <div className="w-full flex flex-col gap-3 h-5/6">
-            <div className="flex justify-between">
+            <div className="flex justify-between mt-1">
               <TaskFilter
                 fieldToShow={[
                   FIELDS.ASSIGNED,
