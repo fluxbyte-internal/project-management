@@ -180,7 +180,7 @@ function generatePrismaClient(datasourceUrl?: string) {
         },
         async getSubtasksTimeline(taskId: string) {
           const task = await client.task.findFirst({
-            where: { taskId, deletedAt: null, parentTaskId: null },
+            where: { taskId, deletedAt: null },
             include: {
               subtasks: {
                 where: { deletedAt: null },
