@@ -10,7 +10,7 @@ import { uuidSchema } from '../schemas/commonSchema.js';
 import { MilestoneIndicatorStatusEnum } from '@prisma/client';
 import { HistoryTypeEnumValue } from '../schemas/enums.js';
 import { removeProperties } from "../types/removeProperties.js";
-import { taskEndDate } from '../utils/calcualteTaskEndDate.js';
+import { calculateDuration, taskEndDate } from '../utils/calcualteTaskEndDate.js';
 import { selectUserFields } from '../utils/selectedFieldsOfUsers.js';
 import { calculationSubTaskProgression } from '../utils/calculationSubTaskProgression.js';
 import { taskFlag } from '../utils/calculationFlag.js';
@@ -301,24 +301,34 @@ export const updateTask = async (
         },
       },
     });
-    if(findDuration){
-      const completionPecentage = await calculationSubTaskProgression(findDuration, req.tenantId, req.organisationId);
-      const subtaskDurations =
-        findDuration.subtasks.map((subtask) => subtask.duration) ?? [];
-        const maxSubtaskDuration = Math.max(...subtaskDurations);
-        const earliestStartDate = taskTimeline.earliestStartDate
-          ? taskTimeline.earliestStartDate
-          : taskUpdateDB.parent.startDate;
-          await prisma.task.update({
-            where: {
-              taskId: taskUpdateDB.parent.taskId,
-            },
-            data: {
-              startDate: earliestStartDate,
-              duration: maxSubtaskDuration,
-              completionPecentage: Number(completionPecentage)
-            },
-          });
+    if (findDuration) {
+      const completionPecentage = await calculationSubTaskProgression(
+        findDuration,
+        req.tenantId,
+        req.organisationId
+      );
+      const endDate = new Date(
+        await taskEndDate(findDuration, req.tenantId, req.organisationId)
+      );
+      const durationForParents = await calculateDuration(
+        findDuration.startDate,
+        endDate,
+        req.tenantId,
+        req.organisationId
+      );
+      const earliestStartDate = taskTimeline.earliestStartDate
+        ? taskTimeline.earliestStartDate
+        : taskUpdateDB.parent.startDate;
+      await prisma.task.update({
+        where: {
+          taskId: taskUpdateDB.parent.taskId,
+        },
+        data: {
+          startDate: earliestStartDate,
+          duration: durationForParents,
+          completionPecentage: Number(completionPecentage),
+        },
+      });
     }
   }
 

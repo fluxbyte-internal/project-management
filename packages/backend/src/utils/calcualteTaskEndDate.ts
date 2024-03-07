@@ -102,3 +102,45 @@ export const isHoliday = (date: Date, holidays: any[]): boolean => {
   const dateToCheck = date.setUTCHours(0, 0, 0, 0);
   return holidayDates.includes(dateToCheck);
 };
+
+
+export const calculateDuration = async (
+  startDate: Date,
+  endDate: Date,
+  tenantId: string,
+  organisationId: string
+): Promise<number> => {
+  const prisma = await getClientByTenantId(tenantId);
+  const orgDetails = await prisma.organisation.findFirst({
+    where: {
+      organisationId,
+      deletedAt: null,
+    },
+    select: {
+      nonWorkingDays: true,
+      orgHolidays: true,
+    },
+  });
+  const nonWorkingDays = (orgDetails?.nonWorkingDays as string[]) ?? [];
+  const holidays = orgDetails?.orgHolidays ?? [];
+
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  let duration = 0;
+
+  while (start < end) {
+    const dayOfWeek = start.getUTCDay();
+    const dayAbbreviation = getDayAbbreviation(dayOfWeek).toUpperCase();
+
+    if (
+      !nonWorkingDays.includes(dayAbbreviation) &&
+      !isHoliday(start, holidays)
+    ) {
+      duration++;
+    }
+
+    start.setDate(start.getDate() + 1);
+  }
+
+  return duration;
+};
