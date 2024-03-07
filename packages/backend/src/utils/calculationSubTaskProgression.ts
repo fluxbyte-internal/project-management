@@ -22,6 +22,11 @@ export async function calculationSubTaskProgression(
     const finalPercentage = completionPecentageOrDurationTask / averagesSumOfDurationTask * 100
     return (finalPercentage.toFixed(2));
   } else {
-    return (task.completionPecentage)?.toFixed(2);
+    const completionPercentage = task.completionPecentage;
+    if (completionPercentage === null || isNaN(completionPercentage)) {
+      return 0;
+    } else {
+      return completionPercentage.toFixed(2);
+    }
   }
 }

@@ -275,22 +275,22 @@ function GanttView() {
 
     const mapDayToNumber = (day: string) => {
       switch (day) {
-        case "SUN":
-          return 0;
-        case "MON":
-          return 1;
-        case "TUE":
-          return 2;
-        case "WED":
-          return 3;
-        case "THU":
-          return 4;
-        case "FRI":
-          return 5;
-        case "SAT":
-          return 6;
-        default:
-          return 0;
+      case "SUN":
+        return 0;
+      case "MON":
+        return 1;
+      case "TUE":
+        return 2;
+      case "WED":
+        return 3;
+      case "THU":
+        return 4;
+      case "FRI":
+        return 5;
+      case "SAT":
+        return 6;
+      default:
+        return 0;
       }
     };
 
@@ -306,23 +306,8 @@ function GanttView() {
     let duration = 0;
     const start = new Date(startDate);
     const end = new Date(endDate);
-
-    const isNonWorkingDay = (date: Date) => {
-      const dayOfWeek = date.getDay();
-      return HandleNonWorkingDays().includes(dayOfWeek);
-    };
-
-    const isHoliday = (date: Date) => {
-      const dateString = date.toISOString().split("T")[0];
-      return user?.userOrganisation[0].organisation.orgHolidays?.some(
-        (holiday) => holiday.holidayStartDate.split("T")[0] === dateString
-      );
-    };
-
     while (start <= end) {
-      if (!isNonWorkingDay(start) && !isHoliday(start)) {
-        duration++;
-      }
+      duration++;
       start.setDate(start.getDate() + 1);
     }
 
@@ -345,27 +330,27 @@ function GanttView() {
       taskElement.classList.add("rounded");
 
       switch (status) {
-        case TaskStatusEnumValue.NOT_STARTED:
-          segmentElement.children[0].classList.add("!bg-slate-500/60");
-          break;
-        case TaskStatusEnumValue.IN_PROGRESS:
-          segmentElement.children[0].classList.add("!bg-blue-300");
-          break;
-        case TaskStatusEnumValue.COMPLETED:
-          segmentElement.children[0].classList.add("!bg-emerald-500");
-          break;
+      case TaskStatusEnumValue.NOT_STARTED:
+        segmentElement.children[0].classList.add("!bg-slate-500/60");
+        break;
+      case TaskStatusEnumValue.IN_PROGRESS:
+        segmentElement.children[0].classList.add("!bg-blue-300");
+        break;
+      case TaskStatusEnumValue.COMPLETED:
+        segmentElement.children[0].classList.add("!bg-emerald-500");
+        break;
       }
       if (task.class == "milestone") {
-      segmentElement.classList.add("hidden");
-      taskElement.classList.add("!w-0");
+        segmentElement.classList.add("hidden");
+        taskElement.classList.add("!w-0");
 
-      labelElement.classList.add("hidden");
-      taskElement.classList.remove("bg-emerald-400");
-      segmentElement.children[0].classList.remove("!bg-emerald-500");
-      taskElement.classList.remove("bg-blue-200");
-      segmentElement.children[0].classList.remove("!bg-blue-300");
-      taskElement.classList.remove("bg-slate-500/60");
-      segmentElement.children[0].classList.remove("!bg-slate-500/60");
+        labelElement.classList.add("hidden");
+        taskElement.classList.remove("bg-emerald-400");
+        segmentElement.children[0].classList.remove("!bg-emerald-500");
+        taskElement.classList.remove("bg-blue-200");
+        segmentElement.children[0].classList.remove("!bg-blue-300");
+        taskElement.classList.remove("bg-slate-500/60");
+        segmentElement.children[0].classList.remove("!bg-slate-500/60");
       }
     }
   };

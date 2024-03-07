@@ -380,7 +380,7 @@ export const getKanbanColumnById = async (
       data: {
         projectId,
         name: "Backlog",
-        percentage: 0,
+        percentage: null,
         createdByUserId: req.userId!,
       },
     });
