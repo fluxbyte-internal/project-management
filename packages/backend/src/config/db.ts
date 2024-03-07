@@ -197,16 +197,24 @@ function generatePrismaClient(datasourceUrl?: string) {
             orderBy: { startDate: "asc" },
           });
           if (!task) {
-            return { earliestStartDate: null, lowestEndDate: null };
+            return { earliestStartDate: null, highestEndDate: null };
           }
-          const startDateObj = new Date(task.startDate);
-          let lowestEndDate: Date = startDateObj;
-          if (task.duration) {
-            lowestEndDate.setDate(startDateObj.getDate() + task.duration);
+          if(task.subtasks.length === 0) {
+            let endDate = new Date(task.startDate);
+            endDate.setDate(endDate.getDate() + task.duration);
+            return { earliestStartDate: task.startDate, highestEndDate: endDate }
           }
+          let highestEndDate: Date | null = null;
           let earliestStartDate: Date | null = null;
           if (task.subtasks.length > 0) {
             task.subtasks.forEach((subtask) => {
+              const subtaskEndDate = new Date(subtask.startDate);
+              subtaskEndDate.setDate(subtaskEndDate.getDate() + subtask.duration);
+
+              if (!highestEndDate || subtaskEndDate > highestEndDate) {
+                highestEndDate = subtaskEndDate;
+              }
+
               if (!earliestStartDate) {
                 earliestStartDate = subtask.startDate;
               } else if (
@@ -217,7 +225,7 @@ function generatePrismaClient(datasourceUrl?: string) {
               }
             });
           }
-          return { earliestStartDate, lowestEndDate };
+          return { earliestStartDate, highestEndDate };
         },
       },
       comments: {

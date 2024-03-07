@@ -286,6 +286,7 @@ export const updateTask = async (
     const findDuration = await prisma.task.findFirst({
       where: {
         taskId: taskUpdateDB.parent?.taskId,
+        deletedAt: null,
       },
       include: {
         subtasks: {
@@ -307,12 +308,9 @@ export const updateTask = async (
         req.tenantId,
         req.organisationId
       );
-      const endDate = new Date(
-        await taskEndDate(findDuration, req.tenantId, req.organisationId)
-      );
       const durationForParents = await calculateDuration(
-        findDuration.startDate,
-        endDate,
+        taskTimeline.earliestStartDate!,
+        taskTimeline.highestEndDate!,
         req.tenantId,
         req.organisationId
       );

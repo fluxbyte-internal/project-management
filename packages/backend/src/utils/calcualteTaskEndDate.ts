@@ -126,6 +126,8 @@ export const calculateDuration = async (
 
   const start = new Date(startDate);
   const end = new Date(endDate);
+  start.setUTCHours(0, 0, 0, 0)
+  end.setUTCHours(0, 0, 0, 0)
   let duration = 0;
 
   while (start < end) {
