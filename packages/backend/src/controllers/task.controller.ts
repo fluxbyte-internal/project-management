@@ -4,7 +4,7 @@ import { BadRequestError, NotFoundError, SuccessResponse, UnAuthorizedError } fr
 import { StatusCodes } from 'http-status-codes';
 import { projectIdSchema } from '../schemas/projectSchema.js';
 import { createCommentTaskSchema, createTaskSchema, attachmentTaskSchema, taskStatusSchema, updateTaskSchema, assginedToUserIdSchema, dependenciesTaskSchema, milestoneTaskSchema } from '../schemas/taskSchema.js';
-import { NotificationTypeEnum, TaskStatusEnum, UserStatusEnum } from '@prisma/client';
+import { NotificationTypeEnum, ProjectStatusEnum, TaskStatusEnum, UserStatusEnum } from '@prisma/client';
 import { AwsUploadService } from '../services/aws.services.js';
 import { uuidSchema } from '../schemas/commonSchema.js';
 import { MilestoneIndicatorStatusEnum } from '@prisma/client';
@@ -271,20 +271,21 @@ export const updateTask = async (
     const taskTimeline = await prisma.task.getSubtasksTimeline(
       taskUpdateDB.parent.taskId
     );
-    // Handle - duration 
+    // Handle - duration
     const findDuration = await prisma.task.findFirst({
       where: {
-        taskId: taskUpdateDB.parent?.taskId
+        taskId: taskUpdateDB.parent?.taskId,
       },
       include: {
         subtasks: {
           select: {
-            duration: true
-          }
-        }
-      }
+            duration: true,
+          },
+        },
+      },
     });
-    const subtaskDurations = findDuration?.subtasks.map(subtask => subtask.duration) ?? [];
+    const subtaskDurations =
+      findDuration?.subtasks.map((subtask) => subtask.duration) ?? [];
     const maxSubtaskDuration = Math.max(...subtaskDurations);
     const earliestStartDate = taskTimeline.earliestStartDate
       ? taskTimeline.earliestStartDate
@@ -301,10 +302,12 @@ export const updateTask = async (
   }
 
   // Project End Date  -  If any task's end date will be greater then It's own
-  const maxEndDate = await calculateProjectEndDate(taskUpdateDB.projectId, req.tenantId, req.organisationId!);
-  if (
-    maxEndDate 
-  ) {
+  const maxEndDate = await calculateProjectEndDate(
+    taskUpdateDB.projectId,
+    req.tenantId,
+    req.organisationId!
+  );
+  if (maxEndDate) {
     await prisma.project.update({
       where: {
         projectId: taskUpdateDB.project.projectId,
@@ -314,6 +317,26 @@ export const updateTask = async (
       },
     });
   };
+
+  // Handle project status based on task update
+  if (taskUpdateValue.completionPecentage) {
+    await prisma.$transaction([
+      prisma.project.update({
+        where: {
+          projectId: taskUpdateDB.project.projectId,
+        },
+        data: {
+          status: ProjectStatusEnum.ACTIVE,
+        },
+      }),
+      prisma.task.update({
+        where: { taskId },
+        data: {
+          status: TaskStatusEnum.IN_PROGRESS,
+        },
+      }),
+    ]);
+  }
 
   // History-Manage
   const updatedValueWithoutOtherTable = removeProperties(
