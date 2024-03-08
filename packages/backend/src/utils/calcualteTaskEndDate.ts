@@ -1,5 +1,7 @@
 import { Task } from "@prisma/client";
 import { getClientByTenantId } from "../config/db.js";
+import { getDayAbbreviation } from "./getDatAbbreviation.js";
+import { isHoliday } from "./checkIsHoliday.js";
 
 export async function taskEndDate(
   task: Task,
@@ -91,18 +93,6 @@ export const calculateEndDate = async (
   }
   return endDate;
 };
-
-export const getDayAbbreviation = (dayOfWeek: number): string => {
-  const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-  return days[dayOfWeek] ?? "0";
-};
-
-export const isHoliday = (date: Date, holidays: any[]): boolean => {
-  const holidayDates = holidays.map(holiday => new Date(holiday.holidayStartDate).setUTCHours(0, 0, 0, 0));
-  const dateToCheck = date.setUTCHours(0, 0, 0, 0);
-  return holidayDates.includes(dateToCheck);
-};
-
 
 export const calculateDuration = async (
   startDate: Date,

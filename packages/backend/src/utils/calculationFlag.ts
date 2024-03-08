@@ -1,6 +1,7 @@
 import { Task, TaskStatusEnum } from "@prisma/client";
 import { getClientByTenantId } from "../config/db.js";
-import { getDayAbbreviation, isHoliday } from "./calcualteTaskEndDate.js";
+import { getDayAbbreviation } from "./getDatAbbreviation.js";
+import { isHoliday } from "./checkIsHoliday.js";
 
 export async function calculationTPI(
   task: Task,
