@@ -13,6 +13,7 @@ import {
   ScheduleAndBudgetTrend,
   UserRoleEnumValue,
 } from "@backend/src/schemas/enums";
+import { UserOrganisationType } from "./useCurrentUserQuery";
 
 export type Project = {
   CPI?: number;
@@ -64,7 +65,7 @@ export interface User {
   isVerified:       boolean;
   createdAt:        Date;
   updatedAt:        Date;
-  userOrganisation: UserOrganisation[];
+  userOrganisation: UserOrganisationType[];
 }
 
 export interface UserOrganisation {
