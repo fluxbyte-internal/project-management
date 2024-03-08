@@ -125,6 +125,7 @@ function GanttView() {
           ? connections(originalTask)
           : null,
       class: originalTask.milestoneIndicator ? "milestone" : "task",
+      disableResize:Boolean(originalTask.subtasks.length) 
     };
 
     if (originalTask.subtasks) {
@@ -182,7 +183,7 @@ function GanttView() {
           html = ReactDOMServer.renderToString(
             <div className="w-full my-3" key={"resources1"}>
               <div
-                className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2"
+                className="w-20 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2"
                 key={"resources1"}
               >
                 {resources.slice(0, 3).map((item, index) => {
@@ -200,7 +201,7 @@ function GanttView() {
                   );
                 })}
                 {resources && resources?.length > 3 && (
-                  <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
+                  <div className="bg-gray-200/30 h-6 w-6  text-lg font-medium  rounded-full flex justify-center items-center">
                     {`${resources.length - 3}+`}
                   </div>
                 )}
@@ -385,9 +386,11 @@ function GanttView() {
   }) => {
     return (
       <>
-        <div className="group flex w-fit" title={props.taskId ?? ""}>
+        <div className="group flex w-full" title={props.taskId ?? ""}>
+          <div className="w-full truncate">
           {props.title}
-          <div className="opacity-0 !flex !gap-1 transition ease-in-out delay-150  group-hover:opacity-100 group-hover:block z-50 bg-gra rounded-lg">
+          </div>
+          <div className="opacity-0 w-fit !flex !gap-1 !justify-between transition ease-in-out delay-150  group-hover:opacity-100 group-hover:block z-50 bg-gra rounded-lg">
             <Button
               id={BUTTON_EVENT.REMOVE}
               value={"remove"}
@@ -449,11 +452,12 @@ function GanttView() {
     type: string,
     isHeaderDetailsContainer: boolean
   ) => {
+    const weekday =["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     if (isHeaderDetailsContainer && type) {
       return date.toLocaleString("en-US", { month: "long", year: "numeric" });
     } else {
       if (monthScale !== "week") {
-        return date.toLocaleString("en-US", { day: "numeric", month: "short" });
+        return date.toLocaleString("en-US", { day: "numeric" }) +' '+ weekday[date.getDay()];
       }
       if (filterUnit === "year") {
         return date.toLocaleString("en-US", { month: "short" });

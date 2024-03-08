@@ -187,6 +187,8 @@ function KanbanView(
     if (Columns && Columns.length > 0) {
       if (task.kanbanColumnId) {
         return task.kanbanColumnId;
+      } else if (Columns.length == 1 && Columns[0].label == "BACKLOG") {
+        return Columns[0].dataField;
       } else {
         for (const num of Columns) {
           const percentage = allKanbanColumn.data?.data.data.find(
@@ -194,8 +196,8 @@ function KanbanView(
           )?.percentage;
           if (percentage !== null && percentage !== undefined) {
             if (
-              Number(task.completionPecentage) >= percentage && // Check if completion percentage is greater than or equal to the current column percentage
-              percentage > closestNumber // Check if it's closer to the task's completion percentage
+              Number(task.completionPecentage) >= percentage &&
+              percentage > closestNumber
             ) {
               closestNumber = percentage;
             }
@@ -287,7 +289,6 @@ function KanbanView(
     const root = createRoot(taskElement);
     root.render(<TaskShellView taskData={data} />);
   };
-
 
   const handleColumn = (data: KanbanColumnType[]) => {
     if (data.length <= 0) {

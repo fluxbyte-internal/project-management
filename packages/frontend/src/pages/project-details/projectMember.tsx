@@ -183,6 +183,17 @@ function ProjectMember() {
       },
     },
     {
+      header: "Job title",
+      key: "email",
+      onCellRender: (user: AssignedUsers) => {
+        return (
+          <div>
+            {user.user.userOrganisation[0].jobTitle}
+          </div>
+        );
+      },
+    },
+    {
       header: "Action",
       key: "projectId",
       onCellRender: (user: AssignedUsers) => {

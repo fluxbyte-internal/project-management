@@ -151,7 +151,7 @@ function OrganisationNoPopUpForm(props: Props) {
         nonWorkingDays: editData.nonWorkingDays,
         organisationName: editData.organisationName,
         status: editData?.status,
-        jobTitlesOfOrg: editData.jobTitlesOfOrg,
+        jobTitlesOfOrg: editData.jobTitlesOfOrg ?? [],
       });
       if (editData.industry) {
         setIndustryValue({

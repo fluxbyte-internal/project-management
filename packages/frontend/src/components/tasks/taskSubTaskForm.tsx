@@ -67,7 +67,7 @@ import {
 } from "@backend/src/schemas/enums";
 import useTaskStatusUpdateMutation from "@/api/mutation/useTaskStatusUpdateMutation";
 import useProjectQuery from "@/api/query/useProjectQuery";
-import { Progress } from "../ui/progress";
+import { Slider } from "../ui/slider";
 
 type Props = {
   projectId: string | undefined;
@@ -83,7 +83,6 @@ function TaskSubTaskForm(props: Props) {
   const fileInput = useRef<HTMLInputElement>(null);
   const [taskNameField, setTaskNameField] = useState(false);
   const [taskDurationField, setTaskDurationField] = useState(false);
-  const [taskProgressField, setTaskProgressField] = useState(false);
   const [taskId, setTaskId] = useState<string>(props.taskId ?? "");
   const [subTaskFieldShow, setSubTaskFieldShow] = useState<boolean>(false);
   const [member, setMambers] = useState<UserOrganisationType["user"][]>([]);
@@ -110,7 +109,6 @@ function TaskSubTaskForm(props: Props) {
   const projects = useProjectQuery();
 
   const [startDate, setStartDate] = useState<Date>(new Date());
-
   useEffect(() => {
     if (taskId && tasks) {
       taskFormik.setValues({
@@ -128,18 +126,27 @@ function TaskSubTaskForm(props: Props) {
         })
       );
     }
-    const startDate =
-      projects.data?.data.data.find((p) => p.projectId == props.projectId)
-        ?.startDate ?? new Date();
-    setStartDate(new Date(startDate));
-  }, [taskId, taskQuery.data]);
+
+    if (projects.data?.data.data) {
+      setStartDate(
+        new Date(
+          projects.data?.data.data.find((p) => p.projectId == props.projectId)
+            ?.startDate ?? new Date()
+        )
+      );
+    }
+  }, [taskId, taskQuery.data, projects.data?.data.data]);
+
   const taskFormik = useFormik<z.infer<typeof createTaskSchema>>({
     initialValues: {
       taskName: "",
       taskDescription: "",
       startDate: props.initialValues?.startDate
         ? new Date(props.initialValues?.startDate)
-        : new Date(startDate),
+        : new Date(
+            projects.data?.data.data.find((p) => p.projectId == props.projectId)
+              ?.startDate ?? new Date()
+          ),
       duration: 1.0,
     },
     validationSchema: toFormikValidationSchema(createTaskSchema),
@@ -218,7 +225,7 @@ function TaskSubTaskForm(props: Props) {
     const value = {
       taskName: subTask,
       taskDescription: "",
-      startDate: new Date(),
+      startDate: new Date(startDate),
       duration: 1,
       assginedToUserId: [currantUser.user?.userId ?? ""],
       milestoneIndicator: false,
@@ -292,7 +299,7 @@ function TaskSubTaskForm(props: Props) {
 
   const [progressError, setProgressError] = useState("");
   const onProgressUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
+    const val = e.target.ariaValueNow;
     if (Number(val) !== Number(tasks?.completionPecentage)) {
       if (Number(val) > 100 || Number(val) < 0) {
         setProgressError("Progress must be within the range of 0 to 100.");
@@ -694,110 +701,111 @@ function TaskSubTaskForm(props: Props) {
                   </div>
                 </Button>
               </div>
-              <div className="mt-2">
-                <Popover>
-                  <PopoverTrigger className="w-full">
-                    <Button
-                      variant={"secondary"}
-                      className="py-1.5 px-3 w-full"
-                      isLoading={attachmentUploading}
-                      disabled={attachmentUploading}
-                    >
-                      <div className="flex w-full gap-3 justify-start">
-                        <img src={CalendarIcon} className="w-3.5" />
-                        <div>
-                          Start date{" "}
-                          <span className="text-red-500 text-sm">*</span>
+              {startDate && (
+                <div className="mt-2">
+                  <Popover>
+                    <PopoverTrigger className="w-full">
+                      <Button
+                        variant={"secondary"}
+                        className="py-1.5 px-3 w-full"
+                        isLoading={attachmentUploading}
+                        disabled={attachmentUploading}
+                      >
+                        <div className="flex w-full gap-3 justify-start">
+                          <img src={CalendarIcon} className="w-3.5" />
+                          <div>
+                            Start date{" "}
+                            <span className="text-red-500 text-sm">*</span>
+                          </div>
+                          <div className="text-gray-400 text-sm">
+                            {dateFormater(
+                              new Date(taskFormik.values.startDate ?? startDate)
+                            )}
+                          </div>
                         </div>
-                        <div className="text-gray-400 text-sm">
-                          {dateFormater(
-                            new Date(taskFormik.values.startDate ?? startDate)
-                          )}
-                        </div>
-                      </div>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="p-0">
-                    <Calendar
-                      mode="single"
-                      selected={
-                        new Date(taskFormik.values.startDate ?? startDate)
-                      }
-                      onDayBlur={taskFormik.submitForm}
-                      onSelect={(e) => {
-                        {
-                          const endDate = new Date(e ?? "");
-                          endDate.setUTCHours(0, 0, 0, 0);
-                          endDate.setDate(endDate.getDate() + 1);
-                          taskFormik.setFieldValue(
-                            "startDate",
-                            e ? new Date(endDate) : undefined
-                          );
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="p-0">
+                      <Calendar
+                        mode="single"
+                        selected={
+                          new Date(taskFormik.values.startDate ?? startDate)
                         }
-                      }}
-                      className="rounded-md border"
-                      disabled={{ before: startDate }}
-                    />
-                    {taskFormik.errors.startDate &&
-                      taskFormik.values.startDate && (
-                        <ErrorMessage className="ml-0 p-0">
-                          {/* {taskFormik.errors.startDate} */}
-                        </ErrorMessage>
-                      )}
-                  </PopoverContent>
-                </Popover>
-              </div>
+                        onDayBlur={taskFormik.submitForm}
+                        onSelect={(e) => {
+                          {
+                            const endDate = new Date(e ?? "");
+                            endDate.setUTCHours(0, 0, 0, 0);
+                            endDate.setDate(endDate.getDate() + 1);
+                            taskFormik.setFieldValue(
+                              "startDate",
+                              e ? new Date(endDate) : undefined
+                            );
+                          }
+                        }}
+                        className="rounded-md border"
+                        disabled={{ before: startDate }}
+                      />
+                      {taskFormik.errors.startDate &&
+                        taskFormik.values.startDate && (
+                          <ErrorMessage className="ml-0 p-0">
+                            {/* {taskFormik.errors.startDate} */}
+                          </ErrorMessage>
+                        )}
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              )}
 
               <div className="mt-2">
                 <div className="flex flex-col">
                   {!taskDurationField && (
                     <div className="flex gap-5">
-                      {!tasks?.milestoneIndicator && tasks?.subtasks && (
-                        <Button
-                          variant={"secondary"}
-                          onClick={() =>
-                            tasks?.subtasks?.length == 0
-                              ? setTaskDurationField((prev) => !prev)
-                              : ""
-                          }
-                          className="w-full flex justify-between "
-                        >
-                          <div className="text-xs font-medium text-gray-400 flex gap-2 ">
-                            <div>
-                              Duration:{" "}
-                              <span className="text-red-500 text-sm">*</span>
-                            </div>
-                            <div className="text-sm  text-gray-300">
-                              {taskFormik.values.duration ?? 0.0} Day
-                            </div>
+                      <Button
+                        variant={"secondary"}
+                        onClick={() =>
+                          tasks?.subtasks?.length == 0
+                            ? setTaskDurationField((prev) => !prev)
+                            : ""
+                        }
+                        disabled={tasks?.milestoneIndicator || Boolean(tasks?.subtasks.length)}
+                        className="w-full flex justify-between "
+                      >
+                        <div className="text-xs font-medium text-gray-400 flex gap-2 ">
+                          <div>
+                            Duration:{" "}
+                            <span className="text-red-500 text-sm">*</span>
                           </div>
+                          <div className="text-sm  text-gray-300">
+                            {taskFormik.values.duration ?? 0.0} Day
+                          </div>
+                        </div>
 
-                          <div className="flex items-center justify-end relative">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <img
-                                    src={InfoCircle}
-                                    className="h-[16px] w-[16px]"
-                                    alt="InfoCircle"
-                                  />
-                                </TooltipTrigger>
-                                <TooltipContent className="z-50 bg-white p-2 rounded-md shadow-md">
-                                  <div>
-                                    <p>
-                                      Enter the duration in days, using decimals
-                                      if <br />
-                                      needed. For example, you can input 0.5 for
-                                      half
-                                      <br />a day or 1.0 for a full day.
-                                    </p>
-                                  </div>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </div>
-                        </Button>
-                      )}
+                        <div className="flex items-center justify-end relative">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <img
+                                  src={InfoCircle}
+                                  className="h-[16px] w-[16px]"
+                                  alt="InfoCircle"
+                                />
+                              </TooltipTrigger>
+                              <TooltipContent className="z-50 bg-white p-2 rounded-md shadow-md">
+                                <div>
+                                  <p>
+                                    Enter the duration in days, using decimals
+                                    if <br />
+                                    needed. For example, you can input 0.5 for
+                                    half
+                                    <br />a day or 1.0 for a full day.
+                                  </p>
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                      </Button>
                     </div>
                   )}
                   {taskDurationField && (
@@ -877,44 +885,30 @@ function TaskSubTaskForm(props: Props) {
                   <div className="flex gap-2 items-center">
                     <div className="text-xs font-medium text-gray-400 flex items-center gap-2">
                       Progress:
-                      {!tasks?.subtasks.length &&
-                        !tasks?.milestoneIndicator && (
-                          <Button
-                            variant={"none"}
-                            className="p-0 h-0"
-                            onClick={() =>
-                              setTaskProgressField((prev) => !prev)
-                            }
-                          >
-                            <img src={Edit} />
-                          </Button>
-                        )}
                     </div>
                   </div>
-                  {taskProgressField ? (
-                    <div className="w-full">
-                      <InputNumber
-                        className="py-1 px-1.5 text-sm h-9 w-full "
-                        min={0}
-                        max={100}
-                        placeholder="0 - 100 % "
-                        onBlur={(e) => {
-                          setTaskProgressField(false), onProgressUpdate(e);
-                        }}
-                      />
-                      <ErrorMessage className="w-1/2">
-                        {progressError}
-                      </ErrorMessage>
-                    </div>
-                  ) : (
-                    <div>
-                      <Progress
-                        value={Number(tasks?.completionPecentage)}
-                        title={tasks?.completionPecentage}
-                        className="w-full mt-3"
-                      />
-                    </div>
-                  )}
+
+                  <div className="w-full mt-2">
+                    <Slider
+                      defaultValue={[Number(tasks?.completionPecentage)]}
+                      max={100}
+                      disabled={
+                        Boolean(tasks?.subtasks.length) ||
+                        tasks?.milestoneIndicator
+                      }
+                      min={0}
+                      step={5}
+                      title={tasks?.completionPecentage}
+                      onPointerUp={(e) => {
+                        onProgressUpdate(
+                          e as unknown as React.ChangeEvent<HTMLInputElement>
+                        );
+                      }}
+                    />
+                    <ErrorMessage className="w-1/2">
+                      {progressError}
+                    </ErrorMessage>
+                  </div>
                 </div>
               </div>
             </div>

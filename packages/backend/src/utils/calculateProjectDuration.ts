@@ -1,5 +1,7 @@
 import { BadRequestError } from "../config/apiError.js";
 import { getClientByTenantId } from "../config/db.js";
+import { isHoliday } from "./checkIsHoliday.js";
+import { getDayAbbreviation } from "./getDatAbbreviation.js";
 
 export const calculateProjectDuration = async (
   startDate: Date,
@@ -48,16 +50,4 @@ export const calculateProjectDuration = async (
   }
 
   return duration;
-};
-
-const getDayAbbreviation = (dayOfWeek: number): string => {
-  const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-  return days[dayOfWeek] ?? "0";
-};
-
-const isHoliday = (date: Date, holidays: any[]): boolean => {
-  const holidayDates = holidays.map((holiday) =>
-    new Date(holiday.holidayStartDate).toDateString()
-  );
-  return holidayDates.includes(date.toDateString());
 };
