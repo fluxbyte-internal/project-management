@@ -250,6 +250,7 @@ export const getProjectById = async (req: express.Request, res: express.Response
               userOrganisation: {
                 select: {
                   role: true,
+                  jobTitle:true
                 },
               },
             },
