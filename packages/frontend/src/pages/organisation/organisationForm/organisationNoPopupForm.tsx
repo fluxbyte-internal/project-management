@@ -411,25 +411,13 @@ function OrganisationNoPopUpForm(props: Props) {
               {formik.touched.country && formik.errors.country}
             </ErrorMessage>
           </div>
-          <div className="flex flex-row-reverse">
-            <Button
-              variant={"link"}
-              className="w-full text-gray-600 justify-start"
-              onClick={() => downloadCsv()}
-            >
-              <div className="flex gap-2 ">
-                <img className="h-4 w-4" src={DownLoadIcon} /> Download sample
-                CSV
-              </div>
-            </Button>
-            <ErrorMessage>
-              {formik.touched.country && formik.errors.country}
-            </ErrorMessage>
+          <div className="block mt-3">
             {editData && editData.holidayCsvUrl && (
               <div>
                 <Button
                   variant={"link"}
                   className="w-full text-gray-600 justify-start"
+                  type="button"
                   onClick={() =>
                     downloadUplodedCsv(editData.holidayCsvUrl ?? "")
                   }
@@ -442,8 +430,21 @@ function OrganisationNoPopUpForm(props: Props) {
               </div>
             )}
           </div>
+          <div className="block">
+            <Button
+              variant={"link"}
+              className="w-full text-gray-600 justify-start"
+              type="button"
+              onClick={() => downloadCsv()}
+            >
+              <div className="flex gap-2 ">
+                <img className="h-4 w-4" src={DownLoadIcon} /> Download sample
+                CSV
+              </div>
+            </Button>
+          </div>
 
-          <div className="block mt-5">
+          <div className="block col-start-1 mt-3">
             <FormLabel className={labelStyle}>Job Titles</FormLabel>
             <div className="relative w-full group">
               <InputText

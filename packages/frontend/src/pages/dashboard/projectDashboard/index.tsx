@@ -24,6 +24,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import InfoCircle from "@/assets/svg/Info circle.svg";
+import dateFormater from "@/helperFuntions/dateFormater";
 
 export type ThemeColorData = {
   theme: string;
@@ -57,7 +58,7 @@ function ProjectDashboard() {
         tabBorders: "border-primary-900 ",
         mainTexts: "text-primary-800",
         subTexts: "text-primary-800",
-        chartColors: ["#FFD04A", "#FFB819", "#943B0C"],
+        chartColors: ["#3D348B", "#F7B801", "#F18701"],
         chartGradient: "",
         chartBorders: "border border-gray-500",
         chartHeadingTexts: "#000000",
@@ -107,13 +108,12 @@ function ProjectDashboard() {
     },
   ];
   const setTheme = () => {
-    if (data && colorThemeArr) {
-      const statusThemeData = colorThemeArr.find(
-        (key) => key?.theme === data?.projectOverAllSituation
-      );
-
-      setSelectedStatusTheme(statusThemeData);
-    }
+    // if (data && colorThemeArr) {
+    //   const statusThemeData = colorThemeArr.find(
+    //     (key) => key?.theme === data?.projectOverAllSituation
+    //   );
+    // }
+    setSelectedStatusTheme(colorThemeArr[0]);
   };
 
   useEffect(() => {
@@ -167,7 +167,7 @@ function ProjectDashboard() {
           {
             value: delayCounts.orange,
             name: "Orange",
-          }
+          },
         ],
         color: ["#FF000077", "#00800077", "#FFB81977"],
         title: "Tasks by progression",
@@ -175,12 +175,17 @@ function ProjectDashboard() {
         radius: ["0%", "70%"],
       });
     }
-  }, [selectedStatusTheme]);
+  }, [selectedStatusTheme, projectDashboardQuery?.data?.data?.data]);
   const formatStatus = (status: string): string => {
-    return status
-      .replace(/_/g, " ")
-      .toLowerCase()
-      .replace(/\b\w/g, (c) => c.toUpperCase());
+    console.log(status);
+    if (status) {
+      return status
+        .replace(/_/g, " ")
+        .toLowerCase()
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+    } else {
+      return "";
+    }
   };
   const navigate = useNavigate();
   const filterRoutes = (item: string) => {
@@ -200,7 +205,7 @@ function ProjectDashboard() {
   };
   const getSPI = () => {
     let val = 0;
-    if (data && data.spi.length) {
+    if (data && data.spi && data.spi.length) {
       data.spi.forEach((e) => {
         val += e.spi;
       });
@@ -219,7 +224,7 @@ function ProjectDashboard() {
             </h2>
             <div className="statsbox w-full h-fit flex flex-col lg:flex-row justify-between items-center gap-6 lg:gap-32 py-2 ">
               <div
-                className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabGradient} ${selectedStatusTheme?.colors.tabTexts} border-l-[12px]  rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer   ${selectedStatusTheme?.colors.tabBorders}  `}
+                className={`items-start relative flex-col bg-gradient-to-r  from-[#3D348B] to-[#8d7eff] ${selectedStatusTheme?.colors.tabTexts} border-l-[12px]  rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer  border-[#2d2348]  `}
               >
                 <div className="text-lg ">No. of Team Members</div>
                 <div className="text-4xl font-semibold">
@@ -233,7 +238,7 @@ function ProjectDashboard() {
               </div>
 
               <div
-                className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer  ${selectedStatusTheme?.colors.tabBorders}`}
+                className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px]  bg-gradient-to-r from-[#F7B801] to-primary-500  rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer  ${selectedStatusTheme?.colors.tabBorders} `}
               >
                 <div className="text-lg ">No. of Tasks</div>
                 <div className="text-4xl font-semibold">{data.numTasks}</div>
@@ -244,7 +249,7 @@ function ProjectDashboard() {
                 />
               </div>
               <div
-                className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px] ${selectedStatusTheme?.colors.tabGradient} rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer  ${selectedStatusTheme?.colors.tabBorders}`}
+                className={`items-start relative flex-col ${selectedStatusTheme?.colors.tabTexts} border-l-[12px]  bg-gradient-to-r  from-[#7678ED] to-[#bba5e5] rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer  border-[#2d2348]`}
               >
                 <div className="text-lg ">No. of Milestones</div>
                 <div className="text-4xl font-semibold">
@@ -313,7 +318,7 @@ function ProjectDashboard() {
                         Project progress
                       </div>
                       <div
-                        className="h-[100px] w-[100px] rounded-full flex justify-center items-center"
+                        className="h-[100px] w-[100px] rounded-full flex justify-center items-center mt-2"
                         role="progressbar"
                         aria-valuenow={75}
                         aria-valuemin={0}
@@ -331,8 +336,8 @@ function ProjectDashboard() {
                         <div className="m-1">
                           {data?.projectProgression
                             ? Number(
-                              Number(data?.projectProgression).toFixed(2)
-                            ) *
+                                Number(data?.projectProgression).toFixed(2)
+                              ) *
                                 100 +
                               "%"
                             : "NA"}
@@ -432,11 +437,50 @@ function ProjectDashboard() {
                 </div>
               </div>
               <div className="w-full md:w-1/4 h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3 relative">
-                <div className="w-full h-full text-center text-base md:text-lg font-semibold ">
-                        Schedule Performance Index
+                <div className="w-full h-full text-center text-base md:text-lg font-semibold pt-2 ">
+                  Cost Performance Index
                   <TooltipProvider>
                     <Tooltip>
-                      <TooltipTrigger className="flex gap-1 mr-3 items-center absolute top-2 right-1">
+                      <TooltipTrigger className="flex gap-1 mr-3 items-center absolute top-2 right-0">
+                        <img
+                          src={InfoCircle}
+                          className="h-[16px] w-[16px]"
+                          alt="InfoCircle"
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-sm">
+                          CPI measures the project’s cost efficiency: CPI&gt;1:
+                          Project is under budget; CPI &lt; 1: Project is over
+                          budget; CPI=1: Project is on budget SPI measures how
+                          closely your project follows the schedule : SPI &gt;
+                          1: Project is ahead of schedule; SPI &lt; 1: Project
+                          is behind schedule; SPI = 1
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div
+                  className={`w-full h-full text-lg md:text-xl font-bold text-gray-500 text-center ${
+                    Number(data.cpi) < 0.8
+                      ? "text-red-700/60"
+                      : Number(data.cpi) >= 0.8 && Number(data.cpi) < 0.95
+                      ? "text-orange-400/80"
+                      : Number(data.cpi) >= 0.95
+                      ? "text-green-700/60"
+                      : ""
+                  }`}
+                >
+                  {Number(data.cpi).toFixed(2)}
+                </div>
+              </div>
+              <div className="w-full md:w-1/4 h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3 relative">
+                <div className="w-full h-full text-center text-base md:text-lg font-semibold pt-2">
+                  Schedule Performance Index
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger className="flex gap-1 mr-3 items-center absolute top-2 right-0">
                         <img
                           src={InfoCircle}
                           className="h-[16px] w-[16px]"
@@ -458,10 +502,10 @@ function ProjectDashboard() {
                     Number(getSPI()) < 0.8
                       ? "text-red-700/60"
                       : Number(getSPI()) >= 0.8 && Number(getSPI()) < 0.95
-                        ? "text-orange-400/80"
-                        : Number(getSPI()) >= 0.95
-                          ? "text-green-700/60"
-                          : ""
+                      ? "text-orange-400/80"
+                      : Number(getSPI()) >= 0.95
+                      ? "text-green-700/60"
+                      : ""
                   }`}
                 >
                   {getSPI()}
@@ -484,6 +528,40 @@ function ProjectDashboard() {
                 </div>
               </div>
             </div>
+            {data.keyPerformanceIndicator && (
+              <div className="w-full h-full flex flex-col md:flex-row items-center justify-center gap-0 md:gap-5">
+                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
+                  <div>Re-calculated Budget</div>
+                  <div className="text-lg md:text-xl font-bold text-gray-500">
+                    {data.keyPerformanceIndicator.reCalculateBudget ?? "N/A"}
+                  </div>
+                </div>
+                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
+                  <div> Budget variation</div>
+                  <div className="text-lg md:text-xl font-bold text-gray-500">
+                    {data.keyPerformanceIndicator.budgetVariation ?? "N/A"}
+                  </div>
+                </div>
+                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
+                  <div> Re-calculated End date</div>
+                  <div className="text-lg md:text-xl font-bold text-gray-500">
+                    {data.keyPerformanceIndicator.reCalculateEndDate &&
+                      dateFormater(
+                        new Date(
+                          data.keyPerformanceIndicator.reCalculateEndDate
+                        ) ?? "N/A"
+                      )}
+                  </div>
+                </div>
+                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
+                  <div>Duration variation</div>
+                  <div className="text-lg md:text-xl font-bold text-gray-500">
+                    {data.keyPerformanceIndicator.reCalculatedDuration +
+                      " Days" ?? "N/A"}
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="font-medium text-3xl leading-normal text-gray-600">
               Tasks Indicators
             </div>

@@ -142,11 +142,8 @@ function TaskSubTaskForm(props: Props) {
       taskName: "",
       taskDescription: "",
       startDate: props.initialValues?.startDate
-        ? new Date(props.initialValues?.startDate)
-        : new Date(
-            projects.data?.data.data.find((p) => p.projectId == props.projectId)
-              ?.startDate ?? new Date()
-          ),
+      ? new Date(props.initialValues?.startDate)
+      : new Date(startDate),
       duration: 1.0,
     },
     validationSchema: toFormikValidationSchema(createTaskSchema),
@@ -725,18 +722,16 @@ function TaskSubTaskForm(props: Props) {
                         </div>
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="p-0">
+                    <PopoverContent className="p-0" onCloseAutoFocus={taskFormik.submitForm}>
                       <Calendar
                         mode="single"
                         selected={
                           new Date(taskFormik.values.startDate ?? startDate)
                         }
-                        onDayBlur={taskFormik.submitForm}
                         onSelect={(e) => {
                           {
                             const endDate = new Date(e ?? "");
-                            endDate.setUTCHours(0, 0, 0, 0);
-                            endDate.setDate(endDate.getDate() + 1);
+                      
                             taskFormik.setFieldValue(
                               "startDate",
                               e ? new Date(endDate) : undefined

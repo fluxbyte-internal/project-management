@@ -6,35 +6,44 @@ import { QUERY_KEYS } from "./querykeys";
 import ApiRequest from "../ApiRequest";
 import { requestURLs } from "@/Environment";
 import { useQuery } from "@tanstack/react-query";
-import { OverAllTrackEnumValue, ScheduleAndBudgetTrend } from "@backend/src/schemas/enums";
+import {
+  OverAllTrackEnumValue,
+  ScheduleAndBudgetTrend,
+} from "@backend/src/schemas/enums";
 
 export type projectDashboardResponseType = ResponseType<{
-  projectName:string
+  projectName: string;
   numTasks: number;
   numMilestones: number;
   projectDates: ProjectDates;
   projectBudgetTrend: keyof typeof ScheduleAndBudgetTrend;
   taskStatusChartData: TaskStatusChartData;
+  keyPerformanceIndicator: {
+    reCalculateBudget: number;
+    budgetVariation: number;
+    reCalculateEndDate: Date;
+    reCalculatedDuration: number;
+  };
   taskDelayChartData: {
-    taskId:   string;
+    taskId: string;
     taskName: string;
     tpiValue: number;
-    tpiFlag:  string;
-}[];
+    tpiFlag: string;
+  }[];
   numTeamMembersWorkingOnTasks: number;
   projectOverAllSituation: keyof typeof OverAllTrackEnumValue;
   projectStatus: string;
   spi: {
-    taskId:     string;
-    taskName:   string;
-    spi:        number;
+    taskId: string;
+    taskName: string;
+    spi: number;
     taskStatus: string;
-}[];
+  }[];
   cpi: number | undefined;
-  budgetTrend:keyof typeof ScheduleAndBudgetTrend;
+  budgetTrend: keyof typeof ScheduleAndBudgetTrend;
   scheduleTrend: keyof typeof ScheduleAndBudgetTrend;
   actualCost: string;
-  consumedBudget:string;
+  consumedBudget: string;
   estimatedBudget: string;
   projectProgression: string;
 }>;
@@ -43,8 +52,8 @@ export interface ProjectDates {
   estimatedEndDate: string;
   actualEndDate: string;
   projectCreatedAt: string;
-  actualDuration: number
-  estimatedDuration: number
+  actualDuration: number;
+  estimatedDuration: number;
 }
 export interface TaskStatusChartData {
   labels: any[];
@@ -52,32 +61,38 @@ export interface TaskStatusChartData {
 }
 
 export type projectDashboardPortfolioDataType = {
-  projectName:string
+  projectName: string;
   numTasks: number;
   numMilestones: number;
   projectDates: ProjectDates;
   projectBudgetTrend: keyof typeof ScheduleAndBudgetTrend;
   taskStatusChartData: TaskStatusChartData;
+  keyPerformanceIndicator:{
+    reCalculateBudget:    number;
+    budgetVariation:      number;
+    reCalculateEndDate:   Date;
+    reCalculatedDuration: number;
+}
   taskDelayChartData: {
-    taskId:   string;
+    taskId: string;
     taskName: string;
     tpiValue: number;
-    tpiFlag:  string;
-}[];
+    tpiFlag: string;
+  }[];
   numTeamMembersWorkingOnTasks: number;
   projectOverAllSituation: keyof typeof OverAllTrackEnumValue;
   projectStatus: string;
   spi: {
-    taskId:     string;
-    taskName:   string;
-    spi:        number;
+    taskId: string;
+    taskName: string;
+    spi: number;
     taskStatus: string;
-}[];
+  }[];
   cpi: number | undefined;
-  budgetTrend:keyof typeof ScheduleAndBudgetTrend;
+  budgetTrend: keyof typeof ScheduleAndBudgetTrend;
   scheduleTrend: keyof typeof ScheduleAndBudgetTrend;
   actualCost: string;
-  consumedBudget:string;
+  consumedBudget: string;
   estimatedBudget: string;
   projectProgression: string;
 };

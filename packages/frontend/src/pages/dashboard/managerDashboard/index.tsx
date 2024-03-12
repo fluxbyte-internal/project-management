@@ -68,7 +68,7 @@ function ManagerDashboard() {
 
     setstatusPieChartProp({
       chartData: statusPieChartData!,
-      color: ["#DD7102", "#943B0C", "#461802", "#555555"],
+      color: ["#F7B801", "#F18701", "#3D348B", "#7678ED"],
       title: "Projects Per Status",
       radius: ["45%", "60%"],
       height: "300px",
@@ -80,7 +80,7 @@ function ManagerDashboard() {
       }));
     setOverallStatusPieChartProp({
       chartData: overallSituationPieChartData!,
-      color: ["#FFD04A", "#FFB819", "#B74E06", "#461802"],
+      color: ["#F7B801", "#F18701", "#3D348B", "#7678ED"],
       title: "Projects Per Overall Situation",
       radius: ["0%", "60%"],
       height: "300px",
@@ -97,7 +97,7 @@ function ManagerDashboard() {
       title: "Project With Delays",
       radius: ["45%", "60%"],
       height: "300px",
-      subtext: "Project delayis based on task progression",
+      subtext: "Project delays based on task progression",
     });
   }, [data]);
 
@@ -257,12 +257,12 @@ function ManagerDashboard() {
                   key={index}
                   className={`relative flex flex-col gap-2 lg:gap-5 w-full lg:w-1/5 h-1/5 lg:h-full  rounded-2xl p-2 lg:py-3 text-start items-start justify-start px-10 border-l-[12px] ${
                     labelData === ProjectStatusEnumValue.ACTIVE
-                      ? "text-primary-600  border-2 border-primary-600 "
+                      ? "text-[#F7B801]  border-2 border-[#F7B801]"
                       : labelData === ProjectStatusEnumValue.ON_HOLD
-                        ? "text-primary-800 border-2 border-primary-800"
+                        ? "text-[#F18701] border-2 border-[#F18701]"
                         : labelData === ProjectStatusEnumValue.NOT_STARTED
-                          ? "text-primary-950 border-2 border-primary-950"
-                          : "text-gray-800 border-2 border-gray-300  "
+                          ? "text-[#3D348B] border-2 border-[#3D348B]"
+                          : "text-[#7678ED] border-2 border-[#7678ED]"
                   }`}
                 >
                   <a className="text-base font-bold items-end">{formatStatus(labelData)}</a>
