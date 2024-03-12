@@ -86,7 +86,7 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
     data: Object.values(overallSituationCounts),
   };
 
-  const labels = ["Red", "Green", "Orange"];
+  const labels = ["Significant delay", "On track", "Moderate delay"];
   const data = [0, 0, 0];
   const projects = await Promise.all(projectManagersProjects.map(async (project) => {
     const CPI = await calculationCPI(project, req.tenantId, organisationId);
@@ -203,7 +203,7 @@ export const administartorProjects = async (req: Request, res: Response) => {
     data: Object.values(overallSituationCounts),
   };
 
-  const labels = ["Red", "Green", "Orange"];
+  const labels = ["Significant delay", "On track", "Moderate delay"];
   const data = [0, 0, 0];
   const projectsWithCPI = await Promise.all(
     orgCreatedByUser.projects.map(async (project) => {

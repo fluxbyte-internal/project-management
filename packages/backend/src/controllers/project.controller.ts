@@ -730,6 +730,7 @@ export const duplicateProjectAndAllItsTask = async (
               projectId: duplicatedProject.projectId,
               taskName: `${task.taskName}_1`,
               parentTaskId: null,
+              completionPecentage: 0,
             },
           });
           if(taskOneInsert && task.documentAttachments.length > 0) {
@@ -754,6 +755,7 @@ export const duplicateProjectAndAllItsTask = async (
                     projectId: duplicatedProject.projectId,
                     taskName: `${secondsubtask.taskName}_1`,
                     parentTaskId: taskOneInsert.taskId,
+                    completionPecentage: 0,
                   },
                 });
                 if(secondSubTaskInsert && secondsubtask.documentAttachments.length > 0) {
@@ -778,6 +780,7 @@ export const duplicateProjectAndAllItsTask = async (
                           projectId: duplicatedProject.projectId,
                           taskName: `${thirdSubTask.taskName}_1`,
                           parentTaskId: secondSubTaskInsert.taskId,
+                          completionPecentage: 0,
                         },
                       });
                       if(thirdSubTaskInsert && secondsubtask.documentAttachments.length > 0) {
