@@ -12,7 +12,7 @@ import {
 } from "../ui/dropdown-menu";
 import { CheckCheck, LogOut, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import CreateProjectForm from "../project/CreateProjectForm";
 import { useAuth } from "@/hooks/useAuth";
 import { useUser } from "@/hooks/useUser";
@@ -178,7 +178,7 @@ function NavBar() {
     <div className="w-full h-14 z-10 fixed border-b-2 border-[#E2E8F0] flex items-center flex-col bg-white">
       <div className="flex items-center w-full h-full justify-between sm:px-3 px-2">
         <div className="flex gap-5 items-center">
-          <div className="text-primary-800 text-sm font-bold flex justify-center items-center w-auto h-auto">
+          <div className="text-primary-900/80 text-xl font-bold flex justify-center items-center w-auto h-auto">
             {user?.userOrganisation[0]?.organisation?.organisationName}
           </div>
           {user?.userOrganisation[0]?.organisation && (
@@ -230,12 +230,16 @@ function NavBar() {
                           </DropdownMenuContent>
                         </DropdownMenu>
                       ) : (
-                        <Link
+                        <NavLink
+                          className={({ isActive }) =>
+                            isActive
+                              ? " text-sm font-medium text-black underline underline-offset-8 relative cursor-pointer w-full"
+                              : "link text-sm font-medium text-gray-500 relative cursor-pointer w-full"
+                          }
                           to={item.link}
-                          className="text-sm font-medium text-gray-500 relative cursor-pointer"
                         >
                           {item.name}
-                        </Link>
+                        </NavLink>
                       )}
                     </div>
                   );
@@ -267,17 +271,21 @@ function NavBar() {
                                 <div className="text-sm font-medium text-gray-500 relative cursor-pointer">
                                   {item.name}
                                 </div>
-                                <div className="h-full flex items-center aspect-square">  
+                                <div className="h-full flex items-center aspect-square">
                                   <img src={DownArrow} alt="Dropdown Arrow" />
                                 </div>
                               </div>
                             ) : (
-                              <Link
+                              <NavLink
+                                className={({ isActive }) =>
+                                  isActive
+                                    ? " text-sm font-medium text-black underline relative cursor-pointer w-full"
+                                    : "link text-sm font-medium text-gray-500 relative cursor-pointer w-full"
+                                }
                                 to={item.link}
-                                className="text-sm font-medium text-gray-500 relative cursor-pointer w-full"
                               >
                                 {item.name}
-                              </Link>
+                              </NavLink>
                             )}
                           </div>
                         </DropdownMenuItem>
@@ -292,6 +300,7 @@ function NavBar() {
                     className="hidden lg:block"
                     variant={"primary"}
                     onClick={handleOpenPopUp}
+                    size={"sm"}
                   >
                     New project
                   </Button>

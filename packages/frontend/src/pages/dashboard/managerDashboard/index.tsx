@@ -14,6 +14,10 @@ import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 import { Project } from "@/api/query/useProjectQuery";
 import LinkArrow from "@/assets/svg/linkArrow.svg";
 import { ProjectStatusEnumValue } from "@backend/src/schemas/enums";
+import { toast } from "react-toastify";
+import { Tooltip, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TooltipContent } from "@radix-ui/react-tooltip";
+import InfoCircle from "@/assets/svg/Info circle.svg";
 
 function ManagerDashboard() {
   const projectManagerPortfolioDashboardQuery =
@@ -42,7 +46,17 @@ function ManagerDashboard() {
   useEffect(() => {
     setData(projectManagerPortfolioDashboardQuery?.data?.data?.data);
   }, [projectManagerPortfolioDashboardQuery?.data?.data?.data]);
-
+  useEffect(() => {
+    toast.warning(
+      "Please update tasks progression to have accurate data on dashboard",
+      {
+        autoClose: false,
+        closeOnClick: true,
+        className: "bg-primary-400/60 w-fit  text-nowrap",
+        style: { left: "-40%" },
+      }
+    );
+  }, []);
   useEffect(() => {
     setTableData(data?.projects);
     const statusPieChartData = data?.statusChartData?.labels.map(
@@ -83,7 +97,7 @@ function ManagerDashboard() {
       title: "Project With Delays",
       radius: ["45%", "60%"],
       height: "300px",
-      subtext: "Project delay based on task",
+      subtext: "Project delayis based on task progression",
     });
   }, [data]);
 
@@ -128,8 +142,25 @@ function ManagerDashboard() {
       key: "CPI",
       header: "CPI",
       onCellRender: (item: Project) => (
+        <>{item.CPI ? item.CPI.toFixed(2) : (0.0).toFixed(2)} </>
+      ),
+      onHeaderRender: (item: string) => (
         <>
-          {item.CPI ? item.CPI.toFixed(2) : (0.0).toFixed(2)}{" "}
+          <TooltipProvider >
+            <Tooltip>
+              <TooltipTrigger className="flex gap-1 mr-3 items-center">
+                {item}
+                <img
+                  src={InfoCircle}
+                  className="h-[16px] w-[16px]"
+                  alt="InfoCircle"
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-sm"> CPI measures the project’s cost efficiency: CPI&gt;1: Project is under budget; CPI&lt;1: Project is over budget; CPI=1: Project is on budget</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </>
       ),
     },
@@ -273,7 +304,7 @@ function ManagerDashboard() {
             </Button>
           </div>
 
-          <div className="w-full lg:w-4/5 h-full self-center">
+          <div className="w-full lg:w-4/5 h-full self-center mb-10">
             {tableData && (
               <>
                 <Table

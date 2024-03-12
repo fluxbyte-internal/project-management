@@ -9,11 +9,21 @@ import Sunny from "@/assets/png/Sunny.png";
 import Cloudy from "@/assets/png/Cloudy.png";
 import Rainy from "@/assets/png/Rainy.png";
 import Stormy from "@/assets/png/Stormy.png";
-import { OverAllTrackEnumValue, ScheduleAndBudgetTrend } from "@backend/src/schemas/enums";
+import {
+  OverAllTrackEnumValue,
+  ScheduleAndBudgetTrend,
+} from "@backend/src/schemas/enums";
 import Increasing from "@/assets/increase.svg";
 import Decreasing from "@/assets/decrease.svg";
 import Stable from "@/assets/stable.svg";
 import LinkArrow from "@/assets/svg/linkArrow.svg";
+import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import InfoCircle from "@/assets/svg/Info circle.svg";
 
 export type ThemeColorData = {
   theme: string;
@@ -125,7 +135,7 @@ function ProjectDashboard() {
         setstatusPieChartProp({
           chartData: statusPieChartData,
           color: selectedStatusTheme?.colors.chartColors,
-          title: "Task status",
+          title: "Tasks by status",
           height: "100%",
           radius: ["0%", "70%"],
         });
@@ -159,8 +169,8 @@ function ProjectDashboard() {
             name: "Orange",
           }
         ],
-        color: ["#FF000077",  "#00800077","#FFB81977"],
-        title: "Task with delays",
+        color: ["#FF000077", "#00800077", "#FFB81977"],
+        title: "Tasks by progression",
         height: "100%",
         radius: ["0%", "70%"],
       });
@@ -175,17 +185,17 @@ function ProjectDashboard() {
   const navigate = useNavigate();
   const filterRoutes = (item: string) => {
     switch (item) {
-    case "Milestones":
-      navigate(`/tasks/${projectId}?milestones=true`);
-      break;
-    case "Tasks":
-      navigate(`/tasks/${projectId}`);
-      break;
-    case "Members":
-      navigate(`/members/${projectId}`);
-      break;
-    default:
-      break;
+      case "Milestones":
+        navigate(`/tasks/${projectId}?milestones=true`);
+        break;
+      case "Tasks":
+        navigate(`/tasks/${projectId}`);
+        break;
+      case "Members":
+        navigate(`/members/${projectId}`);
+        break;
+      default:
+        break;
     }
   };
   const getSPI = () => {
@@ -194,7 +204,7 @@ function ProjectDashboard() {
       data.spi.forEach((e) => {
         val += e.spi;
       });
-      return Number((val / data.spi.length)).toFixed(2);
+      return Number(val / data.spi.length).toFixed(2);
     } else {
       return 0;
     }
@@ -266,7 +276,7 @@ function ProjectDashboard() {
               </div>
               <div className="w-full h-full flex flex-col md:flex-row items-center justify-center gap-0 md:gap-5">
                 <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
-                  <div>Est. End Date</div>
+                  <div>Estimates end date</div>
                   <div className="text-lg md:text-xl font-bold text-gray-500">
                     {dateFormatter(
                       new Date(data?.projectDates?.estimatedEndDate)
@@ -281,7 +291,7 @@ function ProjectDashboard() {
                 </div>
 
                 <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
-                  <div>Est. Duration</div>
+                  <div>Estimated duration</div>
                   <div className="text-lg md:text-xl font-bold text-gray-500">
                     {data?.projectDates?.estimatedDuration ?? 0} Days
                   </div>
@@ -300,7 +310,7 @@ function ProjectDashboard() {
                   <div className="w-fit h-fit">
                     <div className="w-full flex flex-col items-center justify-center">
                       <div className="text-xl font-semibold">
-                        Project's Progress
+                        Project progress
                       </div>
                       <div
                         className="h-[100px] w-[100px] rounded-full flex justify-center items-center"
@@ -342,7 +352,7 @@ function ProjectDashboard() {
                 <div className="w-full h-full lg:pr-10">
                   <div className="flex flex-col gap-1 md:gap-3 w-full h-full text-center text-2xl md:text-3xl font-medium items-center justify-center">
                     <div className="text-base md:text-lg ">
-                      Project OverAll Status:
+                      Project OverAll Status
                     </div>
                     <div
                       className={`${selectedStatusTheme?.colors?.subTexts} font-bold  `}
@@ -355,22 +365,26 @@ function ProjectDashboard() {
                   <img
                     className="h-[65%] md:h-3/4 lg:h-[125%] select-none absolute  -top-16 -right-20 transform -translate-x-0 -translate-y-6 "
                     src={`${
-                      data?.projectOverAllSituation === OverAllTrackEnumValue.SUNNY
+                      data?.projectOverAllSituation ===
+                      OverAllTrackEnumValue.SUNNY
                         ? Sunny
-                        : data?.projectOverAllSituation ===OverAllTrackEnumValue.CLOUDY
-                          ? Cloudy
-                          : data?.projectOverAllSituation === OverAllTrackEnumValue.RAINY
-                            ? Rainy
-                            : data?.projectOverAllSituation === OverAllTrackEnumValue.STORMY
-                              ? Stormy
-                              : ""
+                        : data?.projectOverAllSituation ===
+                          OverAllTrackEnumValue.CLOUDY
+                        ? Cloudy
+                        : data?.projectOverAllSituation ===
+                          OverAllTrackEnumValue.RAINY
+                        ? Rainy
+                        : data?.projectOverAllSituation ===
+                          OverAllTrackEnumValue.STORMY
+                        ? Stormy
+                        : ""
                     }`}
                   />
                 </div>
               </div>
             </div>
             <h2 className="font-medium text-3xl leading-normal text-gray-600">
-              Project's Budget
+              Project Budget
             </h2>
             <div className="budgetBox w-full h-fit flex flex-col md:flex-row gap-5 justify-center items-center">
               <div className="w-full h-full flex  gap-5 border-2 border-gray-500 rounded-2xl p-3">
@@ -386,11 +400,11 @@ function ProjectDashboard() {
                           ? Stable
                           : data?.scheduleTrend ===
                             ScheduleAndBudgetTrend.INCREASING
-                            ? Increasing
-                            : data?.scheduleTrend ===
+                          ? Increasing
+                          : data?.scheduleTrend ===
                             ScheduleAndBudgetTrend.DECREASING
-                              ? Decreasing
-                              : ""
+                          ? Decreasing
+                          : ""
                       }
                     ></img>
                   </div>
@@ -407,19 +421,37 @@ function ProjectDashboard() {
                           ? Stable
                           : data?.budgetTrend ===
                             ScheduleAndBudgetTrend.INCREASING
-                            ? Increasing
-                            : data?.budgetTrend ===
+                          ? Increasing
+                          : data?.budgetTrend ===
                             ScheduleAndBudgetTrend.DECREASING
-                              ? Decreasing
-                              : ""
+                          ? Decreasing
+                          : ""
                       }
                     ></img>
                   </div>
                 </div>
               </div>
-              <div className="w-full md:w-1/4 h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3">
+              <div className="w-full md:w-1/4 h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3 relative">
                 <div className="w-full h-full text-center text-base md:text-lg font-semibold ">
-                  SPI
+                        Schedule Performance Index
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger className="flex gap-1 mr-3 items-center absolute top-2 right-1">
+                        <img
+                          src={InfoCircle}
+                          className="h-[16px] w-[16px]"
+                          alt="InfoCircle"
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-sm">
+                          SPI measures how closely your project follows the
+                          schedule : SPI &gt; 1: Project is ahead of schedule;
+                          SPI &lt; 1: Project is behind schedule; SPI = 1
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
                 <div
                   className={`w-full h-full text-lg md:text-xl font-bold text-gray-500 text-center ${
@@ -437,7 +469,7 @@ function ProjectDashboard() {
               </div>
               <div className="w-full md:w-1/4 h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3">
                 <div className="w-full h-full text-center text-base md:text-lg font-semibold ">
-                  Project's Budget
+                  Estimated Project Budget
                 </div>
                 <div className="w-full h-full text-lg md:text-xl font-bold text-gray-500 text-center">
                   {data?.estimatedBudget}
@@ -445,7 +477,7 @@ function ProjectDashboard() {
               </div>
               <div className="w-full md:w-1/4  h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3">
                 <div className="w-full h-full text-center text-base md:text-lg font-semibold ">
-                  Consumed Project's Budget
+                  Consumed Project Budget
                 </div>
                 <div className="w-full h-full text-lg md:text-xl font-bold text-gray-500 text-center">
                   {data?.consumedBudget}
@@ -453,7 +485,7 @@ function ProjectDashboard() {
               </div>
             </div>
             <div className="font-medium text-3xl leading-normal text-gray-600">
-              Tasks's Data
+              Tasks Indicators
             </div>
             <div className="taskCharts w-full h-fit flex flex-col md:flex-row justify-center items-center gap-6 py-2 ">
               <div

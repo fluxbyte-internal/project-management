@@ -25,9 +25,9 @@ export type LoginValues = {
 function Login() {
   const { login } = useAuth();
   const loginMutation = useLoginMutation();
-  const labelStyle = "font-medium text-base text-gray-8 ";
+  const labelStyle = "font-medium text-[13px] text-gray-8 ";
   const inputStyle =
-    "py-1.5 px-3 rounded-md border border-gray-100 mt-2 w-full h-[46px] focus:outline-[#943B0C]";
+    "py-1.5 px-3 rounded-md border border-gray-100 w-full focus:outline-[#943B0C]";
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -76,19 +76,54 @@ function Login() {
   };
 
   return (
-    <div className="flex justify-center min-h-screen">
-      <div className="lg:flex flex-col items-center justify-center lg:w-1/2 bg-gradient-to-t from-[#FFF8DF] to-[#FFD6AB] hidden">
+    <div className="flex justify-center min-h-screen bg-gradient-to-t from-[#FFF8DF] to-[#FFD6AB] sm:p-20">
+      <div className="lg:flex flex-col items-center justify-center lg:w-1/2 hidden">
         <img src={SignUp} />
       </div>
-      <div className="flex flex-col items-center w-full lg:w-1/2 lg:justify-center overflow-hidden bg-white">
-        <div className="w-full max-sm:py-4 py-6 sm:px-14 max-w-xl">
+      <div className="flex flex-col items-center w-full lg:w-1/2 justify-center overflow-hidden ">
+        <div className="max-sm:py-4 sm:px-4 py-6 w-full md:w-[65%] max-w-xl overflow-y-auto bg-white shadow-lg rounded-2xl">
           <div className="px-4">
             <h3 className="text-2xl text-center font-bold text-primary-900">
               Login
             </h3>
           </div>
-          <hr className="m-4" />
-          <form onSubmit={formik.handleSubmit} className="px-4">
+          <div className="flex flex-col px-4 gap-4">
+            <Button
+              type="button"
+              variant={"outline"}
+              isLoading={isLoading}
+              disabled={isLoading}
+              onClick={google}
+              className="w-full flex py-2.5 mt-1.5 rounded-md gap-2.5 hover:bg-opacity-80 disabled:bg-opacity-50"
+            >
+              <img src={Google} />
+              <span>Google</span>
+            </Button>
+            {/* <Button
+              type="button"
+              variant={"secondary"}
+              isLoading={isLoading}
+              disabled={isLoading}
+              className="w-full flex py-2.5 mt-1.5 rounded-md gap-2.5 hover:bg-[#1876f2d8] bg-[#1877F2] text-white"
+            >
+              <img src={Facebook} />
+              <span>
+                Facebook
+              </span>
+            </Button> */}
+          </div>
+          <div className="flex items-center p-2">
+            <div className="w-full pr-2">
+              <hr />
+            </div>
+            <div className="w-full bg-[#E7E7E7] text-xs py-1 rounded-lg text-center">
+              Or continue email
+            </div>
+            <div className="w-full pl-2">
+              <hr />
+            </div>
+          </div>
+          <form onSubmit={formik.handleSubmit} className="px-4 flex flex-col gap-1">
             <div className="w-full mt-1">
               <label htmlFor="email" className={labelStyle}>
                 Email
@@ -99,9 +134,10 @@ function Login() {
                 placeholder="Enter email"
                 value={formik.values.email}
                 onChange={formik.handleChange}
+                className="h-10 mt-0"
               />
               <div>
-                <ErrorMessage>
+               <ErrorMessage className="!text-xs block mt-1">
                   {formik.touched.email && formik.errors.email}
                 </ErrorMessage>
               </div>
@@ -125,7 +161,7 @@ function Login() {
                   variant={"ghost"}
                   size={"icon"}
                   onClick={handleShowPassword}
-                  className="absolute top-[30px] right-1 -translate-y-1/2 mt-[1px]"
+                  className="absolute top-[20px] right-1 -translate-y-1/2 mt-[1px]"
                 >
                   <img
                     src={showPassword ? show : hide}
@@ -135,7 +171,7 @@ function Login() {
                 </Button>
               </div>
               <div>
-                <ErrorMessage>
+               <ErrorMessage className="!text-xs block mt-1">
                   {formik.touched.password && formik.errors.password}
                 </ErrorMessage>
               </div>
@@ -157,43 +193,13 @@ function Login() {
             >
               Forget Password?
             </NavLink>
-            <div className="mt-4 text-grey-600">
+            <div className="mt-2 text-sm text-grey-600">
               New user?{" "}
               <NavLink className="text-warning hover:underline" to="/signup">
                 Sign Up
               </NavLink>
             </div>
           </form>
-          <div className="flex items-center p-4">
-            <div className="w-full pr-2"><hr /></div>
-            <div className="w-full bg-[#E7E7E7] text-xs py-1 rounded-lg text-center">Or continue with</div>
-            <div className="w-full pl-2"><hr /></div>
-          </div>
-          <div className="flex flex-col px-4 gap-4">
-            <Button
-              type="button"
-              variant={"outline"}
-              isLoading={isLoading}
-              disabled={isLoading}
-              onClick={google}
-              className="w-full flex py-2.5 mt-1.5 rounded-md gap-2.5 hover:bg-opacity-80 disabled:bg-opacity-50"
-            >
-              <img src={Google} />
-              <span>Sign in with Google</span>
-            </Button>
-            {/* <Button
-              type="button"
-              variant={"secondary"}
-              isLoading={isLoading}
-              disabled={isLoading}
-              className="w-full flex py-2.5 mt-1.5 rounded-md gap-2.5 hover:bg-[#1876f2d8] bg-[#1877F2] text-white"
-            >
-              <img src={Facebook} />
-              <span>
-                Facebook
-              </span>
-            </Button> */}
-          </div>
         </div>
       </div>
     </div>

@@ -12,6 +12,10 @@ import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 import { Project } from "@/api/query/useProjectQuery";
 import LinkArrow from "@/assets/svg/linkArrow.svg";
 import { ProjectStatusEnumValue } from "@backend/src/schemas/enums";
+import { toast } from "react-toastify";
+import { Tooltip, TooltipProvider } from "@radix-ui/react-tooltip";
+import { TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import InfoCircle from "@/assets/svg/Info circle.svg";
 export interface ProjectType {
   projectId: string;
   organisationId: string;
@@ -70,6 +74,18 @@ function AdminDashboard() {
       .replace(/\b\w/g, (c) => c.toUpperCase());
   };
   useEffect(() => {
+    toast.warning(
+      "Please update tasks progression to have accurate data on dashboard",
+      {
+        autoClose: false,
+        closeOnClick: true,
+        className: "bg-primary-400/60 w-fit  text-nowrap",
+        style: { left: "-40%" },
+      }
+    );
+  }, []);
+
+  useEffect(() => {
     setDatas(admninPortfolioDashboardQuery?.data?.data?.data);
   }, [admninPortfolioDashboardQuery?.data?.data?.data]);
 
@@ -109,9 +125,9 @@ function AdminDashboard() {
     );
     setSpiPieChartProp({
       chartData: spiPieChartData!,
-      color: ["#FF000077",  "#00800077","#FFB81977"],
+      color: ["#FF000077", "#00800077", "#FFB81977"],
       title: "Projects with delays",
-      subtext: "Project delay based on task",
+      subtext: "Project delayis based on task progression",
       radius: ["45%", "60%"],
       height: "300px",
       // title:{
@@ -157,6 +173,30 @@ function AdminDashboard() {
       header: "CPI",
       onCellRender: (item: Project) => (
         <>{item.CPI ? item.CPI.toFixed(2) : (0.0).toFixed(2)} </>
+      ),
+      onHeaderRender: (item: string) => (
+        <>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger className="flex gap-1 mr-3 items-center">
+                {item}
+                <img
+                  src={InfoCircle}
+                  className="h-[16px] w-[16px]"
+                  alt="InfoCircle"
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-sm">
+                  {" "}
+                  CPI measures the project’s cost efficiency: CPI&gt;1: Project
+                  is under budget; CPI&lt;1: Project is over budget; CPI=1:
+                  Project is on budget
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </>
       ),
     },
     {
@@ -226,14 +266,14 @@ function AdminDashboard() {
   };
   const getStatusColor = (status: string) => {
     switch (status) {
-    case ProjectStatusEnumValue.NOT_STARTED:
-      return "!bg-slate-500/60 text-white";
-    case ProjectStatusEnumValue.ON_HOLD:
-      return "!bg-orange-300 text-white";
-    case ProjectStatusEnumValue.ACTIVE:
-      return "!bg-emerald-500 text-white";
-    case ProjectStatusEnumValue.CLOSED:
-      return "!bg-red-500 text-white";
+      case ProjectStatusEnumValue.NOT_STARTED:
+        return "!bg-slate-500/60 text-white";
+      case ProjectStatusEnumValue.ON_HOLD:
+        return "!bg-orange-300 text-white";
+      case ProjectStatusEnumValue.ACTIVE:
+        return "!bg-emerald-500 text-white";
+      case ProjectStatusEnumValue.CLOSED:
+        return "!bg-red-500 text-white";
     }
   };
   const navigate = useNavigate();
@@ -305,7 +345,7 @@ function AdminDashboard() {
             </Button>
           </div>
 
-          <div className="w-full lg:w-4/5 h-full self-center">
+          <div className="w-full lg:w-4/5 h-full self-center mb-10">
             {tableData && (
               <>
                 <Table

@@ -215,7 +215,6 @@ function OrganisationDetails() {
     } else {
       setFilteredOrganisationUsers(organisation.userOrganisation);
     }
-    console.log(organisation);
     
     if (organisation) {
       setEditData({
@@ -419,22 +418,25 @@ function OrganisationDetails() {
                           {userOrg.user.email}
                         </div>
                       </div>
-                      <div className="w-full h-full">
+                      <div className=" h-full">
                         {userOrg.user.firstName
                           ? userOrg.user.lastName
                             ? `${userOrg.user.firstName.charAt(
-                              0
-                            )}${userOrg.user.lastName.charAt(
-                              0
-                            )}`.toUpperCase()
+                                0
+                              )}${userOrg.user.lastName.charAt(
+                                0
+                              )}`.toUpperCase()
                             : `${userOrg.user.firstName.charAt(
-                              0
-                            )}${userOrg.user.firstName.charAt(
-                              1
-                            )}`.toUpperCase()
+                                0
+                              )}${userOrg.user.firstName.charAt(
+                                1
+                              )}`.toUpperCase()
                           : `${userOrg.user.email.charAt(
-                            0
-                          )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
+                              0
+                            )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
+                      </div>
+                      <div className="capitalize text-gray-700 ml-10 text-sm">
+                        {userOrg.jobTitle}
                       </div>
                     </div>
                     <div className="capitalize text-gray-700 text-sm">

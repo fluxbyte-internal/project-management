@@ -125,7 +125,7 @@ function GanttView() {
           ? connections(originalTask)
           : null,
       class: originalTask.milestoneIndicator ? "milestone" : "task",
-      disableResize:Boolean(originalTask.subtasks.length) 
+      disableResize: Boolean(originalTask.subtasks.length),
     };
 
     if (originalTask.subtasks) {
@@ -452,16 +452,25 @@ function GanttView() {
     type: string,
     isHeaderDetailsContainer: boolean
   ) => {
-    const weekday =["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-    if (isHeaderDetailsContainer && type) {
-      return date.toLocaleString("en-US", { month: "long", year: "numeric" });
-    } else {
-      if (monthScale !== "week") {
-        return date.toLocaleString("en-US", { day: "numeric" }) +' '+ weekday[date.getDay()];
-      }
-      if (filterUnit === "year") {
-        return date.toLocaleString("en-US", { month: "short" });
+    const weekday = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    if (isHeaderDetailsContainer) {
+      if (type == "year") {
+        return date.toLocaleString("en-US", { year: "numeric" });
       } else {
+        return date.toLocaleString("en-US", { month: "long", year: "numeric" });
+      }
+    } else {
+      if (type == "day") {
+        return (
+          date.toLocaleString("en-US", { day: "numeric" }) +
+          " " +
+          weekday[date.getDay()]
+        );
+      }
+      if (type === "month") {
+        return date.toLocaleString("en-US", { month: "long" });
+      }
+      if (type == "week") {
         return getWeekNumber(date);
       }
     }
