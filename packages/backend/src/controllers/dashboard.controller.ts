@@ -360,8 +360,10 @@ export const projectDashboardByprojectId = async (
   const cpi = await calculationCPI(projectWithTasks, req.tenantId, organisationId);
 
   // SPI
+  let overAllSPI: number = 0;
   const tasksWithSPI = projectWithTasks.tasks.map(async task => {
     const spi = await calculationSPI(task, req.tenantId, organisationId);
+    overAllSPI += spi;
     return { 
       taskId: task.taskId,
       taskName: task.taskName,
@@ -435,6 +437,19 @@ export const projectDashboardByprojectId = async (
       },
     },
   });
+  
+  const reCalculateBudget = Number(projectWithTasks.estimatedBudget) / cpi;
+  const budgetVariation =
+    reCalculateBudget - Number(projectWithTasks.estimatedBudget);
+  const reCalculatedDuration = actualDuration / overAllSPI;
+  const reCalculateEndDate =
+    new Date(projectWithTasks.startDate).getTime() + (reCalculatedDuration - 1);
+  const keyPerformanceIndicator = {
+    reCalculateBudget,
+    budgetVariation,
+    reCalculateEndDate,
+    reCalculatedDuration,
+  };
 
   const response = {
     numTasks,
@@ -455,6 +470,7 @@ export const projectDashboardByprojectId = async (
     consumedBudget,
     estimatedBudget,
     projectProgression,
+    keyPerformanceIndicator,
   };
   return new SuccessResponse(
     StatusCodes.OK,
