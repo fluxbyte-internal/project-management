@@ -438,12 +438,16 @@ export const projectDashboardByprojectId = async (
     },
   });
   
-  const reCalculateBudget = Number(projectWithTasks.estimatedBudget) / cpi;
+  const reCalculateBudget = Math.round(Number(projectWithTasks.estimatedBudget) / cpi);
   const budgetVariation =
-    reCalculateBudget - Number(projectWithTasks.estimatedBudget);
-  const reCalculatedDuration = actualDuration / overAllSPI;
-  const reCalculateEndDate =
-    new Date(projectWithTasks.startDate).getTime() + (reCalculatedDuration - 1);
+    reCalculateBudget - Math.round(Number(projectWithTasks.estimatedBudget));
+
+  const totalSPI = overAllSPI/projectWithTasks.tasks.length; 
+  const reCalculatedDuration = Math.round(estimatedDuration / totalSPI);
+  const reCalculateEndDate = new Date(
+    projectWithTasks.startDate.getTime() +
+      (reCalculatedDuration - 1) * 24 * 60 * 60 * 1000
+  );
   const keyPerformanceIndicator = {
     reCalculateBudget,
     budgetVariation,

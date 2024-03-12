@@ -13,6 +13,8 @@ export async function calculationCPI(
     organisationId
   );
   const estimatedBudgetNumber = parseFloat(project.estimatedBudget);
-  const consumedBudgetNumber = parseFloat(project.consumedBudget);
-  return (progressionPercentage * estimatedBudgetNumber) / consumedBudgetNumber;
+  let consumedBudgetNumber = parseFloat(project.consumedBudget);
+  consumedBudgetNumber = consumedBudgetNumber === 0 ? NaN : consumedBudgetNumber;
+  const finalValue = (progressionPercentage * estimatedBudgetNumber) / consumedBudgetNumber
+  return finalValue;
 }
