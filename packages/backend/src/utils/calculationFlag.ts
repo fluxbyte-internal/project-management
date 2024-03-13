@@ -19,12 +19,14 @@ export async function calculationTPI(
   if (!completionPecentage) {
     completionPecentage = 0;
   }
+  const currentDate = new Date();
   const taskStartDate = new Date(startDate);
-  const currentDate = new Date() < taskStartDate ? taskStartDate : new Date();
-  currentDate.setUTCHours(0, 0, 0, 0);
+
+  const effectiveDate = currentDate < taskStartDate ? taskStartDate : currentDate;
+  effectiveDate.setUTCHours(0, 0, 0, 0);
   taskStartDate.setUTCHours(0, 0, 0, 0);
   const remainingDuration = await excludeNonWorkingDays(
-    currentDate,
+    effectiveDate,
     taskStartDate,
     tenantId,
     organisationId
