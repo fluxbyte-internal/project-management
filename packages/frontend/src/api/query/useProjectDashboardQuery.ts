@@ -33,12 +33,7 @@ export type projectDashboardResponseType = ResponseType<{
   numTeamMembersWorkingOnTasks: number;
   projectOverAllSituation: keyof typeof OverAllTrackEnumValue;
   projectStatus: string;
-  spi: {
-    taskId: string;
-    taskName: string;
-    spi: number;
-    taskStatus: string;
-  }[];
+  spi: number | null;
   cpi: number | undefined;
   budgetTrend: keyof typeof ScheduleAndBudgetTrend;
   scheduleTrend: keyof typeof ScheduleAndBudgetTrend;
@@ -67,12 +62,12 @@ export type projectDashboardPortfolioDataType = {
   projectDates: ProjectDates;
   projectBudgetTrend: keyof typeof ScheduleAndBudgetTrend;
   taskStatusChartData: TaskStatusChartData;
-  keyPerformanceIndicator:{
-    reCalculateBudget:    number;
-    budgetVariation:      number;
-    reCalculateEndDate:   Date;
+  keyPerformanceIndicator: {
+    reCalculateBudget: number;
+    budgetVariation: number;
+    reCalculateEndDate: Date;
     reCalculatedDuration: number;
-}
+  };
   taskDelayChartData: {
     taskId: string;
     taskName: string;
@@ -82,12 +77,7 @@ export type projectDashboardPortfolioDataType = {
   numTeamMembersWorkingOnTasks: number;
   projectOverAllSituation: keyof typeof OverAllTrackEnumValue;
   projectStatus: string;
-  spi: {
-    taskId: string;
-    taskName: string;
-    spi: number;
-    taskStatus: string;
-  }[];
+  spi: number | null;
   cpi: number | undefined;
   budgetTrend: keyof typeof ScheduleAndBudgetTrend;
   scheduleTrend: keyof typeof ScheduleAndBudgetTrend;

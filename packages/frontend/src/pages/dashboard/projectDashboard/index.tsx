@@ -204,12 +204,8 @@ function ProjectDashboard() {
     }
   };
   const getSPI = () => {
-    let val = 0;
-    if (data && data.spi && data.spi.length) {
-      data.spi.forEach((e) => {
-        val += e.spi;
-      });
-      return Number(val / data.spi.length).toFixed(2);
+    if (data && data.spi) {
+      return data.spi;
     } else {
       return 0;
     }

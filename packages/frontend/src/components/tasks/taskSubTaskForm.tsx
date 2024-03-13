@@ -25,7 +25,9 @@ import useTaskQuery from "@/api/query/useTaskQuery";
 import dateFormater from "@/helperFuntions/dateFormater";
 import useTaskAddMembersMutation from "@/api/mutation/useTaskAddMember";
 import useTaskMemberListQuery from "@/api/query/useTaskMemberListQuary";
-import useCreateTaskMutation from "@/api/mutation/useTaskCreateMutation";
+import useCreateTaskMutation, {
+  Task,
+} from "@/api/mutation/useTaskCreateMutation";
 import useUpdateTaskMutation from "@/api/mutation/useTaskUpdateMutation";
 import useRemoveTaskMemberMutation from "@/api/mutation/useTaskRemoveMember";
 import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
@@ -94,7 +96,8 @@ function TaskSubTaskForm(props: Props) {
   const taskRemoveMembersMutation = useRemoveTaskMemberMutation();
   const taskAddMembersMutation = useTaskAddMembersMutation(taskId);
 
-  let tasks = taskQuery.data && taskId ? taskQuery.data.data.data : undefined;
+  // let tasks = taskQuery.data?.data.data && taskId ? taskQuery.data?.data.data : undefined;
+  const [tasks, settasks] = useState<Task>();
   const taskAttachmentAddMutation = useTaskAttechmentAddMutation(taskId);
   const taskCreateMutation = useCreateTaskMutation(
     props.projectId,
@@ -102,6 +105,10 @@ function TaskSubTaskForm(props: Props) {
   );
   const taskAddUpdateMilestoneMutation =
     useTaskAddUpdateMilestoneMutation(taskId);
+  useEffect(() => {
+    settasks(taskQuery.data?.data.data);
+  }, [taskQuery.data?.data.data]);
+
   useEffect(() => {
     refetch();
   }, [taskId]);
@@ -142,8 +149,8 @@ function TaskSubTaskForm(props: Props) {
       taskName: "",
       taskDescription: "",
       startDate: props.initialValues?.startDate
-      ? new Date(props.initialValues?.startDate)
-      : new Date(startDate),
+        ? new Date(props.initialValues?.startDate)
+        : new Date(startDate),
       duration: 1.0,
     },
     validationSchema: toFormikValidationSchema(createTaskSchema),
@@ -295,8 +302,8 @@ function TaskSubTaskForm(props: Props) {
   };
 
   const [progressError, setProgressError] = useState("");
-  const onProgressUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.ariaValueNow;
+  const onProgressUpdate = (e: number[]) => {
+    const val = e[0];
     if (Number(val) !== Number(tasks?.completionPecentage)) {
       if (Number(val) > 100 || Number(val) < 0) {
         setProgressError("Progress must be within the range of 0 to 100.");
@@ -383,7 +390,7 @@ function TaskSubTaskForm(props: Props) {
             <Button
               variant={"ghost"}
               onClick={() => {
-                props.close(), (tasks = undefined);
+                settasks(undefined), props.close();
               }}
             >
               <img src={Close} width={24} height={24} />
@@ -722,7 +729,10 @@ function TaskSubTaskForm(props: Props) {
                         </div>
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="p-0" onCloseAutoFocus={taskFormik.submitForm}>
+                    <PopoverContent
+                      className="p-0"
+                      onCloseAutoFocus={taskFormik.submitForm}
+                    >
                       <Calendar
                         mode="single"
                         selected={
@@ -731,7 +741,8 @@ function TaskSubTaskForm(props: Props) {
                         onSelect={(e) => {
                           {
                             const endDate = new Date(e ?? "");
-                      
+                            endDate.setUTCHours(0, 0, 0, 0);
+                            endDate.setDate(endDate.getDate() + 1);
                             taskFormik.setFieldValue(
                               "startDate",
                               e ? new Date(endDate) : undefined
@@ -763,7 +774,10 @@ function TaskSubTaskForm(props: Props) {
                             ? setTaskDurationField((prev) => !prev)
                             : ""
                         }
-                        disabled={tasks?.milestoneIndicator || Boolean(tasks?.subtasks.length)}
+                        disabled={
+                          tasks?.milestoneIndicator ||
+                          Boolean(tasks?.subtasks.length)
+                        }
                         className="w-full flex justify-between "
                       >
                         <div className="text-xs font-medium text-gray-400 flex gap-2 ">
@@ -879,27 +893,33 @@ function TaskSubTaskForm(props: Props) {
                 <div className="flex flex-col w-full">
                   <div className="flex gap-2 items-center">
                     <div className="text-xs font-medium text-gray-400 flex items-center gap-2">
-                      Progress:
+                      Progress: {tasks?.completionPecentage}
                     </div>
                   </div>
 
                   <div className="w-full mt-2">
-                    <Slider
-                      defaultValue={[Number(tasks?.completionPecentage)]}
-                      max={100}
-                      disabled={
-                        Boolean(tasks?.subtasks.length) ||
-                        tasks?.milestoneIndicator
-                      }
-                      min={0}
-                      step={5}
-                      title={tasks?.completionPecentage}
-                      onPointerUp={(e) => {
-                        onProgressUpdate(
-                          e as unknown as React.ChangeEvent<HTMLInputElement>
-                        );
-                      }}
-                    />
+                    {tasks && taskId && (
+                      <Slider
+                      key={tasks.completionPecentage}
+                        defaultValue={[
+                          tasks && tasks.completionPecentage
+                            ? Number(tasks.completionPecentage)
+                            : 0,
+                        ]}
+                        aria-labelledby="discrete-slider"
+                        max={100}
+                        disabled={
+                          Boolean(tasks?.subtasks.length) ||
+                          tasks?.milestoneIndicator
+                        }
+                        min={0}
+                        step={5}
+                        title={tasks?.completionPecentage}
+                        onValueCommit={(e) => {
+                          onProgressUpdate(e);
+                        }}
+                      />
+                    )}
                     <ErrorMessage className="w-1/2">
                       {progressError}
                     </ErrorMessage>
