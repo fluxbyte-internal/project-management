@@ -25,21 +25,16 @@ export async function calculationSPI(
     startDate.setUTCHours(0, 0, 0, 0);
 
     const endDate = await taskEndDate(task, tenantId, organisationId);
-    let effectiveDate =
-      currentDate > new Date(endDate) ? new Date(endDate) : currentDate;
+    let effectiveDate = currentDate > new Date(endDate) ? new Date(endDate) : currentDate;
     effectiveDate.setUTCHours(0, 0, 0, 0);
+    const daysDiff = ((effectiveDate.getUTCDate() - startDate.getUTCDate()) + 1 )
 
-    const daysElapsed =
-      Math.max(
-        0,
-        (effectiveDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
-      ) + 1;
-
-    const plannedProgression = (daysElapsed / task.duration) * 100;
-    totalPlannedProgression += plannedProgression;
+    const plannedProgression = (daysDiff / task.duration);
+    const finalPlannedProgression = plannedProgression * completionPercentage
+    totalPlannedProgression += finalPlannedProgression;
   }
   const finalValue =
     Math.round(sumOfTotalActualProgressionAndDuration) /
     Math.round(totalPlannedProgression);
-  return finalValue;
+  return Math.round(finalValue);
 }
