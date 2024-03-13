@@ -209,9 +209,11 @@ function AccountSettings() {
   };
   const getOptions = () => {
     const data = [{ label: "Select job title", value: "" }];
-    user.userOrganisation[0]?.organisation.jobTitlesOfOrg.forEach((s) => {
-      data.push({ label: s, value: s });
-    });
+    if (user.userOrganisation[0] && user.userOrganisation[0]?.organisation.jobTitlesOfOrg && user.userOrganisation[0]?.organisation.jobTitlesOfOrg.length > 0) {
+      user.userOrganisation[0]?.organisation.jobTitlesOfOrg.forEach((s) => {
+        data.push({ label: s, value: s });
+      });
+    }
     return data;
   };
   return (

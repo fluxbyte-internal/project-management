@@ -86,27 +86,23 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
     data: Object.values(overallSituationCounts),
   };
 
-  const labels = ["Red", "Green", "Orange"];
+  const labels = ["Significant delay", "On track", "Moderate delay"];
   const data = [0, 0, 0];
   const projects = await Promise.all(projectManagersProjects.map(async (project) => {
-    const CPI = await calculationCPI(project, req.tenantId, organisationId);
+    const CPI = await calculationCPI(project, req.tenantId);
     if (project.status === ProjectStatusEnum.ACTIVE) {
-      await Promise.all(
-        project.tasks.map(async (task) => {
-          const spi = await calculationSPI(
-            task,
-            req.tenantId,
-            organisationId
-          );
-          if (spi < 0.8) {
-            data[0]++;
-          } else if (spi < 0.95) {
-            data[2]++;
-          } else {
-            data[1]++;
-          }
-        })
+      const spi = await calculationSPI(
+        req.tenantId,
+        organisationId,
+        project.projectId,
       );
+      if (spi < 0.8) {
+        data[0]++;
+      } else if (spi < 0.95) {
+        data[2]++;
+      } else {
+        data[1]++;
+      }
     }
     const actualDurationWithCondition =
     project.tasks.length === 0
@@ -203,28 +199,24 @@ export const administartorProjects = async (req: Request, res: Response) => {
     data: Object.values(overallSituationCounts),
   };
 
-  const labels = ["Red", "Green", "Orange"];
+  const labels = ["Significant delay", "On track", "Moderate delay"];
   const data = [0, 0, 0];
   const projectsWithCPI = await Promise.all(
     orgCreatedByUser.projects.map(async (project) => {
-      const CPI = await calculationCPI(project, req.tenantId, organisationId);
+      const CPI = await calculationCPI(project, req.tenantId);
       if (project.status === ProjectStatusEnum.ACTIVE) {
-        await Promise.all(
-          project.tasks.map(async (task) => {
-            const spi = await calculationSPI(
-              task,
-              req.tenantId,
-              organisationId
-            );
-            if (spi < 0.8) {
-              data[0]++;
-            } else if (spi < 0.95) {
-              data[2]++;
-            } else {
-              data[1]++;
-            }
-          })
+        const spi = await calculationSPI(
+          req.tenantId,
+          organisationId,
+          project.projectId,
         );
+        if (spi < 0.8) {
+          data[0]++;
+        } else if (spi < 0.95) {
+          data[2]++;
+        } else {
+          data[1]++;
+        }
       }
       const actualDurationWithCondition =
       project.tasks.length === 0
@@ -354,22 +346,13 @@ export const projectDashboardByprojectId = async (
   const actualCost = projectWithTasks.actualCost;
   const scheduleTrend = projectWithTasks.scheduleTrend;
   const budgetTrend = projectWithTasks.budgetTrend;
-  const projectProgression = await prisma.project.projectProgression(projectId, req.tenantId, req.organisationId);
+  const projectProgression = await prisma.project.projectProgression(projectId);
 
   // CPI
-  const cpi = await calculationCPI(projectWithTasks, req.tenantId, organisationId);
+  const cpi = await calculationCPI(projectWithTasks, req.tenantId);
 
   // SPI
-  const tasksWithSPI = projectWithTasks.tasks.map(async task => {
-    const spi = await calculationSPI(task, req.tenantId, organisationId);
-    return { 
-      taskId: task.taskId,
-      taskName: task.taskName,
-      spi,
-      taskStatus: task.status
-     };
-  });
-  const spi = await Promise.all(tasksWithSPI);
+  const spi = await calculationSPI(req.tenantId, organisationId, projectWithTasks.projectId,)
 
   // Project Date's
   const actualDurationWithCondition =
@@ -435,6 +418,22 @@ export const projectDashboardByprojectId = async (
       },
     },
   });
+  
+  const reCalculateBudget = Math.round(Number(projectWithTasks.estimatedBudget) / cpi);
+  const budgetVariation =
+    reCalculateBudget - Math.round(Number(projectWithTasks.estimatedBudget));
+
+  const reCalculatedDuration = Math.round(estimatedDuration / spi);
+  const reCalculateEndDate = new Date(
+    projectWithTasks.startDate.getTime() +
+      (reCalculatedDuration - 1) * 24 * 60 * 60 * 1000
+  );
+  const keyPerformanceIndicator = {
+    reCalculateBudget,
+    budgetVariation,
+    reCalculateEndDate,
+    reCalculatedDuration,
+  };
 
   const response = {
     numTasks,
@@ -455,6 +454,7 @@ export const projectDashboardByprojectId = async (
     consumedBudget,
     estimatedBudget,
     projectProgression,
+    keyPerformanceIndicator,
   };
   return new SuccessResponse(
     StatusCodes.OK,

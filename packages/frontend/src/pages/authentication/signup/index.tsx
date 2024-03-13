@@ -19,9 +19,9 @@ import { baseURL } from "../../../Environment";
 
 function Signup() {
   const { login } = useAuth();
-  const labelStyle = "font-medium text-base text-gray-8 ";
+  const labelStyle = "font-medium text-[13px] text-gray-8 ";
   const inputStyle =
-    "py-1.5 px-3 rounded-md border border-gray-100 w-full h-[46px] focus:outline-[#943B0C]";
+    "py-1.5 px-3 rounded-md border border-gray-100 w-full focus:outline-[#943B0C]";
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmationPassword, setShowConfirmationPassword] =
     useState(false);
@@ -75,8 +75,7 @@ function Signup() {
             }
             if (!Array.isArray(error.response?.data.errors)) {
               toast.error(
-                error.response?.data?.message ??
-                  "An unexpected error occurred."
+                error.response?.data?.message ?? "An unexpected error occurred."
               );
             }
           }
@@ -101,27 +100,80 @@ function Signup() {
       });
     }
   };
+
+  const checkError = ()=>{
+    if (formik.values.privacyPolicy == false) {
+      formik.setErrors({
+        privacyPolicy: "Please agree to the Terms and Privacy Policy.",
+      });
+    }
+  }
   return (
-    <div className="flex justify-center min-h-screen">
-      <div className="lg:flex flex-col items-center justify-center lg:w-1/2 bg-gradient-to-t from-[#FFF8DF] to-[#FFD6AB] hidden">
+    <div className="flex justify-center min-h-screen bg-gradient-to-t from-[#FFF8DF] to-[#FFD6AB] sm:p-20">
+      <div className="lg:flex flex-col items-center justify-center lg:w-1/2 hidden">
         <img src={SignUp} />
       </div>
-      <div className="flex flex-col items-center w-full lg:w-1/2 justify-center overflow-hidden bg-white">
-        <div className="w-full max-sm:py-4 sm:px-14 py-6 lg:h-[calc(100vh-50px)] max-w-xl overflow-y-auto">
+      <div className="flex flex-col items-center w-full lg:w-1/2 justify-center overflow-hidden ">
+        <div className="max-sm:py-4 sm:px-4 py-6 w-full md:w-[70%] max-w-xl overflow-y-auto bg-white shadow-lg rounded-2xl">
           <div className="px-4">
             <h3 className="text-2xl text-center font-bold text-primary-900">
               Sign Up
             </h3>
           </div>
-          <hr className="m-4" />
-          <form onSubmit={formik.handleSubmit} className="px-4">
+
+          <div className="flex flex-col px-4 gap-4">
+            <Button
+              type="button"
+              variant={"outline"}
+              isLoading={isLoading}
+              disabled={isLoading}
+              onClick={google}
+              className="w-full flex py-2.5 mt-1.5 rounded-md gap-2.5 hover:bg-opacity-80 disabled:bg-opacity-50"
+            >
+              <img src={Google} />
+              <span>Google</span>
+            </Button>
+            {formik.errors.privacyPolicy &&
+              formik.errors.privacyPolicy !== "Invalid input" && (
+                <span className="text-red-500 text-sm ">
+                  {formik.errors.privacyPolicy}
+                </span>
+              )}
+            {/* <Button
+              type="button"
+              variant={"secondary"}
+              isLoading={isLoading}
+              disabled={isLoading}
+              className="w-full flex py-2.5 mt-1.5 rounded-md gap-2.5 hover:bg-[#1876f2d8] bg-[#1877F2] text-white"
+            >
+              <img src={Facebook} />
+              <span>
+                Facebook
+              </span>
+            </Button> */}
+          </div>
+          <div className="flex items-center p-2">
+            <div className="w-full pr-2">
+              <hr />
+            </div>
+            <div className="w-full bg-[#E7E7E7] text-xs py-1 rounded-lg text-center">
+              Or continue email
+            </div>
+            <div className="w-full pl-2">
+              <hr />
+            </div>
+          </div>
+          <form
+            onSubmit={(e)=>{e.preventDefault(),checkError(),formik.handleSubmit()}}
+            className="px-4 flex flex-col gap-1"
+          >
             <div className="flex flex-col sm:flex-row sm:gap-4 justify-between items-center">
               <div className="w-full mt-1">
                 <label htmlFor="firstName" className={labelStyle}>
                   Firstname
                   <span className="ml-0.5 text-red-500">*</span>
                 </label>
-                <div className="mt-1">
+                <div className="">
                   <input
                     type="text"
                     name="firstName"
@@ -131,13 +183,11 @@ function Signup() {
                     onChange={formik.handleChange}
                   />
                 </div>
-                <div>
-                  <ErrorMessage>
-                    {formik.touched.firstName && formik.errors.firstName}
-                  </ErrorMessage>
-                </div>
+                <ErrorMessage className="!text-xs block mt-1">
+                  {formik.touched.firstName && formik.errors.firstName}
+                </ErrorMessage>
               </div>
-              <div className="w-full mt-1">
+              <div className="w-full ">
                 <label htmlFor="lastName" className={labelStyle}>
                   Lastname
                   <span className="ml-0.5 text-red-500">*</span>
@@ -153,13 +203,13 @@ function Signup() {
                   />
                 </div>
                 <div>
-                  <ErrorMessage>
+                  <ErrorMessage className="!text-xs block mt-1">
                     {formik.touched.lastName && formik.errors.lastName}
                   </ErrorMessage>
                 </div>
               </div>
             </div>
-            <div className="w-full mt-1">
+            <div className="w-full ">
               <label htmlFor="email" className={labelStyle}>
                 Email
                 <span className="ml-0.5 text-red-500">*</span>
@@ -170,14 +220,15 @@ function Signup() {
                 placeholder="Enter email"
                 value={formik.values.email}
                 onChange={formik.handleChange}
+                className="h-10 mt-0"
               />
               <div>
-                <ErrorMessage>
+                <ErrorMessage className="!text-xs block mt-1">
                   {formik.touched.email && formik.errors.email}
                 </ErrorMessage>
               </div>
             </div>
-            <div className="w-full mt-1">
+            <div className="w-full ">
               <label htmlFor="password" className={labelStyle}>
                 Password
                 <span className="ml-0.5 text-red-500">*</span>
@@ -207,12 +258,12 @@ function Signup() {
                 </Button>
               </div>
               <div>
-                <ErrorMessage>
+                <ErrorMessage className="!text-xs block mt-1">
                   {formik.touched.password && formik.errors.password}
                 </ErrorMessage>
               </div>
             </div>
-            <div className="mt-1">
+            <div className="">
               <label htmlFor="showConfirmationPassword" className={labelStyle}>
                 Confirm Password
                 <span className="ml-0.5 text-red-500">*</span>
@@ -242,7 +293,7 @@ function Signup() {
                 </Button>
               </div>
               <div>
-                <ErrorMessage>
+                <ErrorMessage className="!text-xs block mt-1">
                   {formik.touched.confirmPassword &&
                     formik.errors.confirmPassword}
                 </ErrorMessage>
@@ -254,7 +305,7 @@ function Signup() {
                 type="checkbox"
                 onChange={formik.handleChange}
               />
-              <div>
+              <div className="text-sm">
                 I agree to the{" "}
                 <Link className="text-primary-500" to="/term-and-condition">
                   {" "}
@@ -267,61 +318,31 @@ function Signup() {
                 .
               </div>
             </div>
+            <ErrorMessage className="!text-xs block items-start -mt-0 mb-2">
+              {formik.errors.privacyPolicy && (
+                  <span className="text-red-500 text-sm ">
+                    {formik.errors.privacyPolicy}
+                  </span>
+                )}
+            </ErrorMessage>
             <div className="flex items-center">
               <Button
                 type="submit"
                 variant={"primary"}
                 isLoading={isLoading}
                 disabled={isLoading}
-                className="w-full py-2.5 mt-1.5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
+                className="w-full py-2.5 rounded-md hover:bg-opacity-80 disabled:bg-opacity-50"
               >
                 Submit
               </Button>
             </div>
-            <div className="mt-4 text-grey-600">
+            <div className="mt-2 text-sm text-grey-600">
               Already have an account?{" "}
               <NavLink className="text-warning hover:underline" to="/login">
                 Log in
               </NavLink>
             </div>
           </form>
-          <div className="flex items-center p-4">
-            <div className="w-full pr-2">
-              <hr />
-            </div>
-            <div className="w-full bg-[#E7E7E7] text-xs py-1 rounded-lg text-center">
-              Or continue with
-            </div>
-            <div className="w-full pl-2">
-              <hr />
-            </div>
-          </div>
-          <div className="flex flex-col px-4 gap-4">
-            <Button
-              type="button"
-              variant={"outline"}
-              isLoading={isLoading}
-              disabled={isLoading}
-              onClick={google}
-              className="w-full flex py-2.5 mt-1.5 rounded-md gap-2.5 hover:bg-opacity-80 disabled:bg-opacity-50"
-            >
-              <img src={Google} />
-              <span>Google</span>
-            </Button>
-            {(formik.errors.privacyPolicy && formik.errors.privacyPolicy !== "Invalid input")  && <span className="text-red-500 text-sm ">{formik.errors.privacyPolicy}</span>}
-            {/* <Button
-              type="button"
-              variant={"secondary"}
-              isLoading={isLoading}
-              disabled={isLoading}
-              className="w-full flex py-2.5 mt-1.5 rounded-md gap-2.5 hover:bg-[#1876f2d8] bg-[#1877F2] text-white"
-            >
-              <img src={Facebook} />
-              <span>
-                Facebook
-              </span>
-            </Button> */}
-          </div>
         </div>
       </div>
     </div>

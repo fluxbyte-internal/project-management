@@ -174,7 +174,7 @@ export const getProjects = async (req: express.Request, res: express.Response) =
   const projectsWithProgression = [];
 
   for (const project of projects) {
-    const progressionPercentage = await prisma.project.projectProgression(project.projectId, req.tenantId, req.organisationId);
+    const progressionPercentage = await prisma.project.projectProgression(project.projectId);
     const projectManager = await prisma.projectAssignUsers.findMany({
       where: {
         projectId: project.projectId,
@@ -269,7 +269,7 @@ export const getProjectById = async (req: express.Request, res: express.Response
           req.organisationId
         );
   const actualDuration = actualDurationWithCondition;
-  const progressionPercentage = await prisma.project.projectProgression(projectId,req.tenantId,req.organisationId);
+  const progressionPercentage = await prisma.project.projectProgression(projectId);
   const estimatedDuration = await calculateProjectDuration(projects.startDate, projects.estimatedEndDate, req.tenantId, req.organisationId);
   
   const actualEndDate =  projects.tasks.length === 0 ? null : projects.actualEndDate;
@@ -359,6 +359,23 @@ export const updateProject = async (req: express.Request, res: express.Response)
     }
   });
   if (!findProject) throw new NotFoundError('Project not found');
+  if (projectUpdateValue && projectUpdateValue.status && projectUpdateValue.status === ProjectStatusEnum.CLOSED) {
+    const findTaskWithIncompleteTask = await prisma.task.count({
+      where: {
+        projectId: projectId,
+        deletedAt: null,
+        status: {
+          in: [TaskStatusEnum.NOT_STARTED, TaskStatusEnum.IN_PROGRESS],
+        },
+      },
+    });
+    if (
+      findTaskWithIncompleteTask > 0 &&
+      projectUpdateValue.status === ProjectStatusEnum.CLOSED
+    ) {
+      throw new BadRequestError("Incomplete tasks exists!");
+    }
+  }
   let updateObj = { ...projectUpdateValue, updatedByUserId: req.userId };
   const projectUpdate = await prisma.project.update({
     where: { projectId: projectId },
@@ -730,6 +747,7 @@ export const duplicateProjectAndAllItsTask = async (
               projectId: duplicatedProject.projectId,
               taskName: `${task.taskName}_1`,
               parentTaskId: null,
+              completionPecentage: 0,
             },
           });
           if(taskOneInsert && task.documentAttachments.length > 0) {
@@ -754,6 +772,7 @@ export const duplicateProjectAndAllItsTask = async (
                     projectId: duplicatedProject.projectId,
                     taskName: `${secondsubtask.taskName}_1`,
                     parentTaskId: taskOneInsert.taskId,
+                    completionPecentage: 0,
                   },
                 });
                 if(secondSubTaskInsert && secondsubtask.documentAttachments.length > 0) {
@@ -778,6 +797,7 @@ export const duplicateProjectAndAllItsTask = async (
                           projectId: duplicatedProject.projectId,
                           taskName: `${thirdSubTask.taskName}_1`,
                           parentTaskId: secondSubTaskInsert.taskId,
+                          completionPecentage: 0,
                         },
                       });
                       if(thirdSubTaskInsert && secondsubtask.documentAttachments.length > 0) {

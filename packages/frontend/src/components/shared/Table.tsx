@@ -7,6 +7,7 @@ export type ColumeDef = {
   header: string;
   sorting?: boolean;
   onCellRender?: (data: any) => JSX.Element;
+  onHeaderRender?: (header: string) => JSX.Element;
 };
 export type Props = {
   columnDef?: ColumeDef[];
@@ -189,7 +190,9 @@ function Table(props: Props) {
                                 className="flex gap-1 items-center cursor-pointer group"
                                 onClick={() => sorting(item.key)}
                               >
-                                {item.header}
+                                {item.onHeaderRender && item.header
+                              ? item.onHeaderRender(item["header"])
+                              : item["header"] }
                                 <img
                                   src={downArrow}
                                   className={`${
@@ -199,7 +202,9 @@ function Table(props: Props) {
                               </div>
                             </>
                           ) : (
-                            item.header
+                            item.onHeaderRender && item.header
+                              ? item.onHeaderRender(item["header"])
+                              : item["header"]  
                           )}
                         </th>
                       );

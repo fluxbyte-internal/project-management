@@ -302,6 +302,21 @@ export const updateTask = async (
         },
       },
     });
+    // const notCompletedSubTasks = await prisma.task.count({
+    //   where: {
+    //     taskId: taskUpdateDB.parent?.taskId,
+    //     deletedAt: null,
+    //     subtasks: {
+    //       some: {
+    //         deletedAt: null,
+    //         status: {
+    //           notIn: [TaskStatusEnum.NOT_STARTED, TaskStatusEnum.IN_PROGRESS],
+    //         },
+    //       },
+    //     },
+    //   },
+    // });
+    // console.log({notCompletedSubTasks})
     if (findTaskForDuration) {
       const completionPecentage = await calculationSubTaskProgression(
         findTaskForDuration,

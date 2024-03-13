@@ -125,7 +125,7 @@ function GanttView() {
           ? connections(originalTask)
           : null,
       class: originalTask.milestoneIndicator ? "milestone" : "task",
-      disableResize:Boolean(originalTask.subtasks.length) 
+      disableResize: Boolean(originalTask.subtasks.length),
     };
 
     if (originalTask.subtasks) {
@@ -276,22 +276,22 @@ function GanttView() {
 
     const mapDayToNumber = (day: string) => {
       switch (day) {
-      case "SUN":
-        return 0;
-      case "MON":
-        return 1;
-      case "TUE":
-        return 2;
-      case "WED":
-        return 3;
-      case "THU":
-        return 4;
-      case "FRI":
-        return 5;
-      case "SAT":
-        return 6;
-      default:
-        return 0;
+        case "SUN":
+          return 0;
+        case "MON":
+          return 1;
+        case "TUE":
+          return 2;
+        case "WED":
+          return 3;
+        case "THU":
+          return 4;
+        case "FRI":
+          return 5;
+        case "SAT":
+          return 6;
+        default:
+          return 0;
       }
     };
 
@@ -331,15 +331,15 @@ function GanttView() {
       taskElement.classList.add("rounded");
 
       switch (status) {
-      case TaskStatusEnumValue.NOT_STARTED:
-        segmentElement.children[0].classList.add("!bg-slate-500/60");
-        break;
-      case TaskStatusEnumValue.IN_PROGRESS:
-        segmentElement.children[0].classList.add("!bg-blue-300");
-        break;
-      case TaskStatusEnumValue.COMPLETED:
-        segmentElement.children[0].classList.add("!bg-emerald-500");
-        break;
+        case TaskStatusEnumValue.NOT_STARTED:
+          segmentElement.children[0].classList.add("!bg-slate-500/60");
+          break;
+        case TaskStatusEnumValue.IN_PROGRESS:
+          segmentElement.children[0].classList.add("!bg-blue-300");
+          break;
+        case TaskStatusEnumValue.COMPLETED:
+          segmentElement.children[0].classList.add("!bg-emerald-500");
+          break;
       }
       if (task.class == "milestone") {
         segmentElement.classList.add("hidden");
@@ -387,9 +387,7 @@ function GanttView() {
     return (
       <>
         <div className="group flex w-full" title={props.taskId ?? ""}>
-          <div className="w-full truncate">
-          {props.title}
-          </div>
+          <div className="w-full truncate">{props.title}</div>
           <div className="opacity-0 w-fit !flex !gap-1 !justify-between transition ease-in-out delay-150  group-hover:opacity-100 group-hover:block z-50 bg-gra rounded-lg">
             <Button
               id={BUTTON_EVENT.REMOVE}
@@ -452,16 +450,25 @@ function GanttView() {
     type: string,
     isHeaderDetailsContainer: boolean
   ) => {
-    const weekday =["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-    if (isHeaderDetailsContainer && type) {
-      return date.toLocaleString("en-US", { month: "long", year: "numeric" });
-    } else {
-      if (monthScale !== "week") {
-        return date.toLocaleString("en-US", { day: "numeric" }) +' '+ weekday[date.getDay()];
-      }
-      if (filterUnit === "year") {
-        return date.toLocaleString("en-US", { month: "short" });
+    const weekday = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    if (isHeaderDetailsContainer) {
+      if (type == "year") {
+        return date.toLocaleString("en-US", { year: "numeric" });
       } else {
+        return date.toLocaleString("en-US", { month: "long", year: "numeric" });
+      }
+    } else {
+      if (type == "day") {
+        return (
+          date.toLocaleString("en-US", { day: "numeric" }) +
+          " " +
+          weekday[date.getDay()]
+        );
+      }
+      if (type === "month") {
+        return date.toLocaleString("en-US", { month: "long" });
+      }
+      if (type == "week") {
         return getWeekNumber(date);
       }
     }
@@ -513,6 +520,12 @@ function GanttView() {
         sortMode={sortMode}
         tooltip={tooltip}
         timelineHeaderFormatFunction={timelineHeaderFormatFunction}
+        // dateMarkers={user?.userOrganisation[0].organisation.orgHolidays?.map(
+        //   (d) => {
+        //     return { label: d.holidayReason, date: d.holidayStartDate, className: "!bg-primary-500" };
+        //   }
+        // )}
+        
         onOpening={(e) => {
           e?.preventDefault();
         }}

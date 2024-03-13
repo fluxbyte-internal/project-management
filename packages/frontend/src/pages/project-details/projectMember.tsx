@@ -188,7 +188,7 @@ function ProjectMember() {
       onCellRender: (user: AssignedUsers) => {
         return (
           <div>
-            {user.user.userOrganisation[0].jobTitle}
+            {user.user.userOrganisation[0].jobTitle ?? "N/A"}
           </div>
         );
       },

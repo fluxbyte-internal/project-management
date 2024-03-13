@@ -35,7 +35,6 @@ function App() {
         )}
         {Show && (
           <AuthProvider>
-            <RouterProvider router={router} />
             <ToastContainer
               position="top-center"
               autoClose={2000}
@@ -44,7 +43,9 @@ function App() {
               pauseOnHover={false}
               draggable={true}
               theme="light"
+              limit={3}
             />
+            <RouterProvider router={router} />
           </AuthProvider>
         )}
         {notFound && !Show && <Page404 />}
