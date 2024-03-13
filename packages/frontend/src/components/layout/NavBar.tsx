@@ -298,7 +298,8 @@ function NavBar() {
           )}
         </div>
         <div className="flex gap-5  items-center relative">
-          {user?.userOrganisation[0]?.role !== UserRoleEnumValue.TEAM_MEMBER && (
+          {user?.userOrganisation[0]?.role !==
+            UserRoleEnumValue.TEAM_MEMBER && (
             <>
               <Button
                 className="hidden lg:block"
@@ -328,56 +329,68 @@ function NavBar() {
             </>
           )}
           {!isOpenPopUpRead && (
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <Button className="relative w-8 h-8 aspect-square rounded-full bg-transparent active:bg-primary-100 hover:bg-primary-100  cursor-pointer">
-                  <img src={Notification} className="absolute top-1 left-1" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="!overflow-y-auto !max-h-[600px] !w-64">
-                <div className="flex justify-between">
-                  <div>
-                    <DropdownMenuLabel className="!font-bold">
-                      Notifications
-                    </DropdownMenuLabel>
-                  </div>
+            <div className="relative">
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Button className=" w-8 h-8 aspect-square rounded-full bg-transparent active:bg-primary-100 hover:bg-primary-100  cursor-pointer">
+                    <img src={Notification} className="absolute top-1 left-1" />
+                    {notifications && notifications.length > 0 && (
+                      <div
+                        className=" w-6 h-6 rounded-full bg-red-700 
+            absolute bottom-5 left-5 text-xs p-2 flex justify-center items-center text-white"
+                      >
+                        {notifications.length <= 99
+                          ? notifications.length
+                          : "99+"}
+                      </div>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="!overflow-y-auto !max-h-[600px] !w-64">
+                  <div className="flex justify-between">
+                    <div>
+                      <DropdownMenuLabel className="!font-bold">
+                        Notifications
+                      </DropdownMenuLabel>
+                    </div>
 
-                  {notifications && notifications.length > 0 && (
-                    <CheckCheck
-                      onClick={() => setisOpenPopUpRead(true)}
-                      className="flex justify-center items-center"
-                    />
-                  )}
-                </div>
-                <DropdownMenuSeparator />
-                {notifications && notifications.length > 0 ? (
-                  notifications.map((notification) => (
-                    <>
-                      <DropdownMenuItem key={notification.notificationId}>
-                        <div
-                          className="w-full"
-                          onClick={() =>
-                            handleSingleReadNotification(notification)
-                          }
-                        >
-                          <div className="flex justify-between w-full">
-                            <div className="text-md font-semibold break-all">
-                              {notification.details}
+                    {notifications && notifications.length > 0 && (
+                      <CheckCheck
+                        onClick={() => setisOpenPopUpRead(true)}
+                        className="flex justify-center items-center"
+                      />
+                    )}
+                  </div>
+                  <DropdownMenuSeparator />
+                  {notifications && notifications.length > 0 ? (
+                    notifications.map((notification) => (
+                      <>
+                        <DropdownMenuItem key={notification.notificationId}>
+                          <div
+                            className="w-full"
+                            onClick={() =>
+                              handleSingleReadNotification(notification)
+                            }
+                          >
+                            <div className="flex justify-between w-full">
+                              <div className="text-md font-semibold break-all">
+                                {notification.details}
+                              </div>
+                            </div>
+                            <div className="text-gray-300 ">
+                              {timeAgo(new Date(notification.createdAt))}
                             </div>
                           </div>
-                          <div className="text-gray-300 ">
-                            {timeAgo(new Date(notification.createdAt))}
-                          </div>
-                        </div>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                    </>
-                  ))
-                ) : (
-                  <div className="p-2">No notification Found</div>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    ))
+                  ) : (
+                    <div className="p-2">No notification Found</div>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           )}
           {isOpenPopUpRead && (
             <Dialog
@@ -411,14 +424,7 @@ function NavBar() {
               </div>
             </Dialog>
           )}
-          {notifications && notifications.length > 0 && (
-            <div
-              className=" w-6 h-6 rounded-full bg-red-700 
-            absolute bottom-5 left-5 text-xs p-2 flex justify-center items-center text-white"
-            >
-              {notifications.length <= 99 ? notifications.length : "99+"}
-            </div>
-          )}
+
           <Button className="relative w-8 h-8 aspect-square rounded-full bg-transparent active:bg-primary-100 hover:bg-primary-100 md:block hidden cursor-pointer">
             <img src={Information} className="absolute top-0 left-0" />
           </Button>
@@ -446,16 +452,16 @@ function NavBar() {
               </DropdownMenuItem>
               {user?.userOrganisation[0] &&
                 user?.userOrganisation[0].organisationId && (
-                <DropdownMenuItem onClick={openOrganisationSettings}>
-                  <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
-                  <Button
-                    className="p-0 font-normal h-auto"
-                    variant={"ghost"}
-                  >
+                  <DropdownMenuItem onClick={openOrganisationSettings}>
+                    <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
+                    <Button
+                      className="p-0 font-normal h-auto"
+                      variant={"ghost"}
+                    >
                       Organisations Settings
-                  </Button>
-                </DropdownMenuItem>
-              )}
+                    </Button>
+                  </DropdownMenuItem>
+                )}
               <DropdownMenuItem onClick={logout}>
                 <LogOut className="mr-2 h-4 w-4 text-[#44546F]" />
                 <Button className="p-0 font-normal h-auto" variant={"ghost"}>
