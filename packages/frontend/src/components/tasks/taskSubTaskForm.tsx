@@ -716,7 +716,7 @@ function TaskSubTaskForm(props: Props) {
                         <div className="flex w-full gap-3 justify-start">
                           <img src={CalendarIcon} className="w-3.5" />
                           <div>
-                          Current date{" "}
+                          Start date{" "}
                             <span className="text-red-500 text-sm">*</span>
                           </div>
                           <div className="text-gray-400 text-sm">
