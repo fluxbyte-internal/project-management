@@ -82,7 +82,7 @@ function generatePrismaClient(datasourceUrl?: string) {
         },
       },
       project: {
-        async projectProgression(projectId: string, tenantId: string, organisationId: string) {
+        async projectProgression(projectId: string) {
           const parentTasks = await client.task.findMany({
             where: {
               projectId,
@@ -95,11 +95,12 @@ function generatePrismaClient(datasourceUrl?: string) {
           let averagesSumOfDuration = 0;
 
           for (const value of parentTasks) {
-            completionPecentageOrDuration +=
-              Number(value.completionPecentage) * (value.duration * settings.hours);
-            averagesSumOfDuration += value.duration * settings.hours * 100;
+            if(!value.completionPecentage) { value.completionPecentage = 0 }
+            completionPecentageOrDuration += Number(value.completionPecentage) * (value.duration);
+            averagesSumOfDuration += value.duration * 100;
           }
-          return (completionPecentageOrDuration / averagesSumOfDuration);
+          const finalValue = (completionPecentageOrDuration / averagesSumOfDuration)
+          return finalValue;
         },
       },
       task: {
