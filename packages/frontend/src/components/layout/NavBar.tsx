@@ -233,7 +233,7 @@ function NavBar() {
                         <NavLink
                           className={({ isActive }) =>
                             isActive
-                              ? " text-sm font-medium text-black underline underline-offset-8 relative cursor-pointer w-full"
+                              ? " text-sm font-medium text-black underline underline-offset-2 relative cursor-pointer w-full"
                               : "link text-sm font-medium text-gray-500 relative cursor-pointer w-full"
                           }
                           to={item.link}
@@ -294,39 +294,39 @@ function NavBar() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              {user?.userOrganisation[0]?.role !== UserRoleEnumValue.TEAM_MEMBER && (
-                <>
-                  <Button
-                    className="hidden lg:block"
-                    variant={"primary"}
-                    onClick={handleOpenPopUp}
-                    size={"sm"}
-                  >
-                    New project
-                  </Button>
-                  <Button
-                    className="block lg:hidden p-2"
-                    variant={"primary"}
-                    onClick={handleOpenPopUp}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        fill="currentColor"
-                        d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"
-                      />
-                    </svg>
-                  </Button>
-                </>
-              )}
             </div>
           )}
         </div>
         <div className="flex gap-5  items-center relative">
+          {user?.userOrganisation[0]?.role !== UserRoleEnumValue.TEAM_MEMBER && (
+            <>
+              <Button
+                className="hidden lg:block"
+                variant={"primary"}
+                onClick={handleOpenPopUp}
+                size={"sm"}
+              >
+                New project
+              </Button>
+              <Button
+                className="block lg:hidden p-2"
+                variant={"primary"}
+                onClick={handleOpenPopUp}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"
+                  />
+                </svg>
+              </Button>
+            </>
+          )}
           {!isOpenPopUpRead && (
             <DropdownMenu>
               <DropdownMenuTrigger>
