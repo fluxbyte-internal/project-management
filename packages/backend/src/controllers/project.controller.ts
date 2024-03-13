@@ -359,6 +359,23 @@ export const updateProject = async (req: express.Request, res: express.Response)
     }
   });
   if (!findProject) throw new NotFoundError('Project not found');
+  if (projectUpdateValue && projectUpdateValue.status && projectUpdateValue.status === ProjectStatusEnum.CLOSED) {
+    const findTaskWithIncompleteTask = await prisma.task.count({
+      where: {
+        projectId: projectId,
+        deletedAt: null,
+        status: {
+          in: [TaskStatusEnum.NOT_STARTED, TaskStatusEnum.IN_PROGRESS],
+        },
+      },
+    });
+    if (
+      findTaskWithIncompleteTask > 0 &&
+      projectUpdateValue.status === ProjectStatusEnum.CLOSED
+    ) {
+      throw new BadRequestError("Incomplete tasks exists!");
+    }
+  }
   let updateObj = { ...projectUpdateValue, updatedByUserId: req.userId };
   const projectUpdate = await prisma.project.update({
     where: { projectId: projectId },
