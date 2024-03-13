@@ -520,11 +520,11 @@ function GanttView() {
         sortMode={sortMode}
         tooltip={tooltip}
         timelineHeaderFormatFunction={timelineHeaderFormatFunction}
-        dateMarkers={user?.userOrganisation[0].organisation.orgHolidays?.map(
-          (d) => {
-            return { label: d.holidayReason, date: d.holidayStartDate, className: "!bg-primary-500" };
-          }
-        )}
+        // dateMarkers={user?.userOrganisation[0].organisation.orgHolidays?.map(
+        //   (d) => {
+        //     return { label: d.holidayReason, date: d.holidayStartDate, className: "!bg-primary-500" };
+        //   }
+        // )}
         
         onOpening={(e) => {
           e?.preventDefault();

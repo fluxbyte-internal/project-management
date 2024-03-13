@@ -25,9 +25,7 @@ import useTaskQuery from "@/api/query/useTaskQuery";
 import dateFormater from "@/helperFuntions/dateFormater";
 import useTaskAddMembersMutation from "@/api/mutation/useTaskAddMember";
 import useTaskMemberListQuery from "@/api/query/useTaskMemberListQuary";
-import useCreateTaskMutation, {
-  Task,
-} from "@/api/mutation/useTaskCreateMutation";
+import useCreateTaskMutation from "@/api/mutation/useTaskCreateMutation";
 import useUpdateTaskMutation from "@/api/mutation/useTaskUpdateMutation";
 import useRemoveTaskMemberMutation from "@/api/mutation/useTaskRemoveMember";
 import { UserOrganisationType } from "@/api/query/useOrganisationDetailsQuery";
@@ -96,8 +94,8 @@ function TaskSubTaskForm(props: Props) {
   const taskRemoveMembersMutation = useRemoveTaskMemberMutation();
   const taskAddMembersMutation = useTaskAddMembersMutation(taskId);
 
-  // let tasks = taskQuery.data?.data.data && taskId ? taskQuery.data?.data.data : undefined;
-  const [tasks, settasks] = useState<Task>();
+  let tasks = taskQuery.data?.data.data && taskId ? taskQuery.data?.data.data : undefined;
+  // const [tasks, settasks] = useState<Task>();
   const taskAttachmentAddMutation = useTaskAttechmentAddMutation(taskId);
   const taskCreateMutation = useCreateTaskMutation(
     props.projectId,
@@ -106,7 +104,7 @@ function TaskSubTaskForm(props: Props) {
   const taskAddUpdateMilestoneMutation =
     useTaskAddUpdateMilestoneMutation(taskId);
   useEffect(() => {
-    settasks(taskQuery.data?.data.data);
+    refetch()
   }, [taskQuery.data?.data.data]);
 
   useEffect(() => {
@@ -229,7 +227,7 @@ function TaskSubTaskForm(props: Props) {
     const value = {
       taskName: subTask,
       taskDescription: "",
-      startDate: new Date(startDate),
+      startDate: new Date(),
       duration: 1,
       assginedToUserId: [currantUser.user?.userId ?? ""],
       milestoneIndicator: false,
@@ -390,7 +388,7 @@ function TaskSubTaskForm(props: Props) {
             <Button
               variant={"ghost"}
               onClick={() => {
-                settasks(undefined), props.close();
+                tasks = undefined, props.close();
               }}
             >
               <img src={Close} width={24} height={24} />
@@ -718,7 +716,7 @@ function TaskSubTaskForm(props: Props) {
                         <div className="flex w-full gap-3 justify-start">
                           <img src={CalendarIcon} className="w-3.5" />
                           <div>
-                            Start date{" "}
+                          Current date{" "}
                             <span className="text-red-500 text-sm">*</span>
                           </div>
                           <div className="text-gray-400 text-sm">

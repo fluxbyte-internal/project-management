@@ -75,8 +75,7 @@ function Signup() {
             }
             if (!Array.isArray(error.response?.data.errors)) {
               toast.error(
-                error.response?.data?.message ??
-                  "An unexpected error occurred."
+                error.response?.data?.message ?? "An unexpected error occurred."
               );
             }
           }
@@ -101,6 +100,14 @@ function Signup() {
       });
     }
   };
+
+  const checkError = ()=>{
+    if (formik.values.privacyPolicy == false) {
+      formik.setErrors({
+        privacyPolicy: "Please agree to the Terms and Privacy Policy.",
+      });
+    }
+  }
   return (
     <div className="flex justify-center min-h-screen bg-gradient-to-t from-[#FFF8DF] to-[#FFD6AB] sm:p-20">
       <div className="lg:flex flex-col items-center justify-center lg:w-1/2 hidden">
@@ -113,7 +120,7 @@ function Signup() {
               Sign Up
             </h3>
           </div>
-         
+
           <div className="flex flex-col px-4 gap-4">
             <Button
               type="button"
@@ -126,7 +133,12 @@ function Signup() {
               <img src={Google} />
               <span>Google</span>
             </Button>
-            {(formik.errors.privacyPolicy && formik.errors.privacyPolicy !== "Invalid input")  && <span className="text-red-500 text-sm ">{formik.errors.privacyPolicy}</span>}
+            {formik.errors.privacyPolicy &&
+              formik.errors.privacyPolicy !== "Invalid input" && (
+                <span className="text-red-500 text-sm ">
+                  {formik.errors.privacyPolicy}
+                </span>
+              )}
             {/* <Button
               type="button"
               variant={"secondary"}
@@ -151,7 +163,10 @@ function Signup() {
               <hr />
             </div>
           </div>
-          <form onSubmit={formik.handleSubmit} className="px-4 flex flex-col gap-1">
+          <form
+            onSubmit={(e)=>{e.preventDefault(),checkError(),formik.handleSubmit()}}
+            className="px-4 flex flex-col gap-1"
+          >
             <div className="flex flex-col sm:flex-row sm:gap-4 justify-between items-center">
               <div className="w-full mt-1">
                 <label htmlFor="firstName" className={labelStyle}>
@@ -168,9 +183,9 @@ function Signup() {
                     onChange={formik.handleChange}
                   />
                 </div>
-                  <ErrorMessage className="!text-xs block mt-1">
-                    {formik.touched.firstName && formik.errors.firstName}
-                  </ErrorMessage>
+                <ErrorMessage className="!text-xs block mt-1">
+                  {formik.touched.firstName && formik.errors.firstName}
+                </ErrorMessage>
               </div>
               <div className="w-full ">
                 <label htmlFor="lastName" className={labelStyle}>
@@ -303,6 +318,13 @@ function Signup() {
                 .
               </div>
             </div>
+            <ErrorMessage className="!text-xs block items-start -mt-0 mb-2">
+              {formik.errors.privacyPolicy && (
+                  <span className="text-red-500 text-sm ">
+                    {formik.errors.privacyPolicy}
+                  </span>
+                )}
+            </ErrorMessage>
             <div className="flex items-center">
               <Button
                 type="submit"
@@ -321,7 +343,6 @@ function Signup() {
               </NavLink>
             </div>
           </form>
-         
         </div>
       </div>
     </div>
