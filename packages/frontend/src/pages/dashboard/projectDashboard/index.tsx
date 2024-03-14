@@ -158,15 +158,15 @@ function ProjectDashboard() {
         chartData: [
           {
             value: delayCounts.red,
-            name: "Red",
+            name: "Significant delay",
           },
           {
             value: delayCounts.green,
-            name: "Green",
+            name: "On track",
           },
           {
             value: delayCounts.orange,
-            name: "Orange",
+            name: "Moderate delay",
           },
         ],
         color: ["#FF000077", "#00800077", "#FFB81977"],
@@ -322,20 +322,16 @@ function ProjectDashboard() {
                         style={{
                           background: `radial-gradient(closest-side, white 79%, transparent 80% 100%), conic-gradient(${
                             selectedStatusTheme?.colors?.chartColors[0]
-                          } ${
-                            Number(
-                              Number(data?.projectProgression).toFixed(2)
-                            ) * 100
-                          }%, #cecece 0)`,
+                          } ${(
+                            Number(data?.projectProgression) * 100
+                          ).toFixed()}%, #cecece 0)`,
                         }}
                       >
                         <div className="m-1">
                           {data?.projectProgression
-                            ? Number(
-                                Number(data?.projectProgression).toFixed(2)
-                              ) *
-                                100 +
-                              "%"
+                            ? (
+                                Number(Number(data?.projectProgression)) * 100
+                              ).toFixed() + "%"
                             : "NA"}
                         </div>
                       </div>

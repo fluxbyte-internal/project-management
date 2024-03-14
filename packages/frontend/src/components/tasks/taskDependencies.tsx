@@ -117,7 +117,7 @@ function TaskDependencies(props: Props) {
           dependenciesFormik.resetForm();
         },
         onError(error) {
-          toast.error(error.response?.data.message);
+          toast.error(error.response?.data.message == "Unauthorized" ? "You are not authorized to edit tasks which are not assigned to you":error.response?.data.message);
         },
       });
     },
@@ -131,7 +131,7 @@ function TaskDependencies(props: Props) {
         setShowConfirmDelete("");
       },
       onError(error) {
-        toast.error(error.response?.data.message);
+        toast.error(error.response?.data.message == "Unauthorized" ? "You are not authorized to edit tasks which are not assigned to you":error.response?.data.message);
         setShowConfirmDelete("");
       },
     });

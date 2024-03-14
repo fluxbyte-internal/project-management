@@ -228,6 +228,17 @@ function Tasks() {
         )
       );
     }
+    if (searchParams.get("flag")) {
+      setFilterData(
+        findParentTasksWithDoneFlag(
+          taskData ?? [],
+          searchParams.get("flag") ?? ""
+        ).sort(
+          (a, b) =>
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+        )
+      );
+    }
   }, [taskData]);
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -288,6 +299,21 @@ function Tasks() {
       return checkTaskStatus(task, status);
     });
   }
+  function findParentTasksWithDoneFlag(tasks: Task[], flag: string) {
+    return tasks.filter((task) => {
+      return checkTaskflag(task, flag);
+    });
+  }
+  const checkTaskflag = (task: Task, flag: string) => {
+    if (task.subtasks && task.subtasks.length > 0) {
+      const index = task.subtasks.findIndex((subtask) => {
+        return checkTaskflag(subtask, flag);
+      });
+      return index !== -1;
+    }
+    return task.flag === flag;
+  };
+
   const checkTaskByMilsone = (task: Task) => {
     if (task.subtasks && task.subtasks.length > 0) {
       const index = task.subtasks.findIndex((subtask) => {

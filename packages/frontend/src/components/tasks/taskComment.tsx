@@ -45,7 +45,7 @@ function TaskComment(props: Props) {
           toast.success(data.data.message);
         },
         onError(error) {
-          toast.error(error.response?.data.message);
+          toast.error(error.response?.data.message == "Unauthorized" ? "You are not authorized to edit tasks which are not assigned to you":error.response?.data.message);
         },
       });
     },
@@ -67,7 +67,7 @@ function TaskComment(props: Props) {
           setCommentId(null);
         },
         onError(error) {
-          toast.error(error.response?.data.message);
+          toast.error(error.response?.data.message == "Unauthorized" ? "You are not authorized to edit tasks which are not assigned to you":error.response?.data.message);
         },
       });
     },
@@ -93,7 +93,7 @@ function TaskComment(props: Props) {
         setCommentId(null);
       },
       onError(error) {
-        toast.error(error.response?.data.message);
+        toast.error(error.response?.data.message == "Unauthorized" ? "You are not authorized to edit tasks which are not assigned to you":error.response?.data.message);
       },
     });
   };
