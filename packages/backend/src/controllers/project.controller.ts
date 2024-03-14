@@ -667,6 +667,7 @@ export const projectAssignToUser = async (
       role: {
         notIn: [UserRoleEnum.ADMINISTRATOR],
       },
+      deletedAt: null,
     },
     select: {
       role: true,
