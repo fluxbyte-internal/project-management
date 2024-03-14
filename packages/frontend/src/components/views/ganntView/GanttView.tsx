@@ -118,7 +118,7 @@ function GanttView() {
       resources: [{ id: JSON.stringify(originalTask.assignedUsers) }],
       tasks: [],
       progress: originalTask.completionPecentage
-        ? Number(originalTask.completionPecentage)
+        ? Number(Number(originalTask.completionPecentage).toFixed())
         : 0,
       connections:
         originalTask.dependencies && originalTask.dependencies.length > 0

@@ -93,9 +93,9 @@ function TaskSubTaskForm(props: Props) {
   const taskUpdateMutation = useUpdateTaskMutation(taskId);
   const taskRemoveMembersMutation = useRemoveTaskMemberMutation();
   const taskAddMembersMutation = useTaskAddMembersMutation(taskId);
-  const [slider, setSlider] = useState(0);
   let tasks =
-    taskQuery.data?.data.data && taskId ? taskQuery.data?.data.data : undefined;
+  taskQuery.data?.data.data && taskId ? taskQuery.data?.data.data : undefined;
+  const [slider, setSlider] = useState(tasks?.completionPecentage ?? 0);
   // const [tasks, settasks] = useState<Task>();
   const taskAttachmentAddMutation = useTaskAttechmentAddMutation(taskId);
   const taskCreateMutation = useCreateTaskMutation(
