@@ -35,6 +35,7 @@ const PieChart:  React.FC<PieChartProps> = ({ chartProps }) =>{
       },
       tooltip: {
         trigger: 'item',
+        formatter: '{b} {d}% ',
       },
       legend: {
         top: '5%',
@@ -52,8 +53,10 @@ const PieChart:  React.FC<PieChartProps> = ({ chartProps }) =>{
           radius: chartProps?.radius,
           avoidLabelOverlap: false,
           label: {
-            show: false,
-            position: 'center',
+            show: true,
+            position: 'inner',
+            formatter: '{c} ',
+            fontSize: 14,
           },
           emphasis: {
             label: {
