@@ -93,8 +93,9 @@ function TaskSubTaskForm(props: Props) {
   const taskUpdateMutation = useUpdateTaskMutation(taskId);
   const taskRemoveMembersMutation = useRemoveTaskMemberMutation();
   const taskAddMembersMutation = useTaskAddMembersMutation(taskId);
-
-  let tasks = taskQuery.data?.data.data && taskId ? taskQuery.data?.data.data : undefined;
+  const [slider, setSlider] = useState(0);
+  let tasks =
+    taskQuery.data?.data.data && taskId ? taskQuery.data?.data.data : undefined;
   // const [tasks, settasks] = useState<Task>();
   const taskAttachmentAddMutation = useTaskAttechmentAddMutation(taskId);
   const taskCreateMutation = useCreateTaskMutation(
@@ -104,7 +105,7 @@ function TaskSubTaskForm(props: Props) {
   const taskAddUpdateMilestoneMutation =
     useTaskAddUpdateMilestoneMutation(taskId);
   useEffect(() => {
-    refetch()
+    refetch();
   }, [taskQuery.data?.data.data]);
 
   useEffect(() => {
@@ -148,7 +149,10 @@ function TaskSubTaskForm(props: Props) {
       taskDescription: "",
       startDate: props.initialValues?.startDate
         ? new Date(props.initialValues?.startDate)
-        : new Date(startDate),
+        : new Date(
+            projects.data?.data.data.find((p) => p.projectId == props.projectId)
+              ?.startDate ?? new Date()
+          ),
       duration: 1.0,
     },
     validationSchema: toFormikValidationSchema(createTaskSchema),
@@ -174,7 +178,11 @@ function TaskSubTaskForm(props: Props) {
           },
           onError(error) {
             taskQuery.refetch();
-            toast.error(error.response?.data.message);
+            toast.error(
+              error.response?.data.message == "Unauthorized"
+                ? "You are not authorized to edit tasks which are not assigned to you"
+                : error.response?.data.message
+            );
           },
         });
       } else {
@@ -313,8 +321,12 @@ function TaskSubTaskForm(props: Props) {
             onSuccess() {
               refetch();
             },
-            onError(err) {
-              toast.error(err.message);
+            onError(error) {
+              toast.error(
+                error.response?.data.message == "Unauthorized"
+                  ? "You are not authorized to edit tasks which are not assigned to you"
+                  : error.response?.data.message
+              );
             },
           }
         );
@@ -330,7 +342,7 @@ function TaskSubTaskForm(props: Props) {
           taskQuery.refetch();
         },
         onError(error) {
-          toast.error(error.message);
+          toast.error(error.response?.data.message == "Unauthorized" ? "You are not authorized to edit tasks which are not assigned to you":error.response?.data.message);
         },
       }
     );
@@ -388,7 +400,7 @@ function TaskSubTaskForm(props: Props) {
             <Button
               variant={"ghost"}
               onClick={() => {
-                tasks = undefined, props.close();
+                (tasks = undefined), props.close();
               }}
             >
               <img src={Close} width={24} height={24} />
@@ -716,7 +728,7 @@ function TaskSubTaskForm(props: Props) {
                         <div className="flex w-full gap-3 justify-start">
                           <img src={CalendarIcon} className="w-3.5" />
                           <div>
-                          Start date{" "}
+                            Start date{" "}
                             <span className="text-red-500 text-sm">*</span>
                           </div>
                           <div className="text-gray-400 text-sm">
@@ -891,14 +903,14 @@ function TaskSubTaskForm(props: Props) {
                 <div className="flex flex-col w-full">
                   <div className="flex gap-2 items-center">
                     <div className="text-xs font-medium text-gray-400 flex items-center gap-2">
-                      Progress: {tasks?.completionPecentage}
+                      Progress: {Number(slider).toFixed() + "%"}
                     </div>
                   </div>
 
                   <div className="w-full mt-2">
                     {tasks && taskId && (
                       <Slider
-                      key={tasks.completionPecentage}
+                        key={tasks.completionPecentage}
                         defaultValue={[
                           tasks && tasks.completionPecentage
                             ? Number(tasks.completionPecentage)
@@ -911,8 +923,8 @@ function TaskSubTaskForm(props: Props) {
                           tasks?.milestoneIndicator
                         }
                         min={0}
-                        step={5}
                         title={tasks?.completionPecentage}
+                        onValueChange={(e) => setSlider(e[0])}
                         onValueCommit={(e) => {
                           onProgressUpdate(e);
                         }}
