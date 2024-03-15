@@ -265,7 +265,7 @@ function TaskSubTaskForm(props: Props) {
     const value = {
       taskName: subTask,
       taskDescription: "",
-      startDate: new Date(),
+      startDate: new Date(tasks?.startDate ?? ''),
       duration: 1,
       assginedToUserId: [currantUser.user?.userId ?? ""],
       milestoneIndicator: false,
