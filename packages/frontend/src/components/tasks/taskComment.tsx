@@ -20,6 +20,7 @@ import useRemoveTaskCommentMutation from "@/api/mutation/useTaskRemoveCommentMut
 type Props = {
   task: Task | undefined;
   refetch: () => void;
+  allowed: boolean;
 };
 function TaskComment(props: Props) {
   const { task, refetch } = props;
@@ -45,7 +46,11 @@ function TaskComment(props: Props) {
           toast.success(data.data.message);
         },
         onError(error) {
-          toast.error(error.response?.data.message == "Unauthorized" ? "You are not authorized to edit tasks which are not assigned to you":error.response?.data.message);
+          toast.error(
+            error.response?.data.message == "Unauthorized"
+              ? "You are not authorized to edit tasks which are not assigned to you"
+              : error.response?.data.message
+          );
         },
       });
     },
@@ -67,7 +72,11 @@ function TaskComment(props: Props) {
           setCommentId(null);
         },
         onError(error) {
-          toast.error(error.response?.data.message == "Unauthorized" ? "You are not authorized to edit tasks which are not assigned to you":error.response?.data.message);
+          toast.error(
+            error.response?.data.message == "Unauthorized"
+              ? "You are not authorized to edit tasks which are not assigned to you"
+              : error.response?.data.message
+          );
         },
       });
     },
@@ -93,7 +102,11 @@ function TaskComment(props: Props) {
         setCommentId(null);
       },
       onError(error) {
-        toast.error(error.response?.data.message == "Unauthorized" ? "You are not authorized to edit tasks which are not assigned to you":error.response?.data.message);
+        toast.error(
+          error.response?.data.message == "Unauthorized"
+            ? "You are not authorized to edit tasks which are not assigned to you"
+            : error.response?.data.message
+        );
       },
     });
   };
@@ -106,8 +119,8 @@ function TaskComment(props: Props) {
   const visibleComments = showAllShow
     ? props.task?.comments ?? []
     : (props.task?.comments ?? []).filter(
-      (comment) => !isDateSevenDaysOld(new Date(comment.createdAt))
-    );
+        (comment) => !isDateSevenDaysOld(new Date(comment.createdAt))
+      );
   return (
     <>
       <div className="flex items-center gap-2.5 mt-4">
@@ -117,28 +130,30 @@ function TaskComment(props: Props) {
         </div>
       </div>
       <div className="w-full mt-2">
-        <div className="flex gap-x-2 items-center">
-          <UserAvatar user={currantUser.user}></UserAvatar>
-          <div className="relative w-full">
-            <InputText
-              placeholder="Write a comment"
-              className="mt-0 w-full"
-              name="commentText"
-              onChange={commentFormik.handleChange}
-              value={commentFormik.values.commentText}
-            ></InputText>
-            {commentFormik.values.commentText && (
-              <Button
-                variant={"ghost"}
-                size={"icon"}
-                className="absolute top-1/2 right-1 -translate-y-1/2 mt-[1px] p-0 "
-                onClick={commentFormik.submitForm}
-              >
-                <img src={Send} />
-              </Button>
-            )}
+        {props.allowed && (
+          <div className="flex gap-x-2 items-center">
+            <UserAvatar user={currantUser.user}></UserAvatar>
+            <div className="relative w-full">
+              <InputText
+                placeholder="Write a comment"
+                className="mt-0 w-full"
+                name="commentText"
+                onChange={commentFormik.handleChange}
+                value={commentFormik.values.commentText}
+              ></InputText>
+              {commentFormik.values.commentText && (
+                <Button
+                  variant={"ghost"}
+                  size={"icon"}
+                  className="absolute top-1/2 right-1 -translate-y-1/2 mt-[1px] p-0 "
+                  onClick={commentFormik.submitForm}
+                >
+                  <img src={Send} />
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
         <div className="mt-2 flex flex-col gap-2">
           {visibleComments.map((comment, index) => {
             return (
@@ -148,7 +163,13 @@ function TaskComment(props: Props) {
                 </div>
                 <div className="flex flex-col gap-1 w-full">
                   <div className="flex items-center gap-2">
-                    <div className={`text-sm font-semibold ${comment.commentByUser.deletedAt ? "!line-through !decoration-pink-500" : ''}`}>
+                    <div
+                      className={`text-sm font-semibold ${
+                        comment.commentByUser.deletedAt
+                          ? "!line-through !decoration-pink-500"
+                          : ""
+                      }`}
+                    >
                       {comment.commentByUser.firstName &&
                       comment.commentByUser.lastName
                         ? comment.commentByUser.firstName +
@@ -157,7 +178,8 @@ function TaskComment(props: Props) {
                         : comment.commentByUser.email}
                     </div>
                     <div className="text-xs text-gray-400">
-                      {calculateTimeDifference(new Date(comment.createdAt))} {comment.commentByUser.deletedAt ?" (Deleted)":''}
+                      {calculateTimeDifference(new Date(comment.createdAt))}{" "}
+                      {comment.commentByUser.deletedAt ? " (Deleted)" : ""}
                     </div>
                   </div>
 
@@ -210,17 +232,18 @@ function TaskComment(props: Props) {
               </div>
             );
           })}
-          {(props.task?.comments.length !== visibleComments.length&&props.task?.comments.length) && (
-            <div>
-              <hr className="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700"></hr>
-              <div
-                className="text-center cursor-pointer"
-                onClick={() => setShowAllShow((prev) => !prev)}
-              >
-                {!showAllShow ? "Show all" : "Less"}
+          {props.task?.comments.length !== visibleComments.length &&
+            props.task?.comments.length && (
+              <div>
+                <hr className="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700"></hr>
+                <div
+                  className="text-center cursor-pointer"
+                  onClick={() => setShowAllShow((prev) => !prev)}
+                >
+                  {!showAllShow ? "Show all" : "Less"}
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
       </div>
     </>

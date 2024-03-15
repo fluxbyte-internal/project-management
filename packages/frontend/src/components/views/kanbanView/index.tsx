@@ -26,6 +26,8 @@ import Loader from "@/components/common/Loader";
 import { FIELDS } from "@/api/types/enums";
 import { updateTaskSchema } from "@backend/src/schemas/taskSchema";
 import { z } from "zod";
+import { UserRoleEnumValue } from "@backend/src/schemas/enums";
+import { useUser } from "@/hooks/useUser";
 export interface columnsRenderData {
   label: string;
   dataField: string;
@@ -61,7 +63,7 @@ function KanbanView(
   const [Columns, setColumns] = useState<KanbanColumn[]>();
   const [closePopup, setClosePopup] = useState<boolean>(false);
   const [rawData, setRawData] = useState<KanbanColumnType[]>();
-
+  const user = useUser();
   useEffect(() => {
     if (allKanbanColumn.status == "success") {
       setOpen();
@@ -307,7 +309,10 @@ function KanbanView(
     setColumns(column);
   };
   const onDragging = (e: (Event & CustomEvent) | undefined) => {
-    if (e?.detail.data.ItemData.subTask > 0) {
+    const task = allTasks.data?.data.data.find(
+      (t) => t.taskId == e?.detail.data.ItemData.id
+    );
+    if (e?.detail.data.ItemData.subTask > 0 || !allowed(task)) {
       e?.preventDefault();
     }
   };
@@ -321,11 +326,27 @@ function KanbanView(
       setClosePopup(true);
     }
   };
-
+  const allowed = (task: Task | undefined) => {
+    if (
+      task &&
+      user.user?.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER &&
+      task.createdByUserId == user.user?.userId
+    ) {
+      return true;
+    } else if (
+      user.user?.userOrganisation[0].role ==
+        UserRoleEnumValue.PROJECT_MANAGER ||
+      user.user?.userOrganisation[0].role == UserRoleEnumValue.ADMINISTRATOR
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  };
   return (
     <div className="w-full h-full scroll p-2">
-      {allKanbanColumn.isLoading ||
-        (allTasks.isLoading && <Loader className="top-0 right-0" />)}
+      {allKanbanColumn.isFetching ||
+        (allTasks.isFetching && <Loader className=" absolute top-0 right-0" /> )}
       {!closePopup && (
         <div className="flex flex-col h-full w-full">
           <div className="flex justify-between  w-full">

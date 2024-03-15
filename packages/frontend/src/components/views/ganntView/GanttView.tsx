@@ -28,6 +28,7 @@ import addIcon from "@/assets/svg/AddProjectIcon.svg";
 import { FIELDS } from "@/api/types/enums";
 import { Progress } from "@/components/ui/progress";
 import { TaskStatusEnumValue } from "@backend/src/schemas/enums";
+import Loader from "@/components/common/Loader";
 export interface Options {
   label: string;
   value: string;
@@ -474,153 +475,161 @@ function GanttView() {
     }
   };
   return (
-    <div className="h-full w-full flex flex-col pb-5">
-      <div className="flex justify-between">
-        <div className="flex justify-center items-center gap-2 my-2 ">
-          <TaskFilter
-            tasks={allTaskQuery.data?.data.data}
-            ref={filterRef}
-            fieldToShow={[
-              FIELDS.ASSIGNED,
-              FIELDS.DATE,
-              FIELDS.DUESEVENDAYS,
-              FIELDS.FLAGS,
-              FIELDS.OVERDUEDAYS,
-              FIELDS.TODAYDUEDAYS,
-              FIELDS.TASK,
-            ]}
-            filteredData={(data) => setFilterData(data)}
-          />
-        </div>
-        <div className="flex justify-end items-center gap-2 my-2 ">
-          <label className="flex justify-center items-center">Filter by:</label>
-          <Select
-            options={viewData}
-            onChange={handleView}
-            placeholder="Select Filter"
-            styles={reactSelectStyle}
-            defaultValue={{ label: "week", value: "week" }}
-          />
-        </div>
-      </div>
-      <GanttChart
-        ref={ganttChart}
-        dataSource={taskData}
-        taskColumns={taskColumns}
-        treeSize={treeSize}
-        durationUnit={durationUnit}
-        nonworkingDays={HandleNonWorkingDays()}
-        infiniteTimelineStep={10}
-        monthScale={monthScale}
-        monthFormat="long"
-        dayFormat="long"
-        weekFormat="long"
-        disableSelection
-        view={filterUnit}
-        sortMode={sortMode}
-        tooltip={tooltip}
-        timelineHeaderFormatFunction={timelineHeaderFormatFunction}
-        // dateMarkers={user?.userOrganisation[0].organisation.orgHolidays?.map(
-        //   (d) => {
-        //     return { label: d.holidayReason, date: d.holidayStartDate, className: "!bg-primary-500" };
-        //   }
-        // )}
-        
-        onOpening={(e) => {
-          e?.preventDefault();
-        }}
-        onResizeEnd={(e) => {
-          updateTaskFromGanttView(
-            e as (Event & CustomEvent) | undefined,
-            "resize"
-          );
-        }}
-        onConnectionEnd={(e) =>
-          onConnection(e as (Event & CustomEvent) | undefined)
-        }
-        onDragEnd={(e) => {
-          updateTaskFromGanttView(
-            e as (Event & CustomEvent) | undefined,
-            "drag"
-          );
-        }}
-        className="h-full scroll"
-        hideResourcePanel
-        infiniteTimeline
-        horizontalScrollBarVisibility="visible"
-        verticalScrollBarVisibility="visible"
-        showProgressLabel={showProgressLabel}
-        onItemClick={(e) =>
-          handleItemClick(e as (Event & CustomEvent) | undefined)
-        }
-        snapToNearest
-        onTaskRender={taskSetter}
-      />
-      <Dialog
-        isOpen={Boolean(endTask && task)}
-        onClose={() => {}}
-        modalClass="rounded-lg w-4/5  h-1/3"
-      >
-        <div className="w-full p-6">
+    <>
+      {allTaskQuery.isFetching ? (
+        <Loader className="absolute top-0 left-0" />
+      ) : (
+        <div className="h-full w-full flex flex-col pb-5">
           <div className="flex justify-between">
-            <div className="text-lg">{task?.taskName}</div>
-            <Button variant={"none"} onClick={() => setEndTask(undefined)}>
-              <img src={CrossSvg} />
-            </Button>
+            <div className="flex justify-center items-center gap-2 my-2 ">
+              <TaskFilter
+                tasks={allTaskQuery.data?.data.data}
+                ref={filterRef}
+                fieldToShow={[
+                  FIELDS.ASSIGNED,
+                  FIELDS.DATE,
+                  FIELDS.DUESEVENDAYS,
+                  FIELDS.FLAGS,
+                  FIELDS.OVERDUEDAYS,
+                  FIELDS.TODAYDUEDAYS,
+                  FIELDS.TASK,
+                ]}
+                filteredData={(data) => setFilterData(data)}
+              />
+            </div>
+            <div className="flex justify-end items-center gap-2 my-2 ">
+              <label className="flex justify-center items-center">
+                Filter by:
+              </label>
+              <Select
+                options={viewData}
+                onChange={handleView}
+                placeholder="Select Filter"
+                styles={reactSelectStyle}
+                defaultValue={{ label: "week", value: "week" }}
+              />
+            </div>
           </div>
-          {task && (
-            <TaskDependencies
-              endTask={endTask}
-              task={task}
-              refetch={() => {
-                allTaskQuery.refetch(), setEndTask(undefined);
+          <GanttChart
+            ref={ganttChart}
+            dataSource={taskData}
+            taskColumns={taskColumns}
+            treeSize={treeSize}
+            durationUnit={durationUnit}
+            nonworkingDays={HandleNonWorkingDays()}
+            infiniteTimelineStep={10}
+            monthScale={monthScale}
+            monthFormat="long"
+            dayFormat="long"
+            weekFormat="long"
+            disableSelection
+            view={filterUnit}
+            sortMode={sortMode}
+            tooltip={tooltip}
+            timelineHeaderFormatFunction={timelineHeaderFormatFunction}
+            // dateMarkers={user?.userOrganisation[0].organisation.orgHolidays?.map(
+            //   (d) => {
+            //     return { label: d.holidayReason, date: d.holidayStartDate, className: "!bg-primary-500" };
+            //   }
+            // )}
+
+            onOpening={(e) => {
+              e?.preventDefault();
+            }}
+            onResizeEnd={(e) => {
+              updateTaskFromGanttView(
+                e as (Event & CustomEvent) | undefined,
+                "resize"
+              );
+            }}
+            onConnectionEnd={(e) =>
+              onConnection(e as (Event & CustomEvent) | undefined)
+            }
+            onDragEnd={(e) => {
+              updateTaskFromGanttView(
+                e as (Event & CustomEvent) | undefined,
+                "drag"
+              );
+            }}
+            className="h-full scroll"
+            hideResourcePanel
+            infiniteTimeline
+            horizontalScrollBarVisibility="visible"
+            verticalScrollBarVisibility="visible"
+            showProgressLabel={showProgressLabel}
+            onItemClick={(e) =>
+              handleItemClick(e as (Event & CustomEvent) | undefined)
+            }
+            snapToNearest
+            onTaskRender={taskSetter}
+          />
+          <Dialog
+            isOpen={Boolean(endTask && task)}
+            onClose={() => {}}
+            modalClass="rounded-lg w-4/5  h-1/3"
+          >
+            <div className="w-full p-6">
+              <div className="flex justify-between">
+                <div className="text-lg">{task?.taskName}</div>
+                <Button variant={"none"} onClick={() => setEndTask(undefined)}>
+                  <img src={CrossSvg} />
+                </Button>
+              </div>
+              {task && (
+                <TaskDependencies
+                  endTask={endTask}
+                  task={task}
+                  refetch={() => {
+                    allTaskQuery.refetch(), setEndTask(undefined);
+                  }}
+                />
+              )}
+            </div>
+          </Dialog>
+          <Dialog
+            isOpen={Boolean(taskRemove)}
+            onClose={() => {}}
+            modalClass="rounded-lg"
+          >
+            <div className="flex flex-col gap-2 p-6 ">
+              <img src={TrashCan} className="w-12 m-auto" /> Are you sure you
+              want to delete ?
+              <div className="flex gap-2 ml-auto">
+                <Button variant={"outline"} onClick={() => setTaskRemove("")}>
+                  Cancel
+                </Button>
+                <Button
+                  variant={"primary"}
+                  isLoading={removeTaskMutation.isPending}
+                  disabled={removeTaskMutation.isPending}
+                  onClick={() => removeTask(taskRemove)}
+                >
+                  Delete
+                </Button>
+              </div>
+            </div>
+          </Dialog>
+          {Boolean(taskEdit) && (
+            <TaskSubTaskForm
+              taskId={taskEdit}
+              projectId={projectId}
+              close={() => {
+                setTaskEdit(""), allTaskQuery.refetch();
+              }}
+            />
+          )}
+          {(Boolean(taskId) || isTaskOpen) && (
+            <TaskSubTaskForm
+              projectId={projectId}
+              createSubtask={taskId}
+              close={() => {
+                setTaskId(""), setIsTaskOpen(false), allTaskQuery.refetch();
               }}
             />
           )}
         </div>
-      </Dialog>
-      <Dialog
-        isOpen={Boolean(taskRemove)}
-        onClose={() => {}}
-        modalClass="rounded-lg"
-      >
-        <div className="flex flex-col gap-2 p-6 ">
-          <img src={TrashCan} className="w-12 m-auto" /> Are you sure you want
-          to delete ?
-          <div className="flex gap-2 ml-auto">
-            <Button variant={"outline"} onClick={() => setTaskRemove("")}>
-              Cancel
-            </Button>
-            <Button
-              variant={"primary"}
-              isLoading={removeTaskMutation.isPending}
-              disabled={removeTaskMutation.isPending}
-              onClick={() => removeTask(taskRemove)}
-            >
-              Delete
-            </Button>
-          </div>
-        </div>
-      </Dialog>
-      {Boolean(taskEdit) && (
-        <TaskSubTaskForm
-          taskId={taskEdit}
-          projectId={projectId}
-          close={() => {
-            setTaskEdit(""), allTaskQuery.refetch();
-          }}
-        />
       )}
-      {(Boolean(taskId) || isTaskOpen) && (
-        <TaskSubTaskForm
-          projectId={projectId}
-          createSubtask={taskId}
-          close={() => {
-            setTaskId(""), setIsTaskOpen(false), allTaskQuery.refetch();
-          }}
-        />
-      )}
-    </div>
+    </>
   );
 }
 

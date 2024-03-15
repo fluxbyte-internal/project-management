@@ -298,8 +298,8 @@ function NavBar() {
           )}
         </div>
         <div className="flex gap-5  items-center relative">
-          {user?.userOrganisation[0]?.role !==
-            UserRoleEnumValue.TEAM_MEMBER && (
+          {(user?.userOrganisation[0]?.role !==
+            UserRoleEnumValue.TEAM_MEMBER && user?.userOrganisation[0]?.organisation)&& (
             <>
               <Button
                 className="hidden lg:block"

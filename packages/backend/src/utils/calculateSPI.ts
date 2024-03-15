@@ -1,5 +1,6 @@
 import { getClientByTenantId } from "../config/db.js";
 import { taskEndDate } from "./calcualteTaskEndDate.js";
+import { calculationSubTaskProgression } from "./calculationSubTaskProgression.js";
 
 export async function calculationSPI(
   tenantId: string,
@@ -9,6 +10,19 @@ export async function calculationSPI(
   const prisma = await getClientByTenantId(tenantId);
   const findTask = await prisma.task.findMany({
     where: { projectId, deletedAt: null, parentTaskId: null },
+    include: {
+      subtasks: {
+        where: { deletedAt: null },
+        include: {
+          subtasks: {
+            where: { deletedAt: null },
+            include: {
+              subtasks: true,
+            },
+          },
+        },
+      },
+    }
   });
 
   let sumOfTotalActualProgressionAndDuration = 0;
@@ -17,8 +31,9 @@ export async function calculationSPI(
     const taskStartDate = new Date(task.startDate);
     const currentDate = new Date() < taskStartDate ? taskStartDate : new Date(); // Use task end date if currentDate is greater
 
-    const completionPercentage = task.completionPecentage || 0;
-    const sumOfDurationAndProgression = completionPercentage * task.duration;
+    const completionPercentage =
+    (await calculationSubTaskProgression(task, tenantId, organisationId)) ?? 0;
+    const sumOfDurationAndProgression = Number(completionPercentage) * task.duration;
     sumOfTotalActualProgressionAndDuration += sumOfDurationAndProgression;
 
     let startDate = new Date(task.startDate);
@@ -30,11 +45,11 @@ export async function calculationSPI(
     const daysDiff = ((effectiveDate.getUTCDate() - startDate.getUTCDate()) + 1 )
 
     const plannedProgression = (daysDiff / task.duration);
-    const finalPlannedProgression = plannedProgression * completionPercentage
+    const finalPlannedProgression = plannedProgression * 100 //completionPercentage
     totalPlannedProgression += finalPlannedProgression;
   }
   const finalValue =
-    Math.round(sumOfTotalActualProgressionAndDuration) /
-    Math.round(totalPlannedProgression);
-  return Math.round(finalValue);
+  Math.round(sumOfTotalActualProgressionAndDuration) /
+  Math.round(totalPlannedProgression);
+  return Number((finalValue).toFixed(2));
 }

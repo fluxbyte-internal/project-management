@@ -212,6 +212,12 @@ function OrganisationForm(props: Props) {
           return item.value;
         })
       );
+    }if(val.find(d=> d.label == "None")
+    ){
+      formik.setFieldValue(
+        "nonWorkingDays",[]
+      );
+      setNonWorkingDaysValue([])
     }
   };
   const handleIndustries = (val: SingleValue<Options>) => {
