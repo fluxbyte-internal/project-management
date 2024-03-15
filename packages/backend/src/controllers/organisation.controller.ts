@@ -250,6 +250,14 @@ export const addOrganisationMember = async (
         validation: "email",
       }]);
     }
+    if (user.userOrganisation.length !== 0) {
+      throw new ZodError([{
+        code: 'invalid_string',
+        message: 'User is part of other organisation',
+        path: ['email'],
+        validation: "email",
+      }]);
+    }
     await prisma.userOrganisation.create({
       data: {
         role: member.role,
