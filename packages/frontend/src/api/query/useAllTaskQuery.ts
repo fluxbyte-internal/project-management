@@ -21,7 +21,7 @@ function useAllTaskQuery(projectId:string|undefined) {
       await ApiRequest.get(requestURLs.task+"/"+projectId, {
         headers: { "organisation-id": localStorage.getItem("organisation-id") },
       }),
-    enabled: true,
+    enabled: false,
   });
 }
 
