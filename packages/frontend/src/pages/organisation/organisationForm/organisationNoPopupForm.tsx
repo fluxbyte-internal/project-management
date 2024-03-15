@@ -190,6 +190,7 @@ function OrganisationNoPopUpForm(props: Props) {
     }),
   };
   const nonWorkingDays: Options[] = [
+    { label: "None", value: "" },
     { label: "Sunday", value: "SUN" },
     { label: "Monday", value: "MON" },
     { label: "Tuesday", value: "TUE" },
@@ -219,6 +220,7 @@ function OrganisationNoPopUpForm(props: Props) {
     }
   };
   const handleNonWorkingDays = (val: MultiValue<Options>) => {
+    
     if (val) {
       setNonWorkingDaysValue(val);
       formik.setFieldValue(
@@ -227,6 +229,12 @@ function OrganisationNoPopUpForm(props: Props) {
           return item.value;
         })
       );
+    }if(val.find(d=> d.label == "None")
+    ){
+      formik.setFieldValue(
+        "nonWorkingDays",[]
+      );
+      setNonWorkingDaysValue([])
     }
   };
   const handleIndustries = (val: SingleValue<Options>) => {
