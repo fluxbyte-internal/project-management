@@ -345,8 +345,8 @@ function KanbanView(
   };
   return (
     <div className="w-full h-full scroll p-2">
-      {allKanbanColumn.isLoading ||
-        (allTasks.isLoading && <Loader className="top-0 right-0" />)}
+      {allKanbanColumn.isFetching ||
+        (allTasks.isFetching && <Loader className=" absolute top-0 right-0" /> )}
       {!closePopup && (
         <div className="flex flex-col h-full w-full">
           <div className="flex justify-between  w-full">
