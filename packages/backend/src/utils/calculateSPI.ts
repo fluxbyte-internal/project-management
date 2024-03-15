@@ -30,11 +30,11 @@ export async function calculationSPI(
     const daysDiff = ((effectiveDate.getUTCDate() - startDate.getUTCDate()) + 1 )
 
     const plannedProgression = (daysDiff / task.duration);
-    const finalPlannedProgression = plannedProgression * completionPercentage
+    const finalPlannedProgression = plannedProgression * 100 //completionPercentage
     totalPlannedProgression += finalPlannedProgression;
   }
   const finalValue =
-    Math.round(sumOfTotalActualProgressionAndDuration) /
-    Math.round(totalPlannedProgression);
-  return Math.round(finalValue);
+  Math.round(sumOfTotalActualProgressionAndDuration) /
+  Math.round(totalPlannedProgression);
+  return finalValue;
 }

@@ -325,6 +325,17 @@ export const projectDashboardByprojectId = async (
         },
         include: {
           assignedUsers: true,
+          subtasks: {
+            where: { deletedAt: null },
+            include: {
+              subtasks: {
+                where: { deletedAt: null },
+                include: {
+                  subtasks: true,
+                },
+              },
+            },
+          },
         },
       },
     },

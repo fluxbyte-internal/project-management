@@ -3,27 +3,27 @@ import { getClientByTenantId } from "../config/db.js";
 import { getDayAbbreviation } from "./getDatAbbreviation.js";
 import { isHoliday } from "./checkIsHoliday.js";
 import { taskEndDate } from "./calcualteTaskEndDate.js";
+import { calculationSubTaskProgression } from "./calculationSubTaskProgression.js";
 
 export async function calculationTPI(
-  task: Task,
+  task: Task & { subtasks: Task[] },
   tenantId: string,
   organisationId: string
 ): Promise<{ tpiValue: number; tpiFlag: "Red" | "Orange" | "Green" }> {
-  let { duration, completionPecentage, startDate, status } = task;
+  let { duration, startDate, status } = task;
+  const completionPecentage =
+    (await calculationSubTaskProgression(task, tenantId, organisationId)) ?? 0;
   if (status === TaskStatusEnum.NOT_STARTED) {
     return {
       tpiValue: 0,
       tpiFlag: "Green",
     };
   }
-
-  if (!completionPecentage) {
-    completionPecentage = 0;
-  }
   const currentDate = new Date();
   const taskStartDate = new Date(startDate);
   const endDate = await taskEndDate(task, tenantId, organisationId);
-  const effectiveDate = currentDate > new Date(endDate) ? new Date(endDate) : currentDate;
+  const effectiveDate =
+    currentDate > new Date(endDate) ? new Date(endDate) : currentDate;
   effectiveDate.setUTCHours(0, 0, 0, 0);
   taskStartDate.setUTCHours(0, 0, 0, 0);
   const remainingDuration = await excludeNonWorkingDays(
@@ -32,8 +32,8 @@ export async function calculationTPI(
     tenantId,
     organisationId
   );
-  const plannedProgress = (remainingDuration / duration) * 100;
-  const tpi = plannedProgress !== 0 ? completionPecentage / plannedProgress : 0;
+  const plannedProgress = remainingDuration / duration;
+  const tpi = Number(completionPecentage) / (plannedProgress * 100);
   let flag: "Red" | "Orange" | "Green";
   if (tpi < 0.8) {
     flag = "Red";
@@ -49,7 +49,7 @@ export async function calculationTPI(
 }
 
 export async function taskFlag(
-  task: Task,
+  task: Task & { subtasks: Task[] },
   tenantId: string,
   organisationId: string
 ): Promise<"Red" | "Orange" | "Green"> {
