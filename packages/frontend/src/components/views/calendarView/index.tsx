@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import useRemoveTaskMutation from "@/api/mutation/useTaskRemove";
 import { toast } from "react-toastify";
 import { FIELDS } from "@/api/types/enums";
+import Loader from "@/components/common/Loader";
 
 function CalendarView() {
   const { projectId } = useParams();
@@ -73,10 +74,10 @@ function CalendarView() {
         task.flag == "Green"
           ? "#22C55E80"
           : task.flag == "Red"
-            ? "#EF444480"
-            : task.flag == "Orange"
-              ? "#F9980780"
-              : "#88888880",
+          ? "#EF444480"
+          : task.flag == "Orange"
+          ? "#F9980780"
+          : "#88888880",
       disableDrag: true,
       disableResize: true,
     };
@@ -126,6 +127,49 @@ function CalendarView() {
   };
   return (
     <>
+      {allTasks.isFetching ? (
+        <Loader className="absolute top-0 left-0" />
+      ) : (
+        <div className="h-full flex flex-col gap-2">
+          <TaskFilter
+            ref={filterRef}
+            fieldToShow={[
+              FIELDS.ASSIGNED,
+              FIELDS.DATE,
+              FIELDS.DUESEVENDAYS,
+              FIELDS.FLAGS,
+              FIELDS.OVERDUEDAYS,
+              FIELDS.TODAYDUEDAYS,
+            ]}
+            tasks={allTasks.data?.data.data}
+            filteredData={(task) => setFilterData(task)}
+          />
+          <Scheduler
+            // ref={scheduler}
+            id="scheduler"
+            dataSource={dataSource}
+            view="month"
+            nonworkingDays={nonWorkingDays()}
+            draggable={false}
+            hideNonworkingWeekdays={true}
+            className="h-[95%] scheduler"
+            onItemRemove={(e) =>
+              onItemRemove(e as (Event & CustomEvent) | undefined)
+            }
+            onEditDialogOpening={(e) =>
+              onItemClick(e as (Event & CustomEvent) | undefined)
+            }
+          ></Scheduler>
+          {(dialogRendered || isTaskShow) && (
+            <TaskSubTaskForm
+              close={close}
+              taskId={dialogRendered ?? undefined}
+              projectId={projectId}
+              initialValues={{ startDate: startDate }}
+            />
+          )}
+        </div>
+      )}
       <div className="h-full flex flex-col gap-2">
         <TaskFilter
           ref={filterRef}

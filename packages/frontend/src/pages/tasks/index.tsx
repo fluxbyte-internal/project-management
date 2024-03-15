@@ -25,7 +25,13 @@ import DimondIcon from "../../assets/svg/DiamondIcon.svg";
 import UserAvatar from "@/components/ui/userAvatar";
 import TaskFilter, { TaskFilterRef } from "@/components/views/TaskFilter";
 import { FIELDS } from "@/api/types/enums";
-import { ProjectDefaultViewEnumValue, TaskStatusEnumValue } from "@backend/src/schemas/enums";
+import {
+  ProjectDefaultViewEnumValue,
+  TaskStatusEnumValue,
+  UserRoleEnumValue,
+} from "@backend/src/schemas/enums";
+import Loader from "@/components/common/Loader";
+import { useUser } from "@/hooks/useUser";
 function Tasks() {
   const [taskData, setTaskData] = useState<Task[]>();
   const [filterData, setFilterData] = useState<Task[] | undefined>(taskData);
@@ -56,10 +62,10 @@ function Tasks() {
             item?.flag == "Green"
               ? "bg-green-500/60 border border-green-500"
               : item?.flag == "Red"
-                ? "bg-red-500/60 border border-red-500/60"
-                : item?.flag == "Orange"
-                  ? "bg-primary-500/60 border border-primary-500/60"
-                  : ""
+              ? "bg-red-500/60 border border-red-500/60"
+              : item?.flag == "Orange"
+              ? "bg-primary-500/60 border border-primary-500/60"
+              : ""
           }`}
         ></div>
       ),
@@ -175,14 +181,14 @@ function Tasks() {
                 <span className="p-0 font-normal h-auto">View Tasks</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="mx-1" />
-              <DropdownMenuItem
+           { allowed(item) &&  <DropdownMenuItem
                 onClick={() => setShowConfirmDelete(item.taskId)}
               >
                 <img src={TrashCan} className="mr-2 h-4 w-4 text-[#44546F]" />
                 <span className="p-0 font-normal h-auto text-red-500">
                   Remove
                 </span>
-              </DropdownMenuItem>
+              </DropdownMenuItem>}
             </DropdownMenuContent>
           </DropdownMenu>
         </>
@@ -242,17 +248,17 @@ function Tasks() {
   }, [taskData]);
   const getStatusColor = (status: string) => {
     switch (status) {
-    case TaskStatusEnumValue.NOT_STARTED:
-      return "!bg-slate-500/60 ";
-    case TaskStatusEnumValue.IN_PROGRESS:
-      return "!bg-blue-300 text-white";
-    case TaskStatusEnumValue.COMPLETED:
-      return "!bg-emerald-500 text-white";
+      case TaskStatusEnumValue.NOT_STARTED:
+        return "!bg-slate-500/60 ";
+      case TaskStatusEnumValue.IN_PROGRESS:
+        return "!bg-blue-300 text-white";
+      case TaskStatusEnumValue.COMPLETED:
+        return "!bg-emerald-500 text-white";
     }
   };
   useEffect(() => {
     allTaskQuery.refetch();
-  }, [projectId, taskId]);
+  }, [projectId]);
 
   const [searchParams] = useSearchParams();
 
@@ -368,92 +374,123 @@ function Tasks() {
       </div>
     );
   };
-
+  const user = useUser()
+  const allowed = (task: Task | undefined) => {
+    if (
+      task &&
+      user.user?.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER &&
+      task.createdByUserId == user.user?.userId
+    ) {
+      return true;
+    } else if (
+      user.user?.userOrganisation[0].role ==
+        UserRoleEnumValue.PROJECT_MANAGER ||
+      user.user?.userOrganisation[0].role == UserRoleEnumValue.ADMINISTRATOR
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  };
   return (
     <div className="h-full overflow-hidden">
-      {taskData && taskData.length > 0 ? (
+      {(allTaskQuery.isFetching && taskData && taskData.length > 0) ? (
+        <Loader key={"list"} className="absolute top-0 left-0" />
+      ) : (
         <>
-          <div className="w-full flex flex-col gap-3 h-5/6">
-            <div className="flex justify-between mt-1">
-              <TaskFilter
-                fieldToShow={[
-                  FIELDS.ASSIGNED,
-                  FIELDS.DATE,
-                  FIELDS.DUESEVENDAYS,
-                  FIELDS.FLAGS,
-                  FIELDS.OVERDUEDAYS,
-                  FIELDS.TODAYDUEDAYS,
-                ]}
-                view={ProjectDefaultViewEnumValue.LIST}
-                ref={filterRef}
-                filteredData={(data) =>
-                  setFilterData(
-                    setData(data)?.sort(
-                      (a, b) =>
-                        new Date(a.startDate).getTime() -
-                        new Date(b.startDate).getTime()
-                    )
-                  )
-                }
-                tasks={allTaskQuery.data?.data.data}
+          {taskData && taskData.length > 0 ? (
+            <>
+              <div className="w-full flex flex-col gap-3 h-5/6">
+                <div className="flex justify-between mt-1">
+                  <TaskFilter
+                    fieldToShow={[
+                      FIELDS.ASSIGNED,
+                      FIELDS.DATE,
+                      FIELDS.DUESEVENDAYS,
+                      FIELDS.FLAGS,
+                      FIELDS.OVERDUEDAYS,
+                      FIELDS.TODAYDUEDAYS,
+                    ]}
+                    view={ProjectDefaultViewEnumValue.LIST}
+                    ref={filterRef}
+                    filteredData={(data) =>
+                      setFilterData(
+                        setData(data)?.sort(
+                          (a, b) =>
+                            new Date(a.startDate).getTime() -
+                            new Date(b.startDate).getTime()
+                        )
+                      )
+                    }
+                    tasks={allTaskQuery.data?.data.data}
+                  />
+                  <div>
+                    <Button
+                      variant={"primary"}
+                      size={"sm"}
+                      onClick={createTask}
+                    >
+                      Add Task
+                    </Button>
+                  </div>
+                </div>
+                <div className="!h-full">
+                  <Table
+                    columnDef={columnDef}
+                    data={filterData ?? []}
+                    onAccordionRender={(task) => subTableRender(task)}
+                    className="!pt-9 !pb-0 !sm:pb-7"
+                  ></Table>
+                </div>
+              </div>
+            </>
+          ) : (
+            projectId &&
+            taskData &&
+            taskData.length == 0 && (
+              <NoTask
+                projectId={projectId}
+                refetch={() => allTaskQuery.refetch()}
               />
-              <div>
-                <Button variant={"primary"} size={"sm"} onClick={createTask}>
-                  Add Task
+            )
+          )}
+          {(Boolean(taskId) || taskCreate) && (
+            <TaskSubTaskForm
+              taskId={taskId}
+              projectId={projectId}
+              close={close}
+            />
+          )}
+          <Dialog
+            isOpen={Boolean(showConfirmDelete)}
+            onClose={() => {}}
+            modalClass="rounded-lg"
+          >
+            <div className="flex flex-col gap-2 p-6 ">
+              <img src={TrashCan} className="w-12 m-auto" /> Are you sure you
+              want to delete ?
+              <div className="flex gap-2 ml-auto">
+                <Button
+                  variant={"outline"}
+                  isLoading={removeTaskMutation.isPending}
+                  disabled={removeTaskMutation.isPending}
+                  onClick={() => setShowConfirmDelete(null)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant={"primary"}
+                  onClick={removeTask}
+                  isLoading={removeTaskMutation.isPending}
+                  disabled={removeTaskMutation.isPending}
+                >
+                  Delete
                 </Button>
               </div>
             </div>
-            <div className="!h-full">
-              <Table
-                columnDef={columnDef}
-                data={filterData ?? []}
-                onAccordionRender={(task) => subTableRender(task)}
-                className="!pt-9 !pb-0 !sm:pb-7"
-              ></Table>
-            </div>
-          </div>
+          </Dialog>
         </>
-      ) : (
-        projectId &&
-        taskData &&
-        taskData.length == 0 && (
-          <NoTask
-            projectId={projectId}
-            refetch={() => allTaskQuery.refetch()}
-          />
-        )
       )}
-      {(Boolean(taskId) || taskCreate) && (
-        <TaskSubTaskForm taskId={taskId} projectId={projectId} close={close} />
-      )}
-      <Dialog
-        isOpen={Boolean(showConfirmDelete)}
-        onClose={() => {}}
-        modalClass="rounded-lg"
-      >
-        <div className="flex flex-col gap-2 p-6 ">
-          <img src={TrashCan} className="w-12 m-auto" /> Are you sure you want
-          to delete ?
-          <div className="flex gap-2 ml-auto">
-            <Button
-              variant={"outline"}
-              isLoading={removeTaskMutation.isPending}
-              disabled={removeTaskMutation.isPending}
-              onClick={() => setShowConfirmDelete(null)}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant={"primary"}
-              onClick={removeTask}
-              isLoading={removeTaskMutation.isPending}
-              disabled={removeTaskMutation.isPending}
-            >
-              Delete
-            </Button>
-          </div>
-        </div>
-      </Dialog>
     </div>
   );
 }

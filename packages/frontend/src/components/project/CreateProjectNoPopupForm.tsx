@@ -753,7 +753,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 {editData && editData.actualEndDate && (
                   <div>
                     <div>Actual end date</div>
-                    {dateFormater(new Date(editData.actualEndDate))}
+                    {editData.actualEndDate ? dateFormater(new Date(editData.actualEndDate)) : "N/A"}
                   </div>
                 )}
               </div>
@@ -761,7 +761,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 {editData && (
                   <div>
                     <div>Est. duration</div>
-                    {editData.estimatedDuration}
+                    {editData.estimatedDuration ? editData.estimatedDuration : "N/A"}
                   </div>
                 )}
               </div>
@@ -769,7 +769,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 {editData && (
                   <div>
                     <div>Actual duration</div>
-                    {editData.actualDuration}
+                    {editData.actualDuration ? editData.actualDuration :"N/A" }
                   </div>
                 )}
               </div>

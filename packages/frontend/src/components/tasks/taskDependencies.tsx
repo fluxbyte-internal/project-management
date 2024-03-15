@@ -31,6 +31,7 @@ type Props = {
   task: Task;
   endTask?: string;
   refetch: () => void;
+  allowed?:boolean
 };
 
 type Options = { value: string; label: string };
@@ -144,7 +145,7 @@ function TaskDependencies(props: Props) {
         <div>
           <div className="text-xl font-medium">Dependencies</div>
         </div>
-        {!dependenciesShow && (
+        {(!dependenciesShow && props.allowed) && (
           <Button variant={"ghost"} onClick={() => setDependenciesShow(true)}>
             <img src={PlusSvg} width={20} height={20} />
           </Button>
