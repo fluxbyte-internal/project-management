@@ -51,5 +51,5 @@ export async function calculationSPI(
   const finalValue =
   Math.round(sumOfTotalActualProgressionAndDuration) /
   Math.round(totalPlannedProgression);
-  return finalValue;
+  return Number((finalValue).toFixed(2));
 }

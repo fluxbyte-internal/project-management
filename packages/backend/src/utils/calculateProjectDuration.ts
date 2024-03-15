@@ -40,7 +40,7 @@ export const calculateProjectDuration = async (
     const dayAbbreviation = getDayAbbreviation(dayOfWeek);
 
     if (
-      !nonWorkingDays.includes(dayAbbreviation) &&
+      !nonWorkingDays.includes(dayAbbreviation) ||
       !isHoliday(currentDate, holidays)
     ) {
       duration++;
