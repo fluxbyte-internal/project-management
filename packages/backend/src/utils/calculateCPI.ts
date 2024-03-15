@@ -3,11 +3,14 @@ import { getClientByTenantId } from "../config/db.js";
 
 export async function calculationCPI(
   project: Project,
-  tenantId: string
+  tenantId: string,
+  organisationId: string
 ) {
   const prisma = await getClientByTenantId(tenantId);
   const progressionPercentage = await prisma.project.projectProgression(
-    project.projectId
+    project.projectId,
+    tenantId,
+    organisationId,
   );
   const consumedBudget =
     project.consumedBudget === "0" ? NaN : Number(project.consumedBudget);

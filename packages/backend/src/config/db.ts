@@ -1,6 +1,7 @@
 import { NotificationTypeEnum, PrismaClient, Task, UserStatusEnum, UserRoleEnum, HistoryTypeEnum } from "@prisma/client";
 import { RegisterSocketServices } from "../services/socket.services.js";
 import { settings } from "./settings.js";
+import { calculationSubTaskProgression } from "../utils/calculationSubTaskProgression.js";
 
 const rootPrismaClient = generatePrismaClient();
 const prismaClients: Record<
@@ -82,21 +83,34 @@ function generatePrismaClient(datasourceUrl?: string) {
         },
       },
       project: {
-        async projectProgression(projectId: string) {
+        async projectProgression(projectId: string, tenantId: string, organisationId: string) {
           const parentTasks = await client.task.findMany({
             where: {
               projectId,
               deletedAt: null,
               parentTaskId: null,
             },
+            include: {
+              subtasks: {
+                where: { deletedAt: null },
+                include: {
+                  subtasks: {
+                    where: { deletedAt: null },
+                    include: {
+                      subtasks: true,
+                    },
+                  },
+                },
+              },
+            }
           });
 
           let completionPecentageOrDuration = 0;
           let averagesSumOfDuration = 0;
 
           for (const value of parentTasks) {
-            if(!value.completionPecentage) { value.completionPecentage = 0 }
-            completionPecentageOrDuration += Number(value.completionPecentage) * (value.duration);
+            const completionPecentage = await calculationSubTaskProgression(value, tenantId, organisationId) ?? 0;
+            completionPecentageOrDuration += Number(completionPecentage) * (value.duration);
             averagesSumOfDuration += value.duration * 100;
           }
           const finalValue = (completionPecentageOrDuration / averagesSumOfDuration)
