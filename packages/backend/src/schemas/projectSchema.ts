@@ -72,3 +72,7 @@ export const consumedBudgetSchema = z.object({
     required_error: ZodErrorMessageEnumValue.REQUIRED,
   }),
 });
+
+export const projectAssginedRole = z.object({
+  role: z.string()
+});

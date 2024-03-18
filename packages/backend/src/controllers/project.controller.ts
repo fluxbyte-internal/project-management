@@ -2,7 +2,7 @@
 import { getClientByTenantId } from '../config/db.js';
 import { BadRequestError, NotFoundError, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
-import { consumedBudgetSchema, createKanbanSchema, createProjectSchema, projectIdSchema, projectStatusSchema, updateKanbanSchema, updateProjectSchema } from '../schemas/projectSchema.js';
+import { consumedBudgetSchema, createKanbanSchema, createProjectSchema, projectAssginedRole, projectIdSchema, projectStatusSchema, updateKanbanSchema, updateProjectSchema } from '../schemas/projectSchema.js';
 import { NotificationTypeEnum, ProjectStatusEnum, TaskStatusEnum, UserRoleEnum, UserStatusEnum } from '@prisma/client';
 import { uuidSchema } from '../schemas/commonSchema.js';
 import { assginedToUserIdSchema } from '../schemas/taskSchema.js';
@@ -830,4 +830,28 @@ export const duplicateProjectAndAllItsTask = async (
     "Project and tasks duplicated successfully."
   ).send(res);
 
+};
+
+export const updateProjectRole = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  const projectAssignUsersId = uuidSchema.parse(
+    req.params.projectAssignUsersId
+  );
+  const { role } = projectAssginedRole.parse(req.body);
+  const prisma = await getClientByTenantId(req.tenantId);
+
+  const updateRole = await prisma.projectAssignUsers.update({
+    where: { projectAssignUsersId },
+    data: {
+      projectRole: role,
+    },
+  });
+
+  return new SuccessResponse(
+    StatusCodes.OK,
+    updateRole,
+    "Role updated successfully."
+  ).send(res);
 };

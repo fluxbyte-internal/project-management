@@ -84,4 +84,9 @@ router.delete(
   ProjectController.deleteAssignedUserFromProject
 );
 
+router.put(
+  "/projectAssgined/role-update/:projectAssignUsersId",
+  roleMiddleware([UserRoleEnum.ADMINISTRATOR, UserRoleEnum.PROJECT_MANAGER]),
+  ProjectController.updateProjectRole
+)
 export default router;

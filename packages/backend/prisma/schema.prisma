@@ -308,6 +308,7 @@ model ProjectAssignUsers {
   projectAssignUsersId String   @id @default(uuid()) @map("project_assign_users_id")
   projectId            String   @map("project_id")
   assginedToUserId     String   @map("assgined_to_user_id")
+  projectRole          String?  @map("project_role")
   project              Project  @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
   user                 User     @relation(fields: [assginedToUserId], references: [userId], onDelete: Cascade)
   createdAt            DateTime @default(now()) @map("created_at")
