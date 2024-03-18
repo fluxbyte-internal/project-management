@@ -28,7 +28,9 @@ import {
   DropdownMenuItem,
 } from "@radix-ui/react-dropdown-menu";
 import { Settings } from "lucide-react";
-
+import InputText from "@/components/common/InputText";
+import CrossIcon from "@/assets/svg/CrossIcon.svg";
+import useProjectMemberRoleMutation from "@/api/mutation/useProjectRoleUpdateMutation";
 function ProjectMember() {
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
   const projectMemberListQuery = useProjectMemberListQuery();
@@ -42,7 +44,8 @@ function ProjectMember() {
   const [assignedUsers, setAssignedUsers] = useState<
     AssignedUsers[] | undefined
   >();
-
+  const [userId, setUserId] = useState<string>();
+  const [userRole, setUserRole] = useState<string>();
   const [OrganizationMember, setOrganizationMember] =
     useState<UserOrganisationType[]>();
 
@@ -170,7 +173,7 @@ function ProjectMember() {
     },
     {
       header: "Role",
-      key: "email",
+      key: "role",
       onCellRender: (user: AssignedUsers) => {
         return (
           <div>
@@ -183,14 +186,21 @@ function ProjectMember() {
       },
     },
     {
-      header: "Job title",
-      key: "email",
+      header: "Project role",
+      key: "role",
       onCellRender: (user: AssignedUsers) => {
         return (
           <div>
-            {user.user.userOrganisation[0].jobTitle ?? "N/A"}
+            {user.projectRole ? user.projectRole:"N/A"}
           </div>
         );
+      },
+    },
+    {
+      header: "Job title",
+      key: "email",
+      onCellRender: (user: AssignedUsers) => {
+        return <div>{user.user.userOrganisation[0].jobTitle ?? "N/A"}</div>;
       },
     },
     {
@@ -205,11 +215,23 @@ function ProjectMember() {
                   <Settings className="mr-2 h-4 w-4" />
                 </div>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-24  flex flex-col gap-1 bg-white shadow rounded">
+              <DropdownMenuContent className="w-24 !z-10  flex flex-col gap-1 bg-white shadow rounded">
+                <DropdownMenuItem className="w-full flex  items-center">
+                  <Button
+                    variant={"none"}
+                    className="flex w-full justify-start"
+                    onClick={() => {
+                      setUserId(user.user.userId),setUserRole(user.projectRole??'')
+                    }}
+                  >
+                    <Settings className="mr-0.5 h-4 w-4" />
+                    Role
+                  </Button>
+                </DropdownMenuItem>
                 <DropdownMenuItem className="w-full flex items-center">
                   <Button
                     variant={"none"}
-                    className="p-1 flex justify-around w-full"
+                    className="flex justify-start w-full"
                     onClick={() => {
                       setRemove(
                         assignedUsers?.find(
@@ -229,9 +251,30 @@ function ProjectMember() {
       },
     },
   ];
+  const projectMemberRoleMutation = useProjectMemberRoleMutation();
+  const submitRole = () => {
+    const data = {
+      assingprojectId: assignedUsers?.find((u) => u.user.userId == userId)?.projectAssignUsersId,
+      role: userRole,
+    };
+
+    projectMemberRoleMutation.mutate(
+      { assingprojectId: data.assingprojectId, role: data.role },
+      {
+        onSuccess(data) {
+          toast.success(data.data.message);
+          projectDetailQuery.refetch()
+          setUserId(undefined)
+        },
+        onError(error) {
+          toast.error(error.response?.data.message);
+        },
+      }
+    );
+  };
   return (
     <div className="w-full relative h-full">
-      {projectDetailQuery.isLoading ? (
+      {projectDetailQuery.isFetching ? (
         <Loader />
       ) : (
         <>
@@ -412,6 +455,46 @@ function ProjectMember() {
               onClick={() => removeMembers(remove ?? "")}
             >
               Delete
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+      <Dialog
+        isOpen={Boolean(userId)}
+        onClose={() => {}}
+        modalClass="rounded-lg"
+      >
+        <div className="flex flex-col gap-2 p-6 w-80">
+          <div className="flex justify-between items-center ">
+            Assign project role
+            <img
+              src={CrossIcon}
+              className="w-4 h-4 cursor-pointer"
+              onClick={() => setUserId(undefined)}
+            />
+          </div>
+          <InputText
+            value={
+              assignedUsers?.find((u) => u.user.userId == userId)?.user.email
+            }
+            disabled
+          />
+          <InputText
+            placeholder="role"
+            value={userRole ?? ""}
+            onChange={(e) => setUserRole(e.target.value)}
+          />
+          <div className="flex gap-2 ml-auto">
+            <Button
+              variant={"outline"}
+              isLoading={removeProjectMemberMutation.isPending}
+              disabled={removeProjectMemberMutation.isPending}
+              onClick={() => setUserId(undefined)}
+            >
+              Cancel
+            </Button>
+            <Button variant={"primary"} onClick={() => submitRole()}>
+              Save
             </Button>
           </div>
         </div>
