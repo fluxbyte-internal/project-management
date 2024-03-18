@@ -154,9 +154,9 @@ function GanttView() {
   };
 
   const viewData: Options[] = [
-    { label: "Week", value: "week" },
-    { label: "Month", value: "month" },
-    { label: "Year", value: "year" },
+    { label: "Day", value: "week" },
+    { label: "Week", value: "month" },
+    { label: "Month", value: "year" },
   ];
   const taskColumns: GanttChartTaskColumn[] = [
     {
