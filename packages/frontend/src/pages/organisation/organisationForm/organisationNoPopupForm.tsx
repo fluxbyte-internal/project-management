@@ -220,7 +220,6 @@ function OrganisationNoPopUpForm(props: Props) {
     }
   };
   const handleNonWorkingDays = (val: MultiValue<Options>) => {
-    
     if (val) {
       setNonWorkingDaysValue(val);
       formik.setFieldValue(
@@ -229,12 +228,10 @@ function OrganisationNoPopUpForm(props: Props) {
           return item.value;
         })
       );
-    }if(val.find(d=> d.label == "None")
-    ){
-      formik.setFieldValue(
-        "nonWorkingDays",[]
-      );
-      setNonWorkingDaysValue([])
+    }
+    if (val.find((d) => d.label == "None")) {
+      formik.setFieldValue("nonWorkingDays", []);
+      setNonWorkingDaysValue([]);
     }
   };
   const handleIndustries = (val: SingleValue<Options>) => {
@@ -310,6 +307,11 @@ function OrganisationNoPopUpForm(props: Props) {
     }
     setRemoveJobTitle("");
   };
+  function getFileNameFromURL(url: string) {
+    const filenameWithEncoding = url.substring(url.lastIndexOf("/") + 1);
+    const filename = decodeURIComponent(filenameWithEncoding);
+    return filename.split("-")[1];
+  }
 
   return (
     <div className="bg-white rounded-lg border px-2 py-1.5 sm:px-5 sm:py-4 w-full">
@@ -431,8 +433,8 @@ function OrganisationNoPopUpForm(props: Props) {
                   }
                 >
                   <div className="flex gap-2 ">
-                    <img className="h-4 w-4" src={DownLoadIcon} /> Download
-                    uploaded CSV
+                    <img className="h-4 w-4" src={DownLoadIcon} />{" "}
+                    {getFileNameFromURL(editData.holidayCsvUrl)}
                   </div>
                 </Button>
               </div>
