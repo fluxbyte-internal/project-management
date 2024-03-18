@@ -279,6 +279,42 @@ export const updateTask = async (
     },
   });
 
+  // Handle project status based on task update
+  let taskStatus = TaskStatusEnum.NOT_STARTED as TaskStatusEnum;
+  if (taskUpdateValue.completionPecentage !== undefined) {
+    if (taskUpdateValue.completionPecentage === 0) {
+      taskStatus = TaskStatusEnum.NOT_STARTED;
+    } else if (
+      taskUpdateValue.completionPecentage > 0 &&
+      taskUpdateValue.completionPecentage < 100
+    ) {
+      taskStatus = TaskStatusEnum.IN_PROGRESS;
+    } else if (taskUpdateValue.completionPecentage === 100) {
+      taskStatus = TaskStatusEnum.COMPLETED;
+    }
+  }
+  if (
+    taskUpdateValue.completionPecentage ||
+    taskUpdateValue.completionPecentage === 0
+  ) {
+    await prisma.$transaction([
+      prisma.project.update({
+        where: {
+          projectId: taskUpdateDB.project.projectId,
+        },
+        data: {
+          status: ProjectStatusEnum.ACTIVE,
+        },
+      }),
+      prisma.task.update({
+        where: { taskId },
+        data: {
+          status: taskStatus,
+        },
+      }),
+    ]);
+  }
+
   if (taskUpdateDB.parent?.taskId) {
     const taskTimeline = await prisma.task.getSubtasksTimeline(
       taskUpdateDB.parent.taskId
@@ -458,42 +494,6 @@ export const updateTask = async (
         actualEndDate: maxEndDate,
       },
     });
-  }
-
-  // Handle project status based on task update
-  let taskStatus = TaskStatusEnum.NOT_STARTED as TaskStatusEnum;
-  if (taskUpdateValue.completionPecentage !== undefined) {
-    if (taskUpdateValue.completionPecentage === 0) {
-      taskStatus = TaskStatusEnum.NOT_STARTED;
-    } else if (
-      taskUpdateValue.completionPecentage > 0 &&
-      taskUpdateValue.completionPecentage < 100
-    ) {
-      taskStatus = TaskStatusEnum.IN_PROGRESS;
-    } else if (taskUpdateValue.completionPecentage === 100) {
-      taskStatus = TaskStatusEnum.COMPLETED;
-    }
-  }
-  if (
-    taskUpdateValue.completionPecentage ||
-    taskUpdateValue.completionPecentage === 0
-  ) {
-    await prisma.$transaction([
-      prisma.project.update({
-        where: {
-          projectId: taskUpdateDB.project.projectId,
-        },
-        data: {
-          status: ProjectStatusEnum.ACTIVE,
-        },
-      }),
-      prisma.task.update({
-        where: { taskId },
-        data: {
-          status: taskStatus,
-        },
-      }),
-    ]);
   }
 
   // History-Manage
