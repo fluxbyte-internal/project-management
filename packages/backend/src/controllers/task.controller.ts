@@ -15,6 +15,7 @@ import { selectUserFields } from '../utils/selectedFieldsOfUsers.js';
 import { calculationSubTaskProgression } from '../utils/calculationSubTaskProgression.js';
 import { taskFlag } from '../utils/calculationFlag.js';
 import { calculateProjectEndDate } from '../utils/calculateProjectEndDate.js';
+import { checkTaskStatus } from '../utils/taskRecursion.js';
 
 export const getTasks = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) {
@@ -139,6 +140,9 @@ export const createTask = async (
   if (!req.userId) {
     throw new BadRequestError("userId not found!!");
   }
+  if (!req.organisationId) {
+    throw new BadRequestError("organisationId not found!!");
+  }
   const { taskName, taskDescription, startDate, duration } =
     createTaskSchema.parse(req.body);
   const projectId = projectIdSchema.parse(req.params.projectId);
@@ -230,6 +234,7 @@ export const createTask = async (
       parentTaskId ? parentTaskId : task.taskId
     );
   }
+  const statusHandle = await checkTaskStatus(task.taskId, req.tenantId, req.organisationId);
   const finalResponse = { ...task };
   return new SuccessResponse(
     StatusCodes.CREATED,
@@ -278,42 +283,6 @@ export const updateTask = async (
       subtasks: true,
     },
   });
-
-  // Handle project status based on task update
-  let taskStatus = TaskStatusEnum.NOT_STARTED as TaskStatusEnum;
-  if (taskUpdateValue.completionPecentage !== undefined) {
-    if (taskUpdateValue.completionPecentage === 0) {
-      taskStatus = TaskStatusEnum.NOT_STARTED;
-    } else if (
-      taskUpdateValue.completionPecentage > 0 &&
-      taskUpdateValue.completionPecentage < 100
-    ) {
-      taskStatus = TaskStatusEnum.IN_PROGRESS;
-    } else if (taskUpdateValue.completionPecentage === 100) {
-      taskStatus = TaskStatusEnum.COMPLETED;
-    }
-  }
-  if (
-    taskUpdateValue.completionPecentage ||
-    taskUpdateValue.completionPecentage === 0
-  ) {
-    await prisma.$transaction([
-      prisma.project.update({
-        where: {
-          projectId: taskUpdateDB.project.projectId,
-        },
-        data: {
-          status: ProjectStatusEnum.ACTIVE,
-        },
-      }),
-      prisma.task.update({
-        where: { taskId },
-        data: {
-          status: taskStatus,
-        },
-      }),
-    ]);
-  }
 
   if (taskUpdateDB.parent?.taskId) {
     const taskTimeline = await prisma.task.getSubtasksTimeline(
@@ -548,6 +517,7 @@ export const updateTask = async (
       }
     }
   }
+  const statusHandle = await checkTaskStatus(taskId, req.tenantId, req.organisationId);
 
   const finalResponse = { ...taskUpdateDB };
   return new SuccessResponse(
