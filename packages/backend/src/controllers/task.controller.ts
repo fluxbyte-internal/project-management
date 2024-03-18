@@ -303,21 +303,6 @@ export const updateTask = async (
         },
       },
     });
-    // const notCompletedSubTasks = await prisma.task.count({
-    //   where: {
-    //     taskId: taskUpdateDB.parent?.taskId,
-    //     deletedAt: null,
-    //     subtasks: {
-    //       some: {
-    //         deletedAt: null,
-    //         status: {
-    //           notIn: [TaskStatusEnum.NOT_STARTED, TaskStatusEnum.IN_PROGRESS],
-    //         },
-    //       },
-    //     },
-    //   },
-    // });
-    // console.log({notCompletedSubTasks})
     if (findTaskForDuration) {
       const completionPecentage = await calculationSubTaskProgression(
         findTaskForDuration,
@@ -476,7 +461,23 @@ export const updateTask = async (
   }
 
   // Handle project status based on task update
-  if (taskUpdateValue.completionPecentage) {
+  let taskStatus = TaskStatusEnum.NOT_STARTED as TaskStatusEnum;
+  if (taskUpdateValue.completionPecentage !== undefined) {
+    if (taskUpdateValue.completionPecentage === 0) {
+      taskStatus = TaskStatusEnum.NOT_STARTED;
+    } else if (
+      taskUpdateValue.completionPecentage > 0 &&
+      taskUpdateValue.completionPecentage < 100
+    ) {
+      taskStatus = TaskStatusEnum.IN_PROGRESS;
+    } else if (taskUpdateValue.completionPecentage === 100) {
+      taskStatus = TaskStatusEnum.COMPLETED;
+    }
+  }
+  if (
+    taskUpdateValue.completionPecentage ||
+    taskUpdateValue.completionPecentage === 0
+  ) {
     await prisma.$transaction([
       prisma.project.update({
         where: {
@@ -489,7 +490,7 @@ export const updateTask = async (
       prisma.task.update({
         where: { taskId },
         data: {
-          status: TaskStatusEnum.IN_PROGRESS,
+          status: taskStatus,
         },
       }),
     ]);
