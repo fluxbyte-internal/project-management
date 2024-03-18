@@ -48,6 +48,7 @@ export interface AssignedUsers {
   projectAssignUsersId: string;
   projectId:            string;
   assginedToUserId:     string;
+  projectRole:          string|null;
   createdAt:            Date;
   updatedAt:            Date;
   user:                 User;

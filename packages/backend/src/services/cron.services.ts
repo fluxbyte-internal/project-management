@@ -47,8 +47,16 @@ export class CronService {
             for (const user of assignedUsers) {
               const email = user.user.email;
               const userId = user.assginedToUserId;
-              const subjectMessage = `Task due today`;
-              const message = `Task '${task.taskName}' is due today.}`;
+              const subjectMessage = `ProjectChef : Tasks due today`;
+              const message = `
+              Hello,
+
+              Please note that these tasks are due today :
+
+              Task '${task.taskName}' is due today
+
+              Best Regards,
+              ProjectChef Support Team`;
 
               //Send Notification
               await prisma.notification.sendNotification(

@@ -612,10 +612,10 @@ function TaskSubTaskForm(props: Props) {
                   <div className="text-xs font-medium mb-4">Add to card</div>
                   <div className="mt-2">
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild disabled={!allowed()}>
+                      <DropdownMenuTrigger asChild disabled={!allowed()|| Boolean(tasks?.subtasks.length)}>
                         <div className="text-sm font-normal cursor-pointer">
                           <Button
-                            disabled={!allowed()}
+                            disabled={!allowed() || Boolean(tasks?.subtasks.length)}
                             variant={"secondary"}
                             className="py-1.5 px-3 flex w-full gap-3 justify-start"
                           >
@@ -852,7 +852,7 @@ function TaskSubTaskForm(props: Props) {
                                 : ""
                             }
                             disabled={
-                              tasks?.milestoneIndicator ||
+                              tasks?.milestoneIndicator || Boolean(!taskId) ||
                               Boolean(tasks?.subtasks.length) ||
                               !allowed()
                             }

@@ -15,6 +15,7 @@ import { selectUserFields } from '../utils/selectedFieldsOfUsers.js';
 import { calculationSubTaskProgression } from '../utils/calculationSubTaskProgression.js';
 import { taskFlag } from '../utils/calculationFlag.js';
 import { calculateProjectEndDate } from '../utils/calculateProjectEndDate.js';
+import { checkTaskStatus } from '../utils/taskRecursion.js';
 
 export const getTasks = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) {
@@ -139,6 +140,9 @@ export const createTask = async (
   if (!req.userId) {
     throw new BadRequestError("userId not found!!");
   }
+  if (!req.organisationId) {
+    throw new BadRequestError("organisationId not found!!");
+  }
   const { taskName, taskDescription, startDate, duration } =
     createTaskSchema.parse(req.body);
   const projectId = projectIdSchema.parse(req.params.projectId);
@@ -230,6 +234,7 @@ export const createTask = async (
       parentTaskId ? parentTaskId : task.taskId
     );
   }
+  const statusHandle = await checkTaskStatus(task.taskId, req.tenantId, req.organisationId);
   const finalResponse = { ...task };
   return new SuccessResponse(
     StatusCodes.CREATED,
@@ -303,21 +308,6 @@ export const updateTask = async (
         },
       },
     });
-    // const notCompletedSubTasks = await prisma.task.count({
-    //   where: {
-    //     taskId: taskUpdateDB.parent?.taskId,
-    //     deletedAt: null,
-    //     subtasks: {
-    //       some: {
-    //         deletedAt: null,
-    //         status: {
-    //           notIn: [TaskStatusEnum.NOT_STARTED, TaskStatusEnum.IN_PROGRESS],
-    //         },
-    //       },
-    //     },
-    //   },
-    // });
-    // console.log({notCompletedSubTasks})
     if (findTaskForDuration) {
       const completionPecentage = await calculationSubTaskProgression(
         findTaskForDuration,
@@ -475,26 +465,6 @@ export const updateTask = async (
     });
   }
 
-  // Handle project status based on task update
-  if (taskUpdateValue.completionPecentage) {
-    await prisma.$transaction([
-      prisma.project.update({
-        where: {
-          projectId: taskUpdateDB.project.projectId,
-        },
-        data: {
-          status: ProjectStatusEnum.ACTIVE,
-        },
-      }),
-      prisma.task.update({
-        where: { taskId },
-        data: {
-          status: TaskStatusEnum.IN_PROGRESS,
-        },
-      }),
-    ]);
-  }
-
   // History-Manage
   const updatedValueWithoutOtherTable = removeProperties(
     taskUpdateDB as Record<string, any>,
@@ -547,6 +517,7 @@ export const updateTask = async (
       }
     }
   }
+  const statusHandle = await checkTaskStatus(taskId, req.tenantId, req.organisationId);
 
   const finalResponse = { ...taskUpdateDB };
   return new SuccessResponse(
@@ -583,6 +554,7 @@ export const deleteTask = async (req: express.Request, res: express.Response) =>
 
 export const statusChangeTask = async (req: express.Request, res: express.Response) => {
   if (!req.userId) { throw new BadRequestError('userId not found!!') };
+  if (!req.organisationId) { throw new BadRequestError('organisationId not found!!') };
   const taskId = uuidSchema.parse(req.params.taskId);
   const statusBody = taskStatusSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -591,8 +563,10 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
     let completionPercentage = 0;
     if (statusBody.status === TaskStatusEnum.COMPLETED) {
       completionPercentage = 100;
-    }else if (findTask.milestoneIndicator && TaskStatusEnum.NOT_STARTED) {
+    }else if (findTask.milestoneIndicator && statusBody.status === TaskStatusEnum.NOT_STARTED) {
       completionPercentage = 0;
+    } else if( statusBody.status === TaskStatusEnum.IN_PROGRESS){
+      completionPercentage = 50
     }
     let updatedTask = await prisma.task.update({
       where: { taskId: taskId },
@@ -620,6 +594,7 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
     historyData,
     taskId
   );
+  const statusHandle = await checkTaskStatus(taskId, req.tenantId, req.organisationId);
 
   return new SuccessResponse(
     StatusCodes.OK,

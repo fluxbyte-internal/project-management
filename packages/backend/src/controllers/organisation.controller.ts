@@ -219,20 +219,44 @@ export const addOrganisationMember = async (
       include: {
         userOrganisation: {
           include: {
-            organisation: true
+            organisation: {
+              include: {
+                createdByUser: true
+              }
+            }
           }
         }
       }
     });
     try {
       const newUserOrg = newUser.userOrganisation.find(org => org.organisationId === organisationId);
-      const subjectMessage = `Invited`;
+      let adminName;
+      if (
+        newUserOrg?.organisation?.createdByUser.firstName &&
+        newUserOrg?.organisation?.createdByUser.lastName
+      ) {
+        adminName =
+          newUserOrg?.organisation?.createdByUser.firstName +
+          " " +
+          newUserOrg?.organisation?.createdByUser.lastName;
+      } else {
+        adminName = newUserOrg?.organisation?.createdByUser.email;
+    }
+      const subjectMessage = `You’ve been Invited to ${newUserOrg?.organisation?.organisationName} organization `;
       const bodyMessage = `
-      You are invited in Organisation ${newUserOrg?.organisation?.organisationName}
+      Hello,
+
+      ${adminName} invited you to his/her Organization 
+      ${newUserOrg?.organisation?.organisationName} on ProjectChef.
+      Please use the information bellow to login:
       
       URL: ${settings.appURL}/login
       LOGIN: ${newUser.email}
       PASSWORD: ${randomPassword}
+
+      Best Regards,
+      ProjectChef Support Team
+
       `
       await EmailService.sendEmail(newUser.email, subjectMessage, bodyMessage);
     } catch (error) {
@@ -583,12 +607,18 @@ export const resendInvitationToMember = async (
       userOrganisationId,
     },
     include: {
-      organisation: true,
+      organisation: {
+        include: {
+          createdByUser: true
+        }
+      },
       user: {
         select: {
           userId: true,
           email: true,
           isVerified: true,
+          firstName: true,
+          lastName: true,
         },
       },
     },
@@ -602,15 +632,35 @@ export const resendInvitationToMember = async (
   const randomPassword = generateRandomPassword();
   const hashedPassword = await encrypt(randomPassword);
   try {
-    const subjectMessage = `Invited`;
+    let adminName;
+    if (
+      findMember?.organisation?.createdByUser.firstName &&
+      findMember?.organisation?.createdByUser.lastName
+    ) {
+      adminName =
+        findMember?.organisation?.createdByUser.firstName +
+        " " +
+        findMember?.organisation?.createdByUser.lastName;
+    } else {
+      adminName = findMember?.organisation?.createdByUser.email;
+    }
+    const subjectMessage = `You’ve been Invited to ${findMember?.organisation?.organisationName} organization `;
     const bodyMessage = `
-    You are invited in Organisation ${findMember.organisation?.organisationName}
-    
-    URL: ${settings.appURL}/login
-    LOGIN: ${findMember.user.email}
-    PASSWORD: ${randomPassword}
-    `;
-    
+      Hello,
+
+      ${adminName} invited you to his/her Organization 
+      ${findMember?.organisation?.organisationName} on ProjectChef.
+      Please use the information bellow to login:
+      
+      URL: ${settings.appURL}/login
+      LOGIN: ${findMember.user.email}
+      PASSWORD: ${randomPassword}
+
+      Best Regards,
+      ProjectChef Support Team
+
+      `;
+
     const findProvider = await prisma.userProvider.findFirstOrThrow({
       where: {
         userId: findMember.user.userId,

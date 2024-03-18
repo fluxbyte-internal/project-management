@@ -93,7 +93,7 @@ export const excludeNonWorkingDays = async (
 
     // Check if it's a working day (not a holiday and not in non-working days)
     if (
-      !nonWorkingDays.includes(dayAbbreviation) ||
+      !nonWorkingDays.includes(dayAbbreviation) &&
       !isHoliday(date, holidays)
     ) {
       remainingDuration++;
