@@ -554,6 +554,7 @@ export const deleteTask = async (req: express.Request, res: express.Response) =>
 
 export const statusChangeTask = async (req: express.Request, res: express.Response) => {
   if (!req.userId) { throw new BadRequestError('userId not found!!') };
+  if (!req.organisationId) { throw new BadRequestError('organisationId not found!!') };
   const taskId = uuidSchema.parse(req.params.taskId);
   const statusBody = taskStatusSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
@@ -562,8 +563,10 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
     let completionPercentage = 0;
     if (statusBody.status === TaskStatusEnum.COMPLETED) {
       completionPercentage = 100;
-    }else if (findTask.milestoneIndicator && TaskStatusEnum.NOT_STARTED) {
+    }else if (findTask.milestoneIndicator && statusBody.status === TaskStatusEnum.NOT_STARTED) {
       completionPercentage = 0;
+    } else if( statusBody.status === TaskStatusEnum.IN_PROGRESS){
+      completionPercentage = 50
     }
     let updatedTask = await prisma.task.update({
       where: { taskId: taskId },
@@ -591,6 +594,7 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
     historyData,
     taskId
   );
+  const statusHandle = await checkTaskStatus(taskId, req.tenantId, req.organisationId);
 
   return new SuccessResponse(
     StatusCodes.OK,
