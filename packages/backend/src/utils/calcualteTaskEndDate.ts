@@ -125,7 +125,7 @@ export const calculateDuration = async (
     const dayAbbreviation = getDayAbbreviation(dayOfWeek).toUpperCase();
 
     if (
-      !nonWorkingDays.includes(dayAbbreviation) ||
+      !nonWorkingDays.includes(dayAbbreviation) &&
       !isHoliday(start, holidays)
     ) {
       duration++;
