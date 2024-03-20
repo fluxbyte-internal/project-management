@@ -1,6 +1,5 @@
 import { NotificationTypeEnum, PrismaClient, Task, UserStatusEnum, UserRoleEnum, HistoryTypeEnum } from "@prisma/client";
 import { RegisterSocketServices } from "../services/socket.services.js";
-import { settings } from "./settings.js";
 import { calculationSubTaskProgression } from "../utils/calculationSubTaskProgression.js";
 
 const rootPrismaClient = generatePrismaClient();
@@ -223,7 +222,7 @@ function generatePrismaClient(datasourceUrl?: string) {
           let earliestStartDate: Date | null = null;
           if (task.subtasks.length > 0) {
             task.subtasks.forEach((subtask) => {
-              const subtaskEndDate = new Date(subtask.startDate);
+              let subtaskEndDate = new Date(subtask.startDate);
               subtaskEndDate.setDate(subtaskEndDate.getDate() + subtask.duration);
 
               if (!highestEndDate || subtaskEndDate > highestEndDate) {
