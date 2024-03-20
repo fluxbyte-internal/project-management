@@ -205,7 +205,7 @@ function ProjectDashboard() {
   };
   const getSPI = () => {
     if (data && data.spi) {
-      return data.spi;
+      return data.spi.toFixed(2);
     } else {
       return 0;
     }
@@ -631,7 +631,7 @@ function ProjectDashboard() {
                     </div>
                   </div>
                 </div>
-                <div className="w-2/3 h-full">
+                <div className="w-full md:w-2/3 h-full overflow-auto">
                   <table className="h-full w-full text-left">
                     <tr className="p-2 border-b">
                       <th className="p-2 border-r">Start date</th>
@@ -804,7 +804,7 @@ function ProjectDashboard() {
                     </div>
                   </div>
                 </div>
-                <div className="w-2/3 h-full">
+                <div className="w-full md:w-2/3 h-full overflow-x-auto">
                   <table className="h-full w-full text-left">
                     <tr className="p-2 border-b">
                       <th className="p-2 border-r">Currency</th>
