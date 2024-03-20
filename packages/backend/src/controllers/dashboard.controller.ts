@@ -447,6 +447,7 @@ export const projectDashboardByprojectId = async (
     reCalculateEndDate,
     reCalculatedDuration,
   };
+  const currency = projectWithTasks.currency;
 
   const response = {
     numTasks,
@@ -468,6 +469,7 @@ export const projectDashboardByprojectId = async (
     estimatedBudget,
     projectProgression,
     keyPerformanceIndicator,
+    currency,
   };
   return new SuccessResponse(
     StatusCodes.OK,

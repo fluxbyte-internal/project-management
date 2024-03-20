@@ -41,6 +41,7 @@ export type projectDashboardResponseType = ResponseType<{
   consumedBudget: string;
   estimatedBudget: string;
   projectProgression: string;
+  currency:string
 }>;
 export interface ProjectDates {
   startDate: string;
@@ -85,6 +86,7 @@ export type projectDashboardPortfolioDataType = {
   consumedBudget: string;
   estimatedBudget: string;
   projectProgression: string;
+  currency:string
 };
 function useProjectDashboardQuery(projectId: string | undefined) {
   return useQuery<

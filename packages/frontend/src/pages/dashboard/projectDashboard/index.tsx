@@ -218,6 +218,81 @@ function ProjectDashboard() {
             <h2 className="font-medium text-3xl leading-normal text-gray-600">
               {data.projectName}
             </h2>
+            <div className="databox relative w-full h-fit flex  justify-center items-center  border-2 border-gray-500 rounded-2xl">
+              <div className="statsboxDiv w-full h-full overflow-hidden relative flex flex-col lg:flex-row gap-6  py-2 rounded-2xl">
+                <div className="progress w-full lg:w-2/3 flex justify-center items-center gap-6 py-2">
+                  <div className="w-fit h-fit">
+                    <div className="w-full flex flex-col items-center justify-center">
+                      <div className="text-xl font-semibold">
+                        Project progress
+                      </div>
+                      <div
+                        className="h-[100px] w-[100px] rounded-full flex justify-center items-center mt-2"
+                        role="progressbar"
+                        aria-valuenow={75}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        style={{
+                          background: `radial-gradient(closest-side, white 79%, transparent 80% 100%), conic-gradient(${
+                            selectedStatusTheme?.colors?.chartColors[0]
+                          } ${(
+                            Number(data?.projectProgression) * 100
+                          ).toFixed()}%, #cecece 0)`,
+                        }}
+                      >
+                        <div className="m-1">
+                          {data?.projectProgression
+                            ? (
+                                Number(Number(data?.projectProgression)) * 100
+                              ).toFixed() + "%"
+                            : "NA"}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-5 w-full h-full items-center justify-center text-center ">
+                  <div className="text-xl font-semibold">Project Status</div>
+                  <div
+                    className={`text-4xl font-semibold ${selectedStatusTheme?.colors?.mainTexts}`}
+                  >
+                    {formatStatus(data?.projectStatus)}
+                  </div>
+                </div>
+                <div className="w-full h-full lg:pr-10">
+                  <div className="flex flex-col gap-1 md:gap-3 w-full h-full text-center text-2xl md:text-3xl font-medium items-center justify-center">
+                    <div className="text-base md:text-lg ">
+                      Project overall health
+                    </div>
+                    <div
+                      className={`${selectedStatusTheme?.colors?.subTexts} font-bold  `}
+                    >
+                      {data?.projectOverAllSituation}
+                    </div>
+                  </div>
+                </div>
+                <div className="statusImage -z-10  text-right">
+                  <img
+                    className="h-[65%] md:h-3/4 lg:h-[125%] select-none absolute  -top-16 -right-20 transform -translate-x-0 -translate-y-6 "
+                    src={`${
+                      data?.projectOverAllSituation ===
+                      OverAllTrackEnumValue.SUNNY
+                        ? Sunny
+                        : data?.projectOverAllSituation ===
+                          OverAllTrackEnumValue.CLOUDY
+                        ? Cloudy
+                        : data?.projectOverAllSituation ===
+                          OverAllTrackEnumValue.RAINY
+                        ? Rainy
+                        : data?.projectOverAllSituation ===
+                          OverAllTrackEnumValue.STORMY
+                        ? Stormy
+                        : ""
+                    }`}
+                  />
+                </div>
+              </div>
+            </div>
             <div className="statsbox w-full h-fit flex flex-col lg:flex-row justify-between items-center gap-6 lg:gap-32 py-2 ">
               <div
                 className={`items-start relative flex-col bg-gradient-to-r  from-[#3D348B] to-[#8d7eff] ${selectedStatusTheme?.colors.tabTexts} border-l-[12px]  rounded-2xl w-full h-full justify-center px-6 py-3 flex gap-5 backdrop-filter cursor-pointer  border-[#2d2348]  `}
@@ -258,7 +333,7 @@ function ProjectDashboard() {
                 />
               </div>
             </div>
-            <div className="datesDiv w-full flex flex-col md:flex-row lg:flex-col gap-1 md:gap-6 justify-center items-center py-3">
+            {/* <div className="datesDiv w-full flex flex-col md:flex-row lg:flex-col gap-1 md:gap-6 justify-center items-center py-3">
               <div className=" w-full h-full flex flex-col md:flex-row items-center justify-center gap-0 md:gap-5 border-b-0 lg:border-b-2 border-primary-200">
                 <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2  border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
                   <div>Creation Date</div>
@@ -305,81 +380,7 @@ function ProjectDashboard() {
                 </div>
               </div>
             </div>
-            <div className="databox relative w-full h-fit flex  justify-center items-center  border-2 border-gray-500 rounded-2xl">
-              <div className="statsboxDiv w-full h-full overflow-hidden relative flex flex-col lg:flex-row gap-6  py-2 rounded-2xl">
-                <div className="progress w-full lg:w-2/3 flex justify-center items-center gap-6 py-2">
-                  <div className="w-fit h-fit">
-                    <div className="w-full flex flex-col items-center justify-center">
-                      <div className="text-xl font-semibold">
-                        Project progress
-                      </div>
-                      <div
-                        className="h-[100px] w-[100px] rounded-full flex justify-center items-center mt-2"
-                        role="progressbar"
-                        aria-valuenow={75}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        style={{
-                          background: `radial-gradient(closest-side, white 79%, transparent 80% 100%), conic-gradient(${
-                            selectedStatusTheme?.colors?.chartColors[0]
-                          } ${(
-                            Number(data?.projectProgression) * 100
-                          ).toFixed()}%, #cecece 0)`,
-                        }}
-                      >
-                        <div className="m-1">
-                          {data?.projectProgression
-                            ? (
-                                Number(Number(data?.projectProgression)) * 100
-                              ).toFixed() + "%"
-                            : "NA"}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-5 w-full h-full items-center justify-center text-center ">
-                  <div className="text-xl font-semibold">Project Status</div>
-                  <div
-                    className={`text-4xl font-semibold ${selectedStatusTheme?.colors?.mainTexts}`}
-                  >
-                    {formatStatus(data?.projectStatus)}
-                  </div>
-                </div>
-                <div className="w-full h-full lg:pr-10">
-                  <div className="flex flex-col gap-1 md:gap-3 w-full h-full text-center text-2xl md:text-3xl font-medium items-center justify-center">
-                    <div className="text-base md:text-lg ">
-                      Project OverAll Status
-                    </div>
-                    <div
-                      className={`${selectedStatusTheme?.colors?.subTexts} font-bold  `}
-                    >
-                      {data?.projectOverAllSituation}
-                    </div>
-                  </div>
-                </div>
-                <div className="statusImage -z-10  text-right">
-                  <img
-                    className="h-[65%] md:h-3/4 lg:h-[125%] select-none absolute  -top-16 -right-20 transform -translate-x-0 -translate-y-6 "
-                    src={`${
-                      data?.projectOverAllSituation ===
-                      OverAllTrackEnumValue.SUNNY
-                        ? Sunny
-                        : data?.projectOverAllSituation ===
-                          OverAllTrackEnumValue.CLOUDY
-                        ? Cloudy
-                        : data?.projectOverAllSituation ===
-                          OverAllTrackEnumValue.RAINY
-                        ? Rainy
-                        : data?.projectOverAllSituation ===
-                          OverAllTrackEnumValue.STORMY
-                        ? Stormy
-                        : ""
-                    }`}
-                  />
-                </div>
-              </div>
-            </div>
+
             <h2 className="font-medium text-3xl leading-normal text-gray-600">
               Project Budget
             </h2>
@@ -471,6 +472,7 @@ function ProjectDashboard() {
                 <div className="w-full h-full text-center text-base md:text-lg font-semibold pt-2">
                   Schedule Performance Index
                   <TooltipProvider>
+                    Tasks Indicators
                     <Tooltip>
                       <TooltipTrigger className="flex gap-1 mr-3 items-center absolute top-2 right-0">
                         <img
@@ -525,13 +527,16 @@ function ProjectDashboard() {
                 <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
                   <div>Re-calculated Budget</div>
                   <div className="text-lg md:text-xl font-bold text-gray-500">
-                    {data.keyPerformanceIndicator.reCalculateBudget ?? "N/A"}
+                    {data.keyPerformanceIndicator.reCalculateBudget.toFixed(
+                      0
+                    ) ?? "N/A"}
                   </div>
                 </div>
                 <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
                   <div> Budget variation</div>
                   <div className="text-lg md:text-xl font-bold text-gray-500">
-                    {data.keyPerformanceIndicator.budgetVariation ?? "N/A"}
+                    {data.keyPerformanceIndicator.budgetVariation.toFixed(0) ??
+                      "N/A"}
                   </div>
                 </div>
                 <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
@@ -553,28 +558,351 @@ function ProjectDashboard() {
                   </div>
                 </div>
               </div>
-            )}
-            <div className="font-medium text-3xl leading-normal text-gray-600">
-              Tasks Indicators
+            )} */}
+
+            <div className="mb-6">
+              <div className="font-medium text-3xl leading-normal text-gray-600 mb-4">
+                Project schedule
+              </div>
+              <div className="w-full h-full flex md:flex-row flex-col gap-6">
+                <div className="flex gap-2 w-full md:w-2/6   h-full">
+                  <div className="w-full  h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3 relative">
+                    <div className="h-full flex flex-col gap-3 justify-between items-center">
+                      <div className="w-full  text-center text-base md:text-lg font-semibold">
+                        Schedule Trend
+                      </div>
+                      <div className="w-fit h-fit text-lg md:text-xl font-bold text-gray-500 text-center">
+                        <img
+                          className="h-10 w-10"
+                          src={
+                            data?.scheduleTrend ===
+                            ScheduleAndBudgetTrend.STABLE
+                              ? Stable
+                              : data?.scheduleTrend ===
+                                ScheduleAndBudgetTrend.INCREASING
+                              ? Increasing
+                              : data?.scheduleTrend ===
+                                ScheduleAndBudgetTrend.DECREASING
+                              ? Decreasing
+                              : ""
+                          }
+                        ></img>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`w-full h-full justify-between flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3 relative ${
+                      Number(getSPI()) < 1
+                        ? "bg-red-700/60"
+                        : Number(getSPI()) > 1
+                        ? "bg-blue-400/80"
+                        : Number(getSPI()) == 1
+                        ? "bg-green-700/60"
+                        : ""
+                    }`}
+                  >
+                    <div className="w-full text-center text-base md:text-lg font-semibold pt-2">
+                      Schedule Performance Index
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="flex gap-1 mr-3 items-center absolute top-2 right-0">
+                            <img
+                              src={InfoCircle}
+                              className="h-[16px] w-[16px]"
+                              alt="InfoCircle"
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="text-sm">
+                              SPI measures how closely your project follows the
+                              schedule : SPI &gt; 1: Project is ahead of
+                              schedule; SPI &lt; 1: Project is behind schedule;
+                              SPI = 1: Project is on schedule
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <div
+                      className={`w-full text-lg md:text-xl font-bold text-white text-center `}
+                    >
+                      {getSPI()}
+                    </div>
+                  </div>
+                </div>
+                <div className="w-2/3 h-full">
+                  <table className="h-full w-full text-left">
+                    <tr className="p-2 border-b">
+                      <th className="p-2 border-r">Start date</th>
+                      <td className="p-2 border-r">
+                        {data?.projectDates?.estimatedEndDate
+                          ? dateFormatter(
+                              new Date(data?.projectDates?.startDate)
+                            )
+                          : "N/A"}
+                      </td>
+                      <td className="p-2 border-r"></td>
+                      <td className="p-2 border-r"></td>
+                      <td className="p-2 border-r"></td>
+                    </tr>
+                    <tr className="p-2 border-b">
+                      <th className="p-2 border-r">Estimates end date</th>
+                      <td className="p-2 border-r">
+                        {data?.projectDates?.estimatedEndDate
+                          ? dateFormatter(
+                              new Date(data?.projectDates?.estimatedEndDate)
+                            )
+                          : "N/A"}
+                      </td>
+
+                      <th className="p-2 border-r relative">
+                        Actual End Date
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger className="flex gap-1 mr-3 items-center absolute top-2 right-0">
+                              <img
+                                src={InfoCircle}
+                                className="h-[16px] w-[16px]"
+                                alt="InfoCircle"
+                              />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-sm">
+                                Actual end date is the latest date of project'
+                                tasks
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </th>
+                      <td className="p-2">
+                        {data?.projectDates?.actualEndDate
+                          ? dateFormatter(
+                              new Date(data?.projectDates?.actualEndDate)
+                            )
+                          : "N/A"}
+                      </td>
+
+                      <th className="p-2 border relative">
+                        Re-calculated End date
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger className="flex gap-1 mr-3 items-center absolute top-2 right-0">
+                              <img
+                                src={InfoCircle}
+                                className="h-[16px] w-[16px]"
+                                alt="InfoCircle"
+                              />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-sm">
+                                Recalculated end date is calculated based on
+                                Task progression
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </th>
+                      <td className="p-2">
+                        {data.keyPerformanceIndicator.reCalculateEndDate &&
+                          dateFormater(
+                            new Date(
+                              data.keyPerformanceIndicator.reCalculateEndDate
+                            ) ?? "N/A"
+                          )}
+                      </td>
+                    </tr>
+                    <tr className="p-2 border-b">
+                      <th className="p-2 border-r">Estimates Duration </th>
+                      <td className="p-2 border-r">
+                        {data?.projectDates?.estimatedDuration ?? 0} Days
+                      </td>
+
+                      <th className="p-2 border-r">Actual Duration </th>
+                      <td className="p-2 border-r">
+                        {data?.projectDates?.actualDuration ?? 0} Days
+                      </td>
+
+                      <th className="p-2 border">Re-calculated Duration </th>
+                      <td className="p-2">
+                        {data.keyPerformanceIndicator.reCalculatedDuration +
+                          " Days" ?? "N/A"}
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+              </div>
             </div>
-            <div className="taskCharts w-full h-fit flex flex-col md:flex-row justify-center items-center gap-6 py-2 ">
-              <div
-                className={`${selectedStatusTheme?.colors.chartGradient} ${selectedStatusTheme?.colors.chartBorders} rounded-2xl w-full md:w-1/2 h-[25rem] justify-center items-center flex gap-2 `}
-              >
-                {barChartProp ? <PieChart chartProps={barChartProp} /> : <></>}
+            <div className="my-6">
+              <div className="font-medium text-3xl leading-normal text-gray-600 mb-4">
+                Project budget
               </div>
-              <div
-                className={` ${selectedStatusTheme?.colors.chartGradient} ${selectedStatusTheme?.colors.chartBorders} rounded-2xl w-full md:w-1/2 h-[25rem] justify-center items-center flex gap-2  `}
-              >
-                {statusPieChartProp ? (
-                  <PieChart chartProps={statusPieChartProp} />
-                ) : (
-                  <></>
-                )}
+              <div className="w-full h-full flex md:flex-row flex-col gap-6">
+                <div className="flex gap-2 w-full md:w-2/6   h-full">
+                  <div className="w-full  h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3 relative">
+                    <div className="h-full flex flex-col gap-3 justify-between items-center">
+                      <div className="w-full  text-center text-base md:text-lg font-semibold">
+                        Budget Trend
+                      </div>
+                      <div className="w-fit h-fit text-lg md:text-xl font-bold text-gray-500 text-center">
+                        <img
+                          className="h-10 w-10"
+                          src={
+                            data?.budgetTrend === ScheduleAndBudgetTrend.STABLE
+                              ? Stable
+                              : data?.budgetTrend ===
+                                ScheduleAndBudgetTrend.INCREASING
+                              ? Increasing
+                              : data?.budgetTrend ===
+                                ScheduleAndBudgetTrend.DECREASING
+                              ? Decreasing
+                              : ""
+                          }
+                        ></img>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`w-full h-full justify-between flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3 relative ${
+                      Number(data.cpi) < 1
+                        ? "bg-red-700/60"
+                        : Number(data.cpi) > 1
+                        ? "bg-blue-400/80"
+                        : Number(data.cpi) == 1
+                        ? "bg-green-700/60"
+                        : ""
+                    }`}
+                  >
+                    <div className="w-full text-center text-base md:text-lg font-semibold pt-2">
+                      Cost Performance Index
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="flex gap-1 mr-3 items-center absolute top-2 right-0">
+                            <img
+                              src={InfoCircle}
+                              className="h-[16px] w-[16px]"
+                              alt="InfoCircle"
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="text-sm">
+                              CPI measures how closely your project follows the
+                              schedule : CPI &gt; 1: Project is ahead of
+                              schedule; CPI &lt; 1: Project is behind schedule;
+                              CPI = 1: Project is on budget
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
+                    <div
+                      className={`w-full text-lg md:text-xl font-bold text-white text-center `}
+                    >
+                      {Number(data.cpi).toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+                <div className="w-2/3 h-full">
+                  <table className="h-full w-full text-left">
+                    <tr className="p-2 border-b">
+                      <th className="p-2 border-r">Currency</th>
+                      <td className="p-2 border-r">{data.currency}</td>
+                      <td className="p-2 border-r"></td>
+                    </tr>
+                    <tr className="p-2 border-b">
+                      <th className="p-2 border-r">Estimates project budget</th>
+                      <td className="p-2 border-r">
+                        {data?.estimatedBudget ?? "N/A"}
+                      </td>
+
+                      <th className="p-2 border-r relative">
+                        Consumed Project Budget
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger className="flex gap-1 mr-3 items-center absolute top-2 right-0">
+                              <img
+                                src={InfoCircle}
+                                className="h-[16px] w-[16px]"
+                                alt="InfoCircle"
+                              />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-sm">
+                                Manual field on project settings
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </th>
+                      <td className="p-2">{data?.consumedBudget ?? "N/A"}</td>
+                    </tr>
+                    <tr className="p-2 border-b">
+                      <th className="p-2 border-r relative">
+                        Re-calculated Budget
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger className="flex gap-1 mr-3 items-center absolute top-2 right-0">
+                              <img
+                                src={InfoCircle}
+                                className="h-[16px] w-[16px]"
+                                alt="InfoCircle"
+                              />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-sm">
+                                Recalculated budget is calculated based on
+                                consumed budget and project progress
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </th>
+                      <td className="p-2 border-r">
+                        {data.keyPerformanceIndicator.reCalculateBudget.toFixed(
+                          0
+                        ) ?? "N/A"}
+                      </td>
+
+                      <th className="p-2 border-r">Budget variation</th>
+                      <td className="p-2 ">
+                        {data.keyPerformanceIndicator.budgetVariation.toFixed(
+                          0
+                        ) ?? "N/A"}
+                      </td>
+                    </tr>
+                  </table>
+                </div>
               </div>
-              {/* <div className="risks rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
+            </div>
+            <div className="mt-6">
+              <div className="font-medium text-3xl leading-normal text-gray-600">
+                Tasks Indicators
+              </div>
+              <div className="taskCharts w-full h-fit flex flex-col md:flex-row justify-center items-center gap-6 py-2 ">
+                <div
+                  className={`${selectedStatusTheme?.colors.chartGradient} ${selectedStatusTheme?.colors.chartBorders} rounded-2xl w-full md:w-1/2 h-[25rem] justify-center items-center flex gap-2 `}
+                >
+                  {barChartProp ? (
+                    <PieChart chartProps={barChartProp} />
+                  ) : (
+                    <></>
+                  )}
+                </div>
+                <div
+                  className={` ${selectedStatusTheme?.colors.chartGradient} ${selectedStatusTheme?.colors.chartBorders} rounded-2xl w-full md:w-1/2 h-[25rem] justify-center items-center flex gap-2  `}
+                >
+                  {statusPieChartProp ? (
+                    <PieChart chartProps={statusPieChartProp} />
+                  ) : (
+                    <></>
+                  )}
+                </div>
+                {/* <div className="risks rounded-2xl w-3/4 lg:w-1/4 h-full justify-center items-center  flex gap-2 backdrop-filter backdrop-blur-md bg-opacity-60 border border-gray-300">
             <HorizontalBarChart chartProps={} />
           </div> */}
+              </div>
             </div>
           </div>
         </>
