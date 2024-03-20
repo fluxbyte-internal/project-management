@@ -19,7 +19,7 @@ export type projectDashboardResponseType = ResponseType<{
   projectBudgetTrend: keyof typeof ScheduleAndBudgetTrend;
   taskStatusChartData: TaskStatusChartData;
   keyPerformanceIndicator: {
-    reCalculateBudget: number;
+    reCalculateBudget: string;
     budgetVariation: number;
     reCalculateEndDate: Date;
     reCalculatedDuration: number;
@@ -64,7 +64,7 @@ export type projectDashboardPortfolioDataType = {
   projectBudgetTrend: keyof typeof ScheduleAndBudgetTrend;
   taskStatusChartData: TaskStatusChartData;
   keyPerformanceIndicator: {
-    reCalculateBudget: number;
+    reCalculateBudget: string;
     budgetVariation: number;
     reCalculateEndDate: Date;
     reCalculatedDuration: number;

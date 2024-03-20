@@ -205,7 +205,7 @@ function ProjectDashboard() {
   };
   const getSPI = () => {
     if (data && data.spi) {
-      return data.spi;
+      return data.spi.toFixed(2);
     } else {
       return 0;
     }
@@ -631,7 +631,7 @@ function ProjectDashboard() {
                     </div>
                   </div>
                 </div>
-                <div className="w-2/3 h-full">
+                <div className="w-full md:w-2/3 h-full overflow-auto">
                   <table className="h-full w-full text-left">
                     <tr className="p-2 border-b">
                       <th className="p-2 border-r">Start date</th>
@@ -705,10 +705,10 @@ function ProjectDashboard() {
                         </TooltipProvider>
                       </th>
                       <td className="p-2">
-                        {data.keyPerformanceIndicator.reCalculateEndDate &&
+                        {data.keyPerformanceIndicator?.reCalculateEndDate &&
                           dateFormater(
                             new Date(
-                              data.keyPerformanceIndicator.reCalculateEndDate
+                              data.keyPerformanceIndicator?.reCalculateEndDate
                             ) ?? "N/A"
                           )}
                       </td>
@@ -726,7 +726,7 @@ function ProjectDashboard() {
 
                       <th className="p-2 border">Re-calculated Duration </th>
                       <td className="p-2">
-                        {data.keyPerformanceIndicator.reCalculatedDuration +
+                        {data.keyPerformanceIndicator?.reCalculatedDuration +
                           " Days" ?? "N/A"}
                       </td>
                     </tr>
@@ -804,7 +804,7 @@ function ProjectDashboard() {
                     </div>
                   </div>
                 </div>
-                <div className="w-2/3 h-full">
+                <div className="w-full md:w-2/3 h-full overflow-x-auto">
                   <table className="h-full w-full text-left">
                     <tr className="p-2 border-b">
                       <th className="p-2 border-r">Currency</th>
@@ -860,14 +860,15 @@ function ProjectDashboard() {
                         </TooltipProvider>
                       </th>
                       <td className="p-2 border-r">
-                        {data.keyPerformanceIndicator.reCalculateBudget.toFixed(
+                        
+                        {(data && data.keyPerformanceIndicator?.reCalculateBudget &&  Number(data.keyPerformanceIndicator?.reCalculateBudget.split(".")[0])) ? Number(data.keyPerformanceIndicator.reCalculateBudget.split(".")[0]).toFixed(
                           0
-                        ) ?? "N/A"}
+                        ) : "N/A"}
                       </td>
 
                       <th className="p-2 border-r">Budget variation</th>
                       <td className="p-2 ">
-                        {data.keyPerformanceIndicator.budgetVariation.toFixed(
+                        {data.keyPerformanceIndicator?.budgetVariation.toFixed(
                           0
                         ) ?? "N/A"}
                       </td>
