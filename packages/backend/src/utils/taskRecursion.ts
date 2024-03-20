@@ -75,3 +75,62 @@ export const checkTaskStatus = async (
     }
   }
 };
+
+// export async function calculateDurationAndPercentage(
+//   taskId: string,
+//   tenantId: string,
+//   organisationId: string
+// ) {
+//   const prisma = await getClientByTenantId(tenantId);
+//   const taskTimeline = await prisma.task.getSubtasksTimeline(taskId);
+//   const findTask = await prisma.task.findFirstOrThrow({
+//     where: { taskId, deletedAt: null },
+//     include: {
+//       documentAttachments: true,
+//       assignedUsers: true,
+//       dependencies: true,
+//       project: true,
+//       parent: true,
+//       subtasks: true,
+//     },
+//   });
+
+//   if (findTask) {
+//     const completionPercentage = await calculationSubTaskProgression(
+//       findTask,
+//       tenantId,
+//       organisationId
+//     );
+//     const durationForParents = await calculateDurationFromDates(
+//       taskTimeline.earliestStartDate!,
+//       taskTimeline.highestEndDate!,
+//       tenantId,
+//       organisationId
+//     );
+//     const earliestStartDate = taskTimeline.earliestStartDate
+//       ? taskTimeline.earliestStartDate
+//       : findTask.parent?.startDate;
+//     const updatedSubDB = await prisma.task.update({
+//       where: {
+//         taskId,
+//       },
+//       data: {
+//         startDate: earliestStartDate,
+//         duration: durationForParents,
+//         completionPecentage: Number(completionPercentage),
+//       },
+//       include: {
+//         parent: true,
+//         subtasks: true,
+//       },
+//     });
+
+//     if (updatedSubDB.parent?.taskId) {
+//       await calculateDurationAndPercentage(
+//         updatedSubDB.parent?.taskId,
+//         tenantId,
+//         organisationId
+//       );
+//     }
+//   }
+// }

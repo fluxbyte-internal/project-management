@@ -1,12 +1,12 @@
 import { getClientByTenantId } from "../config/db.js";
 import { getDayAbbreviation } from "./getDatAbbreviation.js";
 
-export const calculateEndDateFromStartDateAndDuration = async (
+export const calculateDurationFromDates = async (
   startDate: Date,
-  duration: number,
+  endDate: Date,
   tenantId: string,
   organisationId: string
-): Promise<Date> => {
+): Promise<number> => {
   const prisma = await getClientByTenantId(tenantId);
   const orgDetails = await prisma.organisation.findFirst({
     where: {
@@ -22,37 +22,33 @@ export const calculateEndDateFromStartDateAndDuration = async (
     (orgDetails?.nonWorkingDays as string[]) ?? []
   );
   const holidaysSet = new Set(
-    orgDetails?.orgHolidays.map((holiday) =>
+    orgDetails?.orgHolidays?.map((holiday) =>
       new Date(holiday.holidayStartDate).setUTCHours(0, 0, 0, 0)
     ) ?? []
   );
 
-  const startDateObj = new Date(startDate);
-  let endDate = new Date(startDateObj);
-  endDate.setUTCHours(0, 0, 0, 0);
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const utcStart = new Date(
+    Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate())
+  );
+  const utcEnd = new Date(
+    Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate())
+  );
+  let duration = 0;
 
-  let remainingDuration = duration;
-  const startDayOfWeek = endDate.getUTCDay();
-  const startDayAbbreviation = getDayAbbreviation(startDayOfWeek).toUpperCase();
-  if (
-    !nonWorkingDaysSet.has(startDayAbbreviation) &&
-    !holidaysSet.has(endDate.getTime())
-  ) {
-    remainingDuration--;
-  }
-
-  while (remainingDuration > 0) {
-    endDate.setDate(endDate.getDate() + 1);
-
-    const dayOfWeek = endDate.getUTCDay();
+  while (utcStart < utcEnd) {
+    const dayOfWeek = utcStart.getUTCDay();
     const dayAbbreviation = getDayAbbreviation(dayOfWeek).toUpperCase();
 
     if (
       !nonWorkingDaysSet.has(dayAbbreviation) &&
-      !holidaysSet.has(endDate.getTime())
+      !holidaysSet.has(utcStart.getTime())
     ) {
-      remainingDuration--;
+      duration++;
     }
+
+    utcStart.setUTCDate(utcStart.getUTCDate() + 1);
   }
-  return endDate;
+  return duration;
 };
