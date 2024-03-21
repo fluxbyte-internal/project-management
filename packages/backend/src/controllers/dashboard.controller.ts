@@ -364,7 +364,7 @@ export const projectDashboardByprojectId = async (
   const cpi = await calculationCPI(projectWithTasks, req.tenantId, organisationId);
 
   // SPI
-  const spi = await calculationSPI(req.tenantId, organisationId, projectWithTasks.projectId,)
+  const spi = await calculationSPI(req.tenantId, organisationId, projectWithTasks.projectId)
 
   // Project Date's
   const actualDurationWithCondition =
@@ -430,17 +430,23 @@ export const projectDashboardByprojectId = async (
       },
     },
   });
-  const reCalculateBudgetArround = Number(projectWithTasks.estimatedBudget) / cpi;
-  const reCalculateBudget = reCalculateBudgetArround;
+  const reCalculateBudget =
+    cpi !== 0 ? Number(projectWithTasks.estimatedBudget) / cpi : 0;
   const budgetVariation =
-    Number(reCalculateBudget) - Number(projectWithTasks.estimatedBudget);
-  const reCalculatedDuration = Math.round(estimatedDuration / spi);
-  const reCalculateEndDate = await calculateEndDateFromStartDateAndDuration(
-    projectWithTasks.startDate,
-    reCalculatedDuration - 1,
-    req.tenantId,
-    req.organisationId
-  );
+    cpi !== 0
+      ? Number(reCalculateBudget) - Number(projectWithTasks.estimatedBudget)
+      : null;
+  const reCalculatedDuration =
+    spi !== 0 ? Math.round(estimatedDuration / spi) : 0;
+  const reCalculateEndDate =
+    reCalculatedDuration !== 0
+      ? await calculateEndDateFromStartDateAndDuration(
+          projectWithTasks.startDate,
+          reCalculatedDuration - 1,
+          req.tenantId,
+          req.organisationId
+        )
+      : null;
   const keyPerformanceIndicator = {
     reCalculateBudget,
     budgetVariation,
