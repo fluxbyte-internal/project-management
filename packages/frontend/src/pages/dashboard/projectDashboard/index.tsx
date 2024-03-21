@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/tooltip";
 import InfoCircle from "@/assets/svg/Info circle.svg";
 import dateFormater from "@/helperFuntions/dateFormater";
+import Loader from "@/components/common/Loader";
 
 export type ThemeColorData = {
   theme: string;
@@ -212,7 +213,8 @@ function ProjectDashboard() {
   };
   return (
     <>
-      {selectedStatusTheme && data && (
+    {projectDashboardQuery.isFetching?<Loader/>:
+      selectedStatusTheme && data && (
         <>
           <div className="overflow-auto w-full self-center py-2  px-5 lg:px-24 flex flex-col gap-10">
             <h2 className="font-medium text-3xl leading-normal text-gray-600">
@@ -333,232 +335,6 @@ function ProjectDashboard() {
                 />
               </div>
             </div>
-            {/* <div className="datesDiv w-full flex flex-col md:flex-row lg:flex-col gap-1 md:gap-6 justify-center items-center py-3">
-              <div className=" w-full h-full flex flex-col md:flex-row items-center justify-center gap-0 md:gap-5 border-b-0 lg:border-b-2 border-primary-200">
-                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2  border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
-                  <div>Creation Date</div>
-                  <div className="text-lg md:text-xl font-bold text-gray-500">
-                    {dateFormatter(
-                      new Date(data?.projectDates?.projectCreatedAt)
-                    )}
-                  </div>
-                </div>
-                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
-                  <div>Start Date</div>
-                  <div className="text-lg md:text-xl font-bold text-gray-500">
-                    {dateFormatter(new Date(data?.projectDates?.startDate))}
-                  </div>
-                </div>
-              </div>
-              <div className="w-full h-full flex flex-col md:flex-row items-center justify-center gap-0 md:gap-5">
-                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
-                  <div>Estimates end date</div>
-                  <div className="text-lg md:text-xl font-bold text-gray-500">
-                    {dateFormatter(
-                      new Date(data?.projectDates?.estimatedEndDate)
-                    )}
-                  </div>
-                </div>
-                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
-                  <div>Actual End Date</div>
-                  <div className="text-lg md:text-xl font-bold text-gray-500">
-                    {dateFormatter(new Date(data?.projectDates?.actualEndDate))}
-                  </div>
-                </div>
-
-                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
-                  <div>Estimated duration</div>
-                  <div className="text-lg md:text-xl font-bold text-gray-500">
-                    {data?.projectDates?.estimatedDuration ?? 0} Days
-                  </div>
-                </div>
-                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
-                  <div>Actual Duration</div>
-                  <div className="text-lg md:text-xl font-bold text-gray-500">
-                    {data?.projectDates?.actualDuration ?? 0} Days
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <h2 className="font-medium text-3xl leading-normal text-gray-600">
-              Project Budget
-            </h2>
-            <div className="budgetBox w-full h-fit flex flex-col md:flex-row gap-5 justify-center items-center">
-              <div className="w-full h-full flex  gap-5 border-2 border-gray-500 rounded-2xl p-3">
-                <div className="w-1/2 h-full flex flex-col gap-3 justify-center items-center">
-                  <div className="w-full h-full text-center text-base md:text-lg font-semibold">
-                    Schedule Trend
-                  </div>
-                  <div className="w-fit h-fit text-lg md:text-xl font-bold text-gray-500 text-center">
-                    <img
-                      className="h-10 w-10"
-                      src={
-                        data?.scheduleTrend === ScheduleAndBudgetTrend.STABLE
-                          ? Stable
-                          : data?.scheduleTrend ===
-                            ScheduleAndBudgetTrend.INCREASING
-                          ? Increasing
-                          : data?.scheduleTrend ===
-                            ScheduleAndBudgetTrend.DECREASING
-                          ? Decreasing
-                          : ""
-                      }
-                    ></img>
-                  </div>
-                </div>
-                <div className="w-1/2 h-full flex flex-col gap-3 justify-center items-center">
-                  <div className="w-full h-full text-center text-base md:text-lg font-semibold">
-                    Budget Trend
-                  </div>
-                  <div className="w-fit h-fit text-lg md:text-xl font-bold text-gray-500 text-center">
-                    <img
-                      className="h-10 w-10"
-                      src={
-                        data?.budgetTrend === ScheduleAndBudgetTrend.STABLE
-                          ? Stable
-                          : data?.budgetTrend ===
-                            ScheduleAndBudgetTrend.INCREASING
-                          ? Increasing
-                          : data?.budgetTrend ===
-                            ScheduleAndBudgetTrend.DECREASING
-                          ? Decreasing
-                          : ""
-                      }
-                    ></img>
-                  </div>
-                </div>
-              </div>
-              <div className="w-full md:w-1/4 h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3 relative">
-                <div className="w-full h-full text-center text-base md:text-lg font-semibold pt-2 ">
-                  Cost Performance Index
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger className="flex gap-1 mr-3 items-center absolute top-2 right-0">
-                        <img
-                          src={InfoCircle}
-                          className="h-[16px] w-[16px]"
-                          alt="InfoCircle"
-                        />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="text-sm">
-                          CPI measures the project’s cost efficiency: CPI&gt;1:
-                          Project is under budget; CPI &lt; 1: Project is over
-                          budget; CPI=1: Project is on budget SPI measures how
-                          closely your project follows the schedule : SPI &gt;
-                          1: Project is ahead of schedule; SPI &lt; 1: Project
-                          is behind schedule; SPI = 1
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <div
-                  className={`w-full h-full text-lg md:text-xl font-bold text-gray-500 text-center ${
-                    Number(data.cpi) < 0.8
-                      ? "text-red-700/60"
-                      : Number(data.cpi) >= 0.8 && Number(data.cpi) < 0.95
-                      ? "text-orange-400/80"
-                      : Number(data.cpi) >= 0.95
-                      ? "text-green-700/60"
-                      : ""
-                  }`}
-                >
-                  {Number(data.cpi).toFixed(2)}
-                </div>
-              </div>
-              <div className="w-full md:w-1/4 h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3 relative">
-                <div className="w-full h-full text-center text-base md:text-lg font-semibold pt-2">
-                  Schedule Performance Index
-                  <TooltipProvider>
-                    Tasks Indicators
-                    <Tooltip>
-                      <TooltipTrigger className="flex gap-1 mr-3 items-center absolute top-2 right-0">
-                        <img
-                          src={InfoCircle}
-                          className="h-[16px] w-[16px]"
-                          alt="InfoCircle"
-                        />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p className="text-sm">
-                          SPI measures how closely your project follows the
-                          schedule : SPI &gt; 1: Project is ahead of schedule;
-                          SPI &lt; 1: Project is behind schedule; SPI = 1
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <div
-                  className={`w-full h-full text-lg md:text-xl font-bold text-gray-500 text-center ${
-                    Number(getSPI()) < 0.8
-                      ? "text-red-700/60"
-                      : Number(getSPI()) >= 0.8 && Number(getSPI()) < 0.95
-                      ? "text-orange-400/80"
-                      : Number(getSPI()) >= 0.95
-                      ? "text-green-700/60"
-                      : ""
-                  }`}
-                >
-                  {getSPI()}
-                </div>
-              </div>
-              <div className="w-full md:w-1/4 h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3">
-                <div className="w-full h-full text-center text-base md:text-lg font-semibold ">
-                  Estimated Project Budget
-                </div>
-                <div className="w-full h-full text-lg md:text-xl font-bold text-gray-500 text-center">
-                  {data?.estimatedBudget}
-                </div>
-              </div>
-              <div className="w-full md:w-1/4  h-full flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3">
-                <div className="w-full h-full text-center text-base md:text-lg font-semibold ">
-                  Consumed Project Budget
-                </div>
-                <div className="w-full h-full text-lg md:text-xl font-bold text-gray-500 text-center">
-                  {data?.consumedBudget}
-                </div>
-              </div>
-            </div>
-            {data.keyPerformanceIndicator && (
-              <div className="w-full h-full flex flex-col md:flex-row items-center justify-center gap-0 md:gap-5">
-                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
-                  <div>Re-calculated Budget</div>
-                  <div className="text-lg md:text-xl font-bold text-gray-500">
-                    {data.keyPerformanceIndicator.reCalculateBudget.toFixed(
-                      0
-                    ) ?? "N/A"}
-                  </div>
-                </div>
-                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
-                  <div> Budget variation</div>
-                  <div className="text-lg md:text-xl font-bold text-gray-500">
-                    {data.keyPerformanceIndicator.budgetVariation.toFixed(0) ??
-                      "N/A"}
-                  </div>
-                </div>
-                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
-                  <div> Re-calculated End date</div>
-                  <div className="text-lg md:text-xl font-bold text-gray-500">
-                    {data.keyPerformanceIndicator.reCalculateEndDate &&
-                      dateFormater(
-                        new Date(
-                          data.keyPerformanceIndicator.reCalculateEndDate
-                        ) ?? "N/A"
-                      )}
-                  </div>
-                </div>
-                <div className="w-full  text-center text-base md:text-lg font-semibold flex flex-col gap-2 border-b-2 border-primary-200 md:border-b-0 p-[10px] md:p-0">
-                  <div>Duration variation</div>
-                  <div className="text-lg md:text-xl font-bold text-gray-500">
-                    {data.keyPerformanceIndicator.reCalculatedDuration +
-                      " Days" ?? "N/A"}
-                  </div>
-                </div>
-              </div>
-            )} */}
 
             <div className="mb-6">
               <div className="font-medium text-3xl leading-normal text-gray-600 mb-4">
@@ -861,7 +637,7 @@ function ProjectDashboard() {
                       </th>
                       <td className="p-2 border-r">
                         
-                        {(data && data.keyPerformanceIndicator?.reCalculateBudget &&  Number(data.keyPerformanceIndicator?.reCalculateBudget.split(".")[0])) ? Number(data.keyPerformanceIndicator.reCalculateBudget.split(".")[0]).toFixed(
+                        {(data && data.keyPerformanceIndicator?.reCalculateBudget &&  Number(data.keyPerformanceIndicator?.reCalculateBudget)) ? Number(data.keyPerformanceIndicator.reCalculateBudget).toFixed(
                           0
                         ) : "N/A"}
                       </td>
