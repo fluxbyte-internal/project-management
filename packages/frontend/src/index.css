@@ -53,18 +53,18 @@ img {
 /* Scrollbar css */
 /* width */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
   height: 8px;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  @apply bg-primary-50;
+  @apply bg-primary-50 rounded-full;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  @apply bg-primary-400;
+  @apply bg-primary-400 rounded-full;
 }
 
 /* Handle on hover */
@@ -73,7 +73,7 @@ img {
 }
 
 .Toastify__progress-bar--success {
-  @apply bg-primary-500;
+  @apply bg-primary-500 ;
 
 }
 .Toastify__toast-theme--colored.Toastify__toast--success {
