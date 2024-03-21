@@ -198,6 +198,7 @@ function KanbanView(
           )?.percentage;
           if (percentage !== null && percentage !== undefined) {
             if (
+              closestNumber === 0 ||
               Number(task.completionPecentage) >= percentage &&
               percentage > closestNumber
             ) {

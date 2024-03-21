@@ -576,11 +576,11 @@ function ProjectDashboard() {
 
                     <div
                       className={`w-full h-full justify-between flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3 relative ${
-                        Number(data.cpi) < 1
+                        Number(data.cpi) < 0.8
                           ? "bg-red-700/60"
-                          : Number(data.cpi) > 1
+                          : Number(data.cpi) < 0.95 &&  Number(data.cpi)>= 0.8  
                             ? "bg-blue-400/80"
-                            : Number(data.cpi) == 1
+                            : Number(data.cpi) >= 0.95
                               ? "bg-green-700/60"
                               : ""
                       }`}
@@ -598,10 +598,7 @@ function ProjectDashboard() {
                             </TooltipTrigger>
                             <TooltipContent>
                               <p className="text-sm w-96">
-                                CPI measures how closely your project follows
-                                the schedule : CPI &gt; 1: Project is ahead of
-                                schedule; CPI &lt; 1: Project is behind
-                                schedule; CPI = 1: Project is on budget
+                              CPI measures the project’s cost efficiency: CPI &gt;1: Project is under budget; CPI &lt; 1: Project is over budget; CPI=1: Project is on budget
                               </p>
                             </TooltipContent>
                           </Tooltip>

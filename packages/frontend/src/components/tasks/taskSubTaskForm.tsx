@@ -431,8 +431,12 @@ function TaskSubTaskForm(props: Props) {
                       ? "Significant delay"
                       : tasks?.flag == "Orange"
                       ? "Moderate delay"
-                      : ""}{" "}
-                    <div className="ml-auto">{"(" + tasks?.delay + ")"}</div>
+                      : ""}
+                    
+                      <div className="ml-auto">
+                        {tasks?.delay && tasks?.delay * 100 >100 ? 100 +"%" : tasks?.delay && (tasks?.delay * 100).toFixed(0  ) +"%" }
+                        
+            </div>
                   </div>
                 </div>
               </div>

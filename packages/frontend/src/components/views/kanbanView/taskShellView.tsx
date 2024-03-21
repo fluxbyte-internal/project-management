@@ -25,7 +25,7 @@ function TaskShellView(props: { taskData: ExtendedKanbanDataSource }) {
         ? "border-l-green-500/60"
         : props.taskData?.color == "#FF0000"
           ? "border-l-red-500/60"
-          : props.taskData?.color == "#FF0000"
+          : props.taskData?.color == "#FFA500"
             ? "border-l-primary-500/60"
             : ""
     }`}>
