@@ -192,55 +192,6 @@ function generatePrismaClient(datasourceUrl?: string) {
 
           return endDate;
         },
-        async getSubtasksTimeline(taskId: string) {
-          const task = await client.task.findFirst({
-            where: { taskId, deletedAt: null },
-            include: {
-              subtasks: {
-                where: { deletedAt: null },
-                include: {
-                  subtasks: {
-                    where: { deletedAt: null },
-                    include: {
-                      subtasks: true,
-                    },
-                  },
-                },
-              },
-            },
-            orderBy: { startDate: "asc" },
-          });
-          if (!task) {
-            return { earliestStartDate: null, highestEndDate: null };
-          }
-          if(task.subtasks.length === 0) {
-            let endDate = new Date(task.startDate);
-            endDate.setDate(endDate.getDate() + task.duration);
-            return { earliestStartDate: task.startDate, highestEndDate: endDate }
-          }
-          let highestEndDate: Date | null = null;
-          let earliestStartDate: Date | null = null;
-          if (task.subtasks.length > 0) {
-            task.subtasks.forEach((subtask) => {
-              let subtaskEndDate = new Date(subtask.startDate);
-              subtaskEndDate.setDate(subtaskEndDate.getDate() + subtask.duration);
-
-              if (!highestEndDate || subtaskEndDate > highestEndDate) {
-                highestEndDate = subtaskEndDate;
-              }
-
-              if (!earliestStartDate) {
-                earliestStartDate = subtask.startDate;
-              } else if (
-                earliestStartDate &&
-                subtask.startDate < earliestStartDate
-              ) {
-                earliestStartDate = subtask.startDate;
-              }
-            });
-          }
-          return { earliestStartDate, highestEndDate };
-        },
       },
       comments: {
         async canEditOrDelete(commentId: string, userId: string) {
