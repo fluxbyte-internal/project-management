@@ -4,18 +4,18 @@ import { BadRequestError, NotFoundError, SuccessResponse, UnAuthorizedError } fr
 import { StatusCodes } from 'http-status-codes';
 import { projectIdSchema } from '../schemas/projectSchema.js';
 import { createCommentTaskSchema, createTaskSchema, attachmentTaskSchema, taskStatusSchema, updateTaskSchema, assginedToUserIdSchema, dependenciesTaskSchema, milestoneTaskSchema } from '../schemas/taskSchema.js';
-import { NotificationTypeEnum, ProjectStatusEnum, TaskStatusEnum, UserStatusEnum } from '@prisma/client';
+import { NotificationTypeEnum, TaskStatusEnum, UserStatusEnum } from '@prisma/client';
 import { AwsUploadService } from '../services/aws.services.js';
 import { uuidSchema } from '../schemas/commonSchema.js';
 import { MilestoneIndicatorStatusEnum } from '@prisma/client';
 import { HistoryTypeEnumValue } from '../schemas/enums.js';
 import { removeProperties } from "../types/removeProperties.js";
-import { calculateDuration, taskEndDate } from '../utils/calcualteTaskEndDate.js';
+import { taskEndDate } from '../utils/calcualteTaskEndDate.js';
 import { selectUserFields } from '../utils/selectedFieldsOfUsers.js';
 import { calculationSubTaskProgression } from '../utils/calculationSubTaskProgression.js';
 import { taskFlag } from '../utils/calculationFlag.js';
 import { calculateProjectEndDate } from '../utils/calculateProjectEndDate.js';
-import { checkTaskStatus } from '../utils/taskRecursion.js';
+import { calculateDurationAndPercentage, checkTaskStatus } from '../utils/taskRecursion.js';
 
 export const getTasks = async (req: express.Request, res: express.Response) => {
   if (!req.organisationId) {
@@ -284,168 +284,13 @@ export const updateTask = async (
     },
   });
 
+  // Handle - parent- duration and end date
   if (taskUpdateDB.parent?.taskId) {
-    const taskTimeline = await prisma.task.getSubtasksTimeline(
-      taskUpdateDB.parent.taskId
+    await calculateDurationAndPercentage(
+      taskUpdateDB.parent.taskId,
+      req.tenantId,
+      req.organisationId
     );
-    // Handle - duration
-    const findTaskForDuration = await prisma.task.findFirst({
-      where: {
-        taskId: taskUpdateDB.parent?.taskId,
-        deletedAt: null,
-      },
-      include: {
-        subtasks: {
-          where: { deletedAt: null },
-          include: {
-            subtasks: {
-              where: { deletedAt: null },
-              include: {
-                subtasks: true,
-              },
-            },
-          },
-        },
-      },
-    });
-    if (findTaskForDuration) {
-      const completionPecentage = await calculationSubTaskProgression(
-        findTaskForDuration,
-        req.tenantId,
-        req.organisationId
-      );
-      const durationForParents = await calculateDuration(
-        taskTimeline.earliestStartDate!,
-        taskTimeline.highestEndDate!,
-        req.tenantId,
-        req.organisationId
-      );
-      const earliestStartDate = taskTimeline.earliestStartDate
-        ? taskTimeline.earliestStartDate
-        : taskUpdateDB.parent.startDate;
-      const updatedSubDB = await prisma.task.update({
-        where: {
-          taskId: taskUpdateDB.parent.taskId,
-        },
-        data: {
-          startDate: earliestStartDate,
-          duration: durationForParents,
-          completionPecentage: Number(completionPecentage),
-        },
-        include: {
-          parent: true,
-          subtasks: true,
-        },
-      });
-      if (updatedSubDB.parent?.taskId) {
-        const taskSubTimeline = await prisma.task.getSubtasksTimeline(
-          updatedSubDB.parent.taskId
-        );
-        const findSubTaskDuration = await prisma.task.findFirst({
-          where: {
-            taskId: updatedSubDB.parent.taskId,
-            deletedAt: null,
-          },
-          include: {
-            subtasks: {
-              where: { deletedAt: null },
-              include: {
-                subtasks: {
-                  where: { deletedAt: null },
-                  include: {
-                    subtasks: true,
-                  },
-                },
-              },
-            },
-          },
-        });
-        if (findSubTaskDuration) {
-          const completionPecentageOne = await calculationSubTaskProgression(
-            findSubTaskDuration,
-            req.tenantId,
-            req.organisationId
-          );
-          const durationForParentsOne = await calculateDuration(
-            taskSubTimeline.earliestStartDate!,
-            taskSubTimeline.highestEndDate!,
-            req.tenantId,
-            req.organisationId
-          );
-          const earliestStartDateOne = taskSubTimeline.earliestStartDate
-            ? taskSubTimeline.earliestStartDate
-            : updatedSubDB.parent.startDate;
-          const updatedSubTwoDB = await prisma.task.update({
-            where: {
-              taskId: updatedSubDB.parent.taskId,
-            },
-            data: {
-              startDate: earliestStartDateOne,
-              duration: durationForParentsOne,
-              completionPecentage: Number(completionPecentageOne),
-            },
-            include: {
-              parent: true,
-              subtasks: true,
-            },
-          });
-          if (updatedSubTwoDB.parent?.taskId) {
-            const taskSubTimelineTwo = await prisma.task.getSubtasksTimeline(
-              updatedSubTwoDB.parent.taskId
-            );
-            const findSubTaskDurationTwo = await prisma.task.findFirst({
-              where: {
-                taskId: updatedSubTwoDB.parent.taskId,
-                deletedAt: null,
-              },
-              include: {
-                subtasks: {
-                  where: { deletedAt: null },
-                  include: {
-                    subtasks: {
-                      where: { deletedAt: null },
-                      include: {
-                        subtasks: true,
-                      },
-                    },
-                  },
-                },
-              },
-            });
-            if (findSubTaskDurationTwo) {
-              const completionPecentageTwo =
-                await calculationSubTaskProgression(
-                  findSubTaskDurationTwo,
-                  req.tenantId,
-                  req.organisationId
-                );
-              const durationForParentsTwo = await calculateDuration(
-                taskSubTimelineTwo.earliestStartDate!,
-                taskSubTimelineTwo.highestEndDate!,
-                req.tenantId,
-                req.organisationId
-              );
-              const earliestStartDateTwo = taskSubTimelineTwo.earliestStartDate
-                ? taskSubTimelineTwo.earliestStartDate
-                : updatedSubTwoDB.parent.startDate;
-              const updatedSubThreeDB = await prisma.task.update({
-                where: {
-                  taskId: updatedSubTwoDB.parent.taskId,
-                },
-                data: {
-                  startDate: earliestStartDateTwo,
-                  duration: durationForParentsTwo,
-                  completionPecentage: Number(completionPecentageTwo),
-                },
-                include: {
-                  parent: true,
-                },
-              });
-            }
-          }
-        }
-      }
-    }
   }
 
   // Project End Date  -  If any task's end date will be greater then It's own

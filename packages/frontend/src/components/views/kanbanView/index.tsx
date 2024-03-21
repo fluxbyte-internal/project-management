@@ -22,7 +22,7 @@ import RulesForm from "./rulesSetups/rulesForm";
 import CrossIcon from "@/assets/svg/CrossIcon.svg";
 import SettingIcon from "@/assets/svg/Setting.svg";
 import useAllKanbanColumnQuery from "@/api/query/useAllKanbanColumn";
-import Loader from "@/components/common/Loader";
+// import Loader from "@/components/common/Loader";
 import { FIELDS } from "@/api/types/enums";
 import { updateTaskSchema } from "@backend/src/schemas/taskSchema";
 import { z } from "zod";
@@ -275,7 +275,6 @@ function KanbanView(
 
   //   return dataField;
   // };
-
   const onOpening = (e: (Event & CustomEvent) | undefined) => {
     e?.preventDefault();
     if (e?.detail.purpose === "add") {
@@ -344,71 +343,74 @@ function KanbanView(
     }
   };
   return (
-    <div className="w-full h-full scroll p-2">
-      {allKanbanColumn.isFetching ||
-        (allTasks.isFetching && <Loader className=" absolute top-0 right-0" /> )}
-      {!closePopup && (
-        <div className="flex flex-col h-full w-full">
-          <div className="flex justify-between  w-full">
-            <TaskFilter
-              ref={filterRef}
-              fieldToShow={[
-                FIELDS.ASSIGNED,
-                FIELDS.DATE,
-                FIELDS.DUESEVENDAYS,
-                FIELDS.FLAGS,
-                FIELDS.OVERDUEDAYS,
-                FIELDS.TODAYDUEDAYS,
-                FIELDS.TASK,
-              ]}
-              tasks={allTasks.data?.data.data}
-              filteredData={(task) => setFilterData(task)}
-            />
-            <div className="flex w-full justify-between">
-              <div>
-                <Button
-                  variant={"ghost"}
-                  size={"sm"}
-                  onClick={() => setClosePopup(true)}
-                >
-                  <img src={SettingIcon} className="h-4 w-4" />
-                </Button>
-              </div>
+    <div className="w-full h-full scroll relative p-2">
+      {/* {allKanbanColumn.isFetching ||
+        (allTasks.isFetching && <Loader className=" absolute top-0 right-0" /> )} */}
+
+      <div
+        className={`flex flex-col h-full w-full ${
+          !closePopup ? "block" : "block"
+        }`}
+      >
+        <div className="flex justify-between  w-full">
+          <TaskFilter
+            ref={filterRef}
+            fieldToShow={[
+              FIELDS.ASSIGNED,
+              FIELDS.DATE,
+              FIELDS.DUESEVENDAYS,
+              FIELDS.FLAGS,
+              FIELDS.OVERDUEDAYS,
+              FIELDS.TODAYDUEDAYS,
+              FIELDS.TASK,
+            ]}
+            tasks={allTasks.data?.data.data}
+            filteredData={(task) => setFilterData(task)}
+          />
+          <div className="flex w-full justify-between">
+            <div>
               <Button
-                variant={"primary"}
-                value={"Create Columns"}
-                onClick={() => setIsColumnsOpen(true)}
+                variant={"ghost"}
+                size={"sm"}
+                onClick={() => setClosePopup(true)}
               >
-                Create Columns
+                <img src={SettingIcon} className="h-4 w-4" />
               </Button>
             </div>
+            <Button
+              variant={"primary"}
+              value={"Create Columns"}
+              onClick={() => setIsColumnsOpen(true)}
+            >
+              Create Columns
+            </Button>
           </div>
-          {projectId && (
-            <Kanban
-              ref={childRef}
-              {...props}
-              columns={Columns}
-              dataSource={dataSource}
-              addNewButton
-              className="!h-[92%] !w-full kanban"
-              taskCustomFields={taskCustomFields}
-              onTaskRender={onTaskRender}
-              onDragStart={(e) =>
-                onDragging(e as (Event & CustomEvent) | undefined)
-              }
-              onTaskDoubleClick={(e) =>
-                onOpening(e as (Event & CustomEvent) | undefined)
-              }
-              onOpening={(e) =>
-                onOpening(e as (Event & CustomEvent) | undefined)
-              }
-              onTaskUpdate={(e) =>
-                statusUpdate(e as (Event & CustomEvent) | undefined)
-              }
-            />
-          )}
         </div>
-      )}
+        {projectId && (
+          <Kanban
+            ref={childRef}
+            key={Columns?.toString()}
+            {...props}
+            columns={Columns}
+            dataSource={dataSource}
+            addNewButton
+            className="!h-[92%] !w-full kanban"
+            taskCustomFields={taskCustomFields}
+            onTaskRender={onTaskRender}
+            onDragStart={(e) =>
+              onDragging(e as (Event & CustomEvent) | undefined)
+            }
+            onTaskDoubleClick={(e) =>
+              onOpening(e as (Event & CustomEvent) | undefined)
+            }
+            onOpening={(e) => onOpening(e as (Event & CustomEvent) | undefined)}
+            onTaskUpdate={(e) =>
+              statusUpdate(e as (Event & CustomEvent) | undefined)
+            }
+          />
+        )}
+      </div>
+
       {(dialogRendered || isTaskShow) && Boolean(projectId) && (
         <TaskSubTaskForm
           close={close}
@@ -416,7 +418,11 @@ function KanbanView(
           projectId={projectId}
         />
       )}
-      {closePopup && projectId && (
+      <div
+        className={`${
+          closePopup && projectId ? "block" : "hidden"
+        } h-full w-full absolute top-0 bg-white`}
+      >
         <RulesSetups
           key={"RulesSetups#1"}
           setColumes={(data) => handleColumn(data)}
@@ -425,7 +431,7 @@ function KanbanView(
             setOpen();
           }}
         />
-      )}
+      </div>
       <Dialog
         isOpen={isColumnsOpen}
         modalClass="rounded-md p-3"

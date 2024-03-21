@@ -90,5 +90,5 @@ export async function calculationSPI(
   }
   const finalValue =
     sumOfTotalActualProgressionAndDuration / totalPlannedProgression;
-  return Number(finalValue.toFixed(2));
+  return finalValue;
 }

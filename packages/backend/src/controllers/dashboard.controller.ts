@@ -14,6 +14,7 @@ import { calculationSPI } from "../utils/calculateSPI.js";
 import { calculationCPI } from "../utils/calculateCPI.js";
 import { calculationTPI } from "../utils/calculationFlag.js";
 import { calculateProjectDuration } from "../utils/calculateProjectDuration.js";
+import { calculateEndDateFromStartDateAndDuration } from "../utils/calculateEndDateFromDuration.js";
 
 export const projectManagerProjects = async (req: Request, res: Response) => {
   if(!req.organisationId) {
@@ -429,14 +430,16 @@ export const projectDashboardByprojectId = async (
       },
     },
   });
-  const reCalculateBudgetArround = Number(projectWithTasks.estimatedBudget) / Number(cpi.toFixed(2));
-  const reCalculateBudget = reCalculateBudgetArround.toFixed(2);
+  const reCalculateBudgetArround = Number(projectWithTasks.estimatedBudget) / cpi;
+  const reCalculateBudget = reCalculateBudgetArround;
   const budgetVariation =
-    Number(reCalculateBudget) - Math.round(Number(projectWithTasks.estimatedBudget));
-  const reCalculatedDuration = Math.round(estimatedDuration / Number(spi.toFixed(2)));
-  const reCalculateEndDate = new Date(
-    projectWithTasks.startDate.getTime() +
-      (reCalculatedDuration - 1) * 24 * 60 * 60 * 1000
+    Number(reCalculateBudget) - Number(projectWithTasks.estimatedBudget);
+  const reCalculatedDuration = Math.round(estimatedDuration / spi);
+  const reCalculateEndDate = await calculateEndDateFromStartDateAndDuration(
+    projectWithTasks.startDate,
+    reCalculatedDuration - 1,
+    req.tenantId,
+    req.organisationId
   );
   const keyPerformanceIndicator = {
     reCalculateBudget,
@@ -444,6 +447,7 @@ export const projectDashboardByprojectId = async (
     reCalculateEndDate,
     reCalculatedDuration,
   };
+  const currency = projectWithTasks.currency;
 
   const response = {
     numTasks,
@@ -465,6 +469,7 @@ export const projectDashboardByprojectId = async (
     estimatedBudget,
     projectProgression,
     keyPerformanceIndicator,
+    currency,
   };
   return new SuccessResponse(
     StatusCodes.OK,

@@ -100,39 +100,9 @@ export const calculateDuration = async (
   tenantId: string,
   organisationId: string
 ): Promise<number> => {
-  const prisma = await getClientByTenantId(tenantId);
-  const orgDetails = await prisma.organisation.findFirst({
-    where: {
-      organisationId,
-      deletedAt: null,
-    },
-    select: {
-      nonWorkingDays: true,
-      orgHolidays: true,
-    },
-  });
-  const nonWorkingDays = (orgDetails?.nonWorkingDays as string[]) ?? [];
-  const holidays = orgDetails?.orgHolidays ?? [];
+  const differenceMs = endDate.getTime() - startDate.getTime();
+  const days = differenceMs / (1000 * 60 * 60 * 24);
+  const roundedDays = Math.round(days);
 
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  start.setUTCHours(0, 0, 0, 0)
-  end.setUTCHours(0, 0, 0, 0)
-  let duration = 0;
-
-  while (start < end) {
-    const dayOfWeek = start.getUTCDay();
-    const dayAbbreviation = getDayAbbreviation(dayOfWeek).toUpperCase();
-
-    if (
-      !nonWorkingDays.includes(dayAbbreviation) &&
-      !isHoliday(start, holidays)
-    ) {
-      duration++;
-    }
-
-    start.setDate(start.getDate() + 1);
-  }
-
-  return duration;
+  return roundedDays;
 };

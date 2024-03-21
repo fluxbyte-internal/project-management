@@ -52,40 +52,42 @@ export class CronService {
               "root",
               task.project.organisationId
             );
-            let message = `
-                        Hello,
 
-                        Please note that these tasks are due today:
+            // Convert endDate to date object
+            const taskEndDateObj = new Date(endDate);
 
-                    `;
             if (
-              currentDate.getDate() === new Date(endDate).getDate() &&
-              currentDate.getMonth() === new Date(endDate).getMonth() &&
-              currentDate.getFullYear() === new Date(endDate).getFullYear()
+              currentDate.getDate() === taskEndDateObj.getDate() &&
+              currentDate.getMonth() === taskEndDateObj.getMonth() &&
+              currentDate.getFullYear() === taskEndDateObj.getFullYear()
             ) {
-              message += `Task '${task.taskName}' is due today`;
-            }
-            message += `
-                        Best Regards,
-                        ProjectChef Support Team
-                    `;
-            const assignedUsers = task.assignedUsers.map((user) => user);
-            for (const user of assignedUsers) {
-              const email = user.user.email;
-              const userId = user.assginedToUserId;
-              const subjectMessage = `ProjectChef : Tasks due today`;
+              let message = `
+                Hello,
+  
+                Please note that these tasks are due today:
+                Task '${task.taskName}' is due today.
+  
+                Best Regards,
+                ProjectChef Support Team
+              `;
+              const assignedUsers = task.assignedUsers.map((user) => user);
+              for (const user of assignedUsers) {
+                const email = user.user.email;
+                const userId = user.assginedToUserId;
+                const subjectMessage = `ProjectChef: Task Due Today`;
 
-              //Send Notification
-              await prisma.notification.sendNotification(
-                NotificationTypeEnum.TASK,
-                message,
-                userId,
-                userId,
-                task.taskId
-              );
+                //Send Notification
+                await prisma.notification.sendNotification(
+                  NotificationTypeEnum.TASK,
+                  message,
+                  userId,
+                  userId,
+                  task.taskId
+                );
 
-              //Send Email
-              await EmailService.sendEmail(email, subjectMessage, message);
+                // Send Email
+                await EmailService.sendEmail(email, subjectMessage, message);
+              }
             }
           }
         } catch (error) {

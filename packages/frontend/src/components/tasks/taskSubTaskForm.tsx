@@ -784,11 +784,11 @@ function TaskSubTaskForm(props: Props) {
                   {startDate && (
                     <div className="mt-2">
                       <Popover>
-                        <PopoverTrigger className="w-full">
+                        <PopoverTrigger className="w-full" disabled={!allowed() || (tasks && tasks?.subtasks.length>0)}>
                           <Button
                             variant={"secondary"}
                             className="py-1.5 px-3 w-full"
-                            disabled={!allowed()}
+                            disabled={!allowed() || (tasks && tasks?.subtasks.length>0)}
                           >
                             <div className="flex w-full gap-3 justify-start">
                               <img src={CalendarIcon} className="w-3.5" />

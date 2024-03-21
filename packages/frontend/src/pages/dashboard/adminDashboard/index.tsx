@@ -91,12 +91,15 @@ function AdminDashboard() {
 
   useEffect(() => {
     setTableData(datas?.orgCreatedByUser?.projects);
-    const statusPieChartData = datas?.statusChartData?.labels.map(
-      (name, index) => ({
-        value: Number(datas?.statusChartData?.data[index]),
-        name: formatStatus(name),
-      })
-    );
+    const statusPieChartData: ChartProps["chartData"] = [];
+    datas?.statusChartData?.labels.forEach((name: string, index) => {
+      if (Number(datas?.statusChartData?.data[index]) > 0) {
+        statusPieChartData.push({
+          value: Number(datas?.statusChartData?.data[index]),
+          name: formatStatus(name),
+        });
+      }
+    });
 
     setstatusPieChartProp({
       chartData: statusPieChartData!,
@@ -105,11 +108,15 @@ function AdminDashboard() {
       radius: ["45%", "60%"],
       height: "300px",
     });
-    const overallSituationPieChartData =
-      datas?.overallSituationChartData?.labels.map((name: string, index) => ({
-        value: Number(datas?.overallSituationChartData?.data[index]),
-        name: formatStatus(name),
-      }));
+    const overallSituationPieChartData: ChartProps["chartData"] = [];
+    datas?.overallSituationChartData?.labels.forEach((name: string, index) => {
+      if (Number(datas?.overallSituationChartData?.data[index]) > 0) {
+        overallSituationPieChartData.push({
+          value: Number(datas?.overallSituationChartData?.data[index]),
+          name: formatStatus(name),
+        });
+      }
+    });
     setOverallStatusPieChartProp({
       chartData: overallSituationPieChartData!,
       color: ["#F7B801", "#F18701", "#3D348B", "#7678ED"],
@@ -117,12 +124,15 @@ function AdminDashboard() {
       radius: ["0%", "60%"],
       height: "300px",
     });
-    const spiPieChartData = datas?.spiData?.labels.map(
-      (name: string, index) => ({
-        value: Number(datas?.spiData?.data[index]),
-        name: formatStatus(name),
-      })
-    );
+    const spiPieChartData: ChartProps["chartData"] = [];
+    datas?.spiData?.labels.forEach((name: string, index) => {
+      if (Number(datas?.spiData?.data[index]) > 0) {
+        spiPieChartData.push({
+          value: Number(datas?.spiData?.data[index]),
+          name: formatStatus(name),
+        });
+      }
+    });
     setSpiPieChartProp({
       chartData: spiPieChartData!,
       color: ["#FF000077", "#00800077", "#FFB81977"],
@@ -284,9 +294,11 @@ function AdminDashboard() {
     <>
       <div className="overflow-auto w-full py-2 px-2 lg:px-14 flex flex-col gap-10">
         <h2 className="font-medium text-3xl leading-normal text-gray-600">
-        Portfolio dashboard
+          Portfolio dashboard
         </h2>
-        <div className="text-xl font-bold text-gray-400 px-6">Project Status</div>
+        <div className="text-xl font-bold text-gray-400 px-6">
+          Project Status
+        </div>
         <div className="w-full h-fit flex flex-col lg:flex-row gap-10 items-center">
           <div className="tabs border-gray-300  w-full rounded-xl h-fit flex flex-col md:flex-row gap-5 items-center px-6 py-5 text-white flex-wrap justify-center">
             {datas?.statusChartData?.labels.map((labelData, index) => (
@@ -297,13 +309,15 @@ function AdminDashboard() {
                     labelData === ProjectStatusEnumValue.ACTIVE
                       ? "text-[#F7B801]  border-2 border-[#F7B801]"
                       : labelData === ProjectStatusEnumValue.ON_HOLD
-                        ? "text-[#F18701] border-2 border-[#F18701]"
-                        : labelData === ProjectStatusEnumValue.NOT_STARTED
-                          ? "text-[#3D348B] border-2 border-[#3D348B]"
-                          : "text-[#7678ED] border-2 border-[#7678ED]"
+                      ? "text-[#F18701] border-2 border-[#F18701]"
+                      : labelData === ProjectStatusEnumValue.NOT_STARTED
+                      ? "text-[#3D348B] border-2 border-[#3D348B]"
+                      : "text-[#7678ED] border-2 border-[#7678ED]"
                   }`}
                 >
-                  <a className="text-base font-bold items-end">{formatStatus(labelData)}</a>
+                  <a className="text-base font-bold items-end">
+                    {formatStatus(labelData)}
+                  </a>
                   <a className="text-4xl lg:text-5xl font-semibold">
                     {datas?.statusChartData?.data[index]}
                   </a>
@@ -316,8 +330,6 @@ function AdminDashboard() {
               </>
             ))}
           </div>
-
-          
         </div>
         <div className="text-xl font-bold text-gray-400 px-6">Charts</div>
         <div className=" w-full h-fit flex flex-col lg:flex-row justify-center items-center gap-6 py-2 ">
