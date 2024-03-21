@@ -32,6 +32,7 @@ export type Task = {
   documentAttachments: DocumentAttachment[];
   endDate: Date;
   flag: string;
+  delay:number|null
   subtasks: Task[];
   assignedUsers: [
     { taskAssignUsersId: string; user: UserOrganisationType["user"] }

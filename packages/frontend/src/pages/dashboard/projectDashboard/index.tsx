@@ -423,11 +423,11 @@ function ProjectDashboard() {
                               />
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p className="text-sm">
+                              <p className="text-sm w-96">
                                 SPI measures how closely your project follows
                                 the schedule : SPI &gt; 1: Project is ahead of
-                                schedule; SPI &lt; 1: Project is behind
-                                schedule; SPI = 1: Project is on schedule
+                                schedule;  SPI &lt; 1: Project is behind
+                                schedule;  SPI = 1: Project is on schedule
                               </p>
                             </TooltipContent>
                           </Tooltip>
@@ -597,7 +597,7 @@ function ProjectDashboard() {
                               />
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p className="text-sm">
+                              <p className="text-sm w-96">
                                 CPI measures how closely your project follows
                                 the schedule : CPI &gt; 1: Project is ahead of
                                 schedule; CPI &lt; 1: Project is behind
@@ -663,7 +663,7 @@ function ProjectDashboard() {
                                 />
                               </TooltipTrigger>
                               <TooltipContent>
-                                <p className="text-sm">
+                                <p className="text-sm w-96">
                                   Recalculated budget is calculated based on
                                   consumed budget and project progress
                                 </p>

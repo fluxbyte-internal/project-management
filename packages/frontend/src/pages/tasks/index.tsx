@@ -361,7 +361,11 @@ function Tasks() {
       <div className="shadow-md w-[99%]">
         {task.subtasks.length > 0 && (
           <Table
-            data={task.subtasks}
+            data={task.subtasks.sort(
+              (a, b) =>
+                new Date(a.startDate).getTime() -
+                new Date(b.startDate).getTime()
+            )}
             columnDef={columnDef}
             onAccordionRender={(task) =>
               task.subtasks.length > 0 ? subTableRender(task) : <></>
