@@ -59,12 +59,15 @@ function ManagerDashboard() {
   }, []);
   useEffect(() => {
     setTableData(data?.projects);
-    const statusPieChartData = data?.statusChartData?.labels.map(
-      (name: string, index) => ({
-        value: Number(data?.statusChartData?.data[index]),
-        name: formatStatus(name),
-      })
-    );
+    const statusPieChartData: ChartProps["chartData"] = [];
+    data?.statusChartData?.labels.forEach((name: string, index) => {
+      if (Number(data?.statusChartData?.data[index]) > 0) {
+        statusPieChartData.push({
+          value: Number(data?.statusChartData?.data[index]),
+          name: formatStatus(name),
+        });
+      }
+    });
 
     setstatusPieChartProp({
       chartData: statusPieChartData!,
@@ -73,11 +76,15 @@ function ManagerDashboard() {
       radius: ["45%", "60%"],
       height: "300px",
     });
-    const overallSituationPieChartData =
-      data?.overallSituationChartData?.labels.map((name, index) => ({
-        value: Number(data?.overallSituationChartData?.data[index]),
-        name,
-      }));
+    const overallSituationPieChartData: ChartProps["chartData"] = [];
+    data?.overallSituationChartData?.labels.forEach((name: string, index) => {
+      if (Number(data?.overallSituationChartData?.data[index]) > 0) {
+        overallSituationPieChartData.push({
+          value: Number(data?.overallSituationChartData?.data[index]),
+          name: formatStatus(name),
+        });
+      }
+    });
     setOverallStatusPieChartProp({
       chartData: overallSituationPieChartData!,
       color: ["#F7B801", "#F18701", "#3D348B", "#7678ED"],
@@ -85,12 +92,15 @@ function ManagerDashboard() {
       radius: ["0%", "60%"],
       height: "300px",
     });
-    const spiPieChartData = data?.spiData?.labels.map(
-      (name: string, index) => ({
-        value: Number(data?.spiData?.data[index]),
-        name: formatStatus(name),
-      })
-    );
+    const spiPieChartData: ChartProps["chartData"] = [];
+    data?.spiData?.labels.forEach((name: string, index) => {
+      if (Number(data?.spiData?.data[index]) > 0) {
+        spiPieChartData.push({
+          value: Number(data?.spiData?.data[index]),
+          name: formatStatus(name),
+        });
+      }
+    });
     setSpiPieChartProp({
       chartData: spiPieChartData!,
       color: ["#FF000077",  "#00800077","#FFB81977",],
