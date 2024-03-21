@@ -158,9 +158,9 @@ function TaskSubTaskForm(props: Props) {
       user.user?.userOrganisation[0].role == UserRoleEnumValue.ADMINISTRATOR
     ) {
       return true;
-    } else if(!taskId) {
+    } else if (!taskId) {
       return true;
-    }else{
+    } else {
       return false;
     }
   };
@@ -185,7 +185,7 @@ function TaskSubTaskForm(props: Props) {
           values.startDate !== tasks?.startDate ||
           values.taskDescription !== tasks.taskDescription ||
           values.taskName !== tasks.taskName
-          ) {
+        ) {
           let data;
           if (values.duration === tasks?.duration) {
             data = {
@@ -196,7 +196,6 @@ function TaskSubTaskForm(props: Props) {
           } else {
             data = values;
           }
-
           taskUpdateMutation.mutate(data, {
             onSuccess(data) {
               toast.success(data.data.message);
@@ -214,15 +213,14 @@ function TaskSubTaskForm(props: Props) {
               );
             },
           });
+        } else {
+          props.close();
         }
       } else {
         taskCreateMutation.mutate(values, {
           onSuccess(data) {
             setTaskId(data.data.data.taskId);
             toast.success(data.data.message);
-            if (submitbyButton) {
-              props.close();
-            }
             taskQuery.refetch();
           },
           onError(error) {
@@ -265,7 +263,7 @@ function TaskSubTaskForm(props: Props) {
     const value = {
       taskName: subTask,
       taskDescription: "",
-      startDate: new Date(tasks?.startDate ?? ''),
+      startDate: new Date(tasks?.startDate ?? ""),
       duration: 1,
       assginedToUserId: [currantUser.user?.userId ?? ""],
       milestoneIndicator: false,
@@ -433,7 +431,8 @@ function TaskSubTaskForm(props: Props) {
                       ? "Significant delay"
                       : tasks?.flag == "Orange"
                       ? "Moderate delay"
-                      : ""}
+                      : ""}{" "}
+                    <div className="ml-auto">{"(" + tasks?.delay + ")"}</div>
                   </div>
                 </div>
               </div>
@@ -612,10 +611,15 @@ function TaskSubTaskForm(props: Props) {
                   <div className="text-xs font-medium mb-4">Add to card</div>
                   <div className="mt-2">
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild disabled={!allowed()|| Boolean(tasks?.subtasks.length)}>
+                      <DropdownMenuTrigger
+                        asChild
+                        disabled={!allowed() || Boolean(tasks?.subtasks.length)}
+                      >
                         <div className="text-sm font-normal cursor-pointer">
                           <Button
-                            disabled={!allowed() || Boolean(tasks?.subtasks.length)}
+                            disabled={
+                              !allowed() || Boolean(tasks?.subtasks.length)
+                            }
                             variant={"secondary"}
                             className="py-1.5 px-3 flex w-full gap-3 justify-start"
                           >
@@ -784,11 +788,19 @@ function TaskSubTaskForm(props: Props) {
                   {startDate && (
                     <div className="mt-2">
                       <Popover>
-                        <PopoverTrigger className="w-full" disabled={!allowed() || (tasks && tasks?.subtasks.length>0)}>
+                        <PopoverTrigger
+                          className="w-full"
+                          disabled={
+                            !allowed() || (tasks && tasks?.subtasks.length > 0)
+                          }
+                        >
                           <Button
                             variant={"secondary"}
                             className="py-1.5 px-3 w-full"
-                            disabled={!allowed() || (tasks && tasks?.subtasks.length>0)}
+                            disabled={
+                              !allowed() ||
+                              (tasks && tasks?.subtasks.length > 0)
+                            }
                           >
                             <div className="flex w-full gap-3 justify-start">
                               <img src={CalendarIcon} className="w-3.5" />
@@ -852,7 +864,8 @@ function TaskSubTaskForm(props: Props) {
                                 : ""
                             }
                             disabled={
-                              tasks?.milestoneIndicator || Boolean(!taskId) ||
+                              tasks?.milestoneIndicator ||
+                              Boolean(!taskId) ||
                               Boolean(tasks?.subtasks.length) ||
                               !allowed()
                             }
@@ -895,7 +908,7 @@ function TaskSubTaskForm(props: Props) {
                           </Button>
                         </div>
                       )}
-                      {taskDurationField  && (
+                      {taskDurationField && (
                         <div className="flex items-center gap-2.5 w-dull">
                           <div>
                             <InputNumber

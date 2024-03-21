@@ -184,7 +184,7 @@ function ProjectDetails() {
                           </div>{" "}
                         </Button>
                       )}
-                      <Button
+                     {readOnly&&<Button
                         size={"sm"}
                         variant={"destructive"}
                         onClick={() => setRemove(true)}
@@ -197,7 +197,7 @@ function ProjectDetails() {
                           />{" "}
                           Remove
                         </div>{" "}
-                      </Button>
+                      </Button>}
                     </div>
                   )}
                 </div>
