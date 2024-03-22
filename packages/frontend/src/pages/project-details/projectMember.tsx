@@ -31,6 +31,25 @@ import { Settings } from "lucide-react";
 import InputText from "@/components/common/InputText";
 import CrossIcon from "@/assets/svg/CrossIcon.svg";
 import useProjectMemberRoleMutation from "@/api/mutation/useProjectRoleUpdateMutation";
+import InputSelect from "react-select";
+const reactSelectStyle = {
+  control: (
+    provided: Record<string, unknown>,
+    state: { isFocused: boolean }
+  ) => ({
+    ...provided,
+    border: "1px solid #E7E7E7",
+    paddingTop: "0.2rem",
+    paddingBottom: "0.2rem",
+    zIndex: 1000,
+    outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
+    boxShadow: state.isFocused ? "0px 0px 0px #943B0C" : "none",
+    "&:hover": {
+      outline: state.isFocused ? "2px solid #943B0C" : "0px solid #E7E7E7",
+      boxShadow: "0px 0px 0px #943B0C",
+    },
+  }),
+} as const;
 function ProjectMember() {
   const [isSidebarExpanded, setSidebarExpanded] = useState(true);
   const projectMemberListQuery = useProjectMemberListQuery();
@@ -189,11 +208,7 @@ function ProjectMember() {
       header: "Project role",
       key: "role",
       onCellRender: (user: AssignedUsers) => {
-        return (
-          <div>
-            {user.projectRole ? user.projectRole:"N/A"}
-          </div>
-        );
+        return <div>{user.projectRole ? user.projectRole : "N/A"}</div>;
       },
     },
     {
@@ -221,7 +236,8 @@ function ProjectMember() {
                     variant={"none"}
                     className="flex w-full justify-start"
                     onClick={() => {
-                      setUserId(user.user.userId),setUserRole(user.projectRole??'')
+                      setUserId(user.user.userId),
+                        setUserRole(user.projectRole ?? "");
                     }}
                   >
                     <Settings className="mr-0.5 h-4 w-4" />
@@ -251,10 +267,20 @@ function ProjectMember() {
       },
     },
   ];
+  const getOptions = () => {
+    const data = [{ label: "Select job title", value: "" }];
+    if (user?.userOrganisation[0] && user?.userOrganisation[0]?.organisation.jobTitlesOfOrg && user.userOrganisation[0]?.organisation.jobTitlesOfOrg.length > 0) {
+      user?.userOrganisation[0]?.organisation.jobTitlesOfOrg.forEach((s) => {
+        data.push({ label: s, value: s });
+      });
+    }
+    return data;
+  };
   const projectMemberRoleMutation = useProjectMemberRoleMutation();
   const submitRole = () => {
     const data = {
-      assingprojectId: assignedUsers?.find((u) => u.user.userId == userId)?.projectAssignUsersId,
+      assingprojectId: assignedUsers?.find((u) => u.user.userId == userId)
+        ?.projectAssignUsersId,
       role: userRole,
     };
 
@@ -263,8 +289,8 @@ function ProjectMember() {
       {
         onSuccess(data) {
           toast.success(data.data.message);
-          projectDetailQuery.refetch()
-          setUserId(undefined)
+          projectDetailQuery.refetch();
+          setUserId(undefined);
         },
         onError(error) {
           toast.error(error.response?.data.message);
@@ -283,7 +309,7 @@ function ProjectMember() {
             isSidebarExpanded={isSidebarExpanded}
           />
           <div
-            className={`mt-5 overflow-auto ${
+            className={`mt-5 overflow-auto h-full ${
               isSidebarExpanded ? "ml-64" : "ml-4"
             }`}
           >
@@ -462,7 +488,7 @@ function ProjectMember() {
       <Dialog
         isOpen={Boolean(userId)}
         onClose={() => {}}
-        modalClass="rounded-lg"
+        modalClass="rounded-lg  overflow-visible"
       >
         <div className="flex flex-col gap-2 p-6 w-80">
           <div className="flex justify-between items-center ">
@@ -479,11 +505,24 @@ function ProjectMember() {
             }
             disabled
           />
-          <InputText
-            placeholder="role"
-            value={userRole ?? ""}
-            onChange={(e) => setUserRole(e.target.value)}
-          />
+          {user?.userOrganisation[0]?.organisationId && (
+            <div className="z-40">
+              <InputSelect
+                name="jobTitle"
+                options={getOptions()}
+                placeholder={"Role"}
+                onChange={(e) => {
+                  if (e) {
+                    setUserRole(e?.value)
+                  }
+                }}
+                value={{label:userRole,value:userRole}}
+                menuPlacement="auto"
+                className="z-10"
+                styles={reactSelectStyle}
+              />
+            </div>
+          )}
           <div className="flex gap-2 ml-auto">
             <Button
               variant={"outline"}
