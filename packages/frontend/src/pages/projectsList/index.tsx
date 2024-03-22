@@ -139,7 +139,7 @@ function ProjectsList() {
       header: "Project Name",
       sorting: true,
       onCellRender: (item: Project) => (
-        <Link to={`/tasks/${item.projectId}`}>{item.projectName}</Link>
+        <Link className="text-primary-500 underline" to={`/tasks/${item.projectId}`}>{item.projectName}</Link>
       ),
     },
     {
