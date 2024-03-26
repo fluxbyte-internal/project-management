@@ -132,6 +132,12 @@ function OrganisationForm(props: Props) {
   });
   useEffect(() => {
     setNonWorkingDaysValue([nonWorkingDays[0],nonWorkingDays[6]])
+    formik.setFieldValue(
+      "nonWorkingDays",
+      [nonWorkingDays[0],nonWorkingDays[6]].map((item) => {
+        return item.value;
+      })
+    );
     if (editData) {
       formik.setValues({
         country: editData.country,

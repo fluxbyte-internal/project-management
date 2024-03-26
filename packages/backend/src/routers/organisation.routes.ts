@@ -22,7 +22,7 @@ router.post(
 router.put(
   "/re-assigned-task/",
   roleMiddleware([UserRoleEnum.ADMINISTRATOR]),
-  OrganisationControlller.reassignTasks
+  OrganisationControlller.reassignTasksAndProjects
 );
 
 router.post("/", OrganisationControlller.createOrganisation);

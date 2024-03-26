@@ -15,7 +15,7 @@ import {
   memberRoleSchema,
   reAssginedTaskSchema,
 } from "../schemas/organisationSchema.js";
-import { NotificationTypeEnum, TaskStatusEnum, UserProviderTypeEnum, UserRoleEnum, UserStatusEnum } from "@prisma/client";
+import { NotificationTypeEnum, ProjectStatusEnum, TaskStatusEnum, UserProviderTypeEnum, UserRoleEnum, UserStatusEnum } from "@prisma/client";
 import { encrypt } from "../utils/encryption.js";
 import { uuidSchema } from "../schemas/commonSchema.js";
 import { ZodError } from "zod";
@@ -320,6 +320,23 @@ export const removeOrganisationMember = async (
       },
     },
   });
+  const findAssignedProject = await prisma.project.findMany({
+    where: {
+      status: {
+        in: [ProjectStatusEnum.ACTIVE],
+      },
+      assignedUsers: {
+        some: {
+          assginedToUserId: findUserOrg.userId,
+        },
+      },
+    },
+  });
+  if (findAssignedProject.length > 0) {
+    throw new BadRequestError(
+      "Active projects is already exists for this user!"
+    );
+  }
   if (findAssignedTask.length > 0) {
     throw new BadRequestError("Pending tasks is already exists for this user!");
   }
@@ -403,7 +420,7 @@ export const changeMemberRole = async (
   ).send(res);
 };
 
-export const reassignTasks = async (
+export const reassignTasksAndProjects = async (
   req: express.Request,
   res: express.Response
 ) => {
@@ -422,21 +439,50 @@ export const reassignTasks = async (
       task: true,
     },
   });
-
-  if (!tasksToReassign || tasksToReassign.length === 0) {
-    return new SuccessResponse(
-      StatusCodes.OK,
-      null,
-      "No tasks found to reassign."
-    ).send(res);
-  }
+  const projectReassgin = await prisma.projectAssignUsers.findMany({
+    where: {
+      assginedToUserId: oldUserId,
+    },
+    include: {
+      project: true,
+    }
+  });
 
   await prisma.$transaction(async (tx) => {
     await Promise.all(
-      tasksToReassign.map(async (assginedUser) => {
+      projectReassgin.map(async (assginedUserOfProject) => {
+        const oldUser = await tx.projectAssignUsers.delete({
+          where: {
+            projectAssignUsersId: assginedUserOfProject.projectAssignUsersId,
+          },
+          include: {
+            user: {
+              select: {
+                email: true,
+              },
+            },
+          },
+        });
+        const projectAssign = await tx.projectAssignUsers.create({
+          data: {
+            assginedToUserId: newUserId,
+            projectId: assginedUserOfProject.project.projectId,
+          },
+          include: {
+            user: {
+              select: {
+                email: true,
+              },
+            },
+          },
+        });
+      })
+    );
+    await Promise.all(
+      tasksToReassign.map(async (assginedUserOfTask) => {
         const oldUser = await tx.taskAssignUsers.delete({
           where: {
-            taskAssignUsersId: assginedUser.taskAssignUsersId,
+            taskAssignUsersId: assginedUserOfTask.taskAssignUsersId,
           },
           include: {
             user: {
@@ -449,7 +495,7 @@ export const reassignTasks = async (
         const member = await tx.taskAssignUsers.create({
           data: {
             assginedToUserId: newUserId,
-            taskId: assginedUser.taskId,
+            taskId: assginedUserOfTask.taskId,
           },
           include: {
             user: {
@@ -467,7 +513,7 @@ export const reassignTasks = async (
           message,
           newUserId,
           userId,
-          assginedUser.taskId
+          assginedUserOfTask.taskId
         );
 
         // History-Manage
