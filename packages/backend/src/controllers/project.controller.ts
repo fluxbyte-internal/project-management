@@ -680,14 +680,17 @@ export const projectAssignToUser = async (
           email: true,
           firstName: true,
           lastName: true,
+          status: true,
         },
       },
     },
   });
-
+  const activeUsers = usersOfOrganisation.filter(
+    (userData) => userData.user?.status === UserStatusEnum.ACTIVE
+  );
   return new SuccessResponse(
     StatusCodes.OK,
-    usersOfOrganisation,
+    activeUsers,
     "Get organisation's users successfully"
   ).send(res);
 };

@@ -187,7 +187,7 @@ function ProjectMember() {
       },
     },
     {
-      header: "initial",
+      header: "firstName",
       key: "initial",
       onCellRender: (user: AssignedUsers) => {
         return (
@@ -238,11 +238,11 @@ function ProjectMember() {
     {
       header: "Action",
       key: "projectId",
-      onCellRender: (user: AssignedUsers) => {
+      onCellRender: (userInRow: AssignedUsers) => {
         return (
           <div>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild disabled={user?.userOrganisation[0].role === UserRoleEnumValue.TEAM_MEMBER}>
                 <div className="cursor-pointer w-24 h-8 px-3 py-1.5 bg-white border rounded justify-center items-center gap-px inline-flex">
                   <Settings className="mr-2 h-4 w-4" />
                 </div>
@@ -253,8 +253,8 @@ function ProjectMember() {
                     variant={"none"}
                     className="flex w-full justify-start"
                     onClick={() => {
-                      setUserId(user.user.userId),
-                        setUserRole(user.projectRole ?? "");
+                      setUserId(userInRow.user.userId),
+                        setUserRole(userInRow.projectRole ?? "");
                     }}
                   >
                     <Settings className="mr-0.5 h-4 w-4" />
@@ -265,10 +265,19 @@ function ProjectMember() {
                   <Button
                     variant={"none"}
                     className="flex justify-start w-full"
+                    disabled={
+                      !assignedUsers?.find(
+                        (u) =>
+                          u.user.userOrganisation[0].role ==
+                          UserRoleEnumValue.PROJECT_MANAGER
+                      ) &&
+                      userInRow.user.userOrganisation[0].role ==
+                        UserRoleEnumValue.ADMINISTRATOR
+                    }
                     onClick={() => {
                       setRemove(
                         assignedUsers?.find(
-                          (id) => id.user.userId == user.user.userId
+                          (id) => id.user.userId == userInRow.user.userId
                         )?.projectAssignUsersId ?? ""
                       );
                     }}

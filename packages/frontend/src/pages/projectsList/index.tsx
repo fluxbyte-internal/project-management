@@ -41,6 +41,7 @@ import { toast } from "react-toastify";
 import TaskSubTaskForm from "@/components/tasks/taskSubTaskForm";
 import DuplicateIcon from "@/assets/svg/DuplicateIcon.svg";
 import Users from "@/assets/svg/Users.svg";
+import { useUser } from "@/hooks/useUser";
 type Options = { label: string; value: string };
 function ProjectsList() {
   const [data, setData] = useState<Project[]>();
@@ -48,6 +49,7 @@ function ProjectsList() {
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
   const [editData, setEditData] = useState<Project | undefined>();
   const [projectId, setProjectId] = useState<string>();
+  const { user } = useUser();
   const [filter, setFilter] = useState<{
     projectManager: SingleValue<Options> | null;
     status: SingleValue<Options> | null;
@@ -139,7 +141,12 @@ function ProjectsList() {
       header: "Project Name",
       sorting: true,
       onCellRender: (item: Project) => (
-        <Link className="text-primary-500 underline" to={`/tasks/${item.projectId}`}>{item.projectName}</Link>
+        <Link
+          className="text-primary-500 underline"
+          to={`/tasks/${item.projectId}`}
+        >
+          {item.projectName}
+        </Link>
       ),
     },
     {
@@ -164,10 +171,10 @@ function ProjectsList() {
               })}
               {item.projectManagerInfo &&
                 item.projectManagerInfo?.length > 3 && (
-                <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
-                  {`${item.projectManagerInfo?.length - 3}+`}
-                </div>
-              )}
+                  <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
+                    {`${item.projectManagerInfo?.length - 3}+`}
+                  </div>
+                )}
               {item.projectManagerInfo?.length <= 0 ? "N/A" : ""}
             </div>
           ) : (
@@ -185,28 +192,28 @@ function ProjectsList() {
             (d) =>
               d.user.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER
           )?.length > 0 ? (
-              <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
-                {item.assignedUsers
-                  ?.filter(
-                    (d) =>
-                      d.user.userOrganisation[0].role ==
+            <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
+              {item.assignedUsers
+                ?.filter(
+                  (d) =>
+                    d.user.userOrganisation[0].role ==
                     UserRoleEnumValue.TEAM_MEMBER
-                  )
-                  .slice(0, 3)
-                  .map((item, index) => {
-                    const zIndex = Math.abs(index - 2);
-                    return (
-                      <>
-                        <div key={index} style={{ zIndex: zIndex }}>
-                          <UserAvatar
-                            className={`shadow-sm h-7 w-7`}
-                            user={item.user}
-                          ></UserAvatar>
-                        </div>
-                      </>
-                    );
-                  })}
-                {item.projectManagerInfo &&
+                )
+                .slice(0, 3)
+                .map((item, index) => {
+                  const zIndex = Math.abs(index - 2);
+                  return (
+                    <>
+                      <div key={index} style={{ zIndex: zIndex }}>
+                        <UserAvatar
+                          className={`shadow-sm h-7 w-7`}
+                          user={item.user}
+                        ></UserAvatar>
+                      </div>
+                    </>
+                  );
+                })}
+              {item.projectManagerInfo &&
                 item.assignedUsers.filter(
                   (d) =>
                     d.user.userOrganisation[0].role ==
@@ -222,23 +229,24 @@ function ProjectsList() {
                     }+`}
                   </div>
                 )}
-                {item.assignedUsers.filter(
-                  (d) =>
-                    d.user.userOrganisation[0].role ==
+              {item.assignedUsers.filter(
+                (d) =>
+                  d.user.userOrganisation[0].role ==
                   UserRoleEnumValue.TEAM_MEMBER
-                )?.length <= 0
-                  ? "N/A"
-                  : ""}
-              </div>
-            ) : (
-              "NA"
-            )}
+              )?.length <= 0
+                ? "N/A"
+                : ""}
+            </div>
+          ) : (
+            "NA"
+          )}
         </div>
       ),
     },
     {
       key: "status",
       header: "Status",
+      sorting: true,
       onCellRender: (item: Project) => (
         <>
           <div
@@ -265,8 +273,9 @@ function ProjectsList() {
       ),
     },
     {
-      key: "actualEndDate",
+      key: "estimatedEndDate",
       header: "Actual Date",
+      sorting: true,
       onCellRender: (item: Project) => (
         <>
           {item.estimatedEndDate && dateFormatter(new Date(item.actualEndDate))}
@@ -274,8 +283,9 @@ function ProjectsList() {
       ),
     },
     {
-      key: "actualEndDate",
+      key: "estimatedEndDate",
       header: "Estimated End Date",
+      sorting: true,
       onCellRender: (item: Project) => (
         <>
           {item.estimatedEndDate &&
@@ -284,8 +294,9 @@ function ProjectsList() {
       ),
     },
     {
-      key: "progress",
+      key: "progressionPercentage",
       header: "Progress",
+      sorting: true,
       onCellRender: (item: Project) => (
         <PercentageCircle
           percentage={
@@ -323,12 +334,17 @@ function ProjectsList() {
                 <ScrollText className="mr-2 h-4 w-4 text-[#44546F]" />
                 <span className="p-0 font-normal h-auto">Create task</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => createDuplicate(item.projectId)}>
-                <img src={DuplicateIcon} className="h-4 w-4 mr-2" />
-                <span className="p-0 font-normal h-auto">
-                  Duplicate Project
-                </span>
-              </DropdownMenuItem>
+              {user?.userOrganisation[0].role !==
+                UserRoleEnumValue.TEAM_MEMBER && (
+                <DropdownMenuItem
+                  onClick={() => createDuplicate(item.projectId)}
+                >
+                  <img src={DuplicateIcon} className="h-4 w-4 mr-2" />
+                  <span className="p-0 font-normal h-auto">
+                    Duplicate Project
+                  </span>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 onClick={() => navigate("/members/" + item.projectId)}
               >
@@ -364,14 +380,14 @@ function ProjectsList() {
   // };
   const getStatusColor = (status: string) => {
     switch (status) {
-    case ProjectStatusEnumValue.NOT_STARTED:
-      return "!bg-slate-500/60 text-white";
-    case ProjectStatusEnumValue.ON_HOLD:
-      return "!bg-orange-300 text-white";
-    case ProjectStatusEnumValue.ACTIVE:
-      return "!bg-emerald-500 text-white";
-    case ProjectStatusEnumValue.CLOSED:
-      return "!bg-red-500 text-white";
+      case ProjectStatusEnumValue.NOT_STARTED:
+        return "!bg-slate-500/60 text-white";
+      case ProjectStatusEnumValue.ON_HOLD:
+        return "!bg-orange-300 text-white";
+      case ProjectStatusEnumValue.ACTIVE:
+        return "!bg-emerald-500 text-white";
+      case ProjectStatusEnumValue.CLOSED:
+        return "!bg-red-500 text-white";
     }
   };
   useEffect(() => {
@@ -481,8 +497,8 @@ function ProjectsList() {
                           <div className="flex justify-between items-center w-full text-gray-400 font-normal">
                             {filter.date
                               ? `${dateFormatter(
-                                filter.date.from ?? new Date()
-                              )}-
+                                  filter.date.from ?? new Date()
+                                )}-
                               ${dateFormatter(filter.date.to ?? new Date())}`
                               : "End date"}
                             <img src={CalendarSvg} width={20} />

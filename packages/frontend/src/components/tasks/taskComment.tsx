@@ -130,30 +130,28 @@ function TaskComment(props: Props) {
         </div>
       </div>
       <div className="w-full mt-2">
-        {props.allowed && (
-          <div className="flex gap-x-2 items-center">
-            <UserAvatar user={currantUser.user}></UserAvatar>
-            <div className="relative w-full">
-              <InputText
-                placeholder="Write a comment"
-                className="mt-0 w-full"
-                name="commentText"
-                onChange={commentFormik.handleChange}
-                value={commentFormik.values.commentText}
-              ></InputText>
-              {commentFormik.values.commentText && (
-                <Button
-                  variant={"ghost"}
-                  size={"icon"}
-                  className="absolute top-1/2 right-1 -translate-y-1/2 mt-[1px] p-0 "
-                  onClick={commentFormik.submitForm}
-                >
-                  <img src={Send} />
-                </Button>
-              )}
-            </div>
+        <div className="flex gap-x-2 items-center">
+          <UserAvatar user={currantUser.user}></UserAvatar>
+          <div className="relative w-full">
+            <InputText
+              placeholder="Write a comment"
+              className="mt-0 w-full"
+              name="commentText"
+              onChange={commentFormik.handleChange}
+              value={commentFormik.values.commentText}
+            ></InputText>
+            {commentFormik.values.commentText && (
+              <Button
+                variant={"ghost"}
+                size={"icon"}
+                className="absolute top-1/2 right-1 -translate-y-1/2 mt-[1px] p-0 "
+                onClick={commentFormik.submitForm}
+              >
+                <img src={Send} />
+              </Button>
+            )}
           </div>
-        )}
+        </div>
         <div className="mt-2 flex flex-col gap-2">
           {visibleComments.map((comment, index) => {
             return (
@@ -205,28 +203,32 @@ function TaskComment(props: Props) {
                     </div>
                   )}
                   <ul className="inline-flex gap-7 ml-6 list-[circle] justify-start w-3/5">
-                    <li className="">
-                      <Button
-                        variant={"none"}
-                        onClick={() => {
-                          handleEdit(comment);
-                        }}
-                        className="p-0 underline font-normal h-fit"
-                      >
-                        <span className="relative -left-2">edit</span>
-                      </Button>
-                    </li>
-                    <li className="">
-                      <Button
-                        variant={"none"}
-                        onClick={() => {
-                          handleRemove(comment);
-                        }}
-                        className="p-0 underline font-normal h-fit"
-                      >
-                        <span className="relative -left-2">remove</span>
-                      </Button>
-                    </li>
+                    {comment.commentByUserId == currantUser.user?.userId && (
+                      <>
+                        <li className="">
+                          <Button
+                            variant={"none"}
+                            onClick={() => {
+                              handleEdit(comment);
+                            }}
+                            className="p-0 underline font-normal h-fit"
+                          >
+                            <span className="relative -left-2">edit</span>
+                          </Button>
+                        </li>
+                        <li className="">
+                          <Button
+                            variant={"none"}
+                            onClick={() => {
+                              handleRemove(comment);
+                            }}
+                            className="p-0 underline font-normal h-fit"
+                          >
+                            <span className="relative -left-2">remove</span>
+                          </Button>
+                        </li>
+                      </>
+                    )}
                   </ul>
                 </div>
               </div>
