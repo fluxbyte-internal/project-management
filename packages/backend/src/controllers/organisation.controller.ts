@@ -106,7 +106,7 @@ export const createOrganisation = async (
           role: UserRoleEnum.ADMINISTRATOR,
         },
       },
-      nonWorkingDays: ["SAT", "SUN"], // Non working days will be defualt as per sheet doc : dev_hitesh - 15-03-2024 
+      nonWorkingDays: nonWorkingDays,
     },
   });
   const findUser = await prisma.user.findFirst({
