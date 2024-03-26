@@ -447,21 +447,6 @@ export const reassignTasksAndProjects = async (
       project: true,
     }
   });
-  if (!projectReassgin || projectReassgin.length === 0) {
-    return new SuccessResponse(
-      StatusCodes.OK,
-      null,
-      "No projects found to reassign."
-    ).send(res);
-  }
-
-  if (!tasksToReassign || tasksToReassign.length === 0) {
-    return new SuccessResponse(
-      StatusCodes.OK,
-      null,
-      "No tasks found to reassign."
-    ).send(res);
-  }
 
   await prisma.$transaction(async (tx) => {
     await Promise.all(
