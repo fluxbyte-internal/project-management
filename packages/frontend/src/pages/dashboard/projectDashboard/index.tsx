@@ -159,7 +159,7 @@ function ProjectDashboard() {
         (count) => count > 0
       );
       if (anyDelayExists) {
-        const chartData:ChartProps['chartData'] = [];
+        const chartData: ChartProps["chartData"] = [];
         const keyOfdelayCounts = Object.keys(
           delayCounts
         ) as (keyof typeof delayCounts)[];
@@ -167,24 +167,24 @@ function ProjectDashboard() {
           const val = delayCounts[r];
           if (val > 0) {
             switch (r) {
-            case "red":
-              chartData.push({
-                value: delayCounts.red,
-                name: "Significant delay",
-              });
-              break;
-            case "green":
-              chartData.push({
-                value: delayCounts.green,
-                name: "On track",
-              });
-              break;
-            case "orange":
-              chartData.push({
-                value: delayCounts.orange,
-                name: "Moderate delay",
-              });
-              break;
+              case "red":
+                chartData.push({
+                  value: delayCounts.red,
+                  name: "Significant delay",
+                });
+                break;
+              case "green":
+                chartData.push({
+                  value: delayCounts.green,
+                  name: "On track",
+                });
+                break;
+              case "orange":
+                chartData.push({
+                  value: delayCounts.orange,
+                  name: "Moderate delay",
+                });
+                break;
             }
           }
         });
@@ -221,17 +221,17 @@ function ProjectDashboard() {
   const navigate = useNavigate();
   const filterRoutes = (item: string) => {
     switch (item) {
-    case "Milestones":
-      navigate(`/tasks/${projectId}?milestones=true`);
-      break;
-    case "Tasks":
-      navigate(`/tasks/${projectId}`);
-      break;
-    case "Members":
-      navigate(`/members/${projectId}`);
-      break;
-    default:
-      break;
+      case "Milestones":
+        navigate(`/tasks/${projectId}?milestones=true`);
+        break;
+      case "Tasks":
+        navigate(`/tasks/${projectId}`);
+        break;
+      case "Members":
+        navigate(`/members/${projectId}`);
+        break;
+      default:
+        break;
     }
   };
   const getSPI = () => {
@@ -278,8 +278,8 @@ function ProjectDashboard() {
                           <div className="m-1">
                             {data?.projectProgression
                               ? (
-                                Number(Number(data?.projectProgression)) * 100
-                              )?.toFixed() + "%"
+                                  Number(Number(data?.projectProgression)) * 100
+                                )?.toFixed() + "%"
                               : "NA"}
                           </div>
                         </div>
@@ -315,14 +315,14 @@ function ProjectDashboard() {
                           ? Sunny
                           : data?.projectOverAllSituation ===
                             OverAllTrackEnumValue.CLOUDY
-                            ? Cloudy
-                            : data?.projectOverAllSituation ===
+                          ? Cloudy
+                          : data?.projectOverAllSituation ===
                             OverAllTrackEnumValue.RAINY
-                              ? Rainy
-                              : data?.projectOverAllSituation ===
+                          ? Rainy
+                          : data?.projectOverAllSituation ===
                             OverAllTrackEnumValue.STORMY
-                                ? Stormy
-                                : ""
+                          ? Stormy
+                          : ""
                       }`}
                     />
                   </div>
@@ -389,11 +389,11 @@ function ProjectDashboard() {
                                 ? Stable
                                 : data?.scheduleTrend ===
                                   ScheduleAndBudgetTrend.INCREASING
-                                  ? Increasing
-                                  : data?.scheduleTrend ===
+                                ? Increasing
+                                : data?.scheduleTrend ===
                                   ScheduleAndBudgetTrend.DECREASING
-                                    ? Decreasing
-                                    : ""
+                                ? Decreasing
+                                : ""
                             }
                           ></img>
                         </div>
@@ -402,13 +402,15 @@ function ProjectDashboard() {
 
                     <div
                       className={`w-full h-full justify-between flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3 relative ${
-                        Number(getSPI()) < 1
+                        Number(getSPI()) < 0.8
                           ? "bg-red-700/60"
+                          : Number(getSPI()) >= 0.8 && Number(getSPI()) < 0.95
+                          ? "bg-orange-500/80"
+                          : Number(getSPI()) <= 1 && Number(getSPI()) >= 0.95
+                          ? "bg-green-700/60"
                           : Number(getSPI()) > 1
-                            ? "bg-blue-400/80"
-                            : Number(getSPI()) == 1
-                              ? "bg-green-700/60"
-                              : ""
+                          ? "bg-blue-700/60"
+                          : ""
                       }`}
                     >
                       <div className="w-full text-center text-base md:text-lg font-semibold pt-2">
@@ -425,9 +427,11 @@ function ProjectDashboard() {
                             <TooltipContent>
                               <p className="text-sm w-96">
                                 SPI measures how closely your project follows
-                                the schedule : SPI &gt; 1: Project is ahead of
-                                schedule;  SPI &lt; 1: Project is behind
-                                schedule;  SPI = 1: Project is on schedule
+                                the schedule : SPI &lt; 80%: Project is
+                                significantly behind the schedule; 80%=&lt;SPI
+                                &lt; 95%: Project is moderately behind schedule;
+                                100=&gt;SPI &gt;= 95%: Project is on schedule",
+                                SPI&gt; 100 Project is ahead the schedule
                               </p>
                             </TooltipContent>
                           </Tooltip>
@@ -447,8 +451,8 @@ function ProjectDashboard() {
                         <td className="p-2 border-r">
                           {data?.projectDates?.estimatedEndDate
                             ? dateFormatter(
-                              new Date(data?.projectDates?.startDate)
-                            )
+                                new Date(data?.projectDates?.startDate)
+                              )
                             : "N/A"}
                         </td>
                         <td className="p-2 border-r"></td>
@@ -460,8 +464,8 @@ function ProjectDashboard() {
                         <td className="p-2 border-r">
                           {data?.projectDates?.estimatedEndDate
                             ? dateFormatter(
-                              new Date(data?.projectDates?.estimatedEndDate)
-                            )
+                                new Date(data?.projectDates?.estimatedEndDate)
+                              )
                             : "N/A"}
                         </td>
 
@@ -488,8 +492,8 @@ function ProjectDashboard() {
                         <td className="p-2">
                           {data?.projectDates?.actualEndDate
                             ? dateFormatter(
-                              new Date(data?.projectDates?.actualEndDate)
-                            )
+                                new Date(data?.projectDates?.actualEndDate)
+                              )
                             : "N/A"}
                         </td>
 
@@ -563,11 +567,11 @@ function ProjectDashboard() {
                                 ? Stable
                                 : data?.budgetTrend ===
                                   ScheduleAndBudgetTrend.INCREASING
-                                  ? Increasing
-                                  : data?.budgetTrend ===
+                                ? Increasing
+                                : data?.budgetTrend ===
                                   ScheduleAndBudgetTrend.DECREASING
-                                    ? Decreasing
-                                    : ""
+                                ? Decreasing
+                                : ""
                             }
                           ></img>
                         </div>
@@ -578,11 +582,13 @@ function ProjectDashboard() {
                       className={`w-full h-full justify-between flex flex-col gap-3 border-2 border-gray-500 rounded-2xl p-3 relative ${
                         Number(data.cpi) < 0.8
                           ? "bg-red-700/60"
-                          : Number(data.cpi) < 0.95 &&  Number(data.cpi)>= 0.8  
-                            ? "bg-blue-400/80"
-                            : Number(data.cpi) >= 0.95
-                              ? "bg-green-700/60"
-                              : ""
+                          : Number(data.cpi) >= 0.8 && Number(data.cpi) < 0.95
+                          ? "bg-orange-500/80"
+                          : Number(data.cpi) <= 1 && Number(data.cpi) >= 0.95
+                          ? "bg-green-700/60"
+                          : Number(data.cpi) > 1
+                          ? "bg-blue-700/60"
+                          : ""
                       }`}
                     >
                       <div className="w-full text-center text-base md:text-lg font-semibold pt-2">
@@ -598,7 +604,12 @@ function ProjectDashboard() {
                             </TooltipTrigger>
                             <TooltipContent>
                               <p className="text-sm w-96">
-                              CPI measures the project’s cost efficiency: CPI &gt;1: Project is under budget; CPI &lt; 1: Project is over budget; CPI=1: Project is on budget
+                                CPI measures the project&rsquo;s cost
+                                efficiency: CPI&lt;80%: Project is significantly
+                                under budget;80%=&lt; CPI &lt;95%: Project is
+                                moderately under budget; 100=&gt; CPI=&gt;95%:
+                                Project is on budget; CPI&gt;100% Project is
+                                over budget
                               </p>
                             </TooltipContent>
                           </Tooltip>
@@ -675,8 +686,8 @@ function ProjectDashboard() {
                             data.keyPerformanceIndicator?.reCalculateBudget
                           )
                             ? Number(
-                              data.keyPerformanceIndicator.reCalculateBudget
-                            )?.toFixed(0)
+                                data.keyPerformanceIndicator.reCalculateBudget
+                              )?.toFixed(0)
                             : "N/A"}
                         </td>
 

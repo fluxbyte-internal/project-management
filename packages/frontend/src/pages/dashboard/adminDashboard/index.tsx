@@ -184,6 +184,7 @@ function AdminDashboard() {
     {
       key: "CPI",
       header: "CPI",
+      sorting: true,
       onCellRender: (item: Project) => (
         <>{item.CPI ? item.CPI.toFixed(2) : (0.0).toFixed(2)} </>
       ),
@@ -221,6 +222,7 @@ function AdminDashboard() {
     {
       key: "estimatedEndDate",
       header: "Estimated End Date",
+      sorting: true,
       onCellRender: (item) => (
         <>
           {item.estimatedEndDate &&
@@ -231,6 +233,7 @@ function AdminDashboard() {
     {
       key: "actualEndDate",
       header: "Actual End Date",
+      sorting: true,
       onCellRender: (item) => (
         <>
           {item.estimatedEndDate && dateFormater(new Date(item.actualEndDate))}
@@ -240,6 +243,7 @@ function AdminDashboard() {
     {
       key: "status",
       header: "Status",
+      sorting: true,
       onCellRender: (item: Project) => (
         <>
           <div

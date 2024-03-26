@@ -12,9 +12,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import InputEmail from "@/components/common/InputEmail";
 import { toast } from "react-toastify";
-import SignUp from "../../../assets/svg/signup.svg";
 import Google from "../../../assets/svg/google.svg";
-// import Facebook from "../../../assets/svg/facebook.svg";
+import checkMark from "../../../assets/svg/checkMark.svg";
 import { baseURL } from "../../../Environment";
 
 function Signup() {
@@ -101,17 +100,67 @@ function Signup() {
     }
   };
 
-  const checkError = ()=>{
+  const checkError = () => {
     if (formik.values.privacyPolicy == false) {
       formik.setErrors({
         privacyPolicy: "Please agree to the Terms and Privacy Policy.",
       });
     }
-  }
+  };
   return (
     <div className="flex justify-center min-h-screen bg-gradient-to-t from-[#FFF8DF] to-[#FFD6AB] sm:p-20">
-      <div className="lg:flex flex-col items-center justify-center lg:w-1/2 hidden">
-        <img src={SignUp} />
+      <div className="lg:flex flex-col items-center justify-center lg:w-1/2 hidden gap-6 px-20">
+        <div className="font-bold text-3xl">
+        Projectchef
+        </div>
+        <div className="flex gap-3 w-full justify-between">
+          <div className="mt-1">
+            <img src={checkMark} alt="" className="w-10" />
+          </div>
+          <div className="">
+            <div className="font-bold text-xl text-gray-600">Lorem, ipsum.</div>
+            <div className="text-gray-500">
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Nam
+              facilis deleniti ipsam amet. Eaque nesciunt ut est. Aut excepturi
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-3 w-full justify-between">
+          <div className="mt-1">
+            <img src={checkMark} alt="" className="w-10" />
+          </div>
+          <div className="">
+            <div className="font-bold text-xl text-gray-600">Lorem, ipsum.</div>
+            <div className="text-gray-500">
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Nam
+              facilis deleniti ipsam amet. Eaque nesciunt ut est. Aut excepturi
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-3 w-full justify-between">
+          <div className="mt-1">
+            <img src={checkMark} alt="" className="w-10" />
+          </div>
+          <div className="">
+            <div className="font-bold text-xl text-gray-600">Lorem, ipsum.</div>
+            <div className="text-gray-500">
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Nam
+              facilis deleniti ipsam amet. Eaque nesciunt ut est. Aut excepturi
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-3 w-full justify-between">
+          <div className="mt-1">
+            <img src={checkMark} alt="" className="w-10" />
+          </div>
+          <div className="">
+            <div className="font-bold text-xl text-gray-600">Lorem, ipsum.</div>
+            <div className="text-gray-500">
+              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Nam
+              facilis deleniti ipsam amet. Eaque nesciunt ut est. Aut excepturi
+            </div>
+          </div>
+        </div>
       </div>
       <div className="flex flex-col items-center w-full lg:w-1/2 justify-center overflow-hidden ">
         <div className="max-sm:py-4 sm:px-4 py-6 w-full md:w-[70%] max-w-xl overflow-y-auto bg-white shadow-lg rounded-2xl">
@@ -164,7 +213,9 @@ function Signup() {
             </div>
           </div>
           <form
-            onSubmit={(e)=>{e.preventDefault(),checkError(),formik.handleSubmit()}}
+            onSubmit={(e) => {
+              e.preventDefault(), checkError(), formik.handleSubmit();
+            }}
             className="px-4 flex flex-col gap-1"
           >
             <div className="flex flex-col sm:flex-row sm:gap-4 justify-between items-center">
@@ -320,10 +371,10 @@ function Signup() {
             </div>
             <ErrorMessage className="!text-xs block items-start -mt-0 mb-2">
               {formik.errors.privacyPolicy && (
-                  <span className="text-red-500 text-sm ">
-                    {formik.errors.privacyPolicy}
-                  </span>
-                )}
+                <span className="text-red-500 text-sm ">
+                  {formik.errors.privacyPolicy}
+                </span>
+              )}
             </ErrorMessage>
             <div className="flex items-center">
               <Button

@@ -499,7 +499,7 @@ function GanttView() {
             </div>
             <div className="flex justify-end items-center gap-2 my-2 ">
               <label className="flex justify-center items-center">
-                Filter by:
+              Zoom on:
               </label>
               <Select
                 options={viewData}

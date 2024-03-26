@@ -149,7 +149,7 @@ function TaskSubTaskForm(props: Props) {
   const allowed = () => {
     if (
       user.user?.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER &&
-      tasks?.createdByUserId == user.user?.userId
+      tasks?.createdByUserId == user.user?.userId || tasks?.assignedUsers.find(u=>u.user.userId === user.user?.userId)
     ) {
       return true;
     } else if (
@@ -444,7 +444,7 @@ function TaskSubTaskForm(props: Props) {
               </div>
 
               <div>
-                {!taskId && (
+                {(!taskId  || !allowed())&& (
                   <Button
                     variant={"ghost"}
                     onClick={() => {
@@ -691,7 +691,7 @@ function TaskSubTaskForm(props: Props) {
                   </div>
                   <div className="mt-2">
                     <Popover>
-                      <PopoverTrigger className="w-full">
+                      <PopoverTrigger className="w-full" disabled={!allowed()}>
                         <Button
                           variant={"secondary"}
                           className="py-1.5 px-3 flex w-full gap-3 justify-start"
@@ -731,11 +731,6 @@ function TaskSubTaskForm(props: Props) {
                           </div>
                           <div>
                             {taskMemberList.data?.data.data
-                              .filter(
-                                (d) =>
-                                  d.user?.userOrganisation![0].role !==
-                                  UserRoleEnumValue.ADMINISTRATOR
-                              )
                               .map((data, index) => {
                                 return (
                                   <div

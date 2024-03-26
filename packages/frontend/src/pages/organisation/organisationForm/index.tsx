@@ -131,6 +131,7 @@ function OrganisationForm(props: Props) {
     },
   });
   useEffect(() => {
+    setNonWorkingDaysValue([nonWorkingDays[0],nonWorkingDays[6]])
     if (editData) {
       formik.setValues({
         country: editData.country,
@@ -289,6 +290,7 @@ function OrganisationForm(props: Props) {
               onBlur={() => formik.setTouched({ nonWorkingDays: true })}
               options={nonWorkingDays}
               value={nonWorkingDaysValue}
+              defaultValue={nonWorkingDaysValue}
               name="nonWorkingDays"
               placeholder="Select non-working days"
               isMulti

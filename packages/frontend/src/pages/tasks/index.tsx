@@ -91,6 +91,7 @@ function Tasks() {
     {
       key: "status",
       header: "Status",
+      sorting: true,
       onCellRender: (item: Task) => (
         <>
           <div
@@ -117,8 +118,9 @@ function Tasks() {
       ),
     },
     {
-      key: "actualEndDate",
+      key: "endDate",
       header: "End Date",
+      sorting: true,
       onCellRender: (item: Task) => (
         <>{dateFormater(new Date(item.dueDate ?? item.endDate))}</>
       ),
@@ -126,6 +128,7 @@ function Tasks() {
     {
       key: "duration",
       header: "Duration",
+      sorting: true,
       onCellRender: (item: Task) => <>{item.duration ?? 0}</>,
     },
     {
@@ -160,6 +163,7 @@ function Tasks() {
     {
       key: "progress",
       header: "Progress",
+      sorting: true,
       onCellRender: (item: Task) => (
         <PercentageCircle percentage={item.completionPecentage ?? 0} />
       ),
