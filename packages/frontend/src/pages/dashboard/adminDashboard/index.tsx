@@ -74,15 +74,18 @@ function AdminDashboard() {
       .replace(/\b\w/g, (c) => c.toUpperCase());
   };
   useEffect(() => {
-    toast.warning(
-      "Please update tasks progression to have accurate data on dashboard",
-      {
-        autoClose: false,
-        closeOnClick: true,
-        className: "bg-primary-400/60 w-fit  text-nowrap",
-        style: { left: "-40%" },
-      }
-    );
+    if (!toast.isActive("toast1")) {
+      toast.warning(
+        "Please update tasks progression to have accurate data on dashboard",
+        {
+          autoClose: false,
+          closeOnClick: true,
+          className: "bg-primary-400/60 w-fit  text-nowrap",
+          style: { left: "-40%" },
+          toastId: "toast1",
+        }
+      );
+    }
   }, []);
 
   useEffect(() => {

@@ -32,6 +32,7 @@ import InputText from "@/components/common/InputText";
 import CrossIcon from "@/assets/svg/CrossIcon.svg";
 import useProjectMemberRoleMutation from "@/api/mutation/useProjectRoleUpdateMutation";
 import InputSelect from "react-select";
+import useDebounce from "@/hooks/useDebounce";
 const reactSelectStyle = {
   control: (
     provided: Record<string, unknown>,
@@ -71,6 +72,7 @@ function ProjectMember() {
   useEffect(() => {
     setAssignedUsers(projectDetailQuery.data?.data.data.assignedUsers);
   }, [projectDetailQuery.data?.data.data]);
+  const [filterString, setFilterString] = useDebounce("", 400);
 
   useEffect(() => {
     setOrganizationMember(
@@ -78,7 +80,22 @@ function ProjectMember() {
         (e) => !assignedUsers?.some((u) => u.user.userId === e.user.userId)
       )
     );
+    if (filterString) {
+      const stringToFilter = filterString.toLowerCase();
+      setAssignedUsers(
+        projectDetailQuery.data?.data.data.assignedUsers.filter((o) => {
+          return (
+            String(o.user.firstName).toLowerCase().includes(stringToFilter) ||
+            String(o.user.lastName).toLowerCase().includes(stringToFilter) ||
+            String(o.user.email).toLowerCase().includes(stringToFilter)
+          );
+        })
+      );
+    } else {
+      setAssignedUsers(projectDetailQuery.data?.data.data.assignedUsers);
+    }
   }, [
+    filterString,
     projectMemberListQuery.data?.data.data,
     projectDetailQuery.data?.data.data,
     assignedUsers,
@@ -268,8 +285,12 @@ function ProjectMember() {
     },
   ];
   const getOptions = () => {
-    const data = [{ label: "Select job title", value: "" }];
-    if (user?.userOrganisation[0] && user?.userOrganisation[0]?.organisation.jobTitlesOfOrg && user.userOrganisation[0]?.organisation.jobTitlesOfOrg.length > 0) {
+    const data = [{ label: "Select project role", value: "" }];
+    if (
+      user?.userOrganisation[0] &&
+      user?.userOrganisation[0]?.organisation.jobTitlesOfOrg &&
+      user.userOrganisation[0]?.organisation.jobTitlesOfOrg.length > 0
+    ) {
       user?.userOrganisation[0]?.organisation.jobTitlesOfOrg.forEach((s) => {
         data.push({ label: s, value: s });
       });
@@ -298,6 +319,7 @@ function ProjectMember() {
       }
     );
   };
+
   return (
     <div className="w-full relative h-full">
       {projectDetailQuery.isFetching ? (
@@ -314,8 +336,19 @@ function ProjectMember() {
             }`}
           >
             <div className="h-full w-full p-3">
-              <div className="text-lg text-gray-400 font-semibold mb-3 flex justify-between">
+              <div className="text-gray-400 text-lg  font-semibold mb-3">
                 Project Members
+              </div>
+              <div className="mb-3 flex justify-between">
+                <div>
+                  <InputText
+                    name="search filter"
+                    id="search-filter"
+                    placeholder="Filter by name or email"
+                    className="mt-0 h-auto sm:w-fit max-w-full"
+                    onChange={(event) => setFilterString(event.target.value)}
+                  />
+                </div>
                 <div>
                   {currentUserIsAdmin && isAdmin && (
                     <div className="flex items-center">
@@ -513,10 +546,10 @@ function ProjectMember() {
                 placeholder={"Role"}
                 onChange={(e) => {
                   if (e) {
-                    setUserRole(e?.value)
+                    setUserRole(e?.value);
                   }
                 }}
-                value={{label:userRole,value:userRole}}
+                value={{ label: userRole, value: userRole }}
                 menuPlacement="auto"
                 className="z-10"
                 styles={reactSelectStyle}

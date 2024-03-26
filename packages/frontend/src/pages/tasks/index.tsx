@@ -76,7 +76,7 @@ function Tasks() {
       sorting: true,
       onCellRender: (item: Task) => (
         <div
-          className={`flex gap-2 items-center cursor-pointer`}
+          className={`flex gap-2 items-center cursor-pointer underline text-primary-500`}
           onClick={() => setTaskId(item.taskId)}
         >
           <div>{item.taskName}</div>
