@@ -1,5 +1,10 @@
 import express from "express";
-import { OrgStatusEnum, UserProviderTypeEnum, UserRoleEnum, UserStatusEnum } from "@prisma/client";
+import {
+  OrgStatusEnum,
+  UserProviderTypeEnum,
+  UserRoleEnum,
+  UserStatusEnum,
+} from "@prisma/client";
 import { getClientByTenantId } from "../config/db.js";
 import { settings } from "../config/settings.js";
 import { createJwtToken, verifyJwtToken } from "../utils/jwtHelper.js";
@@ -147,9 +152,11 @@ export const login = async (req: express.Request, res: express.Response) => {
       provider: true,
     },
   });
-  let errorMessage = "Your account is blocked, please contact your administrator";
+  let errorMessage =
+    "Your account is blocked, please contact your administrator";
   if (user.userOrganisation[0]?.role === UserRoleEnum.ADMINISTRATOR) {
-    errorMessage = "Your account is blocked, please contact our support at support@projectchef.io";
+    errorMessage =
+      "Your account is blocked, please contact our support at support@projectchef.io";
   }
   if (user?.status === UserStatusEnum.INACTIVE) {
     throw new BadRequestError(errorMessage);
@@ -177,18 +184,18 @@ export const login = async (req: express.Request, res: express.Response) => {
     const token = createJwtToken(tokenPayload);
     res.cookie(settings.jwt.tokenCookieKey, token, {
       ...cookieConfig,
-      maxAge: cookieConfig.maxAgeToken
+      maxAge: cookieConfig.maxAgeToken,
     });
 
     const refreshToken = createJwtToken(tokenPayload, true);
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
       ...cookieConfig,
-      maxAge: cookieConfig.maxAgeRefreshToken
+      maxAge: cookieConfig.maxAgeRefreshToken,
     });
     const { provider, ...userWithoutProvider } = user;
 
     // Generate and save verify otp
-    if(!user.isVerified) {
+    if (!user.isVerified) {
       const otpValue = generateOTP();
       const subjectMessage = `ProjectChef : One Time Password`;
       const expiresInMinutes = 5;
@@ -212,7 +219,7 @@ export const login = async (req: express.Request, res: express.Response) => {
         );
         await EmailService.sendEmail(user.email, subjectMessage, bodyMessage);
       } catch (error) {
-        console.error('Failed to send otp email', error)
+        console.error("Failed to send otp email", error);
       }
     }
     return new SuccessResponse(
@@ -238,13 +245,13 @@ export const getAccessToken = (req: express.Request, res: express.Response) => {
   const token = createJwtToken(tokenPayload);
   res.cookie(settings.jwt.tokenCookieKey, token, {
     ...cookieConfig,
-    maxAge: cookieConfig.maxAgeToken
+    maxAge: cookieConfig.maxAgeToken,
   });
 
   const refreshToken = createJwtToken(tokenPayload, true);
   res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
     ...cookieConfig,
-    maxAge: cookieConfig.maxAgeRefreshToken
+    maxAge: cookieConfig.maxAgeRefreshToken,
   });
   return new SuccessResponse(
     StatusCodes.OK,
@@ -274,7 +281,9 @@ export const forgotPassword = async (
   const token = generateRandomToken();
 
   const prisma = await getClientByTenantId(req.tenantId);
-  const findUser = await prisma.user.findFirst({ where: { email: email, deletedAt: null } });
+  const findUser = await prisma.user.findFirst({
+    where: { email: email, deletedAt: null },
+  });
   if (!findUser) throw new NotFoundError("User not found");
 
   const expiryTimeInMinutes = 10;
@@ -292,8 +301,8 @@ export const forgotPassword = async (
   Best Regards,
   ProjectChef Support Team
 
-  `
-  
+  `;
+
   try {
     await EmailService.sendEmail(email, subjectMessage, bodyMessage);
     await prisma.resetPassword.create({
@@ -337,8 +346,8 @@ export const resetPassword = async (
   const findUserProvider = await prisma.userProvider.findFirst({
     where: {
       userId: resetPasswordRecord.userId,
-      providerType: UserProviderTypeEnum.EMAIL
-    }
+      providerType: UserProviderTypeEnum.EMAIL,
+    },
   });
   await prisma.$transaction([
     prisma.resetPassword.update({
@@ -347,17 +356,17 @@ export const resetPassword = async (
         userId: resetPasswordRecord.userId,
       },
       data: {
-        isUsed: true
-      }
+        isUsed: true,
+      },
     }),
     prisma.userProvider.update({
       where: {
-        userProviderId: findUserProvider?.userProviderId
+        userProviderId: findUserProvider?.userProviderId,
       },
       data: {
-        idOrPassword: hashedPassword
-      }
-    })
+        idOrPassword: hashedPassword,
+      },
+    }),
   ]);
   return new SuccessResponse(
     StatusCodes.OK,
