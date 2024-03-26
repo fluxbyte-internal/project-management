@@ -279,7 +279,8 @@ function OrganisationDetails() {
         toast.error(error.response?.data.message);
         if (
           error.response?.data.message ==
-          "Pending tasks is already exists for this user!"
+          "Pending tasks is already exists for this user!" ||  error.response?.data.message ==
+          "Pending projects is already exists for this user!"
         ) {
           setReAssign(true);
           setShowConfirmDelete("");
