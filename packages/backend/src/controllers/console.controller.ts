@@ -49,7 +49,7 @@ export const me = async (req: express.Request, res: express.Response) => {
       deletedAt: null,
     },
   });
-  
+
   let errorMessage = "Your account is blocked, please contact your super admin";
   if (user?.status === ConsoleStatusEnum.INACTIVE) {
     throw new BadRequestError(errorMessage);
@@ -69,7 +69,7 @@ export const loginConsole = async (
   const { email, password } = consoleLoginSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
   const user = await prisma.consoleUser.findUnique({
-    where: { email, deletedAt: null, },
+    where: { email, deletedAt: null },
   });
   let errorMessage = "Your account is blocked, please contact your super admin";
   if (user?.status === ConsoleStatusEnum.INACTIVE) {
@@ -83,18 +83,18 @@ export const loginConsole = async (
     };
     const token = createJwtToken(tokenPayload);
     const refreshToken = createJwtToken(tokenPayload, true);
-    
+
     res.cookie(settings.jwt.tokenCookieKey, token, {
       ...cookieConfig,
-      maxAge: cookieConfig.maxAgeToken
+      maxAge: cookieConfig.maxAgeToken,
     });
 
     res.cookie(settings.jwt.refreshTokenCookieKey, refreshToken, {
       ...cookieConfig,
-      maxAge: cookieConfig.maxAgeRefreshToken
+      maxAge: cookieConfig.maxAgeRefreshToken,
     });
     const { password, ...infoWithoutPassword } = user;
-    if(!user.isVerified) {
+    if (!user.isVerified) {
       const otpValue = generateOTP();
       const subjectMessage = `Login OTP`;
       const expiresInMinutes = 5;
@@ -108,9 +108,9 @@ export const loginConsole = async (
         );
         await EmailService.sendEmail(user.email, subjectMessage, bodyMessage);
       } catch (error) {
-        console.error('Failed to send otp email', error)
+        console.error("Failed to send otp email", error);
       }
-    };
+    }
     return new SuccessResponse(
       StatusCodes.OK,
       { user: infoWithoutPassword },
@@ -221,14 +221,35 @@ export const createOperator = async (
       role: ConsoleRoleEnum.OPERATOR,
     },
   });
+  const superAdmin = await prisma.consoleUser.findFirst({
+    where: {
+      userId: req.userId
+    },
+    select: {
+      firstName: true,
+      lastName: true,
+      email: true
+    }
+  })
   try {
-    const subjectMessage = `Invited`;
+    let adminName;
+    if (superAdmin?.firstName && superAdmin?.lastName) {
+      adminName = superAdmin.firstName + " " + superAdmin.lastName;
+    } else {
+      adminName = superAdmin?.email;
+    }
+    const subjectMessage = `You’ve been Invited to ProjectChef console`;
     const bodyMessage = `
-      You are invited in console
+    Hello,
+    ${adminName} invited you to ProjectChef console
+    Please use the information bellow to login:
       
-      URL: ${settings.adminURL}/login
-      LOGIN: ${newUser.email}
-      PASSWORD: ${randomPassword}
+    URL: ${settings.adminURL}/login
+    LOGIN: ${newUser.email}
+    PASSWORD: ${randomPassword}
+
+    Best Regards,
+    ProjectChef Support Team
       `;
     await EmailService.sendEmail(newUser.email, subjectMessage, bodyMessage);
   } catch (error) {
@@ -301,13 +322,10 @@ export const deleteOperator = async (
 
   const userId = uuidSchema.parse(req.params.userId);
   const prisma = await getClientByTenantId(req.tenantId);
-  await prisma.consoleUser.update({
+  await prisma.consoleUser.delete({
     where: {
       userId: userId,
     },
-    data: {
-      deletedAt: new Date()
-    }
   });
   return new SuccessResponse(
     StatusCodes.OK,
