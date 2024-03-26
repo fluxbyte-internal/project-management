@@ -280,7 +280,7 @@ function OrganisationDetails() {
         if (
           error.response?.data.message ==
           "Pending tasks is already exists for this user!" ||  error.response?.data.message ==
-          "Pending projects is already exists for this user!"
+          "Active projects is already exists for this user!"
         ) {
           setReAssign(true);
           setShowConfirmDelete("");
