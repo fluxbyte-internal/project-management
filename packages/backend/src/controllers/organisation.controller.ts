@@ -323,7 +323,7 @@ export const removeOrganisationMember = async (
   const findAssignedProject = await prisma.project.findMany({
     where: {
       status: {
-        notIn: [ProjectStatusEnum.ACTIVE],
+        in: [ProjectStatusEnum.ACTIVE],
       },
       assignedUsers: {
         some: {
@@ -334,7 +334,7 @@ export const removeOrganisationMember = async (
   });
   if (findAssignedProject.length > 0) {
     throw new BadRequestError(
-      "Pending projects is already exists for this user!"
+      "Active projects is already exists for this user!"
     );
   }
   if (findAssignedTask.length > 0) {
