@@ -15,7 +15,13 @@ import {
   memberRoleSchema,
   reAssginedTaskSchema,
 } from "../schemas/organisationSchema.js";
-import { NotificationTypeEnum, TaskStatusEnum, UserProviderTypeEnum, UserRoleEnum, UserStatusEnum } from "@prisma/client";
+import {
+  NotificationTypeEnum,
+  TaskStatusEnum,
+  UserProviderTypeEnum,
+  UserRoleEnum,
+  UserStatusEnum,
+} from "@prisma/client";
 import { encrypt } from "../utils/encryption.js";
 import { uuidSchema } from "../schemas/commonSchema.js";
 import { ZodError } from "zod";
@@ -25,7 +31,7 @@ import { generateRandomPassword } from "../utils/generateRandomPassword.js";
 import { selectUserFields } from "../utils/selectedFieldsOfUsers.js";
 import { HistoryTypeEnumValue } from "../schemas/enums.js";
 import fileUpload from "express-fileupload";
-import moment from 'moment';
+import moment from "moment";
 import { AwsUploadService } from "../services/aws.services.js";
 
 export const getOrganisationById = async (
@@ -54,14 +60,14 @@ export const getOrganisationById = async (
           taskColour: true,
           user: {
             where: {
-              status: UserStatusEnum.ACTIVE
+              status: UserStatusEnum.ACTIVE,
             },
             select: selectUserFields,
           },
         },
         orderBy: {
-          createdAt: 'asc',
-        }
+          createdAt: "desc",
+        },
       },
     },
   });
@@ -106,11 +112,15 @@ export const createOrganisation = async (
           role: UserRoleEnum.ADMINISTRATOR,
         },
       },
-      nonWorkingDays: ["SAT", "SUN"], // Non working days will be defualt as per sheet doc : dev_hitesh - 15-03-2024 
+      nonWorkingDays: ["SAT", "SUN"], // Non working days will be defualt as per sheet doc : dev_hitesh - 15-03-2024
     },
   });
   const findUser = await prisma.user.findFirst({
-    where: { userId: req.userId },
+    where: {
+      userId: req.userId,
+      deletedAt: null,
+      status: UserStatusEnum.ACTIVE,
+    },
   });
   if (findUser?.country === null) {
     await prisma.user.update({
@@ -119,7 +129,7 @@ export const createOrganisation = async (
         country: country,
       },
     });
-  };
+  }
   return new SuccessResponse(
     StatusCodes.CREATED,
     organisation,
@@ -187,6 +197,8 @@ export const addOrganisationMember = async (
   const user = await prisma.user.findFirst({
     where: {
       email: member.email,
+      deletedAt: null,
+      status: UserStatusEnum.ACTIVE,
     },
     include: {
       userOrganisation: {
@@ -205,31 +217,33 @@ export const addOrganisationMember = async (
         status: UserStatusEnum.ACTIVE,
         provider: {
           create: {
-            idOrPassword: hashedPassword, 
-            providerType: UserProviderTypeEnum.EMAIL
-          }
+            idOrPassword: hashedPassword,
+            providerType: UserProviderTypeEnum.EMAIL,
+          },
         },
         userOrganisation: {
           create: {
             role: member.role,
-            organisationId: organisationId
-          }
-        }
+            organisationId: organisationId,
+          },
+        },
       },
       include: {
         userOrganisation: {
           include: {
             organisation: {
               include: {
-                createdByUser: true
-              }
-            }
-          }
-        }
-      }
+                createdByUser: true,
+              },
+            },
+          },
+        },
+      },
     });
     try {
-      const newUserOrg = newUser.userOrganisation.find(org => org.organisationId === organisationId);
+      const newUserOrg = newUser.userOrganisation.find(
+        (org) => org.organisationId === organisationId
+      );
       let adminName;
       if (
         newUserOrg?.organisation?.createdByUser.firstName &&
@@ -241,7 +255,7 @@ export const addOrganisationMember = async (
           newUserOrg?.organisation?.createdByUser.lastName;
       } else {
         adminName = newUserOrg?.organisation?.createdByUser.email;
-    }
+      }
       const subjectMessage = `You’ve been Invited to ${newUserOrg?.organisation?.organisationName} organization `;
       const bodyMessage = `
       Hello,
@@ -257,30 +271,34 @@ export const addOrganisationMember = async (
       Best Regards,
       ProjectChef Support Team
 
-      `
+      `;
       await EmailService.sendEmail(newUser.email, subjectMessage, bodyMessage);
     } catch (error) {
-      console.error('Failed to sign up email', error)
+      console.error("Failed to sign up email", error);
     }
     return new SuccessResponse(200, newUser).send(res);
   } else {
     if (
       user.userOrganisation.find((uo) => uo.organisationId === organisationId)
     ) {
-      throw new ZodError([{
-        code: 'invalid_string',
-        message: 'User already added in your organisation',
-        path: ['email'],
-        validation: "email",
-      }]);
+      throw new ZodError([
+        {
+          code: "invalid_string",
+          message: "User already added in your organisation",
+          path: ["email"],
+          validation: "email",
+        },
+      ]);
     }
     if (user.userOrganisation.length !== 0) {
-      throw new ZodError([{
-        code: 'invalid_string',
-        message: 'User is part of other organisation',
-        path: ['email'],
-        validation: "email",
-      }]);
+      throw new ZodError([
+        {
+          code: "invalid_string",
+          message: "User is part of other organisation",
+          path: ["email"],
+          validation: "email",
+        },
+      ]);
     }
     await prisma.userOrganisation.create({
       data: {
@@ -289,7 +307,11 @@ export const addOrganisationMember = async (
         organisationId,
       },
     });
-    return new SuccessResponse(200, user).send(res);
+    return new SuccessResponse(
+      StatusCodes.OK,
+      user,
+      "Member invited to organisation"
+    ).send(res);
   }
 };
 
@@ -304,7 +326,7 @@ export const removeOrganisationMember = async (
   const userOrganisationId = uuidSchema.parse(req.params.userOrganisationId);
   const findUserOrg = await prisma.userOrganisation.findFirstOrThrow({
     where: { userOrganisationId },
-    include: { user: true, },
+    include: { user: true },
   });
   const findAssignedTask = await prisma.task.findMany({
     where: {
@@ -323,11 +345,11 @@ export const removeOrganisationMember = async (
   if (findAssignedTask.length > 0) {
     throw new BadRequestError("Pending tasks is already exists for this user!");
   }
-  
+
   const findProjectAssginToUser = await prisma.projectAssignUsers.findFirst({
     where: {
-      assginedToUserId: findUserOrg.userId
-    }
+      assginedToUserId: findUserOrg.userId,
+    },
   });
   await prisma.$transaction([
     prisma.userOrganisation.update({
@@ -339,12 +361,12 @@ export const removeOrganisationMember = async (
             provider: {
               updateMany: {
                 where: {
-                  userId: findUserOrg.userId
+                  userId: findUserOrg.userId,
                 },
                 data: {
                   deletedAt: new Date(),
-                }
-              }
+                },
+              },
             },
             deletedAt: new Date(),
           },
@@ -353,8 +375,8 @@ export const removeOrganisationMember = async (
     }),
     prisma.projectAssignUsers.delete({
       where: {
-        projectAssignUsersId: findProjectAssginToUser?.projectAssignUsersId
-      }
+        projectAssignUsersId: findProjectAssginToUser?.projectAssignUsersId,
+      },
     }),
     prisma.user.update({
       where: { userId: findUserOrg.userId },
@@ -405,7 +427,7 @@ export const changeMemberRole = async (
     data: {
       role: role,
     },
-  }); 
+  });
   return new SuccessResponse(
     StatusCodes.OK,
     null,
@@ -518,8 +540,8 @@ export const uploadHolidayCSV = async (
     throw new BadRequestError("No CSV file uploaded!");
   }
   const fileName = file.name;
-  const fileExtension = fileName.split('.').pop();
-  if (fileExtension !== 'csv') {
+  const fileExtension = fileName.split(".").pop();
+  if (fileExtension !== "csv") {
     throw new BadRequestError("Please upload a CSV file.");
   }
   const csvString = file.data.toString("utf-8");
@@ -550,7 +572,7 @@ export const uploadHolidayCSV = async (
   const avatarImgURL = await AwsUploadService.uploadFileWithContent(
     `${findUploadedCSV.organisationName}-${fileName}`,
     file.data,
-    'organisation-csv'
+    "organisation-csv"
   );
   await prisma.$transaction(async (prisma) => {
     await Promise.all([
@@ -560,9 +582,9 @@ export const uploadHolidayCSV = async (
       prisma.organisation.update({
         where: { organisationId },
         data: {
-          holidayCsvUrl: avatarImgURL
-        }
-      })
+          holidayCsvUrl: avatarImgURL,
+        },
+      }),
     ]);
 
     const holidayRecords = csvRows.map(async (value) => {
@@ -609,8 +631,8 @@ export const resendInvitationToMember = async (
     include: {
       organisation: {
         include: {
-          createdByUser: true
-        }
+          createdByUser: true,
+        },
       },
       user: {
         select: {
