@@ -711,9 +711,12 @@ export const taskAssignToUser = async (
       },
     },
   });
+  const activeUsers = usersOfOrganisation.filter(
+    (user) => user.user.status === UserStatusEnum.ACTIVE
+  );
   return new SuccessResponse(
     StatusCodes.OK,
-    usersOfOrganisation,
+    activeUsers,
     "Get project's users successfully"
   ).send(res);
 };

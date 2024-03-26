@@ -323,12 +323,6 @@ export const removeOrganisationMember = async (
   if (findAssignedTask.length > 0) {
     throw new BadRequestError("Pending tasks is already exists for this user!");
   }
-  
-  const findProjectAssginToUser = await prisma.projectAssignUsers.findFirst({
-    where: {
-      assginedToUserId: findUserOrg.userId
-    }
-  });
   await prisma.$transaction([
     prisma.userOrganisation.update({
       where: { userOrganisationId },
@@ -350,11 +344,6 @@ export const removeOrganisationMember = async (
           },
         },
       },
-    }),
-    prisma.projectAssignUsers.delete({
-      where: {
-        projectAssignUsersId: findProjectAssginToUser?.projectAssignUsersId
-      }
     }),
     prisma.user.update({
       where: { userId: findUserOrg.userId },
@@ -380,6 +369,7 @@ export const removeOrganisationMember = async (
         addedDependencies: true,
         sentNotifications: true,
         receivedNotifications: true,
+        projectAssignUsers: true
       },
     }),
   ]);
