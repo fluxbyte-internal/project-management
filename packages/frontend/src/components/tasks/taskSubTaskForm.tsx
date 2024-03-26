@@ -435,9 +435,7 @@ function TaskSubTaskForm(props: Props) {
                       : ""}
 
                     <div className="ml-auto">
-                      {tasks?.delay && tasks?.delay * 100 > 100
-                        ? 100 + "%"
-                        : tasks?.delay && (tasks?.delay * 100).toFixed(0) + "%"}
+                      {tasks?.delay && Number(tasks?.delay).toFixed(0) + " %"}
                     </div>
                   </div>
                 </div>
