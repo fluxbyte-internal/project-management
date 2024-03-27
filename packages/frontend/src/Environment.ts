@@ -24,5 +24,6 @@ export const requestURLs = {
   logOut: `${baseURL}/api/auth/logOut`,
   adminPortfolioDashboardData: `${baseURL}/api/dashboard/administartorProjects`,
   managerPortfolioDashboardData: `${baseURL}/api/dashboard/projectManagerProjects`,
+  teamMemberPortfolioDashboardData: `${baseURL}/api/dashboard/teamMemberProjects`,
   projectDashboardData: `${baseURL}/api/dashboard/dashboardByProjectId`,
 };
