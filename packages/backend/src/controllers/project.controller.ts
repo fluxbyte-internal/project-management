@@ -2,10 +2,9 @@
 import { getClientByTenantId } from '../config/db.js';
 import { BadRequestError, NotFoundError, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
-import { consumedBudgetSchema, createKanbanSchema, createProjectSchema, projectAssginedRole, projectIdSchema, projectStatusSchema, updateKanbanSchema, updateProjectSchema } from '../schemas/projectSchema.js';
+import { assginedUserProjectSchema, consumedBudgetSchema, createKanbanSchema, createProjectSchema, projectAssginedRole, projectIdSchema, projectStatusSchema, updateKanbanSchema, updateProjectSchema } from '../schemas/projectSchema.js';
 import { NotificationTypeEnum, ProjectStatusEnum, TaskStatusEnum, UserRoleEnum, UserStatusEnum } from '@prisma/client';
 import { uuidSchema } from '../schemas/commonSchema.js';
-import { assginedToUserIdSchema } from '../schemas/taskSchema.js';
 import { selectUserFields } from '../utils/selectedFieldsOfUsers.js';
 import { calculateProjectDuration } from '../utils/calculateProjectDuration.js';
 
@@ -562,7 +561,7 @@ export const assignedUserToProject = async (
   const projectId = uuidSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
 
-  const { assginedToUserId, projectRoleForUser } = assginedToUserIdSchema.parse(req.body);
+  const { assginedToUserId, projectRoleForUser } = assginedUserProjectSchema.parse(req.body);
   const findUser = await prisma.user.findUnique({
     where: {
       userId: assginedToUserId,

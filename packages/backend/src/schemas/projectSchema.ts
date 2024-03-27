@@ -77,3 +77,8 @@ export const consumedBudgetSchema = z.object({
 export const projectAssginedRole = z.object({
   role: z.nativeEnum(UserRoleEnum)
 });
+
+export const assginedUserProjectSchema = z.object({
+  assginedToUserId: z.string().uuid(),
+  projectRoleForUser: z.nativeEnum(UserRoleEnum)
+});
