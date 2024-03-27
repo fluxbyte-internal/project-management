@@ -95,6 +95,9 @@ function CreateUpdateProjectForm(props: AddProjectType) {
         : toFormikValidationSchema(createProjectSchema),
     onSubmit: (values, helper) => {
       if (editData && editData.projectId) {
+        if (!values.estimatedEndDate) {
+          delete values.estimatedEndDate
+        }
         projectUpdateMutation.mutate(values, {
           onSuccess(data) {
             projectQuery.refetch();
@@ -126,6 +129,9 @@ function CreateUpdateProjectForm(props: AddProjectType) {
           },
         });
       } else {
+        if (!values.estimatedEndDate) {
+          delete values.estimatedEndDate
+        }
         projectMutation.mutate(values, {
           onSuccess(data) {
             projectQuery.refetch();

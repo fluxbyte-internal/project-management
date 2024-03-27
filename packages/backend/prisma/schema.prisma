@@ -275,7 +275,7 @@ model Project {
   projectDescription String?                    @map("project_description") @db.VarChar(500)
   startDate          DateTime                   @map("start_date")
   estimatedEndDate   DateTime?                  @map("estimated_end_date")
-  actualEndDate      DateTime                   @map("actual_end_date")
+  actualEndDate      DateTime?                   @map("actual_end_date")
   status             ProjectStatusEnum          @default(NOT_STARTED) @map("status")
   defaultView        ProjectDefaultViewEnum     @default(LIST) @map("default_view")
   timeTrack          String?                    @map("time_track")

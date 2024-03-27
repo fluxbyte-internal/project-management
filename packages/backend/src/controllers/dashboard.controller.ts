@@ -105,16 +105,16 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
         data[1]++;
       }
     }
-    const actualDurationWithCondition =
-    project.tasks.length === 0
-      ? 0
-      : await calculateProjectDuration(
-          project.startDate,
-          project.actualEndDate,
-          req.tenantId,
-          organisationId
-        );
-    const actualDuration = actualDurationWithCondition;
+    const actualDuration =
+      project.tasks.length != 0 && project.actualEndDate
+        ? await calculateProjectDuration(
+            project.startDate,
+            project.actualEndDate,
+            req.tenantId,
+            organisationId
+          )
+        : 0;
+
     const estimatedDuration = project.estimatedEndDate
       ? await calculateProjectDuration(
           project.startDate,
@@ -226,16 +226,15 @@ export const administartorProjects = async (req: Request, res: Response) => {
           data[1]++;
         }
       }
-      const actualDurationWithCondition =
-      project.tasks.length === 0
-        ? 0
-        : await calculateProjectDuration(
+      const actualDuration =
+      project.tasks.length != 0 && project.actualEndDate
+        ? await calculateProjectDuration(
             project.startDate,
             project.actualEndDate,
             req.tenantId,
             organisationId
-          );
-      const actualDuration = actualDurationWithCondition;
+          )
+        : 0;
 
       const estimatedDuration = project.estimatedEndDate
         ? await calculateProjectDuration(
@@ -393,16 +392,15 @@ export const teamMemberProjects = async (req: Request, res: Response) => {
           data[1]++;
         }
       }
-      const actualDurationWithCondition =
-        project.tasks.length === 0
-          ? 0
-          : await calculateProjectDuration(
-              project.startDate,
-              project.actualEndDate,
-              req.tenantId,
-              organisationId
-            );
-      const actualDuration = actualDurationWithCondition;
+      const actualDuration =
+      project.tasks.length != 0 && project.actualEndDate
+        ? await calculateProjectDuration(
+            project.startDate,
+            project.actualEndDate,
+            req.tenantId,
+            organisationId
+          )
+        : 0;
       const estimatedDuration = project.estimatedEndDate
       ? await calculateProjectDuration(
           project.startDate,
@@ -506,16 +504,15 @@ export const projectDashboardByprojectId = async (
   const spi = await calculationSPI(req.tenantId, organisationId, projectWithTasks.projectId)
 
   // Project Date's
-  const actualDurationWithCondition =
-  projectWithTasks.tasks.length === 0
-    ? 0
-    : await calculateProjectDuration(
+  const actualDuration =
+  projectWithTasks.tasks.length != 0 && projectWithTasks.actualEndDate
+    ? await calculateProjectDuration(
         projectWithTasks.startDate,
         projectWithTasks.actualEndDate,
         req.tenantId,
-        req.organisationId
-      );
-  const actualDuration = actualDurationWithCondition;
+        organisationId
+      )
+    : 0;
   const estimatedDuration = projectWithTasks.estimatedEndDate
     ? await calculateProjectDuration(
         projectWithTasks.startDate,
