@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ProjectType } from "../adminDashboard";
 // import HorizontalBarChart from "@/components/charts/HorizontalBarChart";
-import { Button } from "@/components/ui/button";
 import dateFormater from "@/helperFuntions/dateFormater";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 import { Project } from "@/api/query/useProjectQuery";
@@ -315,12 +314,6 @@ function TeamDashboard() {
           </div> */}
         </div>
         <div className="w-full flex flex-col md:flex-col gap-10 justify-center px-5 md:px-20 lg:px-0 self-center">
-          <div className="w-full lg:w-4/5 self-center">
-            <Button variant={"primary"} onClick={() => setIsOpenPopUp(true)}>
-              Add Project
-            </Button>
-          </div>
-
           <div className="w-full lg:w-4/5 h-full self-center mb-10">
             {tableData && (
               <>

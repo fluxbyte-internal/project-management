@@ -314,7 +314,7 @@ function OrganisationNoPopUpForm(props: Props) {
   function getFileNameFromURL(url: string) {
     const filenameWithEncoding = url.substring(url.lastIndexOf("/") + 1);
     const filename = decodeURIComponent(filenameWithEncoding);
-    return filename.split("-")[1];
+    return filename.split("-")[filename.split("-").length-1];
   }
 
   return (
