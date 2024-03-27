@@ -217,6 +217,11 @@ function TaskSubTaskForm(props: Props) {
           props.close();
         }
       } else {
+        if (props.initialValues?.startDate) {
+          values.startDate = new Date(props.initialValues?.startDate);
+          values.startDate.setUTCHours(0, 0, 0, 0);
+          values.startDate.setDate(values.startDate.getDate() + 1);
+        }
         taskCreateMutation.mutate(values, {
           onSuccess(data) {
             setTaskId(data.data.data.taskId);
