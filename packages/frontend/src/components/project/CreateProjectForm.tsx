@@ -303,7 +303,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                       <div className="text-left sm:w-1/2">
                         <label className="font-medium text-base text-gray-700 flex gap-1 mt-4 sm:mt-0">
                           Estimated End date
-                          <span className="ml-0.5 text-red-500">*</span>
+                          {/* <span className="ml-0.5 text-red-500">*</span> */}
                           <div className="flex items-center justify-center relative">
                             <TooltipProvider>
                               <Tooltip>
@@ -362,7 +362,7 @@ function CreateUpdateProjectForm(props: AddProjectType) {
                       <div className=" w-full">
                         <label className={labelStyle}>
                           Estimated Budget{" "}
-                          <span className="ml-0.5 text-red-500">*</span>
+                          {/* <span className="ml-0.5 text-red-500">*</span> */}
                         </label>
                         <input
                           type="text"

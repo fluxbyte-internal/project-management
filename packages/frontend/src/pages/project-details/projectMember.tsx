@@ -364,7 +364,7 @@ function ProjectMember() {
                       <Popover>
                         <PopoverTrigger className="w-full">
                           <Button variant={"primary"} size={"sm"}>
-                            Add Members
+                          Add project members
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto focus:outline-none">

@@ -10,9 +10,8 @@ function Organisation() {
   const { user } = useUser();
   useEffect(() => {
     if (user && user.userOrganisation.length > 0) {
-      if (user.userOrganisation[0].role !== "TEAM_MEMBER") {
-        navigate("/dashboard");
-      }
+      navigate("/dashboard");
+      
     }
   }, [user]);
 
