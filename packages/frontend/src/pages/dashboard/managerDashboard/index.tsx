@@ -47,15 +47,18 @@ function ManagerDashboard() {
     setData(projectManagerPortfolioDashboardQuery?.data?.data?.data);
   }, [projectManagerPortfolioDashboardQuery?.data?.data?.data]);
   useEffect(() => {
-    toast.warning(
-      "Please update tasks progression to have accurate data on dashboard",
-      {
-        autoClose: false,
-        closeOnClick: true,
-        className: "bg-primary-400/60 w-fit  text-nowrap",
-        style: { left: "-40%" },
-      }
-    );
+    if (!toast.isActive("toast1")) {
+      toast.warning(
+       <p>Please update Project settings and task progression to have accurate data on dashboard</p>,
+        {
+          autoClose: false,
+          closeOnClick: true,
+          className: "bg-primary-400/60 w-fit  text-nowrap",
+          style: { left: "-60%" },
+          toastId: "toast1",
+        }
+      );
+    }
   }, []);
   useEffect(() => {
     setTableData(data?.projects);
