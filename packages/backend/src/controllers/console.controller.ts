@@ -117,7 +117,7 @@ export const loginConsole = async (
       "Login successfully"
     ).send(res);
   }
-  throw new UnAuthorizedError();
+  throw new UnAuthorizedError("There is an error with your login/password");
 };
 
 export const changePassword = async (

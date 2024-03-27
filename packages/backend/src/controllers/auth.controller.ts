@@ -221,7 +221,7 @@ export const login = async (req: express.Request, res: express.Response) => {
       "Login successfully"
     ).send(res);
   }
-  throw new UnAuthorizedError();
+  throw new UnAuthorizedError("There is an error with your login/password");
 };
 
 export const getAccessToken = (req: express.Request, res: express.Response) => {

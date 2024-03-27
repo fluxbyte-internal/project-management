@@ -164,8 +164,8 @@ export class InternalServerError extends ApiError {
 };
 
 export class UnAuthorizedError extends ApiError {
-  constructor() {
-    super(ReasonPhrases.UNAUTHORIZED, ReasonPhrases.UNAUTHORIZED);
+  constructor(message?: string) {
+    super(ReasonPhrases.UNAUTHORIZED, message ? message : ReasonPhrases.UNAUTHORIZED);
   }
 };
 
