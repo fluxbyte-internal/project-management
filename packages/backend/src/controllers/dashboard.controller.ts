@@ -302,6 +302,133 @@ export const administartorProjects = async (req: Request, res: Response) => {
   ).send(res);
 };
 
+export const teamMemberProjects = async (req: Request, res: Response) => {
+  if (!req.organisationId) {
+    throw new BadRequestError("OrganisationId not found!");
+  }
+  const userId = req.userId;
+  const organisationId = req.organisationId;
+  const prisma = await getClientByTenantId(req.tenantId);
+
+  const teamMemberProjects = await prisma.project.findMany({
+    where: {
+      deletedAt: null,
+      organisationId: req.organisationId,
+      assignedUsers: {
+        some: {
+          assginedToUserId: userId,
+        },
+      },
+    },
+    include: {
+      tasks: true,
+    },
+  });
+
+  // Calculate Number of Portfolio Projects per Status
+  const allStatusValues: ProjectStatusEnum[] = [
+    ProjectStatusEnum.NOT_STARTED,
+    ProjectStatusEnum.ACTIVE,
+    ProjectStatusEnum.ON_HOLD,
+    ProjectStatusEnum.CLOSED,
+  ];
+
+  const statusCounts: StatusCounts = allStatusValues.reduce((acc, status) => {
+    acc[status] = 0;
+    return acc;
+  }, {} as StatusCounts);
+
+  teamMemberProjects.forEach((project) => {
+    const status = project.status as ProjectStatusEnum;
+    statusCounts[status]++;
+  });
+
+  // Calculate Number of Portfolio Projects per Overall Situation
+  const overallSituationCounts: StatusCounts = teamMemberProjects.reduce(
+    (acc, project) => {
+      const overallSituation = project.overallTrack as ProjectOverAllTrackEnum;
+      acc[overallSituation] = (acc[overallSituation] || 0) + 1;
+      return acc;
+    },
+    {} as StatusCounts
+  );
+
+  // Data for the status chart
+  const statusChartData = {
+    labels: Object.keys(statusCounts),
+    data: Object.values(statusCounts),
+  };
+  // Data for the overall situation chart
+  const overallSituationChartData = {
+    labels: Object.keys(overallSituationCounts),
+    data: Object.values(overallSituationCounts),
+  };
+
+  const labels = ["Significant delay", "On track", "Moderate delay"];
+  const data = [0, 0, 0];
+  const projects = await Promise.all(
+    teamMemberProjects.map(async (project) => {
+      const CPI = await calculationCPI(project, req.tenantId, organisationId);
+      if (project.status === ProjectStatusEnum.ACTIVE) {
+        const spi = await calculationSPI(
+          req.tenantId,
+          organisationId,
+          project.projectId
+        );
+        if (spi < 0.8) {
+          data[0]++;
+        } else if (spi < 0.95) {
+          data[2]++;
+        } else {
+          data[1]++;
+        }
+      }
+      const actualDurationWithCondition =
+        project.tasks.length === 0
+          ? 0
+          : await calculateProjectDuration(
+              project.startDate,
+              project.actualEndDate,
+              req.tenantId,
+              organisationId
+            );
+      const actualDuration = actualDurationWithCondition;
+      const estimatedDuration = await calculateProjectDuration(
+        project.startDate,
+        project.estimatedEndDate,
+        req.tenantId,
+        organisationId
+      );
+      const completedTasksCount = await prisma.task.count({
+        where: {
+          projectId: project.projectId,
+          status: TaskStatusEnum.COMPLETED,
+        },
+      });
+      return {
+        ...project,
+        CPI,
+        completedTasksCount,
+        actualDuration,
+        estimatedDuration,
+      };
+    })
+  );
+  const spiData = { labels, data };
+
+  const response = {
+    projects,
+    statusChartData,
+    overallSituationChartData,
+    spiData,
+  };
+  return new SuccessResponse(
+    StatusCodes.OK,
+    response,
+    "Portfolio projects of Team Member"
+  ).send(res);
+};
+
 export const projectDashboardByprojectId = async (
   req: Request,
   res: Response
