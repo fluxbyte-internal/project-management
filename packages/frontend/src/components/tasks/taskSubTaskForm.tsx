@@ -180,9 +180,12 @@ function TaskSubTaskForm(props: Props) {
     validationSchema: toFormikValidationSchema(createTaskSchema),
     onSubmit: (values) => {
       if (taskId) {
+        const startDate = new Date(values.startDate);
+        startDate.setUTCHours(0, 0, 0, 0);
+        startDate.setDate(startDate.getDate() + 1);
         if (
           values.duration !== tasks?.duration ||
-          values.startDate !== tasks?.startDate ||
+          values.startDate !== startDate ||
           values.taskDescription !== tasks.taskDescription ||
           values.taskName !== tasks.taskName
         ) {
@@ -190,7 +193,7 @@ function TaskSubTaskForm(props: Props) {
           if (values.duration === tasks?.duration) {
             data = {
               taskName: values.taskName,
-              startDate: values.startDate,
+              startDate: startDate,
               taskDescription: values.taskDescription,
             };
           } else {
@@ -217,6 +220,10 @@ function TaskSubTaskForm(props: Props) {
           props.close();
         }
       } else {
+        const startDate = new Date(values.startDate);
+        startDate.setUTCHours(0, 0, 0, 0);
+        startDate.setDate(startDate.getDate() + 1);
+        values.startDate = startDate;
         taskCreateMutation.mutate(values, {
           onSuccess(data) {
             setTaskId(data.data.data.taskId);
