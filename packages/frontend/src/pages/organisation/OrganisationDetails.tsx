@@ -41,10 +41,10 @@ import useReAssignTaskMutation from "@/api/mutation/useReAssingTaskMutation";
 import useResendInvitationMutation from "@/api/mutation/useResendUserInvitaionMutation";
 import MailResendIcon from "@/assets/svg/mailResendIcon.svg";
 import SendIcon from "@/assets/svg/sendIcon.svg";
-import useProjectQuery, { Project } from "@/api/query/useProjectQuery";
+import useProjectQuery from "@/api/query/useProjectQuery";
 import Select from "react-select";
 import useProjectAddMembersMutation from "@/api/mutation/useAddMemberProject";
-import Table, { ColumeDef } from "@/components/shared/Table";
+// import Table, { ColumeDef } from "@/components/shared/Table";
 const memberRoleOptions = [
   {
     value: UserRoleEnumValue.PROJECT_MANAGER,
@@ -171,7 +171,7 @@ function OrganisationDetails() {
   const [organisationForm, setOrganisationForm] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState("");
   const [resendEmail, setResendEmail] = useState("");
-  const [openTable, setOpenTable] = useState<string>();
+  // const [openTable, setOpenTable] = useState<string>();
   const resendInvitationMutation = useResendInvitationMutation();
   const projectQuery = useProjectQuery();
   const [project, setProject] = useState("");
@@ -344,31 +344,31 @@ function OrganisationDetails() {
       );
     }
   };
-  const columnDef: ColumeDef[] = [
-    { header: "Project Name", key: "projectName" },
-    {
-      header: "Project Manager",
-      key: "projectName",
-      onCellRender(data:Project) {
-        return (
-          <div>
-            <input type="checkbox" name={data.projectId} id={data.projectId} />
-          </div>
-        );
-      },
-    },
-    {
-      header: "Team Member",
-      key: "projectName",
-      onCellRender(data:Project) {
-        return (
-          <div>
-            <input type="checkbox" name={data.projectId} id={data.projectId} />
-          </div>
-        );
-      },
-    },
-  ];
+  // const columnDef: ColumeDef[] = [
+  //   { header: "Project Name", key: "projectName" },
+  //   {
+  //     header: "Project Manager",
+  //     key: "projectName",
+  //     onCellRender(data:Project) {
+  //       return (
+  //         <div>
+  //           <input type="checkbox" name={data.projectId} id={data.projectId} />
+  //         </div>
+  //       );
+  //     },
+  //   },
+  //   {
+  //     header: "Team Member",
+  //     key: "projectName",
+  //     onCellRender(data:Project) {
+  //       return (
+  //         <div>
+  //           <input type="checkbox" name={data.projectId} id={data.projectId} />
+  //         </div>
+  //       );
+  //     },
+  //   },
+  // ];
 
   return (
     <>
@@ -428,7 +428,17 @@ function OrganisationDetails() {
                           : ""
                       }`}
                       onClick={() => {
-                        setOpenTable(userOrg.userOrganisationId);
+                        // setOpenTable(userOrg.userOrganisationId);
+                        if (userOrg.role !== UserRoleEnumValue.ADMINISTRATOR) {
+                          setUpdateData(userOrg),
+                            setIsOpen(true),
+                            setReAssignUser((prev) => ({
+                              oldUserId: userOrg.user.userId ?? "",
+                              newUserId: prev?.newUserId ?? "",
+                              organisationUserId:
+                                prev?.organisationUserId ?? "",
+                            }));
+                        }
                       }}
                     >
                       <UserAvatar user={userOrg.user}></UserAvatar>
@@ -467,18 +477,18 @@ function OrganisationDetails() {
                         userOrg.role !== UserRoleEnumValue.ADMINISTRATOR &&
                         "cursor-pointer"
                       }`}
-                      onClick={() => {
-                        if (userOrg.role !== UserRoleEnumValue.ADMINISTRATOR) {
-                          setUpdateData(userOrg),
-                            setIsOpen(true),
-                            setReAssignUser((prev) => ({
-                              oldUserId: userOrg.user.userId ?? "",
-                              newUserId: prev?.newUserId ?? "",
-                              organisationUserId:
-                                prev?.organisationUserId ?? "",
-                            }));
-                        }
-                      }}
+                      // onClick={() => {
+                      //   if (userOrg.role !== UserRoleEnumValue.ADMINISTRATOR) {
+                      //     setUpdateData(userOrg),
+                      //       setIsOpen(true),
+                      //       setReAssignUser((prev) => ({
+                      //         oldUserId: userOrg.user.userId ?? "",
+                      //         newUserId: prev?.newUserId ?? "",
+                      //         organisationUserId:
+                      //           prev?.organisationUserId ?? "",
+                      //       }));
+                      //   }
+                      // }}
                     >
                       {userOrg.role?.toLowerCase().replaceAll("_", " ")}
                     </div>
@@ -519,7 +529,7 @@ function OrganisationDetails() {
                     )}
                   </div>
                   <hr className="h-px w-[98%] my-8 mx-auto bg-gray-200 border-0" />
-                  {openTable == userOrg.userOrganisationId && (
+                  {/* {openTable == userOrg.userOrganisationId && (
                     <div className="flex flex-col gap-2 p-6 w-full h-full ">
                       Assing project
                       <div className="w-full">
@@ -545,7 +555,7 @@ function OrganisationDetails() {
                         </Button>
                       </div>
                     </div>
-                  )}
+                  )} */}
                 </>
               ))}
             </div>
