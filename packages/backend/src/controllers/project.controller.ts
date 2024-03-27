@@ -212,7 +212,15 @@ export const getProjects = async (req: express.Request, res: express.Response) =
           req.organisationId
         );
     const actualDuration = actualDurationWithCondition;
-    const estimatedDuration = await calculateProjectDuration(project.startDate, project.estimatedEndDate, req.tenantId, req.organisationId);
+    
+    const estimatedDuration = project.estimatedEndDate
+      ? await calculateProjectDuration(
+          project.startDate,
+          project.estimatedEndDate,
+          req.tenantId,
+          req.organisationId
+        )
+      : null;
     const projectManagerInfo =
       projectManager.length !== 0 ? projectManager : projectAdministartor;
     const actualEndDate =  project.tasks.length === 0 ? null : project.actualEndDate;
@@ -269,7 +277,14 @@ export const getProjectById = async (req: express.Request, res: express.Response
         );
   const actualDuration = actualDurationWithCondition;
   const progressionPercentage = await prisma.project.projectProgression(projectId, req.tenantId, req.organisationId);
-  const estimatedDuration = await calculateProjectDuration(projects.startDate, projects.estimatedEndDate, req.tenantId, req.organisationId);
+  const estimatedDuration = projects.estimatedEndDate
+    ? await calculateProjectDuration(
+        projects.startDate,
+        projects.estimatedEndDate,
+        req.tenantId,
+        req.organisationId
+      )
+    : null;
   
   const actualEndDate =  projects.tasks.length === 0 ? null : projects.actualEndDate;
   const response = { ...projects, progressionPercentage, actualDuration, estimatedDuration, actualEndDate };

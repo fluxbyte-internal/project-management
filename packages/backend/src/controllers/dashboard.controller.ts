@@ -115,12 +115,19 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
           organisationId
         );
     const actualDuration = actualDurationWithCondition;
-    const estimatedDuration = await calculateProjectDuration(project.startDate, project.estimatedEndDate, req.tenantId, organisationId);
+    const estimatedDuration = project.estimatedEndDate
+      ? await calculateProjectDuration(
+          project.startDate,
+          project.estimatedEndDate,
+          req.tenantId,
+          organisationId
+        )
+      : null;
     const completedTasksCount = await prisma.task.count({
       where: {
         projectId: project.projectId,
-        status: TaskStatusEnum.COMPLETED
-      }
+        status: TaskStatusEnum.COMPLETED,
+      },
     });
     return { ...project, CPI, completedTasksCount, actualDuration, estimatedDuration };
   }));
@@ -230,12 +237,15 @@ export const administartorProjects = async (req: Request, res: Response) => {
           );
       const actualDuration = actualDurationWithCondition;
 
-      const estimatedDuration = await calculateProjectDuration(
-        project.startDate,
-        project.estimatedEndDate,
-        req.tenantId,
-        organisationId
-      );
+      const estimatedDuration = project.estimatedEndDate
+        ? await calculateProjectDuration(
+            project.startDate,
+            project.estimatedEndDate,
+            req.tenantId,
+            organisationId
+          )
+        : null;
+
       const completedTasksCount = await prisma.task.count({
         where: {
           projectId: project.projectId,
@@ -393,12 +403,14 @@ export const teamMemberProjects = async (req: Request, res: Response) => {
               organisationId
             );
       const actualDuration = actualDurationWithCondition;
-      const estimatedDuration = await calculateProjectDuration(
-        project.startDate,
-        project.estimatedEndDate,
-        req.tenantId,
-        organisationId
-      );
+      const estimatedDuration = project.estimatedEndDate
+      ? await calculateProjectDuration(
+          project.startDate,
+          project.estimatedEndDate,
+          req.tenantId,
+          organisationId
+        )
+      : null;
       const completedTasksCount = await prisma.task.count({
         where: {
           projectId: project.projectId,
@@ -504,7 +516,14 @@ export const projectDashboardByprojectId = async (
         req.organisationId
       );
   const actualDuration = actualDurationWithCondition;
-  const estimatedDuration = await calculateProjectDuration(projectWithTasks.startDate, projectWithTasks.estimatedEndDate, req.tenantId, req.organisationId);
+  const estimatedDuration = projectWithTasks.estimatedEndDate
+    ? await calculateProjectDuration(
+        projectWithTasks.startDate,
+        projectWithTasks.estimatedEndDate,
+        req.tenantId,
+        organisationId
+      )
+    : null;
   const projectDates = {
     startDate: projectWithTasks.startDate,
     estimatedEndDate: projectWithTasks.estimatedEndDate,
@@ -564,7 +583,7 @@ export const projectDashboardByprojectId = async (
       ? Number(reCalculateBudget) - Number(projectWithTasks.estimatedBudget)
       : null;
   const reCalculatedDuration =
-    spi !== 0 ? Math.round(estimatedDuration / spi) : 0;
+    spi !== 0 && estimatedDuration ? Math.round(estimatedDuration / spi) : 0;
   const reCalculateEndDate =
     reCalculatedDuration !== 0
       ? await calculateEndDateFromStartDateAndDuration(
