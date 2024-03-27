@@ -58,7 +58,9 @@ function Login() {
             }
             if (!Array.isArray(error.response?.data.errors)) {
               toast.error(
-                error.response?.data?.message ?? "An unexpected error occurred."
+                error.response?.data?.message ??
+                  "An unexpected error occurred.",
+                { autoClose: 5000 }
               );
             }
           }
@@ -78,9 +80,7 @@ function Login() {
   return (
     <div className="flex justify-center min-h-screen bg-gradient-to-t from-[#FFF8DF] to-[#FFD6AB] sm:p-20">
       <div className="lg:flex flex-col items-center justify-center lg:w-1/2 hidden gap-6 px-20">
-        <div className="font-bold text-3xl">
-        Projectchef
-        </div>
+        <div className="font-bold text-3xl">Projectchef</div>
         <div className="flex gap-3 w-full justify-between">
           <div className="mt-1">
             <img src={checkMark} alt="" className="w-10" />
@@ -173,7 +173,10 @@ function Login() {
               <hr />
             </div>
           </div>
-          <form onSubmit={formik.handleSubmit} className="px-4 flex flex-col gap-1">
+          <form
+            onSubmit={formik.handleSubmit}
+            className="px-4 flex flex-col gap-1"
+          >
             <div className="w-full mt-1">
               <label htmlFor="email" className={labelStyle}>
                 Email
@@ -187,7 +190,7 @@ function Login() {
                 className="h-10 mt-0"
               />
               <div>
-               <ErrorMessage className="!text-xs block mt-1">
+                <ErrorMessage className="!text-xs block mt-1">
                   {formik.touched.email && formik.errors.email}
                 </ErrorMessage>
               </div>
@@ -221,7 +224,7 @@ function Login() {
                 </Button>
               </div>
               <div>
-               <ErrorMessage className="!text-xs block mt-1">
+                <ErrorMessage className="!text-xs block mt-1">
                   {formik.touched.password && formik.errors.password}
                 </ErrorMessage>
               </div>

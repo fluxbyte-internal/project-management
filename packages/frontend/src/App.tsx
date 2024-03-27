@@ -43,7 +43,6 @@ function App() {
               pauseOnHover={false}
               draggable={true}
               theme="light"
-              limit={3}
             />
             <RouterProvider router={router} />
           </AuthProvider>
