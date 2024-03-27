@@ -27,11 +27,11 @@ export function useUser() {
       }
       if (!user) {
         if (isError) {
-          if (!toast.isActive("toast1")) {
+          if (!toast.isActive("toast2")) {
             toast.error(
               error.response?.data.message,
               {
-                toastId: "toast1",
+                toastId: "toast2",
               }
             );
           }
