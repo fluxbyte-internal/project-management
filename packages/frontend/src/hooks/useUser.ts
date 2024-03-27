@@ -27,7 +27,14 @@ export function useUser() {
       }
       if (!user) {
         if (isError) {
-          toast.error(error.response?.data.message);
+          if (!toast.isActive("toast1")) {
+            toast.error(
+              error.response?.data.message,
+              {
+                toastId: "toast1",
+              }
+            );
+          }
         }
         navigate("/login");
       }

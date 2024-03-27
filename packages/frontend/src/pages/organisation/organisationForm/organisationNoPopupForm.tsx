@@ -200,11 +200,15 @@ function OrganisationNoPopUpForm(props: Props) {
     { label: "Saturday", value: "SAT" },
   ];
   const industriesData: Options[] = [
-    { label: "IT", value: "IT" },
-    { label: "Banking", value: "Banking" },
-    { label: "Insurance", value: "Insurance" },
-    { label: "Education", value: "Education" },
-    { label: "Chemicals", value: "Chemicals" },
+    { label: "Construction", value: "Construction" },
+    { label: "Educational services", value: "Educational services" },
+    { label: "Healthcare and Social assistance", value: "Healthcare and Social assistance" },
+    { label: "Insurance, Banking, Finance", value: "Insurance, Banking, Finance" },
+    { label: "Manufacturing", value: "Manufacturing" },
+    { label: "Marketing/PR", value: "Marketing/PR" },
+    { label: "Non-Profit", value: "Non-Profit" },
+    { label: "Technology & Telecommunication", value: "Technology & Telecommunication" },
+    { label: "Others", value: "Others" },
   ];
 
   const contrysFn = () => {

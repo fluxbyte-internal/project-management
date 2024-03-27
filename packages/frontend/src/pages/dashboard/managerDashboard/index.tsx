@@ -199,8 +199,8 @@ function ManagerDashboard() {
       sorting: true,
       onCellRender: (item) => (
         <>
-          {item.estimatedEndDate &&
-            dateFormater(new Date(item.actualEndDate))}
+          {item.estimatedEndDate ?
+            dateFormater(new Date(item.actualEndDate)):"N/A"}
         </>
       ),
     },
