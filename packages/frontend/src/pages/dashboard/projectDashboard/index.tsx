@@ -449,7 +449,7 @@ function ProjectDashboard() {
                       <tr className="p-2 border-b">
                         <th className="p-2 border-r">Start date</th>
                         <td className="p-2 border-r">
-                          {data?.projectDates?.estimatedEndDate
+                          {data?.projectDates?.startDate
                             ? dateFormatter(
                                 new Date(data?.projectDates?.startDate)
                               )

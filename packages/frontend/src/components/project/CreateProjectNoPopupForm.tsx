@@ -181,9 +181,9 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
       };
       formik.setValues({
         startDate: formatDate(editData.startDate) as unknown as Date,
-        estimatedEndDate: formatDate(
+        estimatedEndDate:  Boolean(formik.values.estimatedEndDate) ?formatDate(
           editData.estimatedEndDate
-        ) as unknown as Date,
+        ) as unknown as Date : undefined,
         estimatedBudget: editData.estimatedBudget,
         projectDescription: editData.projectDescription,
         projectName: editData.projectName,
@@ -341,10 +341,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                     name="estimatedEndDate"
                     className={inputStyle}
                     placeholder="Placeholder"
-                    value={
-                      (formik.values.estimatedEndDate as unknown as string) ??
-                      ""
-                    }
+                    value={formik.values.estimatedEndDate as unknown as string}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                   />
@@ -404,10 +401,15 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                     key={radioButton.id}
                     className={`h-full w-full rounded-[5px] border ${
                       formik.values.defaultView ===
-                      radioButton.title.toUpperCase() && !viewOnly
-                        ?  " border-2  border-primary-800 "
-                        : " border-gray-100" 
-                    } ${formik.values.defaultView !== radioButton.title.toUpperCase() && viewOnly ? "border-2  border-gray-800  hidden" :  "block" }`}
+                        radioButton.title.toUpperCase() && !viewOnly
+                        ? " border-2  border-primary-800 "
+                        : " border-gray-100"
+                    } ${
+                      formik.values.defaultView !==
+                        radioButton.title.toUpperCase() && viewOnly
+                        ? "border-2  border-gray-800  hidden"
+                        : "block"
+                    }`}
                   >
                     <label className="flex lg:gap-3.5 gap-4 px-5 py-2.5 items-center h-full cursor-pointer">
                       <input
@@ -612,7 +614,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 menuPlacement="auto"
                 value={
                   formik.values.status && {
-                    label:enumToString(formik.values.status),
+                    label: enumToString(formik.values.status),
                     value: formik.values.status,
                   }
                 }
@@ -692,7 +694,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 menuPlacement="auto"
                 value={
                   formik.values.budgetTrend && {
-                    label:enumToString(formik.values.budgetTrend),
+                    label: enumToString(formik.values.budgetTrend),
                     value: formik.values.budgetTrend,
                   }
                 }
@@ -753,7 +755,9 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 {editData && editData.actualEndDate && (
                   <div>
                     <div>Actual end date</div>
-                    {editData.actualEndDate ? dateFormater(new Date(editData.actualEndDate)) : "N/A"}
+                    {editData.actualEndDate
+                      ? dateFormater(new Date(editData.actualEndDate))
+                      : "N/A"}
                   </div>
                 )}
               </div>
@@ -761,7 +765,9 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 {editData && (
                   <div>
                     <div>Est. duration</div>
-                    {editData.estimatedDuration ? editData.estimatedDuration : "N/A"}
+                    {editData.estimatedDuration
+                      ? editData.estimatedDuration
+                      : "N/A"}
                   </div>
                 )}
               </div>
@@ -769,7 +775,7 @@ function CreateProjectNoPopUpForm(props: AddProjectType) {
                 {editData && (
                   <div>
                     <div>Actual duration</div>
-                    {editData.actualDuration ? editData.actualDuration :"N/A" }
+                    {editData.actualDuration ? editData.actualDuration : "N/A"}
                   </div>
                 )}
               </div>

@@ -322,7 +322,7 @@ export const createProject = async (req: express.Request, res: express.Response)
       estimatedEndDate: estimatedEndDate,
       actualEndDate: estimatedEndDate ? estimatedEndDate : null,
       status: ProjectStatusEnum.NOT_STARTED,
-      estimatedBudget: estimatedBudget,
+      estimatedBudget: estimatedBudget ? estimatedBudget : "0",
       defaultView: defaultView,
       createdByUserId: req.userId,
       updatedByUserId: req.userId,
@@ -343,11 +343,8 @@ export const deleteProject = async (req: express.Request, res: express.Response)
   const prisma = await getClientByTenantId(req.tenantId);
   const findProject = await prisma.project.findFirstOrThrow({ where: { projectId: projectId, organisationId: req.organisationId, deletedAt: null, } });
   if (findProject) {
-    await prisma.project.update({
+    await prisma.project.delete({
       where: { projectId },
-      data: {
-        deletedAt: new Date(),
-      },
     });
     return new SuccessResponse(
       StatusCodes.OK,
