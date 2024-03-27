@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { OverAllTrackEnumValue, ScheduleAndBudgetTrend, ProjectDefaultViewEnumValue, ProjectStatusEnumValue, ZodErrorMessageEnumValue } from "./enums.js";
+import { UserRoleEnum } from "@prisma/client";
 
 
 export const createProjectSchema = z.object({
@@ -74,5 +75,5 @@ export const consumedBudgetSchema = z.object({
 });
 
 export const projectAssginedRole = z.object({
-  role: z.string()
+  role: z.nativeEnum(UserRoleEnum)
 });

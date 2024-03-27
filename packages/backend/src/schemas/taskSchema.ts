@@ -1,5 +1,6 @@
 import { ZodError, z } from "zod";
 import { TaskDependenciesEnumValue, TaskStatusEnumValue } from "./enums.js";
+import { UserRoleEnum } from "@prisma/client";
 export const createTaskSchema = z.object({
   taskName: z.string().min(1),
   taskDescription: z.string().optional(),
@@ -18,6 +19,7 @@ export const updateTaskSchema = z.object({
 
 export const assginedToUserIdSchema = z.object({
   assginedToUserId: z.string().uuid(),
+  projectRoleForUser: z.nativeEnum(UserRoleEnum)
 });
 
 export const taskStatusSchema = z.object({

@@ -22,4 +22,10 @@ router.get(
   DashboardController.projectDashboardByprojectId
 );
 
+router.get(
+  "/teamMemberProjects",
+  roleMiddleware([UserRoleEnum.TEAM_MEMBER]),
+  DashboardController.teamMemberProjects
+);
+
 export default router;
