@@ -404,6 +404,10 @@ export const statusChangeTask = async (req: express.Request, res: express.Respon
   const taskId = uuidSchema.parse(req.params.taskId);
   const statusBody = taskStatusSchema.parse(req.body);
   const prisma = await getClientByTenantId(req.tenantId);
+  const action = await prisma.task.canEditOrDelete(taskId, req.userId);
+  if (!action) {
+    throw new UnAuthorizedError();
+  }
   if (taskId) {
     const findTask = await prisma.task.findFirstOrThrow({ where: { taskId: taskId, deletedAt: null } })
     let completionPercentage = 0;
