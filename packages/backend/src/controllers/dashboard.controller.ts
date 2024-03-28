@@ -44,7 +44,20 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
       ],
     },
     include: {
-      tasks: true
+      tasks: true,
+      assignedUsers: {
+        include: {
+          user: {
+            include: {
+              userOrganisation: {
+                select: {
+                  role: true,
+                },
+              },
+            },
+          },
+        },
+      },
     }
   });
 
@@ -105,6 +118,36 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
         data[1]++;
       }
     }
+    const projectManagerInfo = await prisma.projectAssignUsers.findMany({
+      where: {
+        projectId: project.projectId,
+        user: {
+          deletedAt: null,
+          userOrganisation: {
+            some: {
+              role: {
+                equals: UserRoleEnum.PROJECT_MANAGER,
+              },
+            },
+          },
+        },
+      },
+      select: {
+        user: true,
+      },
+    });
+    const projectAdministartor = await prisma.userOrganisation.findMany({
+      where: {
+        role: {
+          equals: UserRoleEnum.ADMINISTRATOR,
+        },
+        organisationId: req.organisationId,
+        deletedAt: null,
+      },
+      include: {
+        user: true,
+      },
+    });
     const actualDuration =
       project.tasks.length != 0 && project.actualEndDate
         ? await calculateProjectDuration(
@@ -129,7 +172,17 @@ export const projectManagerProjects = async (req: Request, res: Response) => {
         status: TaskStatusEnum.COMPLETED,
       },
     });
-    return { ...project, CPI, completedTasksCount, actualDuration, estimatedDuration };
+    return {
+      ...project,
+      CPI,
+      completedTasksCount,
+      actualDuration,
+      estimatedDuration,
+      projectManagerInfo:
+        projectManagerInfo.length === 0
+          ? projectAdministartor
+          : projectManagerInfo,
+    };
   }));
   const spiData = { labels, data };
 
@@ -162,6 +215,19 @@ export const administartorProjects = async (req: Request, res: Response) => {
         where: { deletedAt: null },
         include: {
           tasks: true,
+          assignedUsers: {
+            include: {
+              user: {
+                include: {
+                  userOrganisation: {
+                    select: {
+                      role: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         }
       },
     },
@@ -288,7 +354,7 @@ export const administartorProjects = async (req: Request, res: Response) => {
         actualDuration,
         estimatedDuration,
         completedTasksCount,
-        projectManager:
+        projectManagerInfo:
           projectManagerInfo.length === 0
             ? projectAdministartor
             : projectManagerInfo,
@@ -331,6 +397,19 @@ export const teamMemberProjects = async (req: Request, res: Response) => {
     },
     include: {
       tasks: true,
+      assignedUsers: {
+        include: {
+          user: {
+            include: {
+              userOrganisation: {
+                select: {
+                  role: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 
@@ -415,12 +494,46 @@ export const teamMemberProjects = async (req: Request, res: Response) => {
           status: TaskStatusEnum.COMPLETED,
         },
       });
+      const projectManagerInfo = await prisma.projectAssignUsers.findMany({
+        where: {
+          projectId: project.projectId,
+          user: {
+            deletedAt: null,
+            userOrganisation: {
+              some: {
+                role: {
+                  equals: UserRoleEnum.PROJECT_MANAGER,
+                },
+              },
+            },
+          },
+        },
+        select: {
+          user: true,
+        },
+      });
+      const projectAdministartor = await prisma.userOrganisation.findMany({
+        where: {
+          role: {
+            equals: UserRoleEnum.ADMINISTRATOR,
+          },
+          organisationId: req.organisationId,
+          deletedAt: null,
+        },
+        include: {
+          user: true,
+        },
+      });
       return {
         ...project,
         CPI,
         completedTasksCount,
         actualDuration,
         estimatedDuration,
+        projectManagerInfo:
+          projectManagerInfo.length === 0
+            ? projectAdministartor
+            : projectManagerInfo,
       };
     })
   );
