@@ -655,6 +655,25 @@ export const deleteAssignedUserFromProject = async (
       projectAssignUsersId,
     },
   });
+
+  const findAssignedTask = await prisma.task.findMany({
+    where: {
+      deletedAt: null,
+      status: {
+        notIn: [TaskStatusEnum.COMPLETED],
+      },
+      assignedUsers: {
+        some: {
+          deletedAt: null,
+          assginedToUserId: findUser.assginedToUserId,
+        },
+      },
+    },
+  });
+  if (findAssignedTask.length > 0) {
+    throw new BadRequestError("Pending tasks is already exists for this user!");
+  }
+
   await prisma.$transaction([
     prisma.projectAssignUsers.delete({
       where: {

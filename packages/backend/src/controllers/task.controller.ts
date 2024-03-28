@@ -765,7 +765,7 @@ export const addMemberToTask = async (
   );
 
   // History-Manage
-  const historyMessage = "Task's assignee was added";
+  const historyMessage = "Task's assignee changed from";
   const historyData = { oldValue: null, newValue: member.user?.email };
   await prisma.history.createHistory(
     req.userId,
