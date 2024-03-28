@@ -1,6 +1,5 @@
 import { z } from "zod";
-import { OverAllTrackEnumValue, ScheduleAndBudgetTrend, ProjectDefaultViewEnumValue, ProjectStatusEnumValue, ZodErrorMessageEnumValue } from "./enums.js";
-import { UserRoleEnum } from "@prisma/client";
+import { OverAllTrackEnumValue, ScheduleAndBudgetTrend, ProjectDefaultViewEnumValue, ProjectStatusEnumValue, ZodErrorMessageEnumValue, UserRoleEnumValue } from "./enums.js";
 
 
 export const createProjectSchema = z.object({
@@ -39,7 +38,13 @@ export const updateProjectSchema = z.object({
   budgetTrend: z.nativeEnum(ScheduleAndBudgetTrend).optional(),
   consumedBudget: z.string().min(1).optional()
 }).refine(data => {
-  return new Date(data?.estimatedEndDate ?? new Date()) >= new Date(data.startDate?? new Date());
+  if (data.estimatedEndDate) {
+    return (
+      new Date(data?.estimatedEndDate ?? new Date()) >=
+      new Date(data.startDate ?? new Date())
+    );
+  }
+  return true;
 }, {
   message: 'End date precedes start date.',
   path: ['estimatedEndDate'] 
@@ -78,10 +83,10 @@ export const consumedBudgetSchema = z.object({
 });
 
 export const projectAssginedRole = z.object({
-  role: z.nativeEnum(UserRoleEnum)
+  role: z.nativeEnum(UserRoleEnumValue)
 });
 
 export const assginedUserProjectSchema = z.object({
   assginedToUserId: z.string().uuid(),
-  // projectRoleForUser: z.nativeEnum(UserRoleEnum)
+  // projectRoleForUser: z.nativeEnum(UserRoleEnumValue)
 });
