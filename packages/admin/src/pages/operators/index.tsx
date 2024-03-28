@@ -33,6 +33,7 @@ import Active from "../../assets/svg/Active.svg";
 import Delete from "../../assets/svg/Delete.svg";
 import OperartorBackground from "../../assets/operatorHomePageImage.jpg";
 import Dialog from "@/components/common/Dialog";
+import ErrorMessage from "@/components/common/ErrorMessage";
 
 function OperatorsList() {
   const [data, setData] = useState<operatorDataType[]>([]);
@@ -463,7 +464,8 @@ function OperatorsList() {
                       value={formik.values.email}
                       onChange={formik.handleChange}
                     ></input>
-                    <div className="flex items-end justify-end lg:mt-8 ">
+                    <ErrorMessage>{formik.errors.email}</ErrorMessage>
+                    <div className="flex items-end justify-end ">
                       <Button type="submit" variant={"primary"}>
                         Add
                       </Button>
