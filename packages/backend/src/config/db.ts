@@ -144,10 +144,12 @@ function generatePrismaClient(datasourceUrl?: string) {
             UserRoleEnum.PROJECT_MANAGER,
           ];
           const isTaskAuthor = task.createdByUserId === userId;
+          const isAssignedToTask = task.assignedUsers.some(
+            (assignedUser) => assignedUser.user.userId === userId
+          );
           const canPerformAction =
             userRoles.some((role) => allowedRoles.includes(role)) ||
-            isTaskAuthor;
-
+            isTaskAuthor || isAssignedToTask;
           return canPerformAction;
         },
         async getTaskById(taskId: string) {
