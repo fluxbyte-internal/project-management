@@ -416,7 +416,7 @@ function GanttView() {
       </>
     );
   };
-  const handleItemClick = async (event: (Event & CustomEvent) | undefined) => {
+  const handleItemClick = (event: (Event & CustomEvent) | undefined) => {
     event?.preventDefault();
     const eventDetails = event?.detail;
     const target = eventDetails.originalEvent.target;

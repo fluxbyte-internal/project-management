@@ -190,12 +190,7 @@ function NavBar() {
                       key={index}
                       className={`hidden gap-2 items-center ${
                         item.id === 2 && "lg:flex"
-                      } ${item.id === 1 && "md:flex"} ${
-                        user?.userOrganisation[0].role ==
-                          UserRoleEnumValue.TEAM_MEMBER &&
-                        item.id === 1 &&
-                        "!hidden"
-                      }`}
+                      } ${item.id === 1 && "md:flex"}`}
                     >
                       {hasSubItem(item) ? (
                         <DropdownMenu>
@@ -450,8 +445,8 @@ function NavBar() {
                   Account Settings
                 </Button>
               </DropdownMenuItem>
-              {user?.userOrganisation[0] &&
-                user?.userOrganisation[0].organisationId && (
+              {(user?.userOrganisation[0] &&
+                user?.userOrganisation[0].organisationId && user?.userOrganisation[0].role !== UserRoleEnumValue.TEAM_MEMBER) && (
                   <DropdownMenuItem onClick={openOrganisationSettings}>
                     <Settings className="mr-2 h-4 w-4 text-[#44546F]" />
                     <Button

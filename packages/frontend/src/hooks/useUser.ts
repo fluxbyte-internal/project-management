@@ -26,8 +26,14 @@ export function useUser() {
         navigate("/verify-email");
       }
       if (!user) {
-        if (isError) {
-          toast.error(error.response?.data.message);
+        if (isError && error.response?.data.code !== 401) {
+
+            toast.error(
+              error.response?.data.message,
+              {
+                toastId: "toast2",
+              }
+            );
         }
         navigate("/login");
       }

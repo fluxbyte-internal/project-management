@@ -17,7 +17,7 @@ export const updateTaskSchema = z.object({
 });
 
 export const assginedToUserIdSchema = z.object({
-  assginedToUserId: z.string().uuid(),
+  assginedToUserId: z.string().uuid()
 });
 
 export const taskStatusSchema = z.object({

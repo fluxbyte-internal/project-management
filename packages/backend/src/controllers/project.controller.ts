@@ -2,10 +2,9 @@
 import { getClientByTenantId } from '../config/db.js';
 import { BadRequestError, NotFoundError, SuccessResponse } from '../config/apiError.js';
 import { StatusCodes } from 'http-status-codes';
-import { consumedBudgetSchema, createKanbanSchema, createProjectSchema, projectAssginedRole, projectIdSchema, projectStatusSchema, updateKanbanSchema, updateProjectSchema } from '../schemas/projectSchema.js';
+import { assginedUserProjectSchema, consumedBudgetSchema, createKanbanSchema, createProjectSchema, projectAssginedRole, projectIdSchema, projectStatusSchema, updateKanbanSchema, updateProjectSchema } from '../schemas/projectSchema.js';
 import { NotificationTypeEnum, ProjectStatusEnum, TaskStatusEnum, UserRoleEnum, UserStatusEnum } from '@prisma/client';
 import { uuidSchema } from '../schemas/commonSchema.js';
-import { assginedToUserIdSchema } from '../schemas/taskSchema.js';
 import { selectUserFields } from '../utils/selectedFieldsOfUsers.js';
 import { calculateProjectDuration } from '../utils/calculateProjectDuration.js';
 
@@ -203,17 +202,24 @@ export const getProjects = async (req: express.Request, res: express.Response) =
         user: true,
       },
     });
-    const actualDurationWithCondition =
-    project.tasks.length === 0
-      ? 0
-      : await calculateProjectDuration(
+    const actualDuration =
+    project.tasks.length != 0 && project.actualEndDate
+      ? await calculateProjectDuration(
           project.startDate,
           project.actualEndDate,
           req.tenantId,
           req.organisationId
-        );
-    const actualDuration = actualDurationWithCondition;
-    const estimatedDuration = await calculateProjectDuration(project.startDate, project.estimatedEndDate, req.tenantId, req.organisationId);
+        )
+      : 0;
+    
+    const estimatedDuration = project.estimatedEndDate
+      ? await calculateProjectDuration(
+          project.startDate,
+          project.estimatedEndDate,
+          req.tenantId,
+          req.organisationId
+        )
+      : null;
     const projectManagerInfo =
       projectManager.length !== 0 ? projectManager : projectAdministartor;
     const actualEndDate =  project.tasks.length === 0 ? null : project.actualEndDate;
@@ -259,18 +265,24 @@ export const getProjectById = async (req: express.Request, res: express.Response
       },
     },
   });
-  const actualDurationWithCondition =
-    projects.tasks.length === 0
-      ? 0
-      : await calculateProjectDuration(
+  const actualDuration =
+    projects.tasks.length != 0 && projects.actualEndDate
+      ? await calculateProjectDuration(
           projects.startDate,
           projects.actualEndDate,
           req.tenantId,
           req.organisationId
-        );
-  const actualDuration = actualDurationWithCondition;
+        )
+      : 0;
   const progressionPercentage = await prisma.project.projectProgression(projectId, req.tenantId, req.organisationId);
-  const estimatedDuration = await calculateProjectDuration(projects.startDate, projects.estimatedEndDate, req.tenantId, req.organisationId);
+  const estimatedDuration = projects.estimatedEndDate
+    ? await calculateProjectDuration(
+        projects.startDate,
+        projects.estimatedEndDate,
+        req.tenantId,
+        req.organisationId
+      )
+    : null;
   
   const actualEndDate =  projects.tasks.length === 0 ? null : projects.actualEndDate;
   const response = { ...projects, progressionPercentage, actualDuration, estimatedDuration, actualEndDate };
@@ -308,9 +320,9 @@ export const createProject = async (req: express.Request, res: express.Response)
       projectDescription: projectDescription,
       startDate: startDate,
       estimatedEndDate: estimatedEndDate,
-      actualEndDate: estimatedEndDate,
+      actualEndDate: estimatedEndDate ? estimatedEndDate : null,
       status: ProjectStatusEnum.NOT_STARTED,
-      estimatedBudget: estimatedBudget,
+      estimatedBudget: estimatedBudget ? estimatedBudget : "0",
       defaultView: defaultView,
       createdByUserId: req.userId,
       updatedByUserId: req.userId,
@@ -331,11 +343,8 @@ export const deleteProject = async (req: express.Request, res: express.Response)
   const prisma = await getClientByTenantId(req.tenantId);
   const findProject = await prisma.project.findFirstOrThrow({ where: { projectId: projectId, organisationId: req.organisationId, deletedAt: null, } });
   if (findProject) {
-    await prisma.project.update({
+    await prisma.project.delete({
       where: { projectId },
-      data: {
-        deletedAt: new Date(),
-      },
     });
     return new SuccessResponse(
       StatusCodes.OK,
@@ -562,7 +571,7 @@ export const assignedUserToProject = async (
   const projectId = uuidSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
 
-  const { assginedToUserId } = assginedToUserIdSchema.parse(req.body);
+  const { assginedToUserId, /* projectRoleForUser */ } = assginedUserProjectSchema.parse(req.body);
   const findUser = await prisma.user.findUnique({
     where: {
       userId: assginedToUserId,
@@ -602,6 +611,7 @@ export const assignedUserToProject = async (
     data: {
       assginedToUserId,
       projectId,
+      // projectRole: projectRoleForUser
     },
     include: {
       user: {

@@ -44,6 +44,7 @@ import SendIcon from "@/assets/svg/sendIcon.svg";
 import useProjectQuery from "@/api/query/useProjectQuery";
 import Select from "react-select";
 import useProjectAddMembersMutation from "@/api/mutation/useAddMemberProject";
+// import Table, { ColumeDef } from "@/components/shared/Table";
 const memberRoleOptions = [
   {
     value: UserRoleEnumValue.PROJECT_MANAGER,
@@ -170,6 +171,7 @@ function OrganisationDetails() {
   const [organisationForm, setOrganisationForm] = useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = useState("");
   const [resendEmail, setResendEmail] = useState("");
+  // const [openTable, setOpenTable] = useState<string>();
   const resendInvitationMutation = useResendInvitationMutation();
   const projectQuery = useProjectQuery();
   const [project, setProject] = useState("");
@@ -215,7 +217,7 @@ function OrganisationDetails() {
     } else {
       setFilteredOrganisationUsers(organisation.userOrganisation);
     }
-    
+
     if (organisation) {
       setEditData({
         country: organisation.country,
@@ -228,8 +230,8 @@ function OrganisationDetails() {
         createdByUserId: organisation.createdBy,
         createdAt: organisation.createdAt,
         updatedAt: organisation.updatedAt,
-        holidayCsvUrl:organisation.holidayCsvUrl,
-        jobTitlesOfOrg:organisation.jobTitlesOfOrg
+        holidayCsvUrl: organisation.holidayCsvUrl,
+        jobTitlesOfOrg: organisation.jobTitlesOfOrg,
       });
     }
   }, [filterString, organisation?.userOrganisation, organisation]);
@@ -279,8 +281,9 @@ function OrganisationDetails() {
         toast.error(error.response?.data.message);
         if (
           error.response?.data.message ==
-          "Pending tasks is already exists for this user!" ||  error.response?.data.message ==
-          "Active projects is already exists for this user!"
+            "Pending tasks is already exists for this user!" ||
+          error.response?.data.message ==
+            "Active projects is already exists for this user!"
         ) {
           setReAssign(true);
           setShowConfirmDelete("");
@@ -341,6 +344,32 @@ function OrganisationDetails() {
       );
     }
   };
+  // const columnDef: ColumeDef[] = [
+  //   { header: "Project Name", key: "projectName" },
+  //   {
+  //     header: "Project Manager",
+  //     key: "projectName",
+  //     onCellRender(data:Project) {
+  //       return (
+  //         <div>
+  //           <input type="checkbox" name={data.projectId} id={data.projectId} />
+  //         </div>
+  //       );
+  //     },
+  //   },
+  //   {
+  //     header: "Team Member",
+  //     key: "projectName",
+  //     onCellRender(data:Project) {
+  //       return (
+  //         <div>
+  //           <input type="checkbox" name={data.projectId} id={data.projectId} />
+  //         </div>
+  //       );
+  //     },
+  //   },
+  // ];
+
   return (
     <>
       <div className="overflow-auto w-full">
@@ -394,18 +423,21 @@ function OrganisationDetails() {
                   >
                     <div
                       className={`flex w-full sm:w-auto gap-2 items-center grow ${
-                        userOrg.role !==  UserRoleEnumValue.ADMINISTRATOR ? "cursor-pointer" : ""
+                        userOrg.role !== UserRoleEnumValue.ADMINISTRATOR
+                          ? "cursor-pointer"
+                          : ""
                       }`}
                       onClick={() => {
-                        if (userOrg.role !==  UserRoleEnumValue.ADMINISTRATOR) {
+                        // setOpenTable(userOrg.userOrganisationId);
+                        if (userOrg.role !== UserRoleEnumValue.ADMINISTRATOR) {
                           setUpdateData(userOrg),
-                          setIsOpen(true),
-                          setReAssignUser((prev) => ({
-                            oldUserId: userOrg.user.userId ?? "",
-                            newUserId: prev?.newUserId ?? "",
-                            organisationUserId:
+                            setIsOpen(true),
+                            setReAssignUser((prev) => ({
+                              oldUserId: userOrg.user.userId ?? "",
+                              newUserId: prev?.newUserId ?? "",
+                              organisationUserId:
                                 prev?.organisationUserId ?? "",
-                          }));
+                            }));
                         }
                       }}
                     >
@@ -440,14 +472,33 @@ function OrganisationDetails() {
                         {userOrg.jobTitle}
                       </div>
                     </div>
-                    <div className="capitalize text-gray-700 text-sm">
+                    <div
+                      className={`capitalize text-gray-700 text-sm ${
+                        userOrg.role !== UserRoleEnumValue.ADMINISTRATOR &&
+                        "cursor-pointer"
+                      }`}
+                      // onClick={() => {
+                      //   if (userOrg.role !== UserRoleEnumValue.ADMINISTRATOR) {
+                      //     setUpdateData(userOrg),
+                      //       setIsOpen(true),
+                      //       setReAssignUser((prev) => ({
+                      //         oldUserId: userOrg.user.userId ?? "",
+                      //         newUserId: prev?.newUserId ?? "",
+                      //         organisationUserId:
+                      //           prev?.organisationUserId ?? "",
+                      //       }));
+                      //   }
+                      // }}
+                    >
                       {userOrg.role?.toLowerCase().replaceAll("_", " ")}
                     </div>
                     {currentUserIsAdmin && (
                       <div className="flex gap-3">
                         <Button
                           variant="primary_outline"
-                          disabled={userOrg.role ===  UserRoleEnumValue.ADMINISTRATOR}
+                          disabled={
+                            userOrg.role === UserRoleEnumValue.ADMINISTRATOR
+                          }
                           className="ml-auto text-danger border-danger hover:bg-danger hover:bg-opacity-10 hover:text-danger py-1.5 h-auto"
                           onClick={() => {
                             setReAssignUser((prev) => ({
@@ -463,7 +514,9 @@ function OrganisationDetails() {
                         {!userOrg.user.isVerified && (
                           <Button
                             variant="primary_outline"
-                            disabled={userOrg.role ===  UserRoleEnumValue.ADMINISTRATOR}
+                            disabled={
+                              userOrg.role === UserRoleEnumValue.ADMINISTRATOR
+                            }
                             className="ml-auto text-danger border-danger hover:bg-danger hover:bg-opacity-10 hover:text-danger py-1.5 h-auto"
                             onClick={() => {
                               setResendEmail(userOrg.userOrganisationId);
@@ -476,6 +529,33 @@ function OrganisationDetails() {
                     )}
                   </div>
                   <hr className="h-px w-[98%] my-8 mx-auto bg-gray-200 border-0" />
+                  {/* {openTable == userOrg.userOrganisationId && (
+                    <div className="flex flex-col gap-2 p-6 w-full h-full ">
+                      Assing project
+                      <div className="w-full">
+                        <Table
+                          columnDef={columnDef}
+                          data={projectQuery.data?.data.data ?? []}
+                        />
+                      </div>
+                      <div className="flex gap-2 ml-auto">
+                        <Button
+                          variant={"outline"}
+                          onClick={() => setOpenTable("")}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          variant={"primary"}
+                          onClick={() => {
+                            resend(resendEmail);
+                          }}
+                        >
+                          save
+                        </Button>
+                      </div>
+                    </div>
+                  )} */}
                 </>
               ))}
             </div>
@@ -612,18 +692,18 @@ function OrganisationDetails() {
                           {userOrg.user.firstName
                             ? userOrg.user.lastName
                               ? `${userOrg.user.firstName.charAt(
-                                0
-                              )}${userOrg.user.lastName.charAt(
-                                0
-                              )}`.toUpperCase()
+                                  0
+                                )}${userOrg.user.lastName.charAt(
+                                  0
+                                )}`.toUpperCase()
                               : `${userOrg.user.firstName.charAt(
-                                0
-                              )}${userOrg.user.firstName.charAt(
-                                1
-                              )}`.toUpperCase()
+                                  0
+                                )}${userOrg.user.firstName.charAt(
+                                  1
+                                )}`.toUpperCase()
                             : `${userOrg.user.email.charAt(
-                              0
-                            )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
+                                0
+                              )}${userOrg.user.email.charAt(1)}`.toUpperCase()}
                         </div>
                       </div>
                       <div className="capitalize text-gray-700 text-sm">

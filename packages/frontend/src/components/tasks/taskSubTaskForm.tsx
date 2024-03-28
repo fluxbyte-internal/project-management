@@ -148,8 +148,9 @@ function TaskSubTaskForm(props: Props) {
 
   const allowed = () => {
     if (
-      user.user?.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER &&
-      tasks?.createdByUserId == user.user?.userId || tasks?.assignedUsers.find(u=>u.user.userId === user.user?.userId)
+      (user.user?.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER &&
+        tasks?.createdByUserId == user.user?.userId) ||
+      tasks?.assignedUsers.find((u) => u.user.userId === user.user?.userId)
     ) {
       return true;
     } else if (
@@ -171,10 +172,20 @@ function TaskSubTaskForm(props: Props) {
       taskDescription: "",
       startDate: props.initialValues?.startDate
         ? new Date(props.initialValues?.startDate)
-        : new Date(
-            projects.data?.data.data.find((p) => p.projectId == props.projectId)
-              ?.startDate ?? new Date()
-          ),
+        : projects?.data?.data?.data.find(
+          (p) => p.projectId === props.projectId
+        )?.startDate &&
+          new Date(
+            projects?.data?.data?.data.find(
+              (p) => p.projectId === props.projectId
+            )?.startDate ?? ""
+          ) >= new Date()
+          ? new Date(
+            projects?.data?.data?.data.find(
+              (p) => p.projectId === props.projectId
+            )?.startDate ?? ""
+          )
+          : new Date(),
       duration: 1.0,
     },
     validationSchema: toFormikValidationSchema(createTaskSchema),
@@ -217,6 +228,11 @@ function TaskSubTaskForm(props: Props) {
           props.close();
         }
       } else {
+        if (props.initialValues?.startDate) {
+          values.startDate = new Date(props.initialValues?.startDate);
+          values.startDate.setUTCHours(0, 0, 0, 0);
+          values.startDate.setDate(values.startDate.getDate() + 1);
+        }
         taskCreateMutation.mutate(values, {
           onSuccess(data) {
             setTaskId(data.data.data.taskId);
@@ -394,7 +410,6 @@ function TaskSubTaskForm(props: Props) {
     props.close();
   };
 
-
   return (
     <div className="absolute w-full h-full z-50 top-full left-full -translate-x-full -translate-y-full flex justify-center items-center bg-gray-900 bg-opacity-50">
       <div className="bg-white rounded-lg text-gray-700 p-6 lg:p-10 w-full md:max-w-[95%] lg:max-w-[80%] h-full md:max-h-[80%] overflow-auto ">
@@ -419,20 +434,20 @@ function TaskSubTaskForm(props: Props) {
                       tasks?.flag == "Green"
                         ? "bg-green-500/60"
                         : tasks?.flag == "Red"
-                        ? "bg-red-500/60"
-                        : tasks?.flag == "Orange"
-                        ? "bg-primary-500/60"
-                        : ""
+                          ? "bg-red-500/60"
+                          : tasks?.flag == "Orange"
+                            ? "bg-primary-500/60"
+                            : ""
                     }`}
                   >
                     <img src={Tag} className="w-3.5" />
                     {tasks?.flag == "Green"
                       ? "On track"
                       : tasks?.flag == "Red"
-                      ? "Significant delay"
-                      : tasks?.flag == "Orange"
-                      ? "Moderate delay"
-                      : ""}
+                        ? "Significant delay"
+                        : tasks?.flag == "Orange"
+                          ? "Moderate delay"
+                          : ""}
 
                     <div className="ml-auto">
                       {tasks?.delay && Number(tasks?.delay).toFixed(0) + " %"}
@@ -442,7 +457,7 @@ function TaskSubTaskForm(props: Props) {
               </div>
 
               <div>
-                {(!taskId  || !allowed())&& (
+                {(!taskId || !allowed()) && (
                   <Button
                     variant={"ghost"}
                     onClick={() => {
@@ -595,13 +610,13 @@ function TaskSubTaskForm(props: Props) {
                 {/* Attachments */}
                 {tasks?.documentAttachments &&
                 tasks?.documentAttachments.length > 0 ? (
-                  <TaskAttachment
-                    refetch={refetch}
-                    task={tasks}
-                  ></TaskAttachment>
-                ) : (
-                  ""
-                )}
+                    <TaskAttachment
+                      refetch={refetch}
+                      task={tasks}
+                    ></TaskAttachment>
+                  ) : (
+                    ""
+                  )}
 
                 <div className="flex items-center gap-2.5 mt-4">
                   <img src={MultiLine} width={20} height={20} />
@@ -651,11 +666,11 @@ function TaskSubTaskForm(props: Props) {
                           >
                             {tasks?.status
                               ? `Status: ${tasks?.status
-                                  .toLowerCase()
-                                  .replace(/_/g, " ")
-                                  .replace(/\b\w/g, (char) =>
-                                    char.toUpperCase()
-                                  )}`
+                                .toLowerCase()
+                                .replace(/_/g, " ")
+                                .replace(/\b\w/g, (char) =>
+                                  char.toUpperCase()
+                                )}`
                               : "Select Status"}
                           </Button>
                         </div>
@@ -728,8 +743,8 @@ function TaskSubTaskForm(props: Props) {
                             </h4>
                           </div>
                           <div>
-                            {taskMemberList.data?.data.data
-                              .map((data, index) => {
+                            {taskMemberList.data?.data.data.map(
+                              (data, index) => {
                                 return (
                                   <div
                                     key={index}
@@ -745,12 +760,12 @@ function TaskSubTaskForm(props: Props) {
                                         (u) => u.user.userId == data.user.userId
                                       )
                                         ? removeMembers(
-                                            tasks?.assignedUsers.find(
-                                              (id) =>
-                                                id.user.userId ==
+                                          tasks?.assignedUsers.find(
+                                            (id) =>
+                                              id.user.userId ==
                                                 data.user.userId
-                                            )?.taskAssignUsersId ?? ""
-                                          )
+                                          )?.taskAssignUsersId ?? ""
+                                        )
                                         : submitMembers(data);
                                     }}
                                   >
@@ -779,7 +794,8 @@ function TaskSubTaskForm(props: Props) {
                                     />
                                   </div>
                                 );
-                              })}
+                              }
+                            )}
                           </div>
                         </div>
                       </PopoverContent>
@@ -864,10 +880,10 @@ function TaskSubTaskForm(props: Props) {
                           />
                           {taskFormik.errors.startDate &&
                             taskFormik.values.startDate && (
-                              <ErrorMessage className="ml-0 p-0">
-                                {/* {taskFormik.errors.startDate} */}
-                              </ErrorMessage>
-                            )}
+                            <ErrorMessage className="ml-0 p-0">
+                              {/* {taskFormik.errors.startDate} */}
+                            </ErrorMessage>
+                          )}
                         </PopoverContent>
                       </Popover>
                     </div>
@@ -935,7 +951,7 @@ function TaskSubTaskForm(props: Props) {
                             <InputNumber
                               onBlur={() => {
                                 setTaskDurationField(false),
-                                  taskFormik.submitForm();
+                                taskFormik.submitForm();
                               }}
                               autoFocus
                               name="duration"
@@ -1009,7 +1025,8 @@ function TaskSubTaskForm(props: Props) {
                           key={tasks?.completionPecentage}
                           className="text-xs font-medium text-gray-400 flex items-center gap-2"
                         >
-                          Progress: {slider ? Number(slider).toFixed() + "%" : "0%"}
+                          Progress:{" "}
+                          {slider ? Number(slider).toFixed() + "%" : "0%"}
                         </div>
                       </div>
 

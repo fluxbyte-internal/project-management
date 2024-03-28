@@ -358,12 +358,12 @@ function Signup() {
               />
               <div className="text-sm">
                 I agree to the{" "}
-                <Link className="text-primary-500" to="/term-and-condition">
+                <Link className="text-primary-500" target="_blank" to="/term-and-condition">
                   {" "}
                   term of use{" "}
                 </Link>
                 and{" "}
-                <Link to="/privacy-policy" className="text-primary-500">
+                <Link to="/privacy-policy" target="_blank" className="text-primary-500">
                   privacy policy
                 </Link>
                 .

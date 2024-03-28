@@ -273,12 +273,12 @@ function ProjectsList() {
       ),
     },
     {
-      key: "estimatedEndDate",
+      key: "actualEndDate",
       header: "Actual Date",
       sorting: true,
       onCellRender: (item: Project) => (
         <>
-          {item.estimatedEndDate && dateFormatter(new Date(item.actualEndDate))}
+          {item.actualEndDate ? dateFormatter(new Date(item.actualEndDate)):'N/A'}
         </>
       ),
     },
@@ -288,8 +288,8 @@ function ProjectsList() {
       sorting: true,
       onCellRender: (item: Project) => (
         <>
-          {item.estimatedEndDate &&
-            dateFormatter(new Date(item.estimatedEndDate))}
+          {item.estimatedEndDate ?
+            dateFormatter(new Date(item.estimatedEndDate)):'N/A'}
         </>
       ),
     },
