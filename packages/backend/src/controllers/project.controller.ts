@@ -571,7 +571,7 @@ export const assignedUserToProject = async (
   const projectId = uuidSchema.parse(req.params.projectId);
   const prisma = await getClientByTenantId(req.tenantId);
 
-  const { assginedToUserId, projectRoleForUser } = assginedUserProjectSchema.parse(req.body);
+  const { assginedToUserId, /* projectRoleForUser */ } = assginedUserProjectSchema.parse(req.body);
   const findUser = await prisma.user.findUnique({
     where: {
       userId: assginedToUserId,
@@ -611,7 +611,7 @@ export const assignedUserToProject = async (
     data: {
       assginedToUserId,
       projectId,
-      projectRole: projectRoleForUser
+      // projectRole: projectRoleForUser
     },
     include: {
       user: {

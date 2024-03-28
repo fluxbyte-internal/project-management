@@ -12,11 +12,20 @@ import dateFormater from "@/helperFuntions/dateFormater";
 import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 import { Project } from "@/api/query/useProjectQuery";
 import LinkArrow from "@/assets/svg/linkArrow.svg";
-import { ProjectStatusEnumValue } from "@backend/src/schemas/enums";
+import {
+  ProjectStatusEnumValue,
+  UserRoleEnumValue,
+} from "@backend/src/schemas/enums";
 import { toast } from "react-toastify";
-import { Tooltip, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import InfoCircle from "@/assets/svg/Info circle.svg";
+import PercentageCircle from "@/components/shared/PercentageCircle";
+import UserAvatar from "@/components/ui/userAvatar";
 
 function TeamDashboard() {
   const projectManagerPortfolioDashboardQuery =
@@ -48,7 +57,10 @@ function TeamDashboard() {
   useEffect(() => {
     if (!toast.isActive("toast1")) {
       toast.warning(
-       <p>Please update Project settings and task progression to have accurate data on dashboard</p>,
+        <p>
+          Please update Project settings and task progression to have accurate
+          data on dashboard
+        </p>,
         {
           autoClose: false,
           closeOnClick: true,
@@ -105,7 +117,7 @@ function TeamDashboard() {
     });
     setSpiPieChartProp({
       chartData: spiPieChartData!,
-      color: ["#FF000077",  "#00800077","#FFB81977",],
+      color: ["#FF000077", "#00800077", "#FFB81977"],
       title: "Project With Delays",
       radius: ["45%", "60%"],
       height: "300px",
@@ -159,7 +171,7 @@ function TeamDashboard() {
       ),
       onHeaderRender: (item: string) => (
         <>
-          <TooltipProvider >
+          <TooltipProvider>
             <Tooltip>
               <TooltipTrigger className="flex gap-1 mr-3 items-center">
                 {item}
@@ -170,14 +182,112 @@ function TeamDashboard() {
                 />
               </TooltipTrigger>
               <TooltipContent>
-                <p className="text-sm"> CPI measures the project’s cost efficiency: CPI&gt;1: Project is under budget; CPI&lt;1: Project is over budget; CPI=1: Project is on budget</p>
+                <p className="text-sm">
+                  {" "}
+                  CPI measures the project’s cost efficiency: CPI&gt;1: Project
+                  is under budget; CPI&lt;1: Project is over budget; CPI=1:
+                  Project is on budget
+                </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </>
       ),
     },
-
+    {
+      key: "createdByUser",
+      header: "Project Manager",
+      onCellRender: (item: Project) => (
+        <div className="w-full my-3">
+          {item.projectManagerInfo?.length > 0 ? (
+            <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
+              {item.projectManagerInfo?.slice(0, 3).map((item, index) => {
+                const zIndex = Math.abs(index - 2);
+                return (
+                  <>
+                    <div key={index} style={{ zIndex: zIndex }}>
+                      <UserAvatar
+                        className={`shadow-sm h-7 w-7`}
+                        user={item.user}
+                      ></UserAvatar>
+                    </div>
+                  </>
+                );
+              })}
+              {item.projectManagerInfo &&
+                item.projectManagerInfo?.length > 3 && (
+                  <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
+                    {`${item.projectManagerInfo?.length - 3}+`}
+                  </div>
+                )}
+              {item.projectManagerInfo?.length <= 0 ? "N/A" : ""}
+            </div>
+          ) : (
+            "NA"
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "createdByUser",
+      header: "Team Member",
+      onCellRender: (item: Project) => (
+        <div className="w-full my-3">
+          {item.assignedUsers.filter(
+            (d) =>
+              d.user.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER
+          )?.length > 0 ? (
+            <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
+              {item.assignedUsers
+                ?.filter(
+                  (d) =>
+                    d.user.userOrganisation[0].role ==
+                    UserRoleEnumValue.TEAM_MEMBER
+                )
+                .slice(0, 3)
+                .map((item, index) => {
+                  const zIndex = Math.abs(index - 2);
+                  return (
+                    <>
+                      <div key={index} style={{ zIndex: zIndex }}>
+                        <UserAvatar
+                          className={`shadow-sm h-7 w-7`}
+                          user={item.user}
+                        ></UserAvatar>
+                      </div>
+                    </>
+                  );
+                })}
+              {item.projectManagerInfo &&
+                item.assignedUsers.filter(
+                  (d) =>
+                    d.user.userOrganisation[0].role ==
+                    UserRoleEnumValue.TEAM_MEMBER
+                )?.length > 3 && (
+                  <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
+                    {`${
+                      item.assignedUsers.filter(
+                        (d) =>
+                          d.user.userOrganisation[0].role ==
+                          UserRoleEnumValue.TEAM_MEMBER
+                      )?.length - 3
+                    }+`}
+                  </div>
+                )}
+              {item.assignedUsers.filter(
+                (d) =>
+                  d.user.userOrganisation[0].role ==
+                  UserRoleEnumValue.TEAM_MEMBER
+              )?.length <= 0
+                ? "N/A"
+                : ""}
+            </div>
+          ) : (
+            "NA"
+          )}
+        </div>
+      ),
+    },
     {
       key: "startDate",
       header: "Start Date",
@@ -201,8 +311,9 @@ function TeamDashboard() {
       sorting: true,
       onCellRender: (item) => (
         <>
-          {item.estimatedEndDate ?
-            dateFormater(new Date(item.actualEndDate)):"N/A"}
+          {item.estimatedEndDate
+            ? dateFormater(new Date(item.actualEndDate))
+            : "N/A"}
         </>
       ),
     },
@@ -228,6 +339,20 @@ function TeamDashboard() {
       ),
     },
     {
+      key: "progressionPercentage",
+      header: "Progress",
+      sorting: true,
+      onCellRender: (item: Project) => (
+        <PercentageCircle
+          percentage={
+            item.progressionPercentage
+              ? Number(item.progressionPercentage) * 100
+              : 0
+          }
+        />
+      ),
+    },
+    {
       key: "actualDuration",
       header: "Actual Duration",
       sorting: true,
@@ -240,14 +365,14 @@ function TeamDashboard() {
   ];
   const getStatusColor = (status: string) => {
     switch (status) {
-    case ProjectStatusEnumValue.NOT_STARTED:
-      return "!bg-slate-500/60 text-white";
-    case ProjectStatusEnumValue.ON_HOLD:
-      return "!bg-orange-300 text-white";
-    case ProjectStatusEnumValue.ACTIVE:
-      return "!bg-emerald-500 text-white";
-    case ProjectStatusEnumValue.CLOSED:
-      return "!bg-red-500 text-white";
+      case ProjectStatusEnumValue.NOT_STARTED:
+        return "!bg-slate-500/60 text-white";
+      case ProjectStatusEnumValue.ON_HOLD:
+        return "!bg-orange-300 text-white";
+      case ProjectStatusEnumValue.ACTIVE:
+        return "!bg-emerald-500 text-white";
+      case ProjectStatusEnumValue.CLOSED:
+        return "!bg-red-500 text-white";
     }
   };
   const close = () => {
@@ -262,9 +387,11 @@ function TeamDashboard() {
     <>
       <div className="overflow-auto w-full py-2 px-2 lg:px-14 flex flex-col gap-10">
         <h2 className="font-medium text-3xl leading-normal text-gray-600">
-        Portfolio dashboard
+          Portfolio dashboard
         </h2>
-        <div className="text-xl font-bold text-gray-400  px-6">Project Status</div>
+        <div className="text-xl font-bold text-gray-400  px-6">
+          Project Status
+        </div>
         <div className="w-full h-fit flex flex-col lg:flex-row gap-10 items-center">
           <div className="tabs border-gray-300  w-full rounded-xl h-fit flex flex-col md:flex-row gap-5 items-center px-6 py-5 text-white flex-wrap justify-center">
             {data?.statusChartData?.labels.map((labelData, index) => (
@@ -275,13 +402,15 @@ function TeamDashboard() {
                     labelData === ProjectStatusEnumValue.ACTIVE
                       ? "text-[#F7B801]  border-2 border-[#F7B801]"
                       : labelData === ProjectStatusEnumValue.ON_HOLD
-                        ? "text-[#F18701] border-2 border-[#F18701]"
-                        : labelData === ProjectStatusEnumValue.NOT_STARTED
-                          ? "text-[#3D348B] border-2 border-[#3D348B]"
-                          : "text-[#7678ED] border-2 border-[#7678ED]"
+                      ? "text-[#F18701] border-2 border-[#F18701]"
+                      : labelData === ProjectStatusEnumValue.NOT_STARTED
+                      ? "text-[#3D348B] border-2 border-[#3D348B]"
+                      : "text-[#7678ED] border-2 border-[#7678ED]"
                   }`}
                 >
-                  <a className="text-base font-bold items-end">{formatStatus(labelData)}</a>
+                  <a className="text-base font-bold items-end">
+                    {formatStatus(labelData)}
+                  </a>
                   <a className="text-4xl lg:text-5xl font-semibold">
                     {data?.statusChartData?.data[index]}
                   </a>
@@ -294,8 +423,6 @@ function TeamDashboard() {
               </>
             ))}
           </div>
-
-     
         </div>
         <div className="text-xl font-bold text-gray-400  px-6">Charts</div>
         <div className=" w-full h-fit flex flex-col lg:flex-row justify-center items-center gap-6 py-2 ">
@@ -314,7 +441,7 @@ function TeamDashboard() {
           </div> */}
         </div>
         <div className="w-full flex flex-col md:flex-col gap-10 justify-center px-5 md:px-20 lg:px-0 self-center">
-          <div className="w-full lg:w-4/5 h-full self-center mb-10">
+          <div className="w-full lg:w-4/5 h-full self-center mb-10 ">
             {tableData && (
               <>
                 <Table

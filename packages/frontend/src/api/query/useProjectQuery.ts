@@ -37,6 +37,7 @@ export type Project = {
   createdByUser: CreatedByUser;
   currency: string;
   projectManagerInfo: { user: CreatedByUser }[];
+  projectManager: { user: CreatedByUser }[];
   scheduleTrend: keyof typeof ScheduleAndBudgetTrend;
   budgetTrend: keyof typeof ScheduleAndBudgetTrend;
   consumedBudget: string;

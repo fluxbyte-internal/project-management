@@ -11,11 +11,13 @@ import CreateUpdateProjectForm from "@/components/project/CreateProjectForm";
 // import HorizontalBarChart from "@/components/charts/HorizontalBarChart";
 import { Project } from "@/api/query/useProjectQuery";
 import LinkArrow from "@/assets/svg/linkArrow.svg";
-import { ProjectStatusEnumValue } from "@backend/src/schemas/enums";
+import { ProjectStatusEnumValue, UserRoleEnumValue } from "@backend/src/schemas/enums";
 import { toast } from "react-toastify";
 import { Tooltip, TooltipProvider } from "@radix-ui/react-tooltip";
 import { TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import InfoCircle from "@/assets/svg/Info circle.svg";
+import PercentageCircle from "@/components/shared/PercentageCircle";
+import UserAvatar from "@/components/ui/userAvatar";
 export interface ProjectType {
   projectId: string;
   organisationId: string;
@@ -214,6 +216,100 @@ function AdminDashboard() {
       ),
     },
     {
+      key: "createdByUser",
+      header: "Project Manager",
+      onCellRender: (item: Project) => (
+        <div className="w-full my-3">
+          {item.projectManagerInfo?.length > 0 ? (
+            <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
+              {item.projectManagerInfo?.slice(0, 3).map((item, index) => {
+                const zIndex = Math.abs(index - 2);
+                return (
+                  <>
+                    <div key={index} style={{ zIndex: zIndex }}>
+                      <UserAvatar
+                        className={`shadow-sm h-7 w-7`}
+                        user={item.user}
+                      ></UserAvatar>
+                    </div>
+                  </>
+                );
+              })}
+              {item.projectManagerInfo &&
+                item.projectManagerInfo?.length > 3 && (
+                  <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
+                    {`${item.projectManagerInfo?.length - 3}+`}
+                  </div>
+                )}
+              {item.projectManagerInfo?.length <= 0 ? "N/A" : ""}
+            </div>
+          ) : (
+            "NA"
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "createdByUser",
+      header: "Team Member",
+      onCellRender: (item: Project) => (
+        <div className="w-full my-3">
+          {item.assignedUsers.filter(
+            (d) =>
+              d.user.userOrganisation[0].role == UserRoleEnumValue.TEAM_MEMBER
+          )?.length > 0 ? (
+            <div className="w-24 grid grid-cols-[repeat(auto-fit,minmax(10px,max-content))] mr-2">
+              {item.assignedUsers
+                ?.filter(
+                  (d) =>
+                    d.user.userOrganisation[0].role ==
+                    UserRoleEnumValue.TEAM_MEMBER
+                )
+                .slice(0, 3)
+                .map((item, index) => {
+                  const zIndex = Math.abs(index - 2);
+                  return (
+                    <>
+                      <div key={index} style={{ zIndex: zIndex }}>
+                        <UserAvatar
+                          className={`shadow-sm h-7 w-7`}
+                          user={item.user}
+                        ></UserAvatar>
+                      </div>
+                    </>
+                  );
+                })}
+              {item.projectManagerInfo &&
+                item.assignedUsers.filter(
+                  (d) =>
+                    d.user.userOrganisation[0].role ==
+                    UserRoleEnumValue.TEAM_MEMBER
+                )?.length > 3 && (
+                  <div className="bg-gray-200/30 w-8  text-lg font-medium h-8 rounded-full flex justify-center items-center">
+                    {`${
+                      item.assignedUsers.filter(
+                        (d) =>
+                          d.user.userOrganisation[0].role ==
+                          UserRoleEnumValue.TEAM_MEMBER
+                      )?.length - 3
+                    }+`}
+                  </div>
+                )}
+              {item.assignedUsers.filter(
+                (d) =>
+                  d.user.userOrganisation[0].role ==
+                  UserRoleEnumValue.TEAM_MEMBER
+              )?.length <= 0
+                ? "N/A"
+                : ""}
+            </div>
+          ) : (
+            "NA"
+          )}
+        </div>
+      ),
+    },
+    {
       key: "startDate",
       header: "Start Date",
       sorting: true,
@@ -236,7 +332,9 @@ function AdminDashboard() {
       sorting: true,
       onCellRender: (item) => (
         <>
-          {item.estimatedEndDate && dateFormater(new Date(item.actualEndDate))}
+          {item.estimatedEndDate
+            ? dateFormater(new Date(item.actualEndDate))
+            : "N/A"}
         </>
       ),
     },
@@ -262,6 +360,20 @@ function AdminDashboard() {
       ),
     },
     {
+      key: "progressionPercentage",
+      header: "Progress",
+      sorting: true,
+      onCellRender: (item: Project) => (
+        <PercentageCircle
+          percentage={
+            item.progressionPercentage
+              ? Number(item.progressionPercentage) * 100
+              : 0
+          }
+        />
+      ),
+    },
+    {
       key: "actualDuration",
       header: "Actual Duration",
       sorting: true,
@@ -269,11 +381,6 @@ function AdminDashboard() {
     {
       key: "estimatedDuration",
       header: "Est. Duration",
-      sorting: true,
-    },
-    {
-      key: "estimatedBudget",
-      header: "Budget",
       sorting: true,
     },
   ];
@@ -358,8 +465,8 @@ function AdminDashboard() {
           </div> */}
         </div>
         <div className="w-full flex flex-col md:flex-col gap-10 justify-center px-5 md:px-20 lg:px-0 self-center">
-          <div className="w-full lg:w-4/5 self-center">
-            <Button variant={"primary"} onClick={() => setIsOpenPopUp(true)}>
+          <div className="w-full lg:w-4/5 self-center flex justify-end">
+            <Button className="" variant={"primary"} onClick={() => setIsOpenPopUp(true)}>
               Add Project
             </Button>
           </div>

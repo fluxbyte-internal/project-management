@@ -8,8 +8,9 @@ function Dashboard() {
 
   return(
     <>
-      {user?.userOrganisation[0]?.role === UserRoleEnumValue.ADMINISTRATOR ? (<> <AdminDashboard /></>) : 
-        (user?.userOrganisation[0]?.role === UserRoleEnumValue.PROJECT_MANAGER ? (<><ManagerDashboard/></>) : <><TeamDashboard/></>)}
+      {user?.userOrganisation[0]?.role === UserRoleEnumValue.ADMINISTRATOR && (<> <AdminDashboard /></>) }
+        {user?.userOrganisation[0]?.role === UserRoleEnumValue.PROJECT_MANAGER && (<><ManagerDashboard/></>)}
+        {user?.userOrganisation[0]?.role === UserRoleEnumValue.TEAM_MEMBER && (<><TeamDashboard/></>)}
         </>
   );
 }
